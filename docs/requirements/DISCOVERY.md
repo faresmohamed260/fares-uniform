@@ -116,7 +116,7 @@ These examples restate accepted behavior; schedule timing, short-notice orders, 
 
 ## Round 5 — client-confirmed, 2026-09-06
 
-- R-007: Initially record cash and InstaPay payments. Card and wallet methods are future additions. Payment recording does not imply an approved live payment integration or automatic InstaPay verification; confirmation/reconciliation flow remains open.
+- R-007: Initially record cash and InstaPay payments. Card and wallet methods are future additions. Payment recording does not imply an approved live payment integration or automatic InstaPay verification; staff confirm using bank mobile transaction notifications (round 7); recording/reconciliation details remain open.
 - R-008: Refunds and size exchanges are allowed. Partial preorder collection is allowed. Eligibility windows, refund amounts/methods, approval rules and returned-stock disposition remain to be specified.
 - R-009: The client delegates design of conventional roles and access permissions to the developer. The selected initial design is in [Roles and permissions](ROLES_AND_PERMISSIONS.md); it is a developer decision under delegated authority, not an assertion about actual staffing.
 - R-010: Hardware support must not hardcode scanner/printer brands. Specify capabilities and compatible interfaces instead; do not promise universal device compatibility. Actual device types and connectivity remain unknown.
@@ -130,7 +130,7 @@ This is customer-facing runtime behavior and does not relax the remote-only deve
 
 Developer-derived requirements for the architecture phase: durable device-side pending transactions, explicit sync status, retry-safe synchronization without duplicate sales/payments/stock movements, and recoverable conflicts. Server records remain authoritative after reconciliation. Do not promise live shared stock, immediate remote role revocation or online payment confirmation while disconnected.
 
-Open: number of simultaneous checkout devices, typical outage duration, cash versus InstaPay verification during outages, offline preorder/collection/refund scope, device enrollment/authentication expiry, locally retained data, price/stock conflict rules, and recovery from device loss. No storage library or synchronization architecture selected.
+Confirmed in round 7: one checkout device per store and outages lasting a few hours at most. Open: treatment of delayed/missing bank notifications during outages, offline preorder/collection/refund scope, device enrollment/authentication expiry, locally retained data, price/stock conflict rules, and recovery from device loss. No storage library or synchronization architecture selected.
 
 ### R-013 — Full payment before partial collection
 A customer collecting any part of a preorder must settle the entire remaining order balance, not merely pay for collected items. Uncollected items remain owed to that customer; payment completion must not mark all items collected.
@@ -140,11 +140,22 @@ Exceptions/manager overrides have not been requested. Business shipment settleme
 Do not show prices or stock availability in the public catalog. Private POS/staff views still need authorized commercial and stock data.
 Use a combination of website enquiry form, WhatsApp and phone for prospective clients. This authorizes planning these contact routes, not outbound messaging, WhatsApp API automation, or a paid integration. Contact details, form fields and enquiry handling remain to be defined.
 
-## Round 7 — awaiting client answers
+## Round 7 — client-confirmed, 2026-09-06
 
-1. How many checkout devices will operate at once, and roughly how long do internet outages last?
-2. How do staff confirm InstaPay payments today: on the business receiving account or from the customer's screen? During outages, can the receiving account still be checked through mobile data?
-3. How should customers learn that a preorder is ready: staff phone/WhatsApp contact or automatic notifications?
+- B-012: One checkout device per store. The current business has one store; do not infer additional existing stores.
+- B-013: Internet outages last a few hours at most. This is a current operating estimate, not permission to discard pending transactions after that time.
+- W-003: Staff receive mobile notifications from the bank for InstaPay transactions and use them for payment confirmation. The application does not automatically verify bank settlement. Whether notifications are SMS or app notifications, and what happens if one is delayed/missing, remain unspecified.
+- R-015: Customer readiness notifications are manual initially; automation is planned for future work. No automated sending or messaging integration is in initial scope.
+
+Developer implications: design initial offline POS for one active checkout per store, persist pending work across application restarts, and synchronize after connectivity returns. Other online stock changes may still conflict with an offline device; single-checkout operation does not eliminate reconciliation requirements.
+
+## Round 8 — awaiting client answers
+
+1. Roughly how many product designs, size/color variants and daily sales/orders are there during peak season? Estimates are sufficient.
+2. Which owner reports matter most (for example daily sales/payment totals, low stock, upcoming/overdue orders, customer balances)?
+3. Is there a target launch date and a monthly hosting/services budget?
+
+After these answers, consolidate a reviewable first-release scope and roadmap. Keep unresolved workflow rules explicit; do not treat preliminary scope review as Phase 0 completion.
 
 ## Follow-up discovery agenda
 

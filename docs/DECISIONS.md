@@ -69,7 +69,7 @@ Support English and Arabic, including interface/receipts and appropriate text di
 ## D-013 — Mandatory offline checkout
 Status: Accepted by client, 2026-09-06.
 
-POS checkout must continue during internet outages. This requires a deliberate offline transaction and synchronization design; it does not authorize local development. Offline scope beyond checkout, payment confirmation and device/concurrency limits remain open.
+POS checkout must continue during internet outages. This requires a deliberate offline transaction and synchronization design; it does not authorize local development. D-016 records the initial operating envelope and confirmation practice; offline scope beyond checkout and detailed reconciliation rules remain open.
 
 ## D-014 — Full balance before partial collection
 Status: Accepted by client, 2026-09-06.
@@ -80,3 +80,13 @@ Collect the entire remaining preorder balance before releasing even part of that
 Status: Accepted by client, 2026-09-06.
 
 Public catalog shows neither prices nor stock availability. Provide combined website-form, WhatsApp and phone enquiry routes. Automated messaging and third-party integrations are not implied.
+
+## D-016 — Checkout operating envelope and payment confirmation
+Status: Client-confirmed operating facts, 2026-09-06.
+
+One checkout device per store; current outages last a few hours at most. Staff use bank mobile transaction notifications for InstaPay confirmation. No automatic bank integration is selected. Missing-notification handling and synchronization conflicts remain to be specified.
+
+## D-017 — Manual readiness notifications initially
+Status: Accepted by client, 2026-09-06.
+
+Staff notify customers manually when orders are ready. Automated customer notifications are planned future work.
