@@ -14,7 +14,7 @@
 
 ## Current state — 2026-09-06
 
-**Phase 0 — Discovery: IN PROGRESS.**
+**Phase 0 — Discovery: IN PROGRESS. Phase 0A — Hosted Odoo proof: AUTHORIZED / IN PROGRESS.**
 
 The starting repository contained only README.md at commit 95631c568893c43fa4c3688e485c82d683afb5b7. The foundation change establishes instructions, documentation ownership, a decision log and discovery contract.
 
@@ -36,7 +36,7 @@ Items 2–4 are provisional direction, not approved implementation contracts.
 ## Next session / next actions
 
 1. Read AGENTS.md and indexed documentation, including MVP_SCOPE.md.
-2. Documentation/source Odoo assessment is complete: read docs/architecture/PLATFORM_EVALUATION.md. Candidate is Community operational core/customized native POS plus bespoke public website; not adopted or runtime-verified. Prepare the bounded hosted proof-of-fit contract before implementation.
+2. Documentation/source Odoo assessment is complete: read docs/architecture/PLATFORM_EVALUATION.md. Candidate is Community operational core/customized native POS plus bespoke public website; not adopted or runtime-verified. Client authorized the hosted proof; follow docs/phases/PHASE_0A_ODOO_PROOF.md.
 3. Resolve architecture-critical workflow details listed in the proposal, using developer proposals for routine design choices.
 4. Prepare and commit the immediate next-phase contract before implementation.
 5. Keep Phase 0 open until its exit criteria are met.

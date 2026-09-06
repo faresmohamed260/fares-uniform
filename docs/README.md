@@ -15,3 +15,5 @@ Read these documents from GitHub at the beginning of work. Add new documents her
 Process reference: [RenderLab AGENTS.md](https://github.com/faresmohamed260/renderlab/blob/main/AGENTS.md), consulted during project initiation on 2026-09-06 (observed file blob a8fed7b82e2f0968125f32982613b62e5ae10f54). Adopted principles are written into this repository; future RenderLab changes do not silently change this project's rules.
 
 - [Platform evaluation and UI direction](architecture/PLATFORM_EVALUATION.md): completed documentation/source fit assessment, requirement matrix, architecture recommendation, sources and proof-of-fit gates.
+
+- [Phase 0A hosted proof contract](phases/PHASE_0A_ODOO_PROOF.md): authorized synthetic Odoo runtime and visual spike.
