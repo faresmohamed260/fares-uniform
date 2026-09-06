@@ -2,6 +2,7 @@ name: Odoo Community proof
 on:
   push:
     branches: ["proof/odoo-community"]
+    paths-ignore: ["docs/**", "PROJECT.md", "proof/README.md"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -52,7 +53,7 @@ jobs:
           CHROME_BIN: /usr/bin/google-chrome
         run: |
           set -o pipefail
-          python upstream/odoo-bin --addons-path=upstream/addons,proof/addons --db_host=127.0.0.1 --db_user=odoo --db_password=proof-only -d fares_proof -i fu_proof,pos_sale,l10n_us --test-enable --test-tags='/fu_proof,/point_of_sale:TestUi.test_01_pos_basic_order,/point_of_sale:TestUi.test_sync_from_ui_one_by_one,/point_of_sale:TestUi.test_product_screen_tour,/pos_sale:TestPoSSale.test_so_with_downpayment' --stop-after-init --http-interface=127.0.0.1 --screenshots=evidence/screenshots 2>&1 | tee evidence/odoo.log
+          python upstream/odoo-bin --addons-path=upstream/addons,proof/addons --db_host=127.0.0.1 --db_user=odoo --db_password=proof-only -d fares_proof -i fu_proof,pos_sale,l10n_us --test-enable --test-tags='/fu_proof,/point_of_sale:TestUi.test_01_pos_basic_order,/point_of_sale:TestUi.test_sync_from_ui_one_by_one,/point_of_sale:TestUi.test_product_screen_tour,/pos_sale:TestPoSSale.test_so_with_downpayment,/pos_sale:TestPoSSale.test_settle_so_with_pos_downpayment' --stop-after-init --http-interface=127.0.0.1 --screenshots=evidence/screenshots 2>&1 | tee evidence/odoo.log
       - name: Summarize exact-run evidence
         if: always()
         run: |

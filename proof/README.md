@@ -9,3 +9,5 @@ Threshold 5 or 10 in tests is synthetic, not a chosen factory setting. No extern
 Initial execution stage: install and bounded backend/native tours. Offline browser and premium visual checkpoints remain pending until recorded in docs/validation/ODOO_PROOF.md.
 
 Hosted baseline passed seven tests. Current extension adds paid API-offline reload/reconnect and a native POS styling/screenshot experiment. Read [evidence and limitations](../docs/validation/ODOO_PROOF.md) before interpreting results. No full UI or offline acceptance is claimed.
+
+The visual extension captures native POS and task screens in English/Arabic at desktop and 390×844, checking RTL, task advancement and reduced POS motion. Synthetic screenshot previews are emitted to Actions logs for remote-only review. Full-resolution images remain workflow artifacts. Browser testing uses Odoo's hosted Chrome harness; no local browser session is used.

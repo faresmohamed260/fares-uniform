@@ -8,10 +8,11 @@ import * as Offline from "@point_of_sale/../tests/generic_helpers/offline_util";
 import { refresh } from "@point_of_sale/../tests/generic_helpers/utils";
 import { registry } from "@web/core/registry";
 
-registry.category("web_tour.tours").add("fu_offline_checkout", {
+for (const method of ["Bank", "Cash"]) {
+registry.category("web_tour.tours").add("fu_offline_checkout_" + method, {
     steps: () => [
         Chrome.startPoS(),
-        Dialog.confirm("Open Register"),
+        Dialog.confirm(),
         Offline.setOfflineMode(),
         ProductScreen.clickDisplayedProduct("Desk Pad"),
         {
@@ -21,7 +22,7 @@ registry.category("web_tour.tours").add("fu_offline_checkout", {
             },
         },
         ProductScreen.clickPayButton(),
-        PaymentScreen.clickPaymentMethod("Bank"),
+        PaymentScreen.clickPaymentMethod(method),
         PaymentScreen.clickValidate(),
         ReceiptScreen.isShown(),
         refresh(),
@@ -49,10 +50,12 @@ registry.category("web_tour.tours").add("fu_offline_checkout", {
     ].flat(),
 });
 
+}
+
 registry.category("web_tour.tours").add("fu_pos_visual", {
     steps: () => [
         Chrome.startPoS(),
-        Dialog.confirm("Open Register"),
+        Dialog.confirm(),
         ProductScreen.clickDisplayedProduct("Desk Pad"),
         {
             trigger: ".product-screen",
