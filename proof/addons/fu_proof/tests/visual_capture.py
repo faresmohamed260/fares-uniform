@@ -10,11 +10,11 @@ def capture_views(prefix, rtl=False, pos=False):
     def capture(browser, *args, **kwargs):
         result = original(browser, *args, **kwargs)
         if rtl:
-            direction = browser._websocket_request("Runtime.evaluate", params={
-                "expression": "getComputedStyle(document.body).direction",
+            is_rtl = browser._websocket_request("Runtime.evaluate", params={
+                "expression": "document.body.classList.contains('o_rtl')",
             })["result"].get("value")
-            if direction != "rtl":
-                raise AssertionError("Arabic page did not render RTL")
+            if not is_rtl:
+                raise AssertionError("Arabic page did not render Odoo RTL mode")
         browser.take_screenshot(prefix=prefix + "_desktop_").result(timeout=15)
         browser._websocket_request("Emulation.setDeviceMetricsOverride", params={
             "width": 390, "height": 844, "deviceScaleFactor": 1, "mobile": True,
