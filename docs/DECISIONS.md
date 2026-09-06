@@ -32,9 +32,21 @@ Status: Accepted by client, 2026-09-06.
 
 Initial inventory tracks finished clothes. Initial production tracking uses In production, Finished and Ready for collection. Material and work-in-progress stock accounting are outside the initial inventory boundary.
 
-Automatic triggering with a user-tunable preset is requested. Exact threshold, grouping, deadline override, authorization and task/status behavior require clarification before implementation; no defaults have been accepted.
+Automatic triggering with a user-tunable preset is requested. D-008 clarifies grouping, deadline default and task/status behavior. Quantity threshold default and authorization remain open.
 
 ## D-007 — Large-client payment workflow clarification
 Status: Client clarification, 2026-09-06.
 
 The described large-client process takes a deposit after sample approval, starts production against a delivery date, then ships and collects the remaining payment. D-005's upfront-payment preference must not be interpreted as mandatory full prepayment. Exact balance timing and payment percentages remain open.
+
+## D-008 — Size-specific tasks and pickup lead time
+Status: Accepted by client, 2026-09-06.
+
+Aggregate demand separately per item size. Automatically create a production task when the configured quantity threshold is reached or the pickup date is seven days away, with the seven-day lead time configurable. Staff mark In production when work begins. Finished means factory completion; Ready for collection means received at the store.
+
+The quantity threshold remains configurable but has no accepted initial value. Color/design grouping details, scheduling semantics, permissions and partial completion are still open.
+
+## D-009 — Introduce product identification
+Status: Accepted need, 2026-09-06.
+
+The business currently has no item codes/barcodes and identifies products manually. Introduce product codes/barcodes as part of the system. Exact formats, variant model and hardware remain undecided.

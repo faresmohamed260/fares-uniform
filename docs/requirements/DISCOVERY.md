@@ -50,7 +50,7 @@ Source: client discovery round 2, 2026-09-06.
 5. The factory collects and sorts orders.
 6. An item enters production when orders for it accumulate, or when the pickup date is close.
 
-Round 3 requests automatic production triggering using a user-tunable preset. Numeric values, aggregation scope, deadline window and the distinction between a queued production task and actual physical production start remain open.
+Rounds 3–4 request user-tunable automatic task creation per item size, with a configurable seven-day pickup-date override; staff mark actual production start. See R-005 and round 4. The quantity threshold remains unspecified.
 
 Open: receipt identifiers and customer/contact data; product/variant grouping; who sets pickup dates and starts production; quantities; stock reservations; partially available orders; production stages; allocation of completed units to receipts; transfer to store; readiness notification; balance collection; partial pickup; cancellations/returns.
 
@@ -73,9 +73,9 @@ Track finished clothes initially. Raw materials, trims and work-in-progress inve
 ### R-005 — Production automation and initial statuses
 The client requests automatic triggering using a preset value that users can tune. Initial tracked statuses: **In production**, **Finished**, **Ready for collection**.
 
-The trigger request is recorded as desired system behavior; the existing paper process remains described in W-001. Open: threshold units (pieces versus orders), grouping by item/size/color, global versus per-item configuration, pickup-date override/lead time, configuration permissions, repeated-run duplicate prevention and manual overrides. Also clarify whether automation creates a production task or marks work as physically started. Default values have not been selected.
+The trigger request is desired system behavior; the existing paper process remains described in W-001. Round 4 confirms counting pieces per item size separately, a configurable seven-day pickup lead time and automatic task creation rather than marking physical work started. Open: quantity threshold default, color/design separation, global versus per-item configuration, configuration permissions, repeated-run duplicate prevention, manual overrides and treatment of short-notice/overdue orders.
 
-The distinction between Finished and Ready for collection, the actor recording each transition, and how partial completion works remain open. Pre-production and post-collection states have not been specified. Do not apply the retail collection terminology to business shipments without defining that workflow.
+Round 4 confirms Finished means completed at the factory and Ready for collection means received at the store. Staff mark In production when work starts. Specific roles for transitions and partial completion remain open. Pre-production and post-collection states have not been specified. Do not apply the retail collection terminology to business shipments without defining that workflow.
 
 ### W-002 — Large-client order
 Status: current practice client-confirmed at a high level.
@@ -92,11 +92,33 @@ The final payment's precise timing relative to shipment/delivery is unconfirmed.
 
 Open: inquiry channels/ownership, quotation and pricing, sizes/quantities, sample revisions and approval evidence, contract contents/signing, deposit rules, delivery scheduling, partial shipments, final payment timing, order changes and cancellation.
 
-## Round 4 — awaiting client answers
+## Round 4 — client-confirmed, 2026-09-06
 
-1. Clarify the automatic trigger: should a piece threshold group an item across sizes, or apply separately to each size/color? What lead time before pickup should override the threshold? Does triggering create a factory task or set In production immediately?
-2. Does Finished mean factory work is complete and Ready for collection mean the garments have reached the store? Who marks these transitions?
-3. Are finished garments identified by product/design, school or client where applicable, size and color? Are there existing item codes/barcodes or size conventions?
+### Production rule clarification
+- Aggregate the piece threshold separately for each size of an item, not across sizes.
+- Trigger even below the quantity threshold seven days before pickup; this lead time must be user-configurable.
+- Automatically create a production task; staff mark **In production** when work actually begins.
+- **Finished** means completed at the factory.
+- **Ready for collection** means received at the retail store.
+- The quantity threshold is also user-tunable under the earlier requirement, but its starting value has not been selected.
+
+### R-006 — Product identification
+There are currently no item codes or barcodes; staff identify products manually. The client confirms establishing product codes/barcodes is needed.
+Code format, barcode symbology, label printing, scanner hardware, product/variant attributes and size conventions remain to be designed or clarified. Do not infer an external retail barcode registration requirement.
+
+### Proposed acceptance examples — pending detailed phase contract
+- Demand in different sizes does not combine to satisfy one size's threshold.
+- Demand below the quantity threshold can produce a task at the configured pickup lead time (initial default: seven days).
+- Creating a task does not itself mark work In production.
+- Factory completion and store readiness remain distinct.
+
+These examples restate accepted behavior; schedule timing, short-notice orders, duplicate prevention, allocation and authorization still need specifications.
+
+## Round 5 — awaiting client answers
+
+1. Which payment methods should POS record, and are exchanges/returns allowed? Clarify preorder balances and partial collection.
+2. Which staff will use the system at the store, factory and storage location, and who should control prices, refunds and production settings?
+3. What devices, printers/scanners and internet connection are available? Which interface and receipt languages are needed?
 
 ## Follow-up discovery agenda
 
