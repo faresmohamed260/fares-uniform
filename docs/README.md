@@ -1,0 +1,13 @@
+# Documentation index
+
+| Document | Owns |
+| --- | --- |
+| [AGENTS.md](../AGENTS.md) | Mandatory work, continuity and validation rules |
+| [PROJECT.md](../PROJECT.md) | Current state, roadmap and session handoff |
+| [Decision log](DECISIONS.md) | Accepted decisions and their rationale |
+| [Discovery](requirements/DISCOVERY.md) | Confirmed business requirements and open questions |
+| [Phase 0](phases/PHASE_0_DISCOVERY.md) | Immediate discovery scope and exit criteria |
+
+Read these documents from GitHub at the beginning of work. Add new documents here when needed, with a clear ownership boundary.
+
+Process reference: [RenderLab AGENTS.md](https://github.com/faresmohamed260/renderlab/blob/main/AGENTS.md), consulted during project initiation on 2026-09-06 (observed file blob a8fed7b82e2f0968125f32982613b62e5ae10f54). Adopted principles are written into this repository; future RenderLab changes do not silently change this project's rules.
