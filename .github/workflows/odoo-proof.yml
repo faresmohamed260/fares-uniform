@@ -1,0 +1,66 @@
+name: Odoo Community proof
+on:
+  push:
+    branches: ["proof/odoo-community"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: odoo-proof-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: proof-only
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U odoo"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      PGPASSWORD: proof-only
+      ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: odoo/odoo
+          ref: ${{ env.ODOO_SHA }}
+          path: upstream
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev zlib1g-dev
+          python -m pip install -r upstream/requirements.txt
+          python -m pip install websocket-client
+          mkdir -p evidence
+          python --version > evidence/runtime.txt
+          google-chrome --version >> evidence/runtime.txt
+          git -C upstream rev-parse HEAD >> evidence/runtime.txt
+      - name: Community installation and bounded tests
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin --addons-path=upstream/addons,proof/addons --db_host=127.0.0.1 --db_user=odoo --db_password=proof-only -d fares_proof -i fu_proof,pos_sale,l10n_us --test-enable --test-tags='/fu_proof,/point_of_sale:TestUi.test_01_pos_basic_order,/point_of_sale:TestUi.test_sync_from_ui_one_by_one,/pos_sale:TestPoSSale.test_so_with_downpayment' --stop-after-init --http-interface=127.0.0.1 --screenshots=evidence/screenshots 2>&1 | tee evidence/odoo.log
+      - name: Summarize exact-run evidence
+        if: always()
+        run: |
+          python proof/scripts/summarize.py
+          cat evidence/summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: odoo-proof-${{ github.sha }}
+          path: evidence/
+          retention-days: 7
