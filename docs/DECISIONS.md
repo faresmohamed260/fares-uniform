@@ -26,3 +26,15 @@ Status: Accepted by client, 2026-09-06.
 Within marketing/exposure, prioritize attracting large clients such as international schools and franchise restaurants ordering shipments under contracts with upfront payment. Catalog browsing is second. Other discussed marketing outcomes, including online purchasing and store discovery, are lower-priority future work.
 
 This does not place marketing above operational inventory/order tracking or POS, mandate all business clients pay upfront, or approve a particular website/CRM implementation. Detailed requirements remain in docs/requirements/DISCOVERY.md.
+
+## D-006 — Finished-garment inventory and simple production tracking
+Status: Accepted by client, 2026-09-06.
+
+Initial inventory tracks finished clothes. Initial production tracking uses In production, Finished and Ready for collection. Material and work-in-progress stock accounting are outside the initial inventory boundary.
+
+Automatic triggering with a user-tunable preset is requested. Exact threshold, grouping, deadline override, authorization and task/status behavior require clarification before implementation; no defaults have been accepted.
+
+## D-007 — Large-client payment workflow clarification
+Status: Client clarification, 2026-09-06.
+
+The described large-client process takes a deposit after sample approval, starts production against a delivery date, then ships and collects the remaining payment. D-005's upfront-payment preference must not be interpreted as mandatory full prepayment. Exact balance timing and payment percentages remain open.

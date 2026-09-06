@@ -16,7 +16,7 @@ Status: In progress. Initial business model and priority areas are client-confir
 | --- | --- |
 | B-004 | Manufactures uniforms for schools, restaurants, cafes, hotels, hospitals and other sectors. |
 | B-005 | Also manufactures men's and women's casual wear. |
-| B-006 | Uses both manufacture-to-order and manufacture-for-stock models. Details of manufacture-to-order are still open. |
+| B-006 | Uses both manufacture-to-order and manufacture-for-stock models. Large-client workflow is described in W-002 below. |
 | B-007 | Some business clients, for example restaurants, buy available stock. Do not assume every business order is custom manufacturing. |
 | B-008 | Has one retail store serving individual customers and one storage location (count clarified in round 2). |
 | B-009 | School uniforms are manufactured for stock and sold through the retail store; preorders are taken when stock runs out. |
@@ -50,11 +50,11 @@ Source: client discovery round 2, 2026-09-06.
 5. The factory collects and sorts orders.
 6. An item enters production when orders for it accumulate, or when the pickup date is close.
 
-No numeric batch threshold or deadline window has been specified. Do not turn current human judgement into automatic production dispatch by inference.
+Round 3 requests automatic production triggering using a user-tunable preset. Numeric values, aggregation scope, deadline window and the distinction between a queued production task and actual physical production start remain open.
 
 Open: receipt identifiers and customer/contact data; product/variant grouping; who sets pickup dates and starts production; quantities; stock reservations; partially available orders; production stages; allocation of completed units to receipts; transfer to store; readiness notification; balance collection; partial pickup; cancellations/returns.
 
-Candidate system implications (developer analysis, not approved specifications): preserve individual customer orders and payment balances while aggregating outstanding item demand for production planning; retain promised pickup dates when batching demand. Acceptance criteria and automation level remain to be agreed.
+Candidate system implications (developer analysis, not approved specifications): preserve individual customer orders and payment balances while aggregating outstanding item demand for production planning; retain promised pickup dates when batching demand. Automation is requested in round 3; its precise behavior and acceptance criteria remain to be agreed.
 
 ### Marketing/exposure priorities
 
@@ -65,11 +65,38 @@ Client-confirmed ranking within marketing/exposure:
 
 This ranking is within marketing/exposure; it does not rank marketing above inventory/order tracking or POS. Upfront payment describes the priority target client profile, not a universal rule for every business customer. Website features, inquiry handling, contract management and public pricing remain undecided.
 
-## Round 3 — awaiting client answers
+## Round 3 — client-confirmed, 2026-09-06
 
-1. Should inventory initially cover finished garments only, or also fabric, trims/accessories and work in progress?
-2. Who groups preorders and decides when production starts, and which production stages need tracking?
-3. Walk through a typical large-client order from first contact to shipment: specifications/samples, quotation, contract, payment and delivery arrangements.
+### R-004 — Initial inventory boundary
+Track finished clothes initially. Raw materials, trims and work-in-progress inventory are outside this initial inventory scope. Tracking an order's production status remains in scope; it does not imply material inventory or detailed manufacturing accounting.
+
+### R-005 — Production automation and initial statuses
+The client requests automatic triggering using a preset value that users can tune. Initial tracked statuses: **In production**, **Finished**, **Ready for collection**.
+
+The trigger request is recorded as desired system behavior; the existing paper process remains described in W-001. Open: threshold units (pieces versus orders), grouping by item/size/color, global versus per-item configuration, pickup-date override/lead time, configuration permissions, repeated-run duplicate prevention and manual overrides. Also clarify whether automation creates a production task or marks work as physically started. Default values have not been selected.
+
+The distinction between Finished and Ready for collection, the actor recording each transition, and how partial completion works remain open. Pre-production and post-collection states have not been specified. Do not apply the retail collection terminology to business shipments without defining that workflow.
+
+### W-002 — Large-client order
+Status: current practice client-confirmed at a high level.
+Source: client discovery round 3, 2026-09-06.
+
+1. Client contacts the business.
+2. A meeting gathers design details.
+3. The factory makes and sends samples.
+4. If samples are approved, a deposit is collected.
+5. Production starts with a delivery date.
+6. Goods are shipped and the remaining payment is collected.
+
+The final payment's precise timing relative to shipment/delivery is unconfirmed. This clarifies that the described workflow uses a deposit and remaining balance, not necessarily full payment upfront. The marketing preference for contracted large clients remains; do not encode full prepayment as a universal requirement.
+
+Open: inquiry channels/ownership, quotation and pricing, sizes/quantities, sample revisions and approval evidence, contract contents/signing, deposit rules, delivery scheduling, partial shipments, final payment timing, order changes and cancellation.
+
+## Round 4 — awaiting client answers
+
+1. Clarify the automatic trigger: should a piece threshold group an item across sizes, or apply separately to each size/color? What lead time before pickup should override the threshold? Does triggering create a factory task or set In production immediately?
+2. Does Finished mean factory work is complete and Ready for collection mean the garments have reached the store? Who marks these transitions?
+3. Are finished garments identified by product/design, school or client where applicable, size and color? Are there existing item codes/barcodes or size conventions?
 
 ## Follow-up discovery agenda
 
