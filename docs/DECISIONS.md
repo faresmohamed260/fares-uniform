@@ -19,3 +19,10 @@ Vercel is the initial deployment target; Supabase and Cloudflare are available. 
 Status: Accepted by client, 2026-09-06.
 
 The assistant acts as developer and gathers information from Fares as client to make the ERP suitable to the factory. Plan and document work in the repository. Use RenderLab's work/documentation instructions as the initial process reference, with this project's explicit remote-only and repository-only rules taking precedence.
+
+## D-005 — Marketing/exposure priorities
+Status: Accepted by client, 2026-09-06.
+
+Within marketing/exposure, prioritize attracting large clients such as international schools and franchise restaurants ordering shipments under contracts with upfront payment. Catalog browsing is second. Other discussed marketing outcomes, including online purchasing and store discovery, are lower-priority future work.
+
+This does not place marketing above operational inventory/order tracking or POS, mandate all business clients pay upfront, or approve a particular website/CRM implementation. Detailed requirements remain in docs/requirements/DISCOVERY.md.

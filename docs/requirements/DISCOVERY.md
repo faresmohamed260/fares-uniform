@@ -18,7 +18,7 @@ Status: In progress. Initial business model and priority areas are client-confir
 | B-005 | Also manufactures men's and women's casual wear. |
 | B-006 | Uses both manufacture-to-order and manufacture-for-stock models. Details of manufacture-to-order are still open. |
 | B-007 | Some business clients, for example restaurants, buy available stock. Do not assume every business order is custom manufacturing. |
-| B-008 | Has retail outlets serving individual customers. Exact outlet count and stock locations are unconfirmed. |
+| B-008 | Has one retail store serving individual customers and one storage location (count clarified in round 2). |
 | B-009 | School uniforms are manufactured for stock and sold through the retail store; preorders are taken when stock runs out. |
 
 Source for B-004–B-009: client's discovery round 1 answers. Legal entity details and location remain unconfirmed.
@@ -31,20 +31,45 @@ Source for B-004–B-009: client's discovery round 1 answers. Legal entity detai
 | R-002 | Point of sale | Checkout, payments, receipts, returns, hardware, users and connectivity |
 | R-003 | Marketing and exposure | Target audiences, acquisition goals, current channels and desired public-facing experience |
 
-These are confirmed needs, not approved feature specifications or a committed release order. Marketing/exposure must be explored explicitly; a website, online store, CRM, campaigns and integrations are not yet selected.
+These are confirmed needs, not approved feature specifications or a committed release order. Marketing/exposure ranking is clarified below; a website implementation, CRM, campaigns and integrations are not yet selected. Online purchasing is lower-priority future work.
 
-### School-uniform stockout workflow — partially confirmed
+## Round 2 — client-confirmed, 2026-09-06
 
-- Customer/channel: individual retail customer buying school uniforms.
-- Current practice: sell manufactured stock; take a preorder when stock runs out.
-- Open details: product/size identification, stock checks across locations, preorder record, deposit/payment, promised date, production trigger, reservation/allocation, notification, collection/delivery, cancellation and refund handling.
-- Responsible staff, system behavior and acceptance criteria: not yet established.
+- B-010: One retail store and one storage location. Their relationship to the factory and whether factory work-in-progress needs separate location tracking remain open.
+- B-011: Current stock, sales and order records are on paper.
 
-## Round 2 — awaiting client answers
+### W-001 — School-uniform preorder to production
 
-1. How many retail stores and stock/storage locations are there, and how are stock, sales and orders recorded today?
-2. Walk through a school-uniform preorder when the requested item or size is unavailable: recording, deposit, factory communication, completion and customer collection.
-3. What does marketing/exposure mean first: helping customers discover the business and browse products, selling online, attracting business/bulk enquiries, or another outcome? Examples are discussion prompts, not exclusive options.
+Status: current practice client-confirmed through production entry; completion/collection details remain open.
+Source: client discovery round 2, 2026-09-06.
+
+1. When the requested school-uniform item is unavailable, staff write a paper receipt with items, sizes and details.
+2. The customer pays the full price or sometimes a deposit.
+3. The receipt specifies a pickup date.
+4. A retained copy is sent to the factory.
+5. The factory collects and sorts orders.
+6. An item enters production when orders for it accumulate, or when the pickup date is close.
+
+No numeric batch threshold or deadline window has been specified. Do not turn current human judgement into automatic production dispatch by inference.
+
+Open: receipt identifiers and customer/contact data; product/variant grouping; who sets pickup dates and starts production; quantities; stock reservations; partially available orders; production stages; allocation of completed units to receipts; transfer to store; readiness notification; balance collection; partial pickup; cancellations/returns.
+
+Candidate system implications (developer analysis, not approved specifications): preserve individual customer orders and payment balances while aggregating outstanding item demand for production planning; retain promised pickup dates when batching demand. Acceptance criteria and automation level remain to be agreed.
+
+### Marketing/exposure priorities
+
+Client-confirmed ranking within marketing/exposure:
+1. Highest: attract large clients such as international schools and franchise restaurants that order shipments under contracts and pay upfront.
+2. Second: customers browsing the product catalog.
+3. Lower priority / future work: other discussed exposure outcomes, including online purchasing and store discovery.
+
+This ranking is within marketing/exposure; it does not rank marketing above inventory/order tracking or POS. Upfront payment describes the priority target client profile, not a universal rule for every business customer. Website features, inquiry handling, contract management and public pricing remain undecided.
+
+## Round 3 — awaiting client answers
+
+1. Should inventory initially cover finished garments only, or also fabric, trims/accessories and work in progress?
+2. Who groups preorders and decides when production starts, and which production stages need tracking?
+3. Walk through a typical large-client order from first contact to shipment: specifications/samples, quotation, contract, payment and delivery arrangements.
 
 ## Follow-up discovery agenda
 
