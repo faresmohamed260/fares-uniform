@@ -90,3 +90,13 @@ One checkout device per store; current outages last a few hours at most. Staff u
 Status: Accepted by client, 2026-09-06.
 
 Staff notify customers manually when orders are ready. Automated customer notifications are planned future work.
+
+## D-018 — Operational reports now, advanced analytics later
+Status: Accepted by client, 2026-09-06.
+
+MVP includes daily sales, cash/InstaPay totals, low stock, upcoming/overdue orders and customer balances. Decision-making analytics is a future feature. Exact report formulas and filters remain design work.
+
+## D-019 — Unknown volumes and deferred budget/timing
+Status: Client-confirmed, 2026-09-06.
+
+The business is small; numeric volumes are unavailable. No launch date or monthly service budget is set; determine them before deployment. Continue planning without invented estimates or spending authorization.

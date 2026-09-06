@@ -6,6 +6,7 @@
 | [PROJECT.md](../PROJECT.md) | Current state, roadmap and session handoff |
 | [Decision log](DECISIONS.md) | Accepted decisions and their rationale |
 | [Discovery](requirements/DISCOVERY.md) | Confirmed business requirements and open questions |
+| [First-release proposal](requirements/MVP_SCOPE.md) | Draft MVP boundary, acceptance scenarios, delivery order and remaining decisions |
 | [Roles and permissions](requirements/ROLES_AND_PERMISSIONS.md) | Developer-selected role and access design under client delegation |
 | [Phase 0](phases/PHASE_0_DISCOVERY.md) | Immediate discovery scope and exit criteria |
 

@@ -149,13 +149,17 @@ Use a combination of website enquiry form, WhatsApp and phone for prospective cl
 
 Developer implications: design initial offline POS for one active checkout per store, persist pending work across application restarts, and synchronize after connectivity returns. Other online stock changes may still conflict with an offline device; single-checkout operation does not eliminate reconciliation requirements.
 
-## Round 8 — awaiting client answers
+## Round 8 — client-confirmed, 2026-09-06
 
-1. Roughly how many product designs, size/color variants and daily sales/orders are there during peak season? Estimates are sufficient.
-2. Which owner reports matter most (for example daily sales/payment totals, low stock, upcoming/overdue orders, customer balances)?
-3. Is there a target launch date and a monthly hosting/services budget?
+- B-014: The client describes a small business, not a large enterprise. Product and transaction counts are unavailable. Do not invent measured volumes or infer a hosting tier from this description.
+- R-016: MVP reports include daily sales, cash/InstaPay totals, low stock, upcoming/overdue orders and customer balances.
+- R-017: Decision-making data analytics is wanted as a future feature, not a core MVP feature. Basic operational reporting remains in MVP.
+- C-001: No target launch date or monthly services budget is fixed. The client will determine these before deployment. Do not block requirements/design on missing estimates or authorize spending by inference.
 
-After these answers, consolidate a reviewable first-release scope and roadmap. Keep unresolved workflow rules explicit; do not treat preliminary scope review as Phase 0 completion.
+## Discovery consolidation
+
+A [first-release proposal](MVP_SCOPE.md) consolidates the confirmed needs and explicitly identifies developer proposals and remaining decisions. Status: awaiting client review of the release boundary; Phase 0 is not complete.
+Next: review this concrete scope, then resolve only the workflow/architecture questions needed for the immediate next phase. Avoid repeating answered questions or demanding unavailable volume/budget estimates.
 
 ## Follow-up discovery agenda
 
