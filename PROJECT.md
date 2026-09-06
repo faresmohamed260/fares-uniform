@@ -18,7 +18,7 @@
 
 The starting repository contained only README.md at commit 95631c568893c43fa4c3688e485c82d683afb5b7. The foundation change establishes instructions, documentation ownership, a decision log and discovery contract.
 
-Application code, schema, UI, test workflows and deployments have not been created by this project work. Existing external infrastructure has not been audited. Factory workflows, users and initial release scope have not yet been established.
+Application code, schema, UI, test workflows and deployments have not been created by this project work. Existing external infrastructure has not been audited. Discovery round 1 is recorded in docs/requirements/DISCOVERY.md: uniform sectors and casual wear, manufacture-to-order and stock production, business stock sales, individual retail sales and school-uniform stockout preorders. Priority areas are inventory/order tracking, POS and marketing/exposure. Detailed workflows, users and initial release scope remain open.
 
 ## Roadmap
 
@@ -32,14 +32,14 @@ Items 2–4 are provisional direction, not approved implementation contracts.
 ## Next session / next actions
 
 1. Read AGENTS.md and the current indexed docs.
-2. Gather discovery round 1: products/customers, production model and biggest operational problems.
-3. Record the client's answers in docs/requirements/DISCOVERY.md, preserving uncertainty.
-4. Follow up on one representative order from request to payment, including exceptions and current records.
+2. Gather discovery round 2: stock/store locations and current records, school-uniform preorder lifecycle, and the intended marketing/exposure outcome.
+3. Record answers in docs/requirements/DISCOVERY.md; resolve workflow details progressively.
+4. Then examine ordinary stock checkout and business/customer manufacturing orders, including exceptions.
 5. Continue discovery before proposing the first release boundary.
 
 ## Current blockers / unknowns
 
-Awaiting business discovery answers. No technical blocker to continuing discovery. Deployment configuration, service resource selection, user roles, language, devices, scale and budget remain unconfirmed.
+Awaiting discovery round 2 answers. No technical blocker to continuing discovery. Deployment configuration, service resource selection, user roles, language, devices, scale and budget remain unconfirmed.
 
 ## Evidence policy
 

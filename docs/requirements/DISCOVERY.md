@@ -1,6 +1,6 @@
 # Business discovery
 
-Status: In progress. No ERP module or workflow has been approved yet.
+Status: In progress. Initial business model and priority areas are client-confirmed; detailed workflows and release scope remain open.
 
 ## Confirmed facts
 
@@ -10,13 +10,41 @@ Status: In progress. No ERP module or workflow has been approved yet.
 | B-002 | The requested product is an ERP tailored to this business. | Client project brief, 2026-09-06 |
 | B-003 | The project is named Fares Uniform. | Client naming instruction, 2026-09-06 |
 
-Do not infer legal entity name, product categories, customer types, size or location from the project name or other conversations.
+## Round 1 — client-confirmed, 2026-09-06
 
-## Round 1 — awaiting client answers
+| ID | Confirmed current business fact |
+| --- | --- |
+| B-004 | Manufactures uniforms for schools, restaurants, cafes, hotels, hospitals and other sectors. |
+| B-005 | Also manufactures men's and women's casual wear. |
+| B-006 | Uses both manufacture-to-order and manufacture-for-stock models. Details of manufacture-to-order are still open. |
+| B-007 | Some business clients, for example restaurants, buy available stock. Do not assume every business order is custom manufacturing. |
+| B-008 | Has retail outlets serving individual customers. Exact outlet count and stock locations are unconfirmed. |
+| B-009 | School uniforms are manufactured for stock and sold through the retail store; preorders are taken when stock runs out. |
 
-1. What clothes does the factory make, and who buys them?
-2. Does it manufacture against customer orders, produce stock for later sale, or both?
-3. Which three day-to-day problems should this system solve first?
+Source for B-004–B-009: client's discovery round 1 answers. Legal entity details and location remain unconfirmed.
+
+### Stated priorities
+
+| ID | Client priority area | Discovery still needed |
+| --- | --- | --- |
+| R-001 | Inventory and order tracking | Stock scope, locations, movements, reservations, order stages and current problems |
+| R-002 | Point of sale | Checkout, payments, receipts, returns, hardware, users and connectivity |
+| R-003 | Marketing and exposure | Target audiences, acquisition goals, current channels and desired public-facing experience |
+
+These are confirmed needs, not approved feature specifications or a committed release order. Marketing/exposure must be explored explicitly; a website, online store, CRM, campaigns and integrations are not yet selected.
+
+### School-uniform stockout workflow — partially confirmed
+
+- Customer/channel: individual retail customer buying school uniforms.
+- Current practice: sell manufactured stock; take a preorder when stock runs out.
+- Open details: product/size identification, stock checks across locations, preorder record, deposit/payment, promised date, production trigger, reservation/allocation, notification, collection/delivery, cancellation and refund handling.
+- Responsible staff, system behavior and acceptance criteria: not yet established.
+
+## Round 2 — awaiting client answers
+
+1. How many retail stores and stock/storage locations are there, and how are stock, sales and orders recorded today?
+2. Walk through a school-uniform preorder when the requested item or size is unavailable: recording, deposit, factory communication, completion and customer collection.
+3. What does marketing/exposure mean first: helping customers discover the business and browse products, selling online, attracting business/bulk enquiries, or another outcome? Examples are discussion prompts, not exclusive options.
 
 ## Follow-up discovery agenda
 
