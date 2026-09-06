@@ -36,6 +36,8 @@ Use maintained accessible primitives and suitable existing components before cus
 
 RenderLab supplies process reference, not this ERP's design or product specification. Its creative-app styling, libraries, schemas, resources and runtime decisions are not automatically approved here.
 
+Client visual target: premium modern UI with physics-based/morphing interactions. Apply deliberate motion without delaying checkout; support reduced motion and Arabic RTL. Evaluate platform compatibility before selecting component ecosystems. Read docs/architecture/PLATFORM_EVALUATION.md before architecture/UI selection.
+
 ## Public repository and infrastructure
 
 Keep credentials and real private business records out of source, docs, issues, screenshots and logs. Use synthetic/redacted examples. Store runtime records in access-controlled services and credentials in their secret stores.

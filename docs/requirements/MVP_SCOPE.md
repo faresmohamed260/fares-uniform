@@ -1,6 +1,6 @@
 # First-release proposal — Fares Uniform
 
-Status: DRAFT FOR CLIENT REVIEW, 2026-09-06. Not implementation or deployment authorization.
+Status: BROADLY ACCEPTED IN PRINCIPLE, 2026-09-06; platform/reuse and premium UI direction under evaluation. Not implementation or deployment authorization.
 Sources: [Discovery](DISCOVERY.md), [decisions](../DECISIONS.md), [role design](ROLES_AND_PERMISSIONS.md).
 
 ## Intended outcome
@@ -64,7 +64,7 @@ Missing volume estimates are not a discovery blocker. Choose a documented synthe
 
 ## Proposed delivery order
 
-1. Define the immediate foundation contract: remaining architecture-critical rules, data model, offline design, design system and representative bilingual POS/order screens, hosted validation strategy.
+1. Evaluate reusable ERP platforms (starting with Odoo) and their hosting/UI tradeoffs, then define the immediate foundation contract: remaining architecture-critical rules, data model, offline design, design system and representative bilingual POS/order screens, hosted validation strategy.
 2. Build products, finished-stock movements, access controls and inventory onboarding.
 3. Build retail POS, preorders, payment/collection records and offline reconciliation together.
 4. Add production automation and business-order tracking against verified stock/order contracts.
@@ -75,4 +75,4 @@ This order follows dependencies; it does not change the ranking of marketing goa
 
 ## Current review request
 
-Does this represent the desired first release? Record client changes/acceptance here and in PROJECT.md. Scope acceptance is followed by targeted decisions and an immediate phase contract; it does not imply Phase 0 exit criteria or deployment gates are already satisfied.
+Client answered 'yes mainly' and asked to investigate Odoo/reuse plus premium physics/morphing UI. See ../architecture/PLATFORM_EVALUATION.md. This is broad agreement, not unconditional approval of every proposed detail. Scope acceptance is followed by targeted decisions and an immediate phase contract; it does not imply Phase 0 exit criteria or deployment gates are already satisfied.

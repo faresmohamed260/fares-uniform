@@ -20,7 +20,7 @@ The starting repository contained only README.md at commit 95631c568893c43fa4c36
 
 Application code, schema, UI, test workflows and deployments have not been created. External infrastructure has not been audited.
 
-Discovery rounds 1–8 are recorded in docs/requirements/DISCOVERY.md. The consolidated first-release proposal is docs/requirements/MVP_SCOPE.md, currently DRAFT FOR CLIENT REVIEW. Confirmed direction covers finished stock, bilingual offline POS, preorder/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics is future work.
+Discovery rounds 1–8 are recorded in docs/requirements/DISCOVERY.md. The consolidated first-release proposal is docs/requirements/MVP_SCOPE.md, broadly accepted in principle; Odoo/reuse and premium UI direction now under evaluation. Confirmed direction covers finished stock, bilingual offline POS, preorder/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics is future work.
 
 One retail store, one storage location and one checkout per store are confirmed. Numeric product/transaction volumes are unavailable; do not invent them. Launch date and service budget will be decided before deployment.
 
@@ -36,14 +36,14 @@ Items 2–4 are provisional direction, not approved implementation contracts.
 ## Next session / next actions
 
 1. Read AGENTS.md and indexed documentation, including MVP_SCOPE.md.
-2. Obtain client review of the concrete first-release boundary; record changes or acceptance.
+2. Evaluate Odoo/reuse against requirements before selecting a custom implementation; read docs/architecture/PLATFORM_EVALUATION.md.
 3. Resolve architecture-critical workflow details listed in the proposal, using developer proposals for routine design choices.
 4. Prepare and commit the immediate next-phase contract before implementation.
 5. Keep Phase 0 open until its exit criteria are met.
 
 ## Current blockers / unknowns
 
-Awaiting first-release scope review. No numeric capacity estimate, budget or launch date is available; the client deferred budget/timing until before deployment. These do not block current planning. Product variants, offline reconciliation policies and other detailed workflow decisions remain explicit in the scope proposal.
+MVP broadly accepted; platform selection is open. Premium modern UI with physics/morphing effects is a client requirement. No numeric capacity estimate, budget or launch date is available; the client deferred budget/timing until before deployment. These do not block current planning. Product variants, offline reconciliation policies and other detailed workflow decisions remain explicit in the scope proposal.
 
 ## Evidence policy
 

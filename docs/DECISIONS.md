@@ -100,3 +100,13 @@ MVP includes daily sales, cash/InstaPay totals, low stock, upcoming/overdue orde
 Status: Client-confirmed, 2026-09-06.
 
 The business is small; numeric volumes are unavailable. No launch date or monthly service budget is set; determine them before deployment. Continue planning without invented estimates or spending authorization.
+
+## D-020 — Broad scope agreement and reuse evaluation
+Status: Client direction, 2026-09-06.
+
+Client broadly agrees with the MVP and asks whether Odoo can avoid rebuilding standard ERP functions. Evaluate reuse before choosing architecture. No Odoo adoption, hosting change or spending is approved.
+
+## D-021 — Premium modern interactive UI
+Status: Accepted client requirement, 2026-09-06.
+
+Aim for polished modern web UI/UX with physics and morphing effects. Apply this to web components generally. Record design decisions and maintained component sources; validate representative screens, RTL, accessibility and performance. See docs/architecture/PLATFORM_EVALUATION.md for initial design direction and platform implications.
