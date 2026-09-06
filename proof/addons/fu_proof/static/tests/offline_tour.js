@@ -32,17 +32,23 @@ registry.category("web_tour.tours").add("fu_offline_checkout_" + method, {
             content: "Paid order survives reload without API connectivity",
             async run() {
                 const uuid = sessionStorage.getItem("fu.proof.order_uuid");
-                const order = posmodel.models["pos.order"].find(o => o.uuid === uuid);
-                if (!order || order.state !== "paid") {
-                    const local = await posmodel.data.indexedDB.readAll(["pos.order"]);
-                    const records = local?.["pos.order"] || [];
-                    const persisted = records.find(o => o.uuid === uuid);
-                    throw new Error(
-                        `Offline paid order missing after reload: uuid=${uuid}, ` +
-                        `model=${order?.state || "missing"}, ` +
-                        `indexedDB=${persisted?.state || "missing"}, indexedCount=${records.length}`
-                    );
+                const deadline = Date.now() + 10000;
+                let order;
+                while (Date.now() < deadline) {
+                    order = posmodel.models["pos.order"].find(o => o.uuid === uuid);
+                    if (order?.state === "paid") {
+                        return;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 100));
                 }
+                const local = await posmodel.data.indexedDB.readAll(["pos.order"]);
+                const records = local?.["pos.order"] || [];
+                const persisted = records.find(o => o.uuid === uuid);
+                throw new Error(
+                    `Offline paid order did not hydrate after reload: uuid=${uuid}, ` +
+                    `model=${order?.state || "missing"}, ` +
+                    `indexedDB=${persisted?.state || "missing"}, indexedCount=${records.length}`
+                );
             },
         },
         Offline.setOnlineMode(),
