@@ -6,6 +6,7 @@
 | [PROJECT.md](../PROJECT.md) | Current state, roadmap and session handoff |
 | [Decision log](DECISIONS.md) | Accepted decisions and their rationale |
 | [Discovery](requirements/DISCOVERY.md) | Confirmed business requirements and open questions |
+| [Roles and permissions](requirements/ROLES_AND_PERMISSIONS.md) | Developer-selected role and access design under client delegation |
 | [Phase 0](phases/PHASE_0_DISCOVERY.md) | Immediate discovery scope and exit criteria |
 
 Read these documents from GitHub at the beginning of work. Add new documents here when needed, with a clear ownership boundary.

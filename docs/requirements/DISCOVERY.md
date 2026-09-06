@@ -114,11 +114,19 @@ Code format, barcode symbology, label printing, scanner hardware, product/varian
 
 These examples restate accepted behavior; schedule timing, short-notice orders, duplicate prevention, allocation and authorization still need specifications.
 
-## Round 5 — awaiting client answers
+## Round 5 — client-confirmed, 2026-09-06
 
-1. Which payment methods should POS record, and are exchanges/returns allowed? Clarify preorder balances and partial collection.
-2. Which staff will use the system at the store, factory and storage location, and who should control prices, refunds and production settings?
-3. What devices, printers/scanners and internet connection are available? Which interface and receipt languages are needed?
+- R-007: Initially record cash and InstaPay payments. Card and wallet methods are future additions. Payment recording does not imply an approved live payment integration or automatic InstaPay verification; confirmation/reconciliation flow remains open.
+- R-008: Refunds and size exchanges are allowed. Partial preorder collection is allowed. Eligibility windows, balance due at each collection, refund amounts/methods, approval rules and returned-stock disposition remain to be specified.
+- R-009: The client delegates design of conventional roles and access permissions to the developer. The selected initial design is in [Roles and permissions](ROLES_AND_PERMISSIONS.md); it is a developer decision under delegated authority, not an assertion about actual staffing.
+- R-010: Hardware support must not hardcode scanner/printer brands. Specify capabilities and compatible interfaces instead; do not promise universal device compatibility. Actual device types and connectivity remain unknown.
+- R-011: Support English and Arabic for the interface and receipts. Arabic requires right-to-left presentation; exact bilingual receipt layout and product-content translation workflow remain design work.
+
+## Round 6 — awaiting client answers
+
+1. Must checkout continue during an internet outage, or can staff temporarily use paper?
+2. When collecting part of a preorder, must the customer pay the entire order balance or only enough to cover the items collected?
+3. Should the public catalog display prices and stock availability? Should large-client enquiries arrive through a website form, WhatsApp, phone, or a combination?
 
 ## Follow-up discovery agenda
 

@@ -50,3 +50,18 @@ The quantity threshold remains configurable but has no accepted initial value. C
 Status: Accepted need, 2026-09-06.
 
 The business currently has no item codes/barcodes and identifies products manually. Introduce product codes/barcodes as part of the system. Exact formats, variant model and hardware remain undecided.
+
+## D-010 — Payments, returns and partial collection
+Status: Accepted by client, 2026-09-06.
+
+Cash and InstaPay are initial payment methods; cards and wallets are future work. Refunds, size exchanges and partial preorder collection are supported needs. Payment integrations and detailed eligibility/settlement rules are not yet selected.
+
+## D-011 — Delegated role design
+Status: Client delegation; initial developer design recorded, 2026-09-06.
+
+The developer selects conventional roles and access boundaries. See docs/requirements/ROLES_AND_PERMISSIONS.md for the initial role matrix. This does not establish actual staff count or assignments.
+
+## D-012 — Bilingual and hardware-independent support
+Status: Accepted by client, 2026-09-06.
+
+Support English and Arabic, including interface/receipts and appropriate text direction. Avoid hardcoded printer/scanner brands; define support by capabilities/interfaces. Actual hardware compatibility and offline needs remain unverified.
