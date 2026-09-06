@@ -17,3 +17,5 @@ Process reference: [RenderLab AGENTS.md](https://github.com/faresmohamed260/rend
 - [Platform evaluation and UI direction](architecture/PLATFORM_EVALUATION.md): completed documentation/source fit assessment, requirement matrix, architecture recommendation, sources and proof-of-fit gates.
 
 - [Phase 0A hosted proof contract](phases/PHASE_0A_ODOO_PROOF.md): authorized synthetic Odoo runtime and visual spike.
+
+- [Hosted Odoo proof evidence](validation/ODOO_PROOF.md): exact tested commits, run results, visual direction and remaining gates.

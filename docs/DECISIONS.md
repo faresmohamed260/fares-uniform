@@ -115,3 +115,8 @@ Aim for polished modern web UI/UX with physics and morphing effects. Apply this 
 Status: Developer recommendation, 2026-09-06; platform adoption pending.
 
 Authorized documentation/source assessment completed. Community provides inspected core modules; recommend Community operational core, customized native POS and bespoke Vercel public frontend, conditional on hosted proof of offline correctness, workflow extensions and internal visual quality. Custom size/deadline batching and full-balance collection remain project work. No runtime tests, hosting changes or deployment occurred.
+
+## D-023 — Hosted proof authorized
+Status: Client authorization, 2026-09-06.
+
+Client approved proceeding with the bounded hosted Odoo proof. Follow docs/phases/PHASE_0A_ODOO_PROOF.md. Disposable remote CI and prototype changes are authorized; no production deployment or final Odoo adoption is implied. Runtime evidence now belongs to docs/validation/ODOO_PROOF.md; D-022 records the earlier source-assessment state.

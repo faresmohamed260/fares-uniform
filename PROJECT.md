@@ -18,7 +18,7 @@
 
 The starting repository contained only README.md at commit 95631c568893c43fa4c3688e485c82d683afb5b7. The foundation change establishes instructions, documentation ownership, a decision log and discovery contract.
 
-Application code, schema, UI, test workflows and deployments have not been created. External infrastructure has not been audited.
+A disposable Odoo proof addon and hosted GitHub Actions workflow exist on proof/odoo-community (PR #1). The first exact-head run passed seven tests; see docs/validation/ODOO_PROOF.md. Offline and visual extensions are in progress. No production application or deployment exists; external infrastructure has not been audited.
 
 Discovery rounds 1–8 are recorded in docs/requirements/DISCOVERY.md. The consolidated first-release proposal is docs/requirements/MVP_SCOPE.md, broadly accepted in principle; Odoo/reuse and premium UI direction now under evaluation. Confirmed direction covers finished stock, bilingual offline POS, preorder/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics is future work.
 
@@ -36,7 +36,7 @@ Items 2–4 are provisional direction, not approved implementation contracts.
 ## Next session / next actions
 
 1. Read AGENTS.md and indexed documentation, including MVP_SCOPE.md.
-2. Documentation/source Odoo assessment is complete: read docs/architecture/PLATFORM_EVALUATION.md. Candidate is Community operational core/customized native POS plus bespoke public website; not adopted or runtime-verified. Client authorized the hosted proof; follow docs/phases/PHASE_0A_ODOO_PROOF.md.
+2. Documentation/source Odoo assessment is complete: read docs/architecture/PLATFORM_EVALUATION.md. Candidate is Community operational core/customized native POS plus bespoke public website; not yet adopted; initial runtime evidence is recorded in docs/validation/ODOO_PROOF.md. Client authorized the hosted proof; follow docs/phases/PHASE_0A_ODOO_PROOF.md.
 3. Resolve architecture-critical workflow details listed in the proposal, using developer proposals for routine design choices.
 4. Prepare and commit the immediate next-phase contract before implementation.
 5. Keep Phase 0 open until its exit criteria are met.
