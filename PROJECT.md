@@ -18,7 +18,7 @@
 
 The starting repository contained only README.md at commit 95631c568893c43fa4c3688e485c82d683afb5b7. The foundation change establishes instructions, documentation ownership, a decision log and discovery contract.
 
-Application code, schema, UI, test workflows and deployments have not been created by this project work. Existing external infrastructure has not been audited. Discovery rounds 1–5 are recorded in docs/requirements/DISCOVERY.md: uniform sectors and casual wear, manufacture-to-order and stock production, business stock sales, individual retail sales and school-uniform stockout preorders. Priority areas are inventory/order tracking, POS and marketing/exposure. Round 2 confirms one store, one storage location, paper records, full/deposit preorder payments and dated receipt copies sorted at the factory for item batching or approaching pickup dates. Marketing prioritizes large upfront-paying contracted clients, then catalog browsing; other discussed marketing outcomes are future work. Round 3 limits initial inventory to finished garments and requests user-tunable automatic production triggering, with In production, Finished and Ready for collection statuses. The large-client workflow is contact → meeting/design → samples → approval/deposit → production with delivery date → shipment and remaining payment. Round 4 confirms size-separated demand, a configurable seven-day pickup trigger, automatic production tasks with staff-recorded starts, factory completion versus store readiness, and the need to introduce item codes/barcodes. Round 5 confirms cash/InstaPay initially, future card/wallet methods, refunds/exchanges, partial preorder collection, English/Arabic and no hardware brand lock-in. The client delegates role design; the initial role matrix is indexed in docs/README.md. Quantity threshold default, staffing, offline behavior, settlement details and full release scope remain open.
+Application code, schema, UI, test workflows and deployments have not been created by this project work. Existing external infrastructure has not been audited. Discovery rounds 1–6 are recorded in docs/requirements/DISCOVERY.md: uniform sectors and casual wear, manufacture-to-order and stock production, business stock sales, individual retail sales and school-uniform stockout preorders. Priority areas are inventory/order tracking, POS and marketing/exposure. Round 2 confirms one store, one storage location, paper records, full/deposit preorder payments and dated receipt copies sorted at the factory for item batching or approaching pickup dates. Marketing prioritizes large upfront-paying contracted clients, then catalog browsing; other discussed marketing outcomes are future work. Round 3 limits initial inventory to finished garments and requests user-tunable automatic production triggering, with In production, Finished and Ready for collection statuses. The large-client workflow is contact → meeting/design → samples → approval/deposit → production with delivery date → shipment and remaining payment. Round 4 confirms size-separated demand, a configurable seven-day pickup trigger, automatic production tasks with staff-recorded starts, factory completion versus store readiness, and the need to introduce item codes/barcodes. Round 5 confirms cash/InstaPay initially, future card/wallet methods, refunds/exchanges, partial preorder collection, English/Arabic and no hardware brand lock-in. The client delegates role design; the initial role matrix is indexed in docs/README.md. Round 6 makes offline checkout mandatory, requires full order balance before partial collection, excludes public catalog prices/stock and selects combined form/WhatsApp/phone enquiries. Offline sync/payment verification, quantity threshold default, staffing and full release scope remain open.
 
 ## Roadmap
 
@@ -32,14 +32,14 @@ Items 2–4 are provisional direction, not approved implementation contracts.
 ## Next session / next actions
 
 1. Read AGENTS.md and the current indexed docs.
-2. Gather discovery round 6: offline checkout needs, partial-collection balance policy and public catalog/enquiry behavior.
+2. Gather discovery round 7: checkout concurrency/outage duration, InstaPay confirmation and preorder readiness notifications.
 3. Record answers in docs/requirements/DISCOVERY.md; resolve workflow details progressively.
 4. Then complete preorder allocation/collection and ordinary stock checkout, including payment balances and exceptions.
 5. Continue discovery before proposing the first release boundary.
 
 ## Current blockers / unknowns
 
-Awaiting discovery round 6 answers. No technical blocker to continuing discovery. Deployment configuration, service resource selection, actual user assignments, devices/connectivity, scale and budget remain unconfirmed.
+Awaiting discovery round 7 answers. No technical blocker to continuing discovery. Deployment configuration, service resource selection, actual user assignments, devices/connectivity, scale and budget remain unconfirmed.
 
 ## Evidence policy
 

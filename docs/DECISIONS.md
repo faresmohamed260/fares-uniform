@@ -64,4 +64,19 @@ The developer selects conventional roles and access boundaries. See docs/require
 ## D-012 — Bilingual and hardware-independent support
 Status: Accepted by client, 2026-09-06.
 
-Support English and Arabic, including interface/receipts and appropriate text direction. Avoid hardcoded printer/scanner brands; define support by capabilities/interfaces. Actual hardware compatibility and offline needs remain unverified.
+Support English and Arabic, including interface/receipts and appropriate text direction. Avoid hardcoded printer/scanner brands; define support by capabilities/interfaces. Actual hardware compatibility remains unverified. Offline checkout is required under D-013.
+
+## D-013 — Mandatory offline checkout
+Status: Accepted by client, 2026-09-06.
+
+POS checkout must continue during internet outages. This requires a deliberate offline transaction and synchronization design; it does not authorize local development. Offline scope beyond checkout, payment confirmation and device/concurrency limits remain open.
+
+## D-014 — Full balance before partial collection
+Status: Accepted by client, 2026-09-06.
+
+Collect the entire remaining preorder balance before releasing even part of that order. Track remaining uncollected items independently from payment completion.
+
+## D-015 — Catalog visibility and enquiry routes
+Status: Accepted by client, 2026-09-06.
+
+Public catalog shows neither prices nor stock availability. Provide combined website-form, WhatsApp and phone enquiry routes. Automated messaging and third-party integrations are not implied.

@@ -2,7 +2,7 @@
 
 Status: Initial developer-selected design under the client's delegation on 2026-09-06. Not implemented. Actual user assignments and location access remain unconfigured.
 
-Use named individual accounts with role-based permissions. A person may hold more than one role; roles do not require separate employees. Apply location scope to operational access. Enforce permissions on the server for every action; hiding controls is not authorization.
+Use named individual accounts with role-based permissions. A person may hold more than one role; roles do not require separate employees. Apply location scope to operational access. Enforce permissions on the server for online actions and synchronization; hiding controls is not authorization. Mandatory offline checkout requires a bounded previously authorized device/session policy, with recorded actor identity and server revalidation at sync. Offline access expiry, revocation delays and conflict handling must be specified before implementation; do not claim live server authorization during an outage.
 
 | Role | Initial access | Limits |
 | --- | --- | --- |
@@ -28,3 +28,5 @@ Preserve posted sales/payment history with explicit reversal/correction entries.
 Verify direct API denial for forbidden actions, location boundaries, revoked roles, and attempted self-escalation. Verify that sensitive prices/financial/customer data is excluded from unauthorized responses, not merely hidden in the UI.
 
 Detailed action identifiers, approval mechanics and user acceptance examples belong in the relevant implementation phase contract.
+
+Offline verification must also cover expired authorization, queued actions after role revocation, replayed transactions and attributable reconciliation without silently losing completed offline sales.

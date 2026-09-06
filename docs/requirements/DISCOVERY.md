@@ -63,7 +63,7 @@ Client-confirmed ranking within marketing/exposure:
 2. Second: customers browsing the product catalog.
 3. Lower priority / future work: other discussed exposure outcomes, including online purchasing and store discovery.
 
-This ranking is within marketing/exposure; it does not rank marketing above inventory/order tracking or POS. Upfront payment describes the priority target client profile, not a universal rule for every business customer. Website features, inquiry handling, contract management and public pricing remain undecided.
+This ranking is within marketing/exposure; it does not rank marketing above inventory/order tracking or POS. Upfront payment describes the priority target client profile, not a universal rule for every business customer. Round 6 confirms no public prices/stock and combined website-form, WhatsApp and phone enquiries. Other website features and contract management remain undecided.
 
 ## Round 3 — client-confirmed, 2026-09-06
 
@@ -117,16 +117,34 @@ These examples restate accepted behavior; schedule timing, short-notice orders, 
 ## Round 5 — client-confirmed, 2026-09-06
 
 - R-007: Initially record cash and InstaPay payments. Card and wallet methods are future additions. Payment recording does not imply an approved live payment integration or automatic InstaPay verification; confirmation/reconciliation flow remains open.
-- R-008: Refunds and size exchanges are allowed. Partial preorder collection is allowed. Eligibility windows, balance due at each collection, refund amounts/methods, approval rules and returned-stock disposition remain to be specified.
+- R-008: Refunds and size exchanges are allowed. Partial preorder collection is allowed. Eligibility windows, refund amounts/methods, approval rules and returned-stock disposition remain to be specified.
 - R-009: The client delegates design of conventional roles and access permissions to the developer. The selected initial design is in [Roles and permissions](ROLES_AND_PERMISSIONS.md); it is a developer decision under delegated authority, not an assertion about actual staffing.
 - R-010: Hardware support must not hardcode scanner/printer brands. Specify capabilities and compatible interfaces instead; do not promise universal device compatibility. Actual device types and connectivity remain unknown.
 - R-011: Support English and Arabic for the interface and receipts. Arabic requires right-to-left presentation; exact bilingual receipt layout and product-content translation workflow remain design work.
 
-## Round 6 — awaiting client answers
+## Round 6 — client-confirmed, 2026-09-06
 
-1. Must checkout continue during an internet outage, or can staff temporarily use paper?
-2. When collecting part of a preorder, must the customer pay the entire order balance or only enough to cover the items collected?
-3. Should the public catalog display prices and stock availability? Should large-client enquiries arrive through a website form, WhatsApp, phone, or a combination?
+### R-012 — Offline checkout is mandatory
+Checkout must continue during internet outages; paper fallback is not sufficient to meet this requirement.
+This is customer-facing runtime behavior and does not relax the remote-only development rule.
+
+Developer-derived requirements for the architecture phase: durable device-side pending transactions, explicit sync status, retry-safe synchronization without duplicate sales/payments/stock movements, and recoverable conflicts. Server records remain authoritative after reconciliation. Do not promise live shared stock, immediate remote role revocation or online payment confirmation while disconnected.
+
+Open: number of simultaneous checkout devices, typical outage duration, cash versus InstaPay verification during outages, offline preorder/collection/refund scope, device enrollment/authentication expiry, locally retained data, price/stock conflict rules, and recovery from device loss. No storage library or synchronization architecture selected.
+
+### R-013 — Full payment before partial collection
+A customer collecting any part of a preorder must settle the entire remaining order balance, not merely pay for collected items. Uncollected items remain owed to that customer; payment completion must not mark all items collected.
+Exceptions/manager overrides have not been requested. Business shipment settlement remains a separate workflow.
+
+### R-014 — Public catalog and contact channels
+Do not show prices or stock availability in the public catalog. Private POS/staff views still need authorized commercial and stock data.
+Use a combination of website enquiry form, WhatsApp and phone for prospective clients. This authorizes planning these contact routes, not outbound messaging, WhatsApp API automation, or a paid integration. Contact details, form fields and enquiry handling remain to be defined.
+
+## Round 7 — awaiting client answers
+
+1. How many checkout devices will operate at once, and roughly how long do internet outages last?
+2. How do staff confirm InstaPay payments today: on the business receiving account or from the customer's screen? During outages, can the receiving account still be checked through mobile data?
+3. How should customers learn that a preorder is ready: staff phone/WhatsApp contact or automatic notifications?
 
 ## Follow-up discovery agenda
 
