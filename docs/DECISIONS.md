@@ -110,3 +110,8 @@ Client broadly agrees with the MVP and asks whether Odoo can avoid rebuilding st
 Status: Accepted client requirement, 2026-09-06.
 
 Aim for polished modern web UI/UX with physics and morphing effects. Apply this to web components generally. Record design decisions and maintained component sources; validate representative screens, RTL, accessibility and performance. See docs/architecture/PLATFORM_EVALUATION.md for initial design direction and platform implications.
+
+## D-022 — Odoo assessment outcome
+Status: Developer recommendation, 2026-09-06; platform adoption pending.
+
+Authorized documentation/source assessment completed. Community provides inspected core modules; recommend Community operational core, customized native POS and bespoke Vercel public frontend, conditional on hosted proof of offline correctness, workflow extensions and internal visual quality. Custom size/deadline batching and full-balance collection remain project work. No runtime tests, hosting changes or deployment occurred.

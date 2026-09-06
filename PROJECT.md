@@ -36,14 +36,14 @@ Items 2–4 are provisional direction, not approved implementation contracts.
 ## Next session / next actions
 
 1. Read AGENTS.md and indexed documentation, including MVP_SCOPE.md.
-2. Evaluate Odoo/reuse against requirements before selecting a custom implementation; read docs/architecture/PLATFORM_EVALUATION.md.
+2. Documentation/source Odoo assessment is complete: read docs/architecture/PLATFORM_EVALUATION.md. Candidate is Community operational core/customized native POS plus bespoke public website; not adopted or runtime-verified. Prepare the bounded hosted proof-of-fit contract before implementation.
 3. Resolve architecture-critical workflow details listed in the proposal, using developer proposals for routine design choices.
 4. Prepare and commit the immediate next-phase contract before implementation.
 5. Keep Phase 0 open until its exit criteria are met.
 
 ## Current blockers / unknowns
 
-MVP broadly accepted; platform selection is open. Premium modern UI with physics/morphing effects is a client requirement. No numeric capacity estimate, budget or launch date is available; the client deferred budget/timing until before deployment. These do not block current planning. Product variants, offline reconciliation policies and other detailed workflow decisions remain explicit in the scope proposal.
+MVP broadly accepted; Odoo Community is conditionally recommended after source assessment. Platform selection remains open pending hosted offline/workflow and internal visual proof. Premium modern UI with physics/morphing effects is a client requirement. No numeric capacity estimate, budget or launch date is available; the client deferred budget/timing until before deployment. These do not block current planning. Product variants, offline reconciliation policies and other detailed workflow decisions remain explicit in the scope proposal.
 
 ## Evidence policy
 
