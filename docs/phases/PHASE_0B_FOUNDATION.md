@@ -1,6 +1,6 @@
 # Phase 0B — Foundation architecture and UX direction
 
-Status: AUTHORIZED / IN PROGRESS, 2026-09-07.
+Status: HOSTED TECHNICAL UI GATES PASS / CLIENT VISUAL REVIEW OPEN, 2026-09-07.
 Authorization: client instructed "keep going" after receiving the completed Phase 0A technical-proof report. This authorizes continuation under the already accepted MVP direction; it does not silently approve unresolved business rules, production deployment or spending.
 
 ## Goal
@@ -51,6 +51,14 @@ Create a reusable design direction rather than one-off screens.
 - Odoo-side tests for any foundation addon changes.
 - Record exact tested commits and failures; compilation alone is not UI acceptance.
 
+## Hosted UI outcome
+
+The disposable representative frontend at `prototype/review-ui` now has exact-head hosted technical evidence at implementation commit `670dd9999788ee01f6df6e000675054ef0153a6a`.
+
+Run `34070644678` / job `101587223017` passed typecheck, optimized Next.js production build and all 12 Playwright browser tests. Eight English/Arabic desktop/mobile screenshots were produced. Tests also covered representative POS state changes, the public no-price/no-stock/cart wording boundary, visible keyboard focus and browser-native reduced-motion suppression. Detailed evidence and the earlier reduced-motion failure/fix are in `docs/validation/UI_FOUNDATION.md`.
+
+This closes the **hosted technical UI gate only**. It does not satisfy the required client visual checkpoint. Final color/type/assets and agency-level visual quality remain open to review.
+
 ## Explicitly outside this phase
 - Production deployment or production Odoo hosting.
 - Real customer/business records.
@@ -81,17 +89,21 @@ This phase is complete only when:
 1. Architecture ownership and persistence boundaries are documented without contradictory sources of truth.
 2. Representative data contracts can express the accepted MVP without hardcoding unknown business values.
 3. New code, if any, passes exact-head hosted build/tests.
-4. Representative POS/order/production/public UI renders are reviewed in English/Arabic, desktop/narrow, with reduced-motion and basic keyboard evidence.
+4. Representative POS/order/production/public UI renders are produced in English/Arabic, desktop/narrow, with reduced-motion and basic keyboard evidence.
 5. The client explicitly accepts or rejects the representative visual direction; generated screenshots alone are not acceptance.
 6. Remaining business-policy unknowns are clearly separated into blocking versus later-phase decisions.
 7. PROJECT.md, DECISIONS.md and the documentation index accurately hand off the next implementation phase.
+
+Gates 1–4 have technical evidence. Gate 5 remains open. Gate 6 is partially complete and must be resolved only to the extent needed for the next implementation slice. Gate 7 remains a completion/handoff gate.
 
 ## Expected outputs
 - `docs/architecture/FOUNDATION_ARCHITECTURE.md`
 - focused ADR/decision entries in `docs/DECISIONS.md`
 - `docs/ui/DESIGN_SYSTEM.md`
-- representative hosted UI source and validation evidence if the chosen prototype path requires code
+- `docs/ui/CONCEPT_BRIEF.md`
+- `docs/validation/UI_FOUNDATION.md`
+- representative hosted UI source and validation evidence
 - an updated immediate implementation-phase contract after client visual review
 
 ## Next dependency
-The first production-grade implementation phase should start with products, finished-stock movements, access controls and inventory onboarding only after this foundation is reviewable and architecture-critical product rules are sufficiently resolved.
+The first production-grade implementation phase should start with products, finished-stock movements, access controls and inventory onboarding only after this foundation is reviewable, the client visual direction is decided and architecture-critical product/stock rules are sufficiently resolved.
