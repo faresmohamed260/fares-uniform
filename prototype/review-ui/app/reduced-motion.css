@@ -1,13 +1,15 @@
 @media (prefers-reduced-motion: reduce) {
-  .hero-panel-main,
-  .product-card,
-  .cart-line,
-  .editorial-media,
-  .detail-media,
-  .product-detail,
-  .queue-row {
+  [data-motion="morph-orb"],
+  [data-motion="morph-orb-secondary"],
+  [data-motion="hero-morph"],
+  [data-motion="product-spring-card"],
+  [data-motion="catalog-spring-card"],
+  [data-motion="production-expand-card"],
+  [data-motion="shared-product-morph"],
+  [data-motion="payment-shared-highlight"],
+  [data-motion="order-stage-highlight"] {
+    transform: none !important;
     animation: none !important;
     transition: none !important;
-    transform: none !important;
   }
 }

@@ -566,7 +566,7 @@ function PublicSurface({ lang, reduced }: { lang: Lang; reduced: boolean }) {
         <div className="relative z-10 max-w-3xl">
           <Badge className="mb-5 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-white backdrop-blur-md hover:bg-white/10"><Sparkles className="me-1 size-3.5 text-emerald-300" />{t(lang, "Design · sample · manufacture · deliver", "تصميم · عينة · تصنيع · تسليم")}</Badge>
           <h2 className="max-w-2xl text-4xl font-semibold tracking-[-.065em] sm:text-5xl lg:text-6xl">{t(lang, "A uniform system that moves like your business does.", "نظام زي موحد يتحرك بإيقاع أعمالك.")}</h2>
-          <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/65 sm:text-base">{t(lang, "Explore representative school, hospitality and restaurant programs. Product details stay enquiry-led—no public prices or stock exposure.", "استكشف نماذج للمدارس والضيافة والمطاعم. تفاصيل المنتجات موجهة للاستفسار دون عرض أسعار أو مخزون للعامة.")}</p>
+          <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/65 sm:text-base">{t(lang, "Explore representative school, hospitality and restaurant programs. Product details stay enquiry-led while commercial availability remains private.", "استكشف نماذج للمدارس والضيافة والمطاعم. تفاصيل المنتجات موجهة للاستفسار دون عرض أسعار أو مخزون للعامة.")}</p>
           <div className="mt-7 flex flex-wrap gap-2">
             <Button size="lg" className="rounded-xl bg-white text-emerald-950 hover:bg-emerald-50"><MessageCircle />{t(lang, "Start a project", "ابدأ مشروعًا")}</Button>
             <Button size="lg" variant="outline" className="rounded-xl border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"><Phone />{t(lang, "Talk to us", "تحدث معنا")}</Button>

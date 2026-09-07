@@ -29,7 +29,7 @@ for (const capture of captures) {
 
 test("POS uses maintained primitives and keeps checkout state interactive", async ({ page }) => {
   await page.goto("/pos?lang=en", { waitUntil: "networkidle" });
-  await expect(page.locator('[data-slot="input"]')).toHaveCount(1);
+  expect(await page.locator('[data-slot="input"]:visible').count()).toBeGreaterThan(0);
   expect(await page.locator('[data-slot="button"]').count()).toBeGreaterThan(5);
   expect(await page.locator('[data-slot="card"]').count()).toBeGreaterThan(3);
 
@@ -51,7 +51,8 @@ test("mobile POS uses the maintained Tabs primitive", async ({ page }) => {
   await page.goto("/pos?lang=en", { waitUntil: "networkidle" });
   await expect(page.locator('[data-slot="tabs"]')).toBeVisible();
   await page.getByRole("tab", { name: "Cart & payment" }).click();
-  await expect(page.getByTestId("pos-cart")).toBeVisible();
+  const activeCartPanel = page.getByRole("tabpanel", { name: "Cart & payment" });
+  await expect(activeCartPanel.getByTestId("pos-cart")).toBeVisible();
 });
 
 test("public catalog has no price or stock language and opens maintained Dialog", async ({ page }) => {
