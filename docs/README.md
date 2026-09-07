@@ -8,6 +8,7 @@
 | [Discovery](requirements/DISCOVERY.md) | Confirmed business requirements and open questions |
 | [First-release proposal](requirements/MVP_SCOPE.md) | Broadly accepted MVP boundary, acceptance scenarios, delivery order and remaining decisions |
 | [Roles and permissions](requirements/ROLES_AND_PERMISSIONS.md) | Developer-selected role and access design under client delegation |
+| [Product and finished-stock proposal](requirements/PRODUCT_AND_STOCK_RULES.md) | Phase 0B product identity, code/barcode, location/movement proposal and four blocking client questions |
 | [Phase 0](phases/PHASE_0_DISCOVERY.md) | Discovery scope and exit criteria |
 | [Platform evaluation and UI direction](architecture/PLATFORM_EVALUATION.md) | Initial Odoo source assessment, requirement matrix and architecture/UI recommendation |
 | [Foundation architecture](architecture/FOUNDATION_ARCHITECTURE.md) | Current Phase 0B system ownership, data/offline/integration contracts and open decisions |
