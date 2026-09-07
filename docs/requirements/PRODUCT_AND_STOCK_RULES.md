@@ -1,195 +1,164 @@
-# Product identity and finished-stock rules — Phase 0B proposal
+# Product identity and finished-stock rules
 
-Status: DEVELOPER PROPOSAL / CLIENT REVIEW REQUIRED, 2026-09-07.
+Status: CLIENT-CONFIRMED FOUNDATION RULES, 2026-09-07.
 
-Purpose: make the first production-grade implementation slice concrete without inventing the factory's informal product naming or physical handoff process. Confirmed facts remain owned by `DISCOVERY.md`; this document turns them into a proposed system convention and isolates the few business choices that require client input.
+Purpose: define the product identity, finished-stock and identifier rules required for the first production-grade implementation slice. These rules are now confirmed by the client unless a later explicit instruction supersedes them.
 
-## Confirmed constraints this proposal must preserve
+## Confirmed constraints
 
 - Initial inventory covers **finished garments**, not raw materials or work-in-progress accounting.
 - The business has one retail store and one storage location.
 - School-uniform demand can become a preorder when store stock is unavailable.
 - Production demand is aggregated separately per item size; the configurable quantity/deadline rule creates a production task rather than claiming work started.
 - `Finished` means factory work is complete; `Ready for collection` means the finished garment has been received at the retail store.
-- The business currently has no item codes/barcodes; the ERP must introduce them.
-- Scanner/printer support must be capability-based rather than tied to a hardware brand.
+- The business currently has no item codes/barcodes; the ERP introduces them.
+- Scanner/printer support is capability-based rather than tied to a hardware brand.
 - English/Arabic support is required.
 - Numeric product volume is unknown and must not be invented.
 
-## 1. Proposed product identity model
+## 1. Product identity model
 
 ### Product template / design boundary
 
-**Proposal P-001:** one product template represents one garment design whose stock and production demand are allowed to mix.
+One product template represents one garment design whose stock and production demand are allowed to mix.
 
-Examples of what this means:
-- a navy polo for School A and a visually similar navy polo for School B should be separate templates **when their logo, embroidery, trim, fabric specification or other design detail means units cannot be substituted**;
+**Client-confirmed rule:** school/client-specific garments are stocked as different products. A visually similar garment for two different schools/clients does not share finished stock when the branding/design is different.
+
+Examples:
+- School A navy polo and School B navy polo are separate product templates when their branding/design differs;
 - the same approved garment sold in several sizes remains one template with size variants;
-- a color becomes a variant only when colors are genuinely interchangeable members of the same design family and are independently stocked;
-- if two items must never share finished stock or production demand, they must not be collapsed merely because staff currently use the same informal name.
+- color is a variant when the same design is genuinely offered/stocked in multiple colors;
+- if two items must never share finished stock or production demand, they must not be collapsed merely because staff use the same informal base name.
 
-This matches the already-documented requirement that production batching never combines demand that should remain distinct. The exact real-world boundary for school/client-specific designs needs client confirmation.
+Logo/client/school identity therefore normally belongs to the product-template/design boundary rather than becoming one global variant axis.
 
 ### Stock-bearing variants
 
-**Proposal P-002:** use variants only for attributes that produce separately selectable/stockable finished units.
+Use variants only for attributes that produce separately selectable/stockable finished units.
 
 - Size is stock-bearing whenever the garment has sizes.
-- Color is stock-bearing when that product family is made/held in multiple colors.
+- Color is stock-bearing when that product family is held in multiple colors.
 - Other attributes such as sleeve style, fit or gender cut become variants only if the business actually treats those options as separately stocked units.
-- Logo/client/school identity should normally belong to the template/design boundary when it makes units non-substitutable, rather than becoming a giant global variant axis.
+- Production aggregation uses the exact template plus every stock-bearing attribute that must not mix.
 
-No fixed list of size values is baked into code. Size sets remain configurable data by product family.
+**Client-confirmed rule:** size systems differ by garment. Do not define one universal size enum. Size values and attribute sets are configurable per product family.
 
-## 2. Proposed identifiers and labels
+Synthetic tests may use letter, age or numeric sizes to prove configurability, but those examples must not be presented as a measured list of the factory's real products.
 
-### Stable internal identity
+## 2. Stable identifiers and barcodes
 
-**Proposal P-003:** every stock-bearing variant receives:
-- an immutable database identity owned by Odoo;
+Every stock-bearing variant requires:
+- Odoo's immutable database identity;
 - a unique human-readable internal item code (`default_code`/SKU);
-- a unique barcode value.
+- a unique scannable barcode value.
 
-Names, prices, customers, school names and stock locations must not be encoded as required semantics in the identifier. Those business values can change without forcing a new identity.
+Names, prices, customers, school names and stock locations are not encoded as required semantics in the identifier.
 
-### Suggested first code format
+### Internal code format
 
-**Proposal P-004:** start with a simple sequential internal code such as `FU-000001`, `FU-000002`, ... at the variant level.
+**Client-confirmed rule:** use simple permanent sequential variant codes:
+- `FU-000001`
+- `FU-000002`
+- and so on.
 
-Rationale:
-- short enough to read/type;
-- no mutable business meaning;
-- works in English and Arabic contexts;
-- does not assume the business already has a coding convention;
-- scales without requiring a category/school/size parsing rule.
+The sequence is system-managed. Product name, design/client, color and size remain explicit fields rather than being parsed from the code.
 
-The display code is not itself the source of truth for size/design. Staff see those fields explicitly in the UI.
+The code must remain stable when display names, prices or locations change. Any exceptional administrative correction mechanism must be explicit and audited rather than ordinary free editing.
 
-### Suggested barcode baseline
+### Barcode baseline
 
-**Proposal P-005:** use a broadly supported one-dimensional internal barcode format suitable for keyboard-emulating scanners, with Code 128 as the starting candidate. Barcode symbology and label dimensions remain a review decision until actual printers/scanners are known and remotely verified.
+Use a unique barcode value compatible with ordinary keyboard-emulating scanners. Code 128 remains the initial technical candidate because it can encode the accepted alphanumeric `FU-000001` style without a vendor-specific dependency.
 
-Labels should eventually show at least the readable item code plus enough product/variant text for a person to identify a loose label. Exact Arabic/English arrangement, label size and additional fields are not locked here.
+The implementation phase may use the permanent item code itself as the initial barcode payload if this remains compatible with the tested Odoo/scanner path. Exact printed symbology, label dimensions and final bilingual label layout are not business blockers for the product/stock schema and remain hardware/UX validation work.
 
-## 3. Proposed finished-stock location model
+Labels will eventually show at least the readable item code plus enough product/variant text to identify a loose label.
 
-### Confirmed locations
+## 3. Finished-stock location model
 
-Initial configured physical stock locations:
-1. Retail Store.
-2. Storage.
+The only initial tracked physical finished-stock locations are:
+1. **Retail Store**
+2. **Storage**
 
-Transfers, receipts and count corrections must be attributable movements rather than silent quantity edits.
+**Client-confirmed rule:** knowing that finished pieces are physically still at the factory is not operationally useful, so do **not** introduce a `Factory Finished / Awaiting Transfer` inventory location.
 
-### Factory-finished staging decision
+Factory completion stays a workflow state:
+- `Finished` records completion of factory work;
+- finished pieces do not become tracked on-hand stock merely because the task was marked Finished;
+- stock enters a tracked location when Store or Storage records physical receipt;
+- `Ready for collection` still requires receipt at the Retail Store.
 
-There is one unresolved physical fact: what happens after staff mark a production task `Finished` and before the garments are received by the store or storage location.
+This keeps production state and inventory custody separate without inventing an unnecessary stock location.
 
-Two valid models are intentionally kept separate:
+## 4. Finished-stock movement rules
 
-**Option A — workflow state only**
-- `Finished` records factory completion on the production task.
-- The finished units do not enter tracked ERP stock until Store or Storage records physical receipt.
-- Best when factory completion and handoff are effectively one controlled process and there is no meaningful finished-goods custody/queue at the factory.
-
-**Option B — tracked Factory Finished staging location**
-- finishing production creates/permits receipt into `Factory Finished / Awaiting Transfer`.
-- a later stock transfer moves units to Store or Storage.
-- `Ready for collection` still requires Store receipt.
-- Best when finished garments can physically remain at the factory and the owner needs to know that they exist before transfer.
-
-**No option is accepted yet.** The current architecture can support either without changing the product model.
-
-## 4. Stock movement rules proposed for the first implementation slice
-
-**Proposal P-006:** represent finished-stock changes with explicit movement reasons rather than editing on-hand quantity directly.
+Finished-stock changes use attributable stock movements/corrections rather than silent edits to on-hand quantity.
 
 Initial movement families:
 - opening stock onboarding;
-- receipt into a tracked location;
-- transfer Store ↔ Storage (and Factory Finished if Option B is accepted);
-- POS/customer fulfillment deduction;
+- receipt into Store or Storage;
+- transfer Store ↔ Storage;
+- POS/customer fulfillment deduction in the later retail phase;
 - customer return/exchange movement once the return policy is defined;
 - approved count correction with actor, reason and before/after evidence.
 
-The first products/stock implementation phase does not need to implement every later movement family at once. It must establish a ledger-compatible movement model so later POS/returns do not require redesign.
+The first products/stock implementation phase establishes the product and movement foundation without implementing every later retail movement at once.
 
-## 5. Demand, reservation and production linkage
+## 5. Demand and production linkage
 
-**Proposal P-007:** preorder/customer lines remain individually attributable even when production demand is aggregated.
+Preorder/customer lines remain individually attributable even when production demand is aggregated.
 
-- Aggregate production demand by the exact stock-bearing variant/design key, never display-name text alone.
-- Preserve the originating preorder lines and promised pickup dates.
-- One production task can cover demand from several customer lines when they share the exact aggregation key.
-- Re-running the trigger must not duplicate demand already covered by an open/active task; Phase 0A already proved this bounded idempotency concept.
-- Completing a production task does not by itself mark customer items collected or balances paid.
+- Aggregate by exact stock-bearing variant/design identity, never display-name text alone.
+- Preserve originating preorder lines and promised pickup dates.
+- One production task can cover several customer lines only when they share the exact aggregation key.
+- Re-running a trigger must not duplicate demand already covered by an open/active task.
+- Completing a production task does not mark customer items collected or balances paid.
 
-### Reservation policy
+Formal reservation/allocation of finished stock to customer orders is deferred to the preorder/retail phase. The product/stock schema must not prevent it later.
 
-Whether completed stock is formally reserved to specific preorder lines before store receipt is still a business-policy choice. The first inventory schema must allow reservation/allocation later without mixing customer ownership with payment status.
+## 6. Opening-stock onboarding
 
-## 6. Opening-stock onboarding proposal
+Initial migration uses a controlled physical count rather than invented historical movements.
 
-**Proposal P-008:** initial migration should use a controlled count, not invented historical movements.
+For each real finished garment:
+1. establish/confirm the product template/design;
+2. establish its stock-bearing variants using that garment's own size/attribute system;
+3. assign permanent sequential item code/barcode identity;
+4. count quantity separately at Store and Storage;
+5. enter an opening-balance stock adjustment with actor/date/import-batch identity;
+6. review exceptions before treating the opening count as operational truth.
 
-For each real finished garment being onboarded:
-1. establish/confirm product template and stock-bearing variant;
-2. assign its internal code/barcode;
-3. count quantity separately at each tracked location;
-4. enter an opening-balance stock adjustment with actor/date/import batch identity;
-5. review exceptions before treating the opening count as operational truth.
+Outstanding paper preorders are onboarded separately from opening free stock so promised customer quantities are not mistaken for uncommitted inventory.
 
-Outstanding paper preorders should be onboarded separately from opening free stock so already-promised customer quantities are not mistaken for uncommitted inventory.
+No real migration data is authorized yet.
 
-No actual migration file or count is authorized in Phase 0B.
+## 7. First-slice acceptance examples
 
-## 7. Minimum first-slice acceptance examples
+The products/finished-stock implementation must prove at least:
 
-Once the client decisions below are resolved, the products/finished-stock implementation contract should include at least:
+1. School A and School B variants remain separate stock even if both are navy polos in the same size.
+2. Different sizes of one design have separate stock and can use different configurable size systems on different garment families.
+3. Sequential codes are unique, permanent and variant-level.
+4. Changing display text does not change stable item identity.
+5. Barcode/manual item-code lookup resolves the same variant.
+6. Only Store and Storage are initial tracked finished-stock locations.
+7. Marking production Finished does not itself create on-hand inventory.
+8. Store and Storage quantities change only through attributable movements/corrections.
+9. A transfer changes source/destination quantities exactly once under retry-safe server behavior.
+10. Unauthorized users cannot create product identities or approve stock corrections through UI or direct API calls.
+11. Opening stock can be reconciled per variant/location without pretending historical paper activity was digitally recorded.
 
-1. Two non-substitutable school/client designs remain separate even if both are navy polos in size M.
-2. Size M and L of the same design have separate stock and separate demand aggregation.
-3. Changing a display name does not change the variant's stable internal identity/barcode.
-4. Store and Storage quantities change only through attributable movements/corrections.
-5. A transfer changes source/destination quantities once, with retry-safe server behavior.
-6. Unauthorized users cannot create product identities or approve stock corrections through either UI or direct API calls.
-7. English/Arabic item lookup and barcode/manual code lookup resolve the same variant.
-8. Opening stock can be reconciled per variant/location without pretending historical paper activity was digitally recorded.
+## 8. Decisions intentionally deferred
 
-## 8. Client decisions needed before the first production-grade slice
-
-These are the only product/stock questions currently considered blocking enough to ask now:
-
-### Q-PS1 — design identity
-When the same basic garment is made for different schools/clients, should units with different logos/embroidery/design details **always remain separate stock**, or are there common cases where the base garment is stocked generically and branding/customization happens later?
-
-Why it matters: this decides whether school/client identity normally defines the product template or whether some stock can remain generic until a later customization step.
-
-### Q-PS2 — factory-finished custody
-Can completed garments stay physically at the factory for a meaningful period before being sent to the retail store/storage, such that staff need to know "we have 25 finished pieces still at the factory"?
-
-Why it matters: **yes** favors a tracked `Factory Finished / Awaiting Transfer` location (Option B); **no** favors task state only until Store/Storage receipt (Option A).
-
-### Q-PS3 — real size systems
-Which size styles do you actually use today? For example, adult letter sizes (`S/M/L/XL`), school/age sizes (`6Y/8Y/10Y/12Y`), numeric garment sizes (`38/40/42`), or combinations depending on product family.
-
-Why it matters: values remain configurable either way, but real examples are needed to seed/test the first product families and avoid a fake universal size list.
-
-### Q-PS4 — internal code preference
-Unless the business wants a meaningful code convention, the developer proposes simple sequential codes such as `FU-000001` and keeps school/category/size visible as separate fields. Is that acceptable?
-
-Why it matters: accepting this avoids building fragile business meaning into identifiers. It does not lock the printed label layout.
-
-## Not decided here
-
-This proposal does not decide:
+These are not blockers for the first products/stock/access implementation slice:
+- final printed label dimensions/layout;
+- actual scanner/printer models and interfaces;
 - return/exchange eligibility;
 - offline preorder/collection/refund behavior;
 - delayed/missing InstaPay confirmation policy;
-- raw materials or WIP inventory;
+- raw materials/WIP inventory;
 - purchasing/accounting;
-- label printer/scanner brands;
 - production machine/worker scheduling;
-- final public/internal visual design.
+- preorder reservation/allocation policy;
+- final public/internal visual approval.
 
-Those remain in their existing Phase 0/Phase 0B boundaries.
+Affected later phases must resolve them before implementing those behaviors.
