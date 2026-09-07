@@ -55,7 +55,7 @@ test("mobile POS uses the maintained Tabs primitive", async ({ page }) => {
   await expect(activeCartPanel.getByTestId("pos-cart")).toBeVisible();
 });
 
-test("public catalog has no price or stock language and opens maintained Dialog", async ({ page }) => {
+test("public catalog keeps commercial availability private and opens maintained Dialog", async ({ page }) => {
   await page.goto("/public?lang=en", { waitUntil: "networkidle" });
   const publicText = await page.locator('[data-surface="public"]').innerText();
   expect(publicText).not.toMatch(/\bEGP\b|\bstock\b|add to cart/i);
