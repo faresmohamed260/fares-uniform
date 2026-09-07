@@ -27,22 +27,36 @@ jobs:
           node-version: 24
           package-manager-cache: false
 
+      - name: Add official Tailwind v4 Next.js foundation
+        working-directory: prototype/review-ui
+        run: |
+          npm install --save-exact tailwindcss@4.1.13 @tailwindcss/postcss@4.1.13 postcss@8.5.6
+          cat > postcss.config.mjs <<'EOF'
+          const config = {
+            plugins: {
+              "@tailwindcss/postcss": {},
+            },
+          };
+          export default config;
+          EOF
+          if ! grep -q '^@import "tailwindcss";' app/globals.css; then
+            printf '@import "tailwindcss";\n\n' > app/globals.css.next
+            cat app/globals.css >> app/globals.css.next
+            mv app/globals.css.next app/globals.css
+          fi
+
       - name: Initialize shadcn Base UI with RTL support
         working-directory: prototype/review-ui
-        run: npx shadcn@latest init --defaults --base base --rtl --yes
-
-      - name: Read component documentation before adding
-        working-directory: prototype/review-ui
-        run: npx shadcn@latest docs button card badge tabs dialog sheet progress separator --base base
+        run: npx shadcn@4.21.0 init --defaults --base base --rtl --yes
 
       - name: Add maintained UI primitives
         working-directory: prototype/review-ui
-        run: npx shadcn@latest add button card badge tabs dialog sheet progress separator --yes
+        run: npx shadcn@4.21.0 add button card badge tabs dialog sheet progress separator --yes
 
       - name: Verify generated foundation
         working-directory: prototype/review-ui
         run: |
-          npx shadcn@latest info --json
+          npx shadcn@4.21.0 info --json
           npm run typecheck
           npm run build
 
