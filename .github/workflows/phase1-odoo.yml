@@ -61,11 +61,13 @@ jobs:
           sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev zlib1g-dev
           python -m pip install -r upstream/requirements.txt
           python -m pip install websocket-client
+          sudo npm install --global rtlcss@4.3.0
           mkdir -p evidence/screenshots
           printf 'fares_head=%s\n' "$GITHUB_SHA" > evidence/runtime.txt
           printf 'odoo_head=%s\n' "$(git -C upstream rev-parse HEAD)" >> evidence/runtime.txt
           python --version >> evidence/runtime.txt
           google-chrome --version >> evidence/runtime.txt
+          rtlcss --version >> evidence/runtime.txt
 
       - name: Install fu_core and run Phase 1 tests
         run: |

@@ -52,9 +52,11 @@ jobs:
           sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev zlib1g-dev
           python -m pip install -r upstream/requirements.txt
           python -m pip install websocket-client
+          sudo npm install --global rtlcss@4.3.0
           mkdir -p diagnostic/screenshots
           printf 'fares_head=%s\nodoo_head=%s\n' "$GITHUB_SHA" "$(git -C upstream rev-parse HEAD)" > diagnostic/runtime.txt
           google-chrome --version >> diagnostic/runtime.txt
+          rtlcss --version >> diagnostic/runtime.txt
 
       - name: Install fu_core without tests
         run: |

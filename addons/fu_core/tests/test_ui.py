@@ -109,14 +109,14 @@ class TestFaresBilingualUI(HttpCase):
     def _show_products(self, arabic=False):
         self._set_language(arabic)
         action = self.env.ref("fu_core.action_fu_products")
-        expected_title = "البحث عن منتجات فارس" if arabic else "Fares Product Lookup"
+        expected_item_code_label = "كود الصنف" if arabic else "Item Code"
         code = f"""
             (async () => {{
                 const list = document.querySelector('.o_list_view');
                 if (!list) throw new Error('Product list missing');
                 if (!list.innerText.includes('School Polo Navy')) throw new Error('Synthetic product missing');
                 if (!/FU-\\d{{6}}/.test(list.innerText)) throw new Error('Permanent item code missing');
-                if (!document.body.innerText.includes({expected_title!r})) throw new Error('Localized action title missing');
+                if (!list.innerText.includes({expected_item_code_label!r})) throw new Error('Localized item-code label missing');
                 const search = document.querySelector('.o_searchview_input');
                 if (!search) throw new Error('Native search input missing');
                 search.focus();
@@ -124,11 +124,19 @@ class TestFaresBilingualUI(HttpCase):
                 console.log('test successful');
             }})();
         """
+        ready = """
+            (() => {
+                const list = document.querySelector('.o_list_view');
+                return !!list
+                    && list.innerText.includes('School Polo Navy')
+                    && /FU-\d{6}/.test(list.innerText);
+            })()
+        """
         with capture_views("product_ar" if arabic else "product_en", rtl=arabic):
             self.browser_js(
                 f"/odoo/action-{action.id}",
                 code,
-                ready="!!document.querySelector('.o_list_view')",
+                ready=ready,
                 login="admin",
                 timeout=60,
             )
@@ -146,7 +154,7 @@ class TestFaresBilingualUI(HttpCase):
                 if (!button) throw new Error('Execute button missing');
                 button.focus();
                 if (document.activeElement !== button) throw new Error('Execute button cannot receive keyboard focus');
-                if (!document.querySelector('input[id^="product_id"]') && !form.innerText.includes('Product')) {{
+                if (!document.querySelector('input[id^="product_id"]') && !form.innerText.includes('Product') && !form.innerText.includes('المنتج')) {{
                     throw new Error('Native product control missing');
                 }}
                 console.log('test successful');

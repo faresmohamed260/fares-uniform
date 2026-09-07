@@ -12,177 +12,276 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #. module: fu_core
+#: model:ir.ui.menu,name:fu_core.menu_fu_root
 msgid "Fares Uniform"
 msgstr "فارس للزي الموحد"
 
 #. module: fu_core
+#: model:ir.actions.act_window,name:fu_core.action_fu_products
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_product_variant_form
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_product_variant_list
 msgid "Fares Product Lookup"
 msgstr "البحث عن منتجات فارس"
 
 #. module: fu_core
+#: model:ir.ui.menu,name:fu_core.menu_fu_product_lookup
 msgid "Product Lookup"
 msgstr "البحث عن المنتجات"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_product_variant_form
 msgid "Permanent Item Identity"
 msgstr "هوية الصنف الدائمة"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_product_variant_form
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_product_variant_list
 msgid "Item Code"
 msgstr "كود الصنف"
 
 #. module: fu_core
+#: model:ir.actions.act_window,name:fu_core.action_fu_on_hand
 msgid "Fares On-hand Stock"
 msgstr "مخزون فارس المتاح"
 
 #. module: fu_core
+#: model:ir.ui.menu,name:fu_core.menu_fu_on_hand
 msgid "On-hand Stock"
 msgstr "المخزون المتاح"
 
 #. module: fu_core
+#: model:ir.ui.menu,name:fu_core.menu_fu_stock
 msgid "Stock"
 msgstr "المخزون"
 
 #. module: fu_core
+#: model:ir.actions.act_window,name:fu_core.action_fu_stock_movement_history
+#: model:ir.ui.menu,name:fu_core.menu_fu_movement_history
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_list
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_search
 msgid "Movement History"
 msgstr "سجل حركات المخزون"
 
 #. module: fu_core
+#: code:addons/fu_core/models/stock_movement_wizard.py:0
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_form
 msgid "Stock Movement"
 msgstr "حركة مخزون"
 
 #. module: fu_core
+#: model:ir.actions.act_window,name:fu_core.action_fu_stock_movement_wizard
+#: model:ir.ui.menu,name:fu_core.menu_fu_stock_operation
 msgid "New Stock Operation"
 msgstr "عملية مخزون جديدة"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_wizard_form
 msgid "Stock Operation"
 msgstr "عملية مخزون"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_wizard_form
 msgid "Execute Stock Operation"
 msgstr "تنفيذ عملية المخزون"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_request__operation
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_wizard__operation
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_search
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_wizard_form
 msgid "Operation"
 msgstr "العملية"
 
 #. module: fu_core
+#: model:ir.model.fields.selection,name:fu_core.selection__fu_stock_movement_request__operation__receipt
+#: model:ir.model.fields.selection,name:fu_core.selection__fu_stock_movement_wizard__operation__receipt
 msgid "Receipt"
 msgstr "استلام"
 
 #. module: fu_core
+#: model:ir.model.fields.selection,name:fu_core.selection__fu_stock_movement_request__operation__internal
+#: model:ir.model.fields.selection,name:fu_core.selection__fu_stock_movement_wizard__operation__internal
 msgid "Store/Storage Transfer"
 msgstr "نقل بين المتجر والمخزن"
 
 #. module: fu_core
+#: model:ir.model.fields.selection,name:fu_core.selection__fu_stock_movement_request__operation__opening
+#: model:ir.model.fields.selection,name:fu_core.selection__fu_stock_movement_wizard__operation__opening
 msgid "Opening Count"
 msgstr "جرد افتتاحي"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_request__product_id
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_wizard__product_id
 msgid "Product"
 msgstr "المنتج"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_request__quantity
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_wizard__quantity
 msgid "Quantity"
 msgstr "الكمية"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_wizard_form
 msgid "Inventory Custody"
 msgstr "عهدة المخزون"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_request__source_location_id
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_wizard__source_location_id
 msgid "Source Location"
 msgstr "موقع المصدر"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_request__destination_location_id
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_wizard__destination_location_id
 msgid "Destination Location"
 msgstr "موقع الوجهة"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_form
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_list
 msgid "From"
 msgstr "من"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_form
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_list
 msgid "To"
 msgstr "إلى"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_form
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_wizard_form
 msgid "Audit Trail"
 msgstr "سجل التدقيق"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_request__reason
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_wizard__reason
 msgid "Reason"
 msgstr "السبب"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_request__batch_ref
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_wizard__batch_ref
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_form
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_list
 msgid "Batch Reference"
 msgstr "مرجع الدفعة"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_request__request_key
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_wizard__request_key
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_form
 msgid "Request Key"
 msgstr "مفتاح الطلب"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_request__actor_id
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_list
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_search
 msgid "Requested by"
 msgstr "طلب بواسطة"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_request__executed_by_id
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_list
 msgid "Executed by"
 msgstr "نُفذ بواسطة"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_form
 msgid "Requested at"
 msgstr "وقت الطلب"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_list
 msgid "Date"
 msgstr "التاريخ"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_search
 msgid "Receipts"
 msgstr "الاستلامات"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_search
 msgid "Transfers"
 msgstr "التحويلات"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_search
 msgid "Opening Counts"
 msgstr "الجرد الافتتاحي"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_search
 msgid "Destination"
 msgstr "الوجهة"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_res_users_form
 msgid "Fares Uniform Stock Scope"
 msgstr "نطاق مخزون فارس"
 
 #. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_res_users__fu_stock_location_ids
 msgid "Fares stock locations"
 msgstr "مواقع مخزون فارس"
 
 #. module: fu_core
+#: model_terms:ir.actions.act_window,help:fu_core.action_fu_products
 msgid "No finished-stock products yet"
 msgstr "لا توجد منتجات مخزون نهائي بعد"
 
 #. module: fu_core
+#: model_terms:ir.actions.act_window,help:fu_core.action_fu_on_hand
 msgid "No finished stock in your assigned locations"
 msgstr "لا يوجد مخزون نهائي في المواقع المخصصة لك"
 
 #. module: fu_core
+#: model_terms:ir.actions.act_window,help:fu_core.action_fu_products
 msgid "Create product master data from the authorized native Odoo product-management screen."
 msgstr "أنشئ بيانات المنتج الأساسية من شاشة إدارة المنتجات الأصلية في أودو للمستخدم المصرح له."
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_wizard_form
 msgid "Use this controlled operation so location scope, reason, actor and retry protection stay attached to the native Odoo stock effect."
 msgstr "استخدم هذه العملية المضبوطة حتى يظل نطاق الموقع والسبب والمستخدم وحماية إعادة المحاولة مرتبطين بحركة مخزون أودو الأصلية."
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_wizard_form
 msgid "Why is this stock movement being recorded?"
 msgstr "لماذا يتم تسجيل حركة المخزون هذه؟"
 
 #. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_wizard_form
 msgid "Cancel"
 msgstr "إلغاء"
+
+#. module: fu_core
+#: model_terms:ir.ui.view,arch_db:fu_core.fu_stock_movement_request_form
+msgid "Movement"
+msgstr "حركة المخزون"
+
+#. module: fu_core
+#: model:ir.model.fields,field_description:fu_core.field_fu_stock_movement_wizard__allowed_location_ids
+msgid "Allowed Locations"
+msgstr "المواقع المسموح بها"
+
+#. module: fu_core
+#: model:ir.model.fields.selection,name:fu_core.selection__fu_stock_movement_request__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: fu_core
+#: model:ir.model.fields.selection,name:fu_core.selection__fu_stock_movement_request__state__done
+msgid "Done"
+msgstr "مكتمل"
+
+#. module: fu_core
+#: model:ir.model.fields,help:fu_core.field_res_users__fu_stock_location_ids
+msgid "Retail Store/Storage locations this user may see or operate within. Owner/Admin is not location-scoped."
+msgstr "مواقع المتجر والمخزن التي يمكن لهذا المستخدم عرضها أو تنفيذ عمليات المخزون فيها. المالك/المسؤول غير مقيد بموقع."
