@@ -7,6 +7,13 @@
             <attribute name="t-if">currentOrder.isSynced</attribute>
         </xpath>
         <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' o_payment_successful ')]/div[1]" position="after">
+            <div t-if="currentOrder.isSynced"
+                 class="fu-sync-synced d-flex flex-column align-items-center mb-3 px-2 py-1 border border-success rounded-3 bg-success-subtle text-success-emphasis"
+                 role="status"
+                 aria-live="polite">
+                <span class="fs-6 fw-bolder">Synced to server</span>
+                <span class="fs-6 text-center">This sale is server-confirmed.</span>
+            </div>
             <div t-if="!currentOrder.isSynced"
                  class="fu-sync-pending d-flex flex-column align-items-center mb-3 p-1 p-lg-3 border border-warning rounded-3 bg-warning-subtle text-warning-emphasis fs-3"
                  role="status"

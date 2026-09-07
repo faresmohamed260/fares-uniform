@@ -33,6 +33,18 @@ msgstr "تمت مشاهدة الإشعار"
 #. module: fu_retail
 #. odoo-javascript
 #: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
+msgid "Synced to server"
+msgstr "تمت المزامنة مع الخادم"
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
+msgid "This sale is server-confirmed."
+msgstr "تم تأكيد هذه العملية على الخادم."
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
 msgid "Saved on this device"
 msgstr "تم الحفظ على هذا الجهاز"
 

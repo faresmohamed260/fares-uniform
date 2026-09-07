@@ -8,16 +8,32 @@ import * as Offline from "@point_of_sale/../tests/generic_helpers/offline_util";
 import { refresh } from "@point_of_sale/../tests/generic_helpers/utils";
 import { registry } from "@web/core/registry";
 
-const EN_PENDING_SYNC = {
-    heading: "Saved on this device",
-    detail: "Pending server sync — this sale is not yet server-confirmed.",
+const EN_SYNC_STATUS = {
+    pendingHeading: "Saved on this device",
+    pendingDetail: "Pending server sync — this sale is not yet server-confirmed.",
+    syncedHeading: "Synced to server",
+    syncedDetail: "This sale is server-confirmed.",
 };
 
-const AR_PENDING_SYNC = {
-    heading: "تم الحفظ على هذا الجهاز",
-    detail: "بانتظار المزامنة مع الخادم — لم يتم تأكيد هذه العملية على الخادم بعد.",
+const AR_SYNC_STATUS = {
+    pendingHeading: "تم الحفظ على هذا الجهاز",
+    pendingDetail: "بانتظار المزامنة مع الخادم — لم يتم تأكيد هذه العملية على الخادم بعد.",
+    syncedHeading: "تمت المزامنة مع الخادم",
+    syncedDetail: "تم تأكيد هذه العملية على الخادم.",
     direction: "rtl",
 };
+
+function assertRenderedDirection(element, expected) {
+    if (!expected.direction) {
+        return;
+    }
+    const renderedDirection = element ? getComputedStyle(element).direction : "missing";
+    if (renderedDirection !== expected.direction) {
+        throw new Error(
+            `Expected rendered receipt direction ${expected.direction}, got ${renderedDirection}`
+        );
+    }
+}
 
 function pendingSyncReceiptIsTruthful(expected) {
     return {
@@ -30,25 +46,44 @@ function pendingSyncReceiptIsTruthful(expected) {
             if (order?.isSynced) {
                 throw new Error("Pending-sync receipt rendered for an order already marked synced");
             }
-            if (!text.includes(expected.heading) || !text.includes(expected.detail)) {
+            if (!text.includes(expected.pendingHeading) || !text.includes(expected.pendingDetail)) {
                 throw new Error(`Pending-sync receipt copy mismatch: ${text}`);
             }
             if (text.includes("Payment Successful") || pending?.classList.contains("border-success")) {
                 throw new Error("Offline local-only receipt is still presented as server-confirmed success");
             }
-            if (expected.direction) {
-                const renderedDirection = pending ? getComputedStyle(pending).direction : "missing";
-                if (renderedDirection !== expected.direction) {
-                    throw new Error(
-                        `Expected rendered receipt direction ${expected.direction}, got ${renderedDirection}`
-                    );
-                }
+            if (document.querySelector(".receipt-screen .fu-sync-synced")) {
+                throw new Error("Pending receipt also rendered the server-synced indicator");
             }
+            assertRenderedDirection(pending, expected);
         },
     };
 }
 
-function offlineCheckoutSteps(method, requiresConfirmation = false, expected = EN_PENDING_SYNC) {
+function syncedReceiptIsTruthful(expected) {
+    return {
+        trigger: ".receipt-screen .fu-sync-synced",
+        content: "Reconciled receipt clearly identifies server-confirmed sync state",
+        run() {
+            const uuid = sessionStorage.getItem("fu.retail.order_uuid");
+            const order = posmodel.models["pos.order"].find((candidate) => candidate.uuid === uuid);
+            const synced = document.querySelector(".receipt-screen .fu-sync-synced");
+            const text = synced?.textContent?.replace(/\s+/g, " ").trim() || "";
+            if (!order?.isSynced) {
+                throw new Error("Server-synced receipt rendered before the order was marked synced");
+            }
+            if (!text.includes(expected.syncedHeading) || !text.includes(expected.syncedDetail)) {
+                throw new Error(`Server-synced receipt copy mismatch: ${text}`);
+            }
+            if (document.querySelector(".receipt-screen .fu-sync-pending")) {
+                throw new Error("Server-synced receipt still renders the pending-sync indicator");
+            }
+            assertRenderedDirection(synced, expected);
+        },
+    };
+}
+
+function offlineCheckoutSteps(method, requiresConfirmation = false, expected = EN_SYNC_STATUS) {
     const paymentSteps = [];
     paymentSteps.push(...PaymentScreen.clickPaymentMethod(method));
     if (requiresConfirmation) {
@@ -126,6 +161,7 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
                 await posmodel.syncAllOrders();
             },
         },
+        syncedReceiptIsTruthful(expected),
     ].flat();
 }
 
@@ -138,7 +174,7 @@ registry.category("web_tour.tours").add("fu_retail_offline_instapay", {
 });
 
 registry.category("web_tour.tours").add("fu_retail_offline_cash_ar", {
-    steps: () => offlineCheckoutSteps("Cash", false, AR_PENDING_SYNC),
+    steps: () => offlineCheckoutSteps("Cash", false, AR_SYNC_STATUS),
 });
 
 registry.category("web_tour.tours").add("fu_retail_instapay_cancel_then_confirm", {
