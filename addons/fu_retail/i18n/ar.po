@@ -13,9 +13,31 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/payment_confirmation_patch.js:0
+msgid "Confirm bank notification"
+msgstr "تأكيد إشعار البنك"
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/payment_confirmation_patch.js:0
+msgid "Confirm that you observed the bank transaction notification before recording this payment."
+msgstr "أكد أنك شاهدت إشعار المعاملة البنكية قبل تسجيل هذه الدفعة."
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/payment_confirmation_patch.js:0
+msgid "Notification observed"
+msgstr "تمت مشاهدة الإشعار"
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
 msgid "Saved on this device"
 msgstr "تم الحفظ على هذا الجهاز"
 
 #. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
 msgid "Pending server sync — this sale is not yet server-confirmed."
 msgstr "بانتظار المزامنة مع الخادم — لم يتم تأكيد هذه العملية على الخادم بعد."
