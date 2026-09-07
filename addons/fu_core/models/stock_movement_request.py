@@ -1,5 +1,5 @@
 from odoo import _, Command, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 
 class FuStockMovementRequest(models.Model):
@@ -33,6 +33,12 @@ class FuStockMovementRequest(models.Model):
     )
     reason = fields.Char(required=True, readonly=True)
     batch_ref = fields.Char(readonly=True)
+    actor_id = fields.Many2one(
+        "res.users", required=True, readonly=True, copy=False, string="Requested by"
+    )
+    executed_by_id = fields.Many2one(
+        "res.users", readonly=True, copy=False, string="Executed by"
+    )
     company_id = fields.Many2one(
         "res.company",
         required=True,
@@ -92,20 +98,48 @@ class FuStockMovementRequest(models.Model):
         return values
 
     @api.model
+    def _fu_actor_is_owner_or_technical_admin(self):
+        return (
+            self.env.is_superuser()
+            or self.env.user.has_group("fu_core.group_fu_owner_admin")
+            or self.env.user.has_group("base.group_system")
+        )
+
+    @api.model
+    def _fu_check_actor_access(self, values):
+        if self._fu_actor_is_owner_or_technical_admin():
+            return True
+        if not self.env.user.has_group("fu_core.group_fu_inventory_staff"):
+            raise AccessError(_("This role cannot execute finished-stock movements."))
+
+        allowed = self.env.user.fu_stock_location_ids
+        destination = self.env["stock.location"].browse(values.get("destination_location_id"))
+        if destination not in allowed:
+            raise AccessError(_("The destination is outside your assigned stock locations."))
+        if values.get("operation") == "internal":
+            source = self.env["stock.location"].browse(values.get("source_location_id"))
+            if source not in allowed:
+                raise AccessError(_("The source is outside your assigned stock locations."))
+        return True
+
+    @api.model
     def process_idempotent(self, request_key, operation, **payload):
         """Execute one native Odoo stock effect at most once for a stable key.
 
-        The PostgreSQL advisory transaction lock serializes concurrent retries for the
-        same key. The unique index remains a second database-level invariant.
+        Inventory Staff never receive Odoo's broad stock mutation ACL. This service
+        checks role + assigned locations, then performs the approved native Odoo
+        effect under sudo while preserving the business actor on this immutable ledger.
         """
         request_key = (request_key or "").strip()
         if not request_key:
             raise ValidationError(_("An idempotency request key is required."))
 
+        values = self._fu_normalize_payload(operation, payload)
+        self._fu_check_actor_access(values)
         self.env.cr.execute(
             "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))", [request_key]
         )
-        values = self._fu_normalize_payload(operation, payload)
+
         existing = self.search([("request_key", "=", request_key)], limit=1)
         if existing:
             existing._fu_assert_same_payload(values)
@@ -113,9 +147,14 @@ class FuStockMovementRequest(models.Model):
                 existing.action_execute()
             return existing
 
-        request = self.create({"request_key": request_key, **values})
-        request.action_execute()
-        return request
+        request = self.sudo().create(
+            {
+                "request_key": request_key,
+                "actor_id": self.env.user.id,
+                **values,
+            }
+        )
+        return request.with_user(self.env.user).action_execute() and request
 
     def _fu_assert_same_payload(self, values):
         self.ensure_one()
@@ -141,6 +180,14 @@ class FuStockMovementRequest(models.Model):
                 _("The request key is already bound to a different stock operation.")
             )
 
+    def _fu_values_for_access_check(self):
+        self.ensure_one()
+        return {
+            "operation": self.operation,
+            "source_location_id": self.source_location_id.id,
+            "destination_location_id": self.destination_location_id.id,
+        }
+
     def _fu_validate_business_contract(self):
         self.ensure_one()
         if not self.product_id.is_storable:
@@ -158,7 +205,7 @@ class FuStockMovementRequest(models.Model):
                 )
             if self.source_location_id == self.destination_location_id:
                 raise ValidationError(_("Source and destination must be different."))
-            available = self.env["stock.quant"]._get_available_quantity(
+            available = self.env["stock.quant"].sudo()._get_available_quantity(
                 self.product_id, self.source_location_id
             )
             if self.product_id.uom_id.compare(available, self.quantity) < 0:
@@ -168,14 +215,16 @@ class FuStockMovementRequest(models.Model):
 
     def action_execute(self):
         for request in self:
+            request._fu_check_actor_access(request._fu_values_for_access_check())
             if request.state == "done":
                 continue
             request._fu_validate_business_contract()
+            request.sudo().executed_by_id = self.env.user
             if request.operation == "opening":
                 request._fu_apply_opening_count()
             else:
                 request._fu_apply_native_picking()
-            request.state = "done"
+            request.sudo().state = "done"
         return True
 
     def _fu_apply_native_picking(self):
@@ -189,7 +238,7 @@ class FuStockMovementRequest(models.Model):
         if not picking_type:
             raise UserError(_("The required native Odoo operation type is not configured."))
 
-        picking = self.env["stock.picking"].create(
+        picking = self.env["stock.picking"].sudo().create(
             {
                 "picking_type_id": picking_type.id,
                 "location_id": self.source_location_id.id,
@@ -214,12 +263,12 @@ class FuStockMovementRequest(models.Model):
         picking.button_validate()
         if picking.state != "done":
             raise UserError(_("The native Odoo stock transfer did not complete."))
-        self.picking_id = picking
+        self.sudo().picking_id = picking
 
     def _fu_apply_opening_count(self):
         self.ensure_one()
         inventory_name = f"FU opening {self.request_key} | {self.batch_ref} | {self.reason}"
-        quant_env = self.env["stock.quant"].with_context(
+        quant_env = self.env["stock.quant"].sudo().with_context(
             inventory_mode=True, inventory_name=inventory_name
         )
         quant = quant_env.search(
@@ -232,23 +281,24 @@ class FuStockMovementRequest(models.Model):
             ],
             limit=1,
         )
+        executor = self.executed_by_id or self.actor_id
         if quant:
             quant.inventory_quantity = self.quantity
-            quant.user_id = self.create_uid
+            quant.user_id = executor
         else:
             quant = quant_env.create(
                 {
                     "product_id": self.product_id.id,
                     "location_id": self.destination_location_id.id,
                     "inventory_quantity": self.quantity,
-                    "user_id": self.create_uid.id,
+                    "user_id": executor.id,
                 }
             )
         quant.with_context(
             inventory_mode=True, inventory_name=inventory_name
         ).action_apply_inventory()
 
-        inventory_move = self.env["stock.move"].search(
+        inventory_move = self.env["stock.move"].sudo().search(
             [
                 ("is_inventory", "=", True),
                 ("inventory_name", "=", inventory_name),
@@ -257,4 +307,4 @@ class FuStockMovementRequest(models.Model):
             order="id desc",
             limit=1,
         )
-        self.stock_move_id = inventory_move
+        self.sudo().stock_move_id = inventory_move

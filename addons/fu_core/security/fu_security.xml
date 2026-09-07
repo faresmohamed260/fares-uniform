@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Fares roles are deliberately independent groups: one person may hold more than one. -->
+        <record id="group_fu_stock_location_scoped" model="res.groups">
+            <field name="name">Fares stock location scoped</field>
+            <field name="sequence">5</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Technical group applying assigned-location visibility. Do not assign directly.</field>
+        </record>
+
+        <record id="group_fu_owner_admin" model="res.groups">
+            <field name="name">Fares Uniform: Owner / Administrator</field>
+            <field name="sequence">10</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('base.group_erp_manager')), (4, ref('product.group_product_manager')), (4, ref('stock.group_stock_manager'))]"/>
+            <field name="comment">Business owner authority for product master, stock administration, users and Fares role assignment.</field>
+        </record>
+
+        <record id="group_fu_store_manager" model="res.groups">
+            <field name="name">Fares Uniform: Store Manager</field>
+            <field name="sequence">20</field>
+            <field name="implied_ids" eval="[(4, ref('group_fu_stock_location_scoped'))]"/>
+            <field name="comment">Assigned-store operational visibility without product-master, stock-correction or role-administration authority.</field>
+        </record>
+
+        <record id="group_fu_cashier" model="res.groups">
+            <field name="name">Fares Uniform: Cashier</field>
+            <field name="sequence">30</field>
+            <field name="implied_ids" eval="[(4, ref('group_fu_stock_location_scoped'))]"/>
+            <field name="comment">Product and assigned-store stock lookup only in Phase 1; POS permissions arrive in the retail phase.</field>
+        </record>
+
+        <record id="group_fu_inventory_staff" model="res.groups">
+            <field name="name">Fares Uniform: Inventory Staff</field>
+            <field name="sequence">40</field>
+            <field name="implied_ids" eval="[(4, ref('group_fu_stock_location_scoped'))]"/>
+            <field name="comment">Receipts, transfers and opening counts only through the Fares stock service within assigned locations. Does not imply Odoo's broad stock-user mutation group.</field>
+        </record>
+
+        <record id="group_fu_production_manager" model="res.groups">
+            <field name="name">Fares Uniform: Production Manager</field>
+            <field name="sequence">50</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Product/variant read access for production context in Phase 1; production mutation arrives in its bounded phase.</field>
+        </record>
+
+        <record id="group_fu_sales_bd" model="res.groups">
+            <field name="name">Fares Uniform: Sales / Business Development</field>
+            <field name="sequence">60</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Product/catalog read access in Phase 1; business-client workflow permissions arrive later.</field>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <!-- Assigned-location users see on-hand quants only for their explicit Fares locations. -->
+        <record id="rule_fu_stock_quant_assigned_locations" model="ir.rule">
+            <field name="name">Fares stock: assigned locations only</field>
+            <field name="model_id" ref="stock.model_stock_quant"/>
+            <field name="domain_force">[('location_id', 'in', user.fu_stock_location_ids.ids)]</field>
+            <field name="groups" eval="[(4, ref('group_fu_stock_location_scoped'))]"/>
+        </record>
+        <!-- Owner remains unrestricted even if another Fares role is also assigned. Group rules union. -->
+        <record id="rule_fu_stock_quant_owner_all" model="ir.rule">
+            <field name="name">Fares stock: owner all locations</field>
+            <field name="model_id" ref="stock.model_stock_quant"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_fu_owner_admin'))]"/>
+        </record>
+
+        <record id="rule_fu_movement_request_assigned_locations" model="ir.rule">
+            <field name="name">Fares movement requests: assigned destinations only</field>
+            <field name="model_id" ref="model_fu_stock_movement_request"/>
+            <field name="domain_force">[('destination_location_id', 'in', user.fu_stock_location_ids.ids)]</field>
+            <field name="groups" eval="[(4, ref('group_fu_stock_location_scoped'))]"/>
+        </record>
+        <record id="rule_fu_movement_request_owner_all" model="ir.rule">
+            <field name="name">Fares movement requests: owner all</field>
+            <field name="model_id" ref="model_fu_stock_movement_request"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_fu_owner_admin'))]"/>
+        </record>
+    </data>
+</odoo>
