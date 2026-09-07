@@ -41,6 +41,10 @@ jobs:
             label: "Offline Cash reload/reconnect"
             update_module: fu_retail
             test_tags: "/fu_retail:TestRetailPOSOffline.test_offline_cash_reload_reconnect_is_idempotent"
+          - slice: cash-ar
+            label: "Arabic offline Cash pending receipt"
+            update_module: fu_retail
+            test_tags: "/fu_retail:TestRetailPOSOffline.test_offline_cash_arabic_receipt_marks_pending_sync"
           - slice: instapay
             label: "Offline confirmed-InstaPay reload/reconnect"
             update_module: fu_retail
