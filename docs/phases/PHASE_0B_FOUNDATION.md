@@ -1,6 +1,6 @@
 # Phase 0B — Foundation architecture and UX direction
 
-Status: IMPLEMENTATION FOUNDATION READY / CLIENT VISUAL REVIEW OPEN, 2026-09-07.
+Status: COMPLETE / CLIENT VISUAL DIRECTION APPROVED, 2026-09-07.
 Authorization: client instructed "keep going" after Phase 0A and subsequently confirmed the product/stock rules blocking the first implementation slice. This does not authorize paid resources, production deployment or bypass the explicit visual checkpoint.
 
 ## Goal
@@ -75,11 +75,11 @@ This phase is complete only when:
 2. Representative data contracts can express the accepted MVP without hardcoding unknown business values. **PASS**
 3. New code passes exact-head hosted build/tests. **PASS** for the representative UI and Phase 0A technical proof.
 4. Representative POS/order/production/public UI renders exist in EN/AR desktop/narrow with reduced-motion and keyboard evidence. **PASS**
-5. The client explicitly accepts or rejects the representative visual direction. **OPEN**
+5. The client explicitly accepts or rejects the representative visual direction. **PASS — modern/practical operational ERP direction accepted 2026-09-07; richer 3D/physics retained for suitable expressive surfaces under D-033.**
 6. Remaining business-policy unknowns are separated into blocking vs later-phase decisions. **PASS**
 7. PROJECT.md, DECISIONS.md and the documentation index accurately hand off the next implementation phase. **PASS**
 
-**Only Gate 5 remains open.** Passing screenshots/tests do not infer client taste approval.
+**All Phase 0B gates are now closed.** Earlier prototypes remain technical evidence; D-033 records the approved operational visual paradigm.
 
 ## Expected outputs
 Completed:
@@ -93,4 +93,4 @@ Completed:
 - prepared Phase 1 contract in `docs/phases/PHASE_1_PRODUCTS_STOCK_ACCESS.md`
 
 ## Next dependency
-The first production-grade phase is now contractually prepared. **Do not execute it until the client resolves the Phase 0B visual direction gate.**
+Phase 0B is complete. Activate `docs/phases/PHASE_1_PRODUCTS_STOCK_ACCESS.md` on a focused implementation branch without reopening the approved visual paradigm or confirmed product/stock rules unless the client explicitly changes them.

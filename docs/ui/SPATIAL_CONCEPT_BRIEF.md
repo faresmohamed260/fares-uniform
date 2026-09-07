@@ -1,6 +1,12 @@
 # Fares Uniform spatial UI concept brief
 
-Status: CLIENT-REQUIRED NEW VISUAL DIRECTION / CONCEPT APPROVAL PENDING, 2026-09-07.
+Status: SUPERSEDED FOR DENSE OPERATIONAL ERP / RETAINED AS EXPRESSIVE-SURFACE EXPLORATION, 2026-09-07.
+
+## Approval resolution
+
+The client later clarified that the dashboard and other dense ERP work surfaces should be **modern and practical**, then explicitly approved that direction. This document therefore no longer governs Dashboard, POS, Products, Production, Sales Orders or Customers as a 3D-first composition. D-033 and `DESIGN_SYSTEM.md` are authoritative for those operational surfaces.
+
+The ideas below remain useful for suitable expressive surfaces—especially public/marketing and product showcase/detail—where richer 3D, physics and morphing can add value without hurting operational clarity.
 
 ## Why this replaces the current visual baseline
 
@@ -254,4 +260,4 @@ Reject the next concept if it:
 
 The current `fa9ef241...` representative visual baseline is technically valid but **rejected by the client for visual ambition** and must not be used as the accepted design reference.
 
-The next gate is visual concept approval for the spatial/3D direction. Production-grade Phase 1 UI styling remains blocked until that direction is explicitly accepted.
+The spatial/3D-first direction is **not** the approved dense operational ERP baseline. Phase 1 is no longer blocked by this concept. Future use of these ideas must stay within D-033.

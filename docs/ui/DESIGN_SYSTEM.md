@@ -1,6 +1,6 @@
 # Fares Uniform design system direction
 
-Status: PHASE 0B DESIGN FOUNDATION / CLIENT VISUAL APPROVAL PENDING, 2026-09-07.
+Status: CLIENT-APPROVED OPERATIONAL VISUAL BASELINE, 2026-09-07.
 
 ## Goal
 Create a premium modern bilingual system that feels deliberate and high quality without sacrificing the speed and predictability needed at checkout. Physics/morphing effects are a client requirement, but motion must communicate structure and state rather than decorate every interaction.
@@ -8,6 +8,9 @@ Create a premium modern bilingual system that feels deliberate and high quality 
 The Phase 0A proof UI is compatibility evidence only and is not the visual reference for this system.
 
 ## 1. Design principles
+
+### Modern, practical operations
+Dashboard, POS, Products, Production, Sales Orders and Customers follow the client-approved clean modern SaaS direction: restrained depth, crisp typography, efficient tables/cards/kanban, obvious task hierarchy and touch-friendly POS composition. They should feel premium and contemporary, not futuristic, cinematic or game-like.
 
 ### Premium, not ornamental
 Use strong spacing, typography, material depth and clear state hierarchy first. Motion enhances transitions after the static hierarchy works.
@@ -91,8 +94,8 @@ Cart line addition/removal, panel resize, status progression, list reordering. S
 ### Level 2 — navigation/shared element
 Product card → detail, order row → order detail, public gallery transitions. Use shared-element/morphing concepts where they clarify continuity.
 
-### Level 3 — ambient/hero
-Public-site decorative/physics effects only. Must not reduce readability, introduce scroll jank or become the main navigation mechanism.
+### Level 3 — expressive 3D/physics surfaces
+Reserve real 3D, richer physics, morphing geometry/camera behavior and cinematic depth primarily for public/marketing, product showcase/detail and other low-frequency expressive surfaces. Dense operational dashboards and checkout do not adopt a 3D-first composition. Must not reduce readability, introduce scroll jank or become the main navigation mechanism.
 
 Rules:
 - representative visual review must contain **conspicuous** physics/morphing evidence; tiny press/tap effects alone do not satisfy the client requirement;
@@ -199,4 +202,6 @@ Reject a visual direction if it:
 
 ## 10. Approval state
 
-No color palette, typography family, final component preset or screenshot is client-approved yet. Phase 0B must produce rendered options/evidence before these become durable visual decisions.
+The client approved the **modern and practical operational ERP direction** on 2026-09-07. The accepted grammar is clean contemporary SaaS: light primary work surfaces, dark/navy structural navigation where appropriate, restrained shadows/radii, strong status semantics, visual product imagery, efficient tables/kanban and touch-focused POS composition. Exact color values and font families may be refined during implementation but must remain faithful to this paradigm rather than reopening it.
+
+The separate 3D/physics/morphing requirement remains active for suitable expressive surfaces, especially public/marketing and product showcase/detail. D-033 supersedes D-032 whenever dense operational clarity conflicts with a 3D-first treatment.

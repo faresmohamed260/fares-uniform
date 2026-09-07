@@ -195,3 +195,13 @@ Prebuilt-first still governs ordinary controls. Buttons, fields, dialogs, tabs, 
 Transaction-critical flows must remain immediate and usable without the 3D interaction path. Barcode scanning/payment cannot be blocked by cinematic motion; every physics-only gesture needs an accessible maintained-control equivalent. Reduced-motion, low-performance and WebGL-unavailable fallbacks must preserve the workflow and information hierarchy.
 
 The current visual baselines are historical technical evidence only. Phase 0B visual approval remains open until a new spatial concept is explicitly accepted. See `docs/ui/SPATIAL_CONCEPT_BRIEF.md`.
+
+
+## D-033 — Modern practical operational ERP visual direction
+Status: Accepted by client, 2026-09-07; supersedes D-032 for dense operational ERP surfaces.
+
+The client clarified that the earlier 3D-first correction was being judged on a dashboard and approved a **modern, practical operational ERP** direction instead. Dashboard, POS, Products, Production, Sales Orders and Customers should use a clean contemporary SaaS visual language: strong information hierarchy, restrained depth/shadow, legible tables/cards, clear status semantics, touch-friendly POS controls and bilingual EN/AR structure. These dense work surfaces must not be turned into cinematic 3D scenes or futuristic demo interfaces.
+
+D-032 remains useful for **expressive surfaces**, not as the default composition for dense ERP work. Rich 3D, real physics and morphing are still desired for the public/marketing site, product showcase/detail and carefully chosen low-frequency transitions where they improve the experience without harming business-task clarity. Operational motion may use polished springs/shared-layout continuity, but scanning, checkout, stock work and data-heavy screens remain stable and practical.
+
+D-031 remains mandatory: use maintained prebuilt components before custom generic controls. The client-approved concept board is represented durably by this decision and `docs/ui/DESIGN_SYSTEM.md`; the generated conversation image itself is not runtime evidence.

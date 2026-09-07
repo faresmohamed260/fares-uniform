@@ -1,8 +1,8 @@
 # Phase 1 — Products, finished stock and access foundation
 
-Status: PREPARED / EXECUTION BLOCKED BY PHASE 0B CLIENT VISUAL GATE, 2026-09-07.
+Status: ACTIVE / AUTHORIZED, 2026-09-07.
 
-Authorization state: the client authorized continued Phase 0B foundation work and confirmed the product/stock business rules needed by this phase. The repository workflow requires Phase 0B's explicit client visual decision before this production-grade implementation starts. This contract is therefore execution-ready but not yet active.
+Authorization state: Phase 0B is complete. The client confirmed the product/stock business rules and explicitly approved the modern/practical operational ERP visual direction on 2026-09-07. This contract is active for remote implementation within its existing scope; paid resources, production deployment and real-data migration remain unauthorized.
 
 ## Goal
 Build the first durable Odoo operational foundation: product/design identity, configurable garment variants, permanent item identifiers, finished-stock custody at Retail Store/Storage, attributable stock movements, controlled opening-stock onboarding and server-enforced role boundaries.
@@ -15,7 +15,7 @@ This phase establishes trusted inventory identity and movement contracts that la
 - Foundation architecture: `docs/architecture/FOUNDATION_ARCHITECTURE.md`.
 - Client-confirmed product/stock rules: `docs/requirements/PRODUCT_AND_STOCK_RULES.md`.
 - Role/access design: `docs/requirements/ROLES_AND_PERMISSIONS.md`.
-- Revised UI foundation technical gate: implementation `fa9ef2413177a54e566c5505e1e858696c8a9bfb`, hosted run `34073833275`, **15/15 browser tests passed** using actual shadcn/Base UI primitives plus conspicuous normal-motion physics and strict reduced-motion suppression; client visual acceptance remains open.
+- Revised UI foundation technical gate: implementation `fa9ef2413177a54e566c5505e1e858696c8a9bfb`, hosted run `34073833275`, **15/15 browser tests passed**. The client subsequently approved a modern/practical operational ERP paradigm (D-033); richer 3D/physics is reserved for suitable expressive surfaces rather than imposed on dense operational views.
 
 ## In scope
 
@@ -119,8 +119,8 @@ Use synthetic fixtures/tests only. No real business import is part of this phase
 ## UI requirements
 Internal implementation remains Odoo/Owl-native.
 
-Once Phase 0B visual direction is accepted:
-- apply shared Fares semantic design tokens/patterns to the product/stock views touched by this phase;
+Apply the accepted Phase 0B direction:
+- use the modern/practical operational ERP grammar and shared Fares semantic design tokens/patterns on product/stock views touched by this phase;
 - **prebuilt-first is mandatory**: use maintained native Odoo/Owl components and extension points before any custom generic widget; if a generic custom component is necessary, document the missing maintained option;
 - custom code should focus on Fares-specific composition/workflow behavior rather than rebuilding standard controls;
 - support EN/AR/RTL;
@@ -129,7 +129,7 @@ Once Phase 0B visual direction is accepted:
 - provide reduced-motion behavior for any non-essential spatial animation;
 - do not build React versions of Odoo product/inventory screens merely for styling.
 
-No UI styling work should start before the visual gate is resolved if doing so would lock an unapproved visual direction.
+The visual gate is resolved. Do not reopen the product/inventory visual paradigm during implementation; refine details within D-033 and the design-system contract.
 
 ## Hosted validation plan
 All verification is remote/hosted and must target the exact implementation head.
@@ -189,7 +189,5 @@ Phase 1 is complete only when:
 7. no production deployment or real-data claim is made;
 8. the next retail/POS/preorder phase can rely on these contracts without redefining product or stock identity.
 
-## Execution gate
-**BLOCKED until the client explicitly accepts or rejects/revises the Phase 0B representative visual direction.**
-
-If accepted, activate this contract on a focused implementation branch without reopening already-confirmed product/stock questions. If rejected, revise the design system/prototype first; the underlying product/stock data rules remain valid unless the client changes them explicitly.
+## Execution state
+**ACTIVE / AUTHORIZED.** Implement on a focused branch without reopening the confirmed product/stock questions or approved operational visual paradigm unless the client explicitly changes them.
