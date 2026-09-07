@@ -1,3 +1,5 @@
+import copy
+
 from odoo.addons.point_of_sale.tests.common import CommonPosTest
 from odoo.exceptions import ValidationError
 from odoo.tests import tagged
@@ -52,3 +54,35 @@ class TestRetailPaymentConfirmation(CommonPosTest):
             }
         )
         self.assertFalse(payment.fu_manual_confirmed)
+
+    def test_lost_ack_replay_keeps_one_order_payment_and_stock_effect(self):
+        if not self.pos_config_usd.current_session_id:
+            self.pos_config_usd.open_ui()
+
+        product = self.twenty_dollars_no_tax.product_variant_id
+        product.product_tmpl_id.is_storable = True
+        order_uuid = "fu-retail-lost-ack-0001"
+        payload = self.create_ui_order_data(
+            [(product, 1)],
+            payments=[(self.cash_payment_method, 20.0)],
+            uuid=order_uuid,
+        )
+
+        first_result = self.env["pos.order"].sync_from_ui([copy.deepcopy(payload)])
+        first_order = self.env["pos.order"].browse(first_result["pos.order"][0]["id"])
+        self.assertEqual(first_order.uuid, order_uuid)
+        self.assertEqual(len(first_order.payment_ids), 1)
+        self.assertEqual(len(first_order.picking_ids), 1)
+        first_moves = first_order.picking_ids.move_ids.filtered(lambda move: move.product_id == product)
+        self.assertEqual(len(first_moves), 1)
+
+        second_result = self.env["pos.order"].sync_from_ui([copy.deepcopy(payload)])
+        second_order = self.env["pos.order"].browse(second_result["pos.order"][0]["id"])
+
+        matching_orders = self.env["pos.order"].search([("uuid", "=", order_uuid)])
+        self.assertEqual(second_order, first_order)
+        self.assertEqual(matching_orders, first_order)
+        self.assertEqual(len(first_order.payment_ids), 1)
+        self.assertEqual(len(first_order.picking_ids), 1)
+        replay_moves = first_order.picking_ids.move_ids.filtered(lambda move: move.product_id == product)
+        self.assertEqual(len(replay_moves), 1)
