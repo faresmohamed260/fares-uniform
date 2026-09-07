@@ -13,27 +13,25 @@
 
 ## Current state — 2026-09-07
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: ACTIVE / AUTHORIZED.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS.**
 
 The accepted MVP boundary covers finished stock, bilingual offline POS, preorders/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics remains future work.
 
 Phase 0A proved the Odoo Community direction at implementation `1ad528e02ed1a709d34620731d182c5e1cbdebe9`, run `34068805602`: 15/15 tests passed. Odoo remains a conditional technical GO with Fares-owned addons/UX and the isolated offline-restore compatibility shim documented in `docs/validation/ODOO_PROOF.md`.
 
-Phase 0B formalized the hybrid architecture and technical UI foundation, but **neither rendered visual baseline is accepted**. The client rejected the first baseline as too custom-built and visually restrained, then rejected the revised prebuilt-first `fa9ef2413177a54e566c5505e1e858696c8a9bfb` baseline as still fundamentally basic/flat despite its stronger Motion layer. The `fa9ef...` build remains valid technical evidence only: hosted run `34073833275`, job `101596052081` passed typecheck, optimized build and 15/15 browser tests with maintained shadcn/Base UI usage, RTL, keyboard behavior and reduced-motion coverage.
+Phase 0B formalized the hybrid architecture. The earlier rendered prototypes remain technical evidence only and were rejected as visual baselines. The final operational visual target is the client-approved **modern and practical ERP** direction under D-033. Dashboard, POS, Products, Production, Sales Orders and Customers stay clean, contemporary, information-dense and task-focused. Prebuilt-first remains mandatory. D-032's richer 3D/physics/morphing ideas remain available for suitable expressive surfaces such as public/marketing and product showcase/detail rather than governing dense ERP composition.
 
-The final operational visual target is the client-approved **modern and practical ERP** direction under D-033. Dashboard, POS, Products, Production, Sales Orders and Customers stay clean, contemporary, information-dense and task-focused. D-032's richer 3D/physics/morphing ideas remain available for suitable expressive surfaces such as public/marketing and product showcase/detail rather than governing dense ERP composition.
-
-On 2026-09-07 the client confirmed the remaining product/stock blockers:
+Confirmed product/stock rules remain:
 - school/client-specific designs are stocked as different products;
 - no tracked factory-finished inventory location is useful;
 - size systems vary by garment and remain configurable per product family;
 - permanent sequential `FU-000001`-style variant codes are accepted.
 
-These rules are authoritative in `docs/requirements/PRODUCT_AND_STOCK_RULES.md` and decisions D-028/D-029.
+Phase 1 is complete on `phase-1/products-stock-access`. The production `fu_core` foundation has hosted evidence for product identity, Retail Store/Storage custody, opening counts, native receipts/transfers, idempotent stock effects, the Phase 1 role/location-security matrix and native bilingual Odoo product/inventory workflows.
 
-The first production-grade contract at `docs/phases/PHASE_1_PRODUCTS_STOCK_ACCESS.md` is now **active**. Product/stock rules and the operational visual paradigm are both accepted.
+The authoritative tested implementation is `eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3`. GitHub Actions run `34110346764`, job `101704871502`, completed successfully, including the full `fu_core` test gate, real Chrome English/Arabic UI checks and repeatable addon upgrade. Artifact `phase1-product-stock-eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3` is ID `10014163050`, SHA-256 `4e2e1a01b7516d0e7a1b93ef77d4ae48f430ff723098c04981033b96fda71fbc`. Detailed evidence is in `docs/validation/PHASE_1_PRODUCTS_STOCK.md`.
 
-Draft PR #2 (`foundation/phase-0b` → `proof/odoo-community`) remains the current foundation review branch.
+The Phase 1 closure/docs commit after that run is documentation/CI cleanup only and is not substituted for the exact tested implementation SHA above.
 
 One retail store, one storage location and one checkout per store are confirmed. Numeric product/transaction volumes remain unavailable and must not be invented. Launch date and service budget remain deployment-time decisions.
 
@@ -42,14 +40,14 @@ One retail store, one storage location and one checkout per store are confirmed.
 1. Phase 0: business discovery and first-release boundary — complete.
 2. Phase 0A: Odoo technical proof — pass.
 3. Phase 0B: architecture/data/UI foundation — complete; modern/practical operational visual direction approved.
-4. Phase 1: products, finished-stock movements, access controls and opening inventory — active.
+4. Phase 1: products, finished-stock movements, access controls, opening inventory and bilingual native internal UI — complete; hosted technical gates pass.
 5. Phase 2+: retail POS/preorders/payments/offline reconciliation, production/business workflows, public catalog/reports, then integrated onboarding/UAT/deployment in bounded contracts.
 
 ## Immediate next action
 
-**Execute Phase 1 on a focused implementation branch.** Start with the Odoo-native product/variant identity and permanent `FU-000001` item-code foundation, then finished-stock custody/movements and role enforcement. Validate exact-head remotely before claiming each slice complete.
+**Write and authorize the next bounded retail/POS/preorder contract before implementation.** It should reuse the verified Phase 1 product/stock/security contracts and the native Odoo POS mechanics already proven in Phase 0A, while explicitly defining the smallest testable slice for checkout, preorders, Cash/InstaPay and offline reconciliation without silently deciding deferred business policies.
 
-Do not ask the client again about product-design separation, factory-finished custody, size-system variability or sequential item codes unless the client changes those decisions.
+Do not reopen product-design separation, factory-finished custody, size-system variability, sequential item codes or the operational visual direction unless the client changes those decisions.
 
 ## Later explicit decisions
 
