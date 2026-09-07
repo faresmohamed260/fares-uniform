@@ -1,6 +1,6 @@
 import copy
 
-from odoo.addons.point_of_sale.tests.common import CommonPosTest
+from odoo.addons.point_of_sale.tests.common import CommonPosTest, TestPoSCommon
 from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 
@@ -62,7 +62,17 @@ class TestRetailPaymentConfirmation(CommonPosTest):
         product = self.twenty_dollars_no_tax.product_variant_id
         product.product_tmpl_id.is_storable = True
         order_uuid = "fu-retail-lost-ack-0001"
-        payload = self.create_ui_order_data(
+
+        # Reuse Odoo's own UI-payload builder from the pinned 19.0 test framework.
+        # CommonPosTest deliberately does not inherit TestPoSCommon, so provide the
+        # four session attributes that helper documents as prerequisites and invoke
+        # it unbound. This keeps the replay payload identical to a native POS payload.
+        self.config = self.pos_config_usd
+        self.pos_session = self.pos_config_usd.current_session_id
+        self.currency = self.pos_session.currency_id
+        self.pricelist = self.config.pricelist_id
+        payload = TestPoSCommon.create_ui_order_data(
+            self,
             [(product, 1)],
             payments=[(self.cash_payment_method, 20.0)],
             uuid=order_uuid,
