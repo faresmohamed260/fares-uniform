@@ -56,7 +56,13 @@ class TestFaresUIContracts(TransactionCase):
         self.assertEqual(request.state, "done")
 
     def test_owner_wizard_sees_both_confirmed_custody_locations(self):
-        wizard = self.env["fu.stock.movement.wizard"].with_user(self.owner).create({})
+        wizard = self.env["fu.stock.movement.wizard"].with_user(self.owner).create(
+            {
+                "product_id": self.product.id,
+                "destination_location_id": self.store.id,
+                "reason": "UI contract owner scope",
+            }
+        )
         self.assertEqual(set(wizard.allowed_location_ids.ids), {self.store.id, self.storage.id})
 
     def test_operational_actions_use_read_only_native_models(self):

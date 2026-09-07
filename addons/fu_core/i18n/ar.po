@@ -1,4 +1,7 @@
-# Translation of Fares Uniform Core to Arabic.
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * fu_core
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
@@ -8,134 +11,178 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
+#. module: fu_core
 msgid "Fares Uniform"
 msgstr "فارس للزي الموحد"
 
+#. module: fu_core
 msgid "Fares Product Lookup"
 msgstr "البحث عن منتجات فارس"
 
+#. module: fu_core
 msgid "Product Lookup"
 msgstr "البحث عن المنتجات"
 
+#. module: fu_core
 msgid "Permanent Item Identity"
 msgstr "هوية الصنف الدائمة"
 
+#. module: fu_core
 msgid "Item Code"
 msgstr "كود الصنف"
 
+#. module: fu_core
 msgid "Fares On-hand Stock"
 msgstr "مخزون فارس المتاح"
 
+#. module: fu_core
 msgid "On-hand Stock"
 msgstr "المخزون المتاح"
 
+#. module: fu_core
 msgid "Stock"
 msgstr "المخزون"
 
+#. module: fu_core
 msgid "Movement History"
 msgstr "سجل حركات المخزون"
 
+#. module: fu_core
 msgid "Stock Movement"
 msgstr "حركة مخزون"
 
+#. module: fu_core
 msgid "New Stock Operation"
 msgstr "عملية مخزون جديدة"
 
+#. module: fu_core
 msgid "Stock Operation"
 msgstr "عملية مخزون"
 
+#. module: fu_core
 msgid "Execute Stock Operation"
 msgstr "تنفيذ عملية المخزون"
 
+#. module: fu_core
 msgid "Operation"
 msgstr "العملية"
 
+#. module: fu_core
 msgid "Receipt"
 msgstr "استلام"
 
+#. module: fu_core
 msgid "Store/Storage Transfer"
 msgstr "نقل بين المتجر والمخزن"
 
+#. module: fu_core
 msgid "Opening Count"
 msgstr "جرد افتتاحي"
 
+#. module: fu_core
 msgid "Product"
 msgstr "المنتج"
 
+#. module: fu_core
 msgid "Quantity"
 msgstr "الكمية"
 
+#. module: fu_core
 msgid "Inventory Custody"
 msgstr "عهدة المخزون"
 
+#. module: fu_core
 msgid "Source Location"
 msgstr "موقع المصدر"
 
+#. module: fu_core
 msgid "Destination Location"
 msgstr "موقع الوجهة"
 
+#. module: fu_core
 msgid "From"
 msgstr "من"
 
+#. module: fu_core
 msgid "To"
 msgstr "إلى"
 
+#. module: fu_core
 msgid "Audit Trail"
 msgstr "سجل التدقيق"
 
+#. module: fu_core
 msgid "Reason"
 msgstr "السبب"
 
+#. module: fu_core
 msgid "Batch Reference"
 msgstr "مرجع الدفعة"
 
+#. module: fu_core
 msgid "Request Key"
 msgstr "مفتاح الطلب"
 
+#. module: fu_core
 msgid "Requested by"
 msgstr "طلب بواسطة"
 
+#. module: fu_core
 msgid "Executed by"
 msgstr "نُفذ بواسطة"
 
+#. module: fu_core
 msgid "Requested at"
 msgstr "وقت الطلب"
 
+#. module: fu_core
 msgid "Date"
 msgstr "التاريخ"
 
+#. module: fu_core
 msgid "Receipts"
 msgstr "الاستلامات"
 
+#. module: fu_core
 msgid "Transfers"
 msgstr "التحويلات"
 
+#. module: fu_core
 msgid "Opening Counts"
 msgstr "الجرد الافتتاحي"
 
+#. module: fu_core
 msgid "Destination"
 msgstr "الوجهة"
 
+#. module: fu_core
 msgid "Fares Uniform Stock Scope"
 msgstr "نطاق مخزون فارس"
 
+#. module: fu_core
 msgid "Fares stock locations"
 msgstr "مواقع مخزون فارس"
 
+#. module: fu_core
 msgid "No finished-stock products yet"
 msgstr "لا توجد منتجات مخزون نهائي بعد"
 
+#. module: fu_core
 msgid "No finished stock in your assigned locations"
 msgstr "لا يوجد مخزون نهائي في المواقع المخصصة لك"
 
+#. module: fu_core
 msgid "Create product master data from the authorized native Odoo product-management screen."
 msgstr "أنشئ بيانات المنتج الأساسية من شاشة إدارة المنتجات الأصلية في أودو للمستخدم المصرح له."
 
+#. module: fu_core
 msgid "Use this controlled operation so location scope, reason, actor and retry protection stay attached to the native Odoo stock effect."
 msgstr "استخدم هذه العملية المضبوطة حتى يظل نطاق الموقع والسبب والمستخدم وحماية إعادة المحاولة مرتبطين بحركة مخزون أودو الأصلية."
 
+#. module: fu_core
 msgid "Why is this stock movement being recorded?"
 msgstr "لماذا يتم تسجيل حركة المخزون هذه؟"
 
+#. module: fu_core
 msgid "Cancel"
 msgstr "إلغاء"
