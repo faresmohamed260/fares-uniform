@@ -32,7 +32,7 @@ registry.category("web_tour.tours").add("fu_offline_checkout_" + method, {
             content: "Paid order survives reload without API connectivity",
             async run() {
                 const uuid = sessionStorage.getItem("fu.proof.order_uuid");
-                const deadline = Date.now() + 10000;
+                const deadline = Date.now() + 5000;
                 let order;
                 while (Date.now() < deadline) {
                     order = posmodel.models["pos.order"].find(o => o.uuid === uuid);
