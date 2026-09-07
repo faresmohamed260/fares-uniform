@@ -1,0 +1,59 @@
+name: Phase 0B shadcn scaffold
+
+on:
+  push:
+    branches:
+      - foundation/phase-0b
+    paths:
+      - .github/workflows/phase0b-shadcn-scaffold.yml
+
+permissions:
+  contents: write
+
+jobs:
+  scaffold:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v5
+        with:
+          ref: foundation/phase-0b
+          fetch-depth: 0
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Initialize shadcn Base UI with RTL support
+        working-directory: prototype/review-ui
+        run: npx shadcn@latest init --defaults --base base --rtl --yes
+
+      - name: Read component documentation before adding
+        working-directory: prototype/review-ui
+        run: npx shadcn@latest docs button card badge tabs dialog sheet progress separator --base base
+
+      - name: Add maintained UI primitives
+        working-directory: prototype/review-ui
+        run: npx shadcn@latest add button card badge tabs dialog sheet progress separator --yes
+
+      - name: Verify generated foundation
+        working-directory: prototype/review-ui
+        run: |
+          npx shadcn@latest info --json
+          npm run typecheck
+          npm run build
+
+      - name: Commit generated component foundation
+        run: |
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No generated changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototype/review-ui
+          git commit -m "chore(ui): initialize shadcn component foundation"
+          git push origin HEAD:foundation/phase-0b
