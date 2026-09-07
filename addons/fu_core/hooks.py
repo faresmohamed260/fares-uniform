@@ -1,3 +1,4 @@
 def post_init_hook(env):
-    """Bring existing inventory-tracked variants under the permanent Fares ID contract."""
+    """Bring a fresh Odoo database under the first Fares operational contracts."""
+    env["stock.location"]._fu_configure_initial_locations()
     env["product.product"].search([("is_storable", "=", True)])._fu_ensure_identifiers()

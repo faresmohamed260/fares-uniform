@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  product-identity:
+  product-stock-foundation:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     services:
@@ -32,7 +32,7 @@ jobs:
           POSTGRES_DB: postgres
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U odoo"
+          --health-cmd "pg_isready -U odoo -d postgres"
           --health-interval 5s --health-timeout 5s --health-retries 12
     env:
       PGPASSWORD: phase1-only
@@ -64,7 +64,7 @@ jobs:
           printf 'odoo_head=%s\n' "$(git -C upstream rev-parse HEAD)" >> evidence/runtime.txt
           python --version >> evidence/runtime.txt
 
-      - name: Install fu_core and run product-identity tests
+      - name: Install fu_core and run Phase 1 tests
         run: |
           set -o pipefail
           python upstream/odoo-bin \
@@ -91,18 +91,18 @@ jobs:
         if: always()
         run: |
           {
-            echo '## Phase 1 product identity'
+            echo '## Phase 1 product + stock foundation'
             echo
             cat evidence/runtime.txt 2>/dev/null || true
             echo
             echo '### Test summary lines'
-            grep -E 'tests? in|failures|errors|fu_core' evidence/install-and-tests.log 2>/dev/null | tail -n 30 || true
+            grep -E 'tests? in|failures|errors|fu_core' evidence/install-and-tests.log 2>/dev/null | tail -n 40 || true
           } | tee evidence/summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload exact-head evidence
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase1-product-identity-${{ github.sha }}
+          name: phase1-product-stock-${{ github.sha }}
           path: evidence/
           retention-days: 7

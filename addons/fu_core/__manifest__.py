@@ -1,8 +1,9 @@
 {
     "name": "Fares Uniform Core",
-    "summary": "Core product identity rules for Fares Uniform",
-    "version": "19.0.1.0.0",
+    "summary": "Core product and finished-stock identity rules for Fares Uniform",
+    "version": "19.0.1.1.0",
     "category": "Inventory/Inventory",
+    "author": "Fares Uniform",
     "license": "LGPL-3",
     "depends": ["stock"],
     "data": [
