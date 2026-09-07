@@ -10,7 +10,7 @@ class TestRetailPaymentConfirmation(CommonPosTest):
         self.bank_payment_method.write(
             {"name": "InstaPay", "fu_confirmation_mode": "bank_notification"}
         )
-        self.order = self.create_backend_pos_order(
+        self.order, _refund = self.create_backend_pos_order(
             {
                 "line_data": [
                     {
