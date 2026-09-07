@@ -13,27 +13,21 @@
 
 ## Current state — 2026-09-07
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: ACTIVE / AUTHORIZED.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: ACTIVE / PRODUCT-STOCK-SECURITY FOUNDATION VERIFIED.**
 
 The accepted MVP boundary covers finished stock, bilingual offline POS, preorders/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics remains future work.
 
 Phase 0A proved the Odoo Community direction at implementation `1ad528e02ed1a709d34620731d182c5e1cbdebe9`, run `34068805602`: 15/15 tests passed. Odoo remains a conditional technical GO with Fares-owned addons/UX and the isolated offline-restore compatibility shim documented in `docs/validation/ODOO_PROOF.md`.
 
-Phase 0B formalized the hybrid architecture and technical UI foundation, but **neither rendered visual baseline is accepted**. The client rejected the first baseline as too custom-built and visually restrained, then rejected the revised prebuilt-first `fa9ef2413177a54e566c5505e1e858696c8a9bfb` baseline as still fundamentally basic/flat despite its stronger Motion layer. The `fa9ef...` build remains valid technical evidence only: hosted run `34073833275`, job `101596052081` passed typecheck, optimized build and 15/15 browser tests with maintained shadcn/Base UI usage, RTL, keyboard behavior and reduced-motion coverage.
+Phase 0B formalized the hybrid architecture. The earlier rendered prototypes remain technical evidence only and were rejected as visual baselines. The final operational visual target is the client-approved **modern and practical ERP** direction under D-033. Dashboard, POS, Products, Production, Sales Orders and Customers stay clean, contemporary, information-dense and task-focused. Prebuilt-first remains mandatory. D-032's richer 3D/physics/morphing ideas remain available for suitable expressive surfaces such as public/marketing and product showcase/detail rather than governing dense ERP composition.
 
-The final operational visual target is the client-approved **modern and practical ERP** direction under D-033. Dashboard, POS, Products, Production, Sales Orders and Customers stay clean, contemporary, information-dense and task-focused. D-032's richer 3D/physics/morphing ideas remain available for suitable expressive surfaces such as public/marketing and product showcase/detail rather than governing dense ERP composition.
-
-On 2026-09-07 the client confirmed the remaining product/stock blockers:
+Confirmed product/stock rules remain:
 - school/client-specific designs are stocked as different products;
 - no tracked factory-finished inventory location is useful;
 - size systems vary by garment and remain configurable per product family;
 - permanent sequential `FU-000001`-style variant codes are accepted.
 
-These rules are authoritative in `docs/requirements/PRODUCT_AND_STOCK_RULES.md` and decisions D-028/D-029.
-
-The first production-grade contract at `docs/phases/PHASE_1_PRODUCTS_STOCK_ACCESS.md` is now **active**. Product/stock rules and the operational visual paradigm are both accepted.
-
-Draft PR #2 (`foundation/phase-0b` → `proof/odoo-community`) remains the current foundation review branch.
+Phase 1 is executing on `phase-1/products-stock-access`. The production `fu_core` foundation now has hosted evidence for product identity, Retail Store/Storage custody, opening counts, native receipts/transfers, idempotent stock effects and the Phase 1 role/location-security matrix. Exact-head security run `34097747757` at `6f55ea20dca7a6fde4641d9d9f11d991fd896597` reports 0 failures/errors across 22 loaded tests (Odoo stats: 28 tests) and a repeatable addon upgrade. Evidence is recorded in `docs/validation/PHASE_1_PRODUCTS_STOCK.md`.
 
 One retail store, one storage location and one checkout per store are confirmed. Numeric product/transaction volumes remain unavailable and must not be invented. Launch date and service budget remain deployment-time decisions.
 
@@ -42,14 +36,14 @@ One retail store, one storage location and one checkout per store are confirmed.
 1. Phase 0: business discovery and first-release boundary — complete.
 2. Phase 0A: Odoo technical proof — pass.
 3. Phase 0B: architecture/data/UI foundation — complete; modern/practical operational visual direction approved.
-4. Phase 1: products, finished-stock movements, access controls and opening inventory — active.
+4. Phase 1: products, finished-stock movements, access controls and opening inventory — active; product/stock/security backend slices verified, bilingual internal UI remaining.
 5. Phase 2+: retail POS/preorders/payments/offline reconciliation, production/business workflows, public catalog/reports, then integrated onboarding/UAT/deployment in bounded contracts.
 
 ## Immediate next action
 
-**Execute Phase 1 on a focused implementation branch.** Start with the Odoo-native product/variant identity and permanent `FU-000001` item-code foundation, then finished-stock custody/movements and role enforcement. Validate exact-head remotely before claiming each slice complete.
+**Complete the Phase 1 bilingual Odoo-native internal UI.** Extend maintained Odoo product/inventory views rather than creating a parallel dashboard, expose only the Fares fields/actions needed for the accepted workflows, provide English + Arabic/RTL translations, and capture hosted rendered evidence. Then perform the final Phase 1 exit review.
 
-Do not ask the client again about product-design separation, factory-finished custody, size-system variability or sequential item codes unless the client changes those decisions.
+Do not ask the client again about product-design separation, factory-finished custody, size-system variability, sequential item codes or the operational visual direction unless the client changes those decisions.
 
 ## Later explicit decisions
 
