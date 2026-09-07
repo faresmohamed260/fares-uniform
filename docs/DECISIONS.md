@@ -112,11 +112,25 @@ Status: Accepted client requirement, 2026-09-06.
 Aim for polished modern web UI/UX with physics and morphing effects. Apply this to web components generally. Record design decisions and maintained component sources; validate representative screens, RTL, accessibility and performance. See docs/architecture/PLATFORM_EVALUATION.md for initial design direction and platform implications.
 
 ## D-022 — Odoo assessment outcome
-Status: Developer recommendation, 2026-09-06; platform adoption pending.
+Status: Developer recommendation, 2026-09-06; superseded for runtime status by D-024.
 
-Authorized documentation/source assessment completed. Community provides inspected core modules; recommend Community operational core, customized native POS and bespoke Vercel public frontend, conditional on hosted proof of offline correctness, workflow extensions and internal visual quality. Custom size/deadline batching and full-balance collection remain project work. No runtime tests, hosting changes or deployment occurred.
+Authorized documentation/source assessment completed. Community provides inspected core modules; recommend Community operational core, customized native POS and bespoke Vercel public frontend, conditional on hosted proof of offline correctness, workflow extensions and internal visual quality. Custom size/deadline batching and full-balance collection remain project work. No runtime tests, hosting changes or deployment occurred at the time of this decision.
 
 ## D-023 — Hosted proof authorized
 Status: Client authorization, 2026-09-06.
 
-Client approved proceeding with the bounded hosted Odoo proof. Follow docs/phases/PHASE_0A_ODOO_PROOF.md. Disposable remote CI and prototype changes are authorized; no production deployment or final Odoo adoption is implied. Runtime evidence now belongs to docs/validation/ODOO_PROOF.md; D-022 records the earlier source-assessment state.
+Client approved proceeding with the bounded hosted Odoo proof. Follow docs/phases/PHASE_0A_ODOO_PROOF.md. Disposable remote CI and prototype changes are authorized; no production deployment or final Odoo adoption is implied. Runtime evidence belongs to docs/validation/ODOO_PROOF.md.
+
+## D-024 — Phase 0A technical proof outcome
+Status: Evidence-backed developer decision, 2026-09-07; client visual approval still open.
+
+The hosted Odoo Community proof passed 15/15 bounded tests at implementation commit `1ad528e02ed1a709d34620731d182c5e1cbdebe9` in run `34068805602`. Treat Odoo Community as a conditional technical GO for the tested ERP/domain-core scope, not as an unchanged turnkey solution.
+
+The proof found an Odoo 19.0 offline-startup restore defect: paid unsynced orders can exist safely in IndexedDB but be skipped during offline model hydration. Keep the fix isolated in a Fares addon compatibility shim and retire it only after an upstream fix is adopted and revalidated. Do not fork Odoo core for this issue.
+
+The proof's bilingual/RTL/responsive compatibility passed its bounded checks, but its visual styling is not the final premium UI and has not received client design approval.
+
+## D-025 — Phase 0B foundation continuation
+Status: Client continuation authorization, 2026-09-07.
+
+After receiving the Phase 0A result, the client instructed the developer to "keep going." Continue with the bounded Phase 0B architecture/data/UI foundation contract in `docs/phases/PHASE_0B_FOUNDATION.md`. This authorizes remote foundation work within the already accepted MVP direction; it does not silently resolve listed business-policy unknowns, authorize paid resources or authorize production deployment.

@@ -6,45 +6,47 @@
 - Client: Fares. The assistant gathers requirements and develops the system.
 - Project title: Fares Uniform.
 - Public repository: https://github.com/faresmohamed260/fares-uniform
-- Initial deployment target: Vercel.
-- Available stack services: Supabase and Cloudflare.
+- Initial deployment target: Vercel for the public web application; Odoo requires a separate compatible persistent host.
+- Available stack services: Supabase and Cloudflare, neither selected as an operational mirror by default.
 - Source of truth: repository code and docs; no reliance on session memory or local files.
 - Execution: remote only.
 - Process reference: RenderLab's work and documentation instructions, adapted to this independent ERP.
 
-## Current state — 2026-09-06
+## Current state — 2026-09-07
 
-**Phase 0 — Discovery: IN PROGRESS. Phase 0A — Hosted Odoo proof: AUTHORIZED / IN PROGRESS.**
+**Phase 0 — Discovery: IN PROGRESS. Phase 0A — Hosted Odoo proof: TECHNICAL PASS / CLIENT VISUAL REVIEW OPEN. Phase 0B — Foundation architecture and UX direction: AUTHORIZED / IN PROGRESS.**
 
-The starting repository contained only README.md at commit 95631c568893c43fa4c3688e485c82d683afb5b7. The foundation change establishes instructions, documentation ownership, a decision log and discovery contract.
+Discovery rounds 1–8 are recorded in `docs/requirements/DISCOVERY.md`. The first-release proposal in `docs/requirements/MVP_SCOPE.md` is broadly accepted in principle. Confirmed scope covers finished stock, bilingual offline POS, preorders/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics remains future work.
 
-A disposable Odoo proof addon and hosted GitHub Actions workflow exist on proof/odoo-community (PR #1). The first exact-head run passed seven tests; see docs/validation/ODOO_PROOF.md. Offline and visual extensions are in progress. No production application or deployment exists; external infrastructure has not been audited.
+The hosted Odoo proof on `proof/odoo-community` passed its exact-head test suite at implementation commit `1ad528e02ed1a709d34620731d182c5e1cbdebe9`: run `34068805602` completed 15 tests with 0 failures/errors. The proof established a conditional technical GO for Odoo Community as the operational/domain core, with Fares-owned addons and UX. It also exposed an Odoo 19.0 offline-startup restore defect; the proof carries an isolated addon-level compatibility shim rather than a core fork. Full evidence and limitations are in `docs/validation/ODOO_PROOF.md`.
 
-Discovery rounds 1–8 are recorded in docs/requirements/DISCOVERY.md. The consolidated first-release proposal is docs/requirements/MVP_SCOPE.md, broadly accepted in principle; Odoo/reuse and premium UI direction now under evaluation. Confirmed direction covers finished stock, bilingual offline POS, preorder/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics is future work.
+The proof UI demonstrates compatibility only. It is not the premium client-approved UI. The backend remains visibly close to stock Odoo and the POS styling is only a restrained experiment. Client visual review therefore remains open.
 
-One retail store, one storage location and one checkout per store are confirmed. Numeric product/transaction volumes are unavailable; do not invent them. Launch date and service budget will be decided before deployment.
+A separate stacked branch, `foundation/phase-0b`, owns the next bounded foundation work. Its contract is `docs/phases/PHASE_0B_FOUNDATION.md`.
+
+One retail store, one storage location and one checkout per store are confirmed. Numeric product/transaction volumes remain unavailable and must not be invented. Launch date and service budget will be decided before deployment.
 
 ## Roadmap
 
-1. Phase 0: discover current operations, problems and success criteria; agree the first release scope.
-2. Define architecture, UI direction and hosted development/validation setup from accepted requirements.
-3. Implement and verify prioritized end-to-end workflows in bounded phases.
-4. Prepare data onboarding, user acceptance and an authorized deployment.
+1. Phase 0: finish discovery, confirm important business-policy boundaries and first-release success criteria.
+2. Phase 0A: prove the Odoo reuse candidate remotely — technical proof passed; client visual checkpoint remains open.
+3. Phase 0B: formalize foundation architecture/data/offline contracts and representative premium bilingual UX direction.
+4. Implement and verify prioritized end-to-end workflows in bounded phases, beginning with products/finished stock/access controls.
+5. Prepare data onboarding, user acceptance and an explicitly authorized deployment.
 
-Items 2–4 are provisional direction, not approved implementation contracts.
+## Next actions
 
-## Next session / next actions
-
-1. Read AGENTS.md and indexed documentation, including MVP_SCOPE.md.
-2. Documentation/source Odoo assessment is complete: read docs/architecture/PLATFORM_EVALUATION.md. Candidate is Community operational core/customized native POS plus bespoke public website; not yet adopted; initial runtime evidence is recorded in docs/validation/ODOO_PROOF.md. Client authorized the hosted proof; follow docs/phases/PHASE_0A_ODOO_PROOF.md.
-3. Resolve architecture-critical workflow details listed in the proposal, using developer proposals for routine design choices.
-4. Prepare and commit the immediate next-phase contract before implementation.
-5. Keep Phase 0 open until its exit criteria are met.
+1. Follow `docs/phases/PHASE_0B_FOUNDATION.md` on `foundation/phase-0b`.
+2. Write the foundation architecture and design-system documents from accepted evidence; keep unresolved business rules marked as proposals/unknowns.
+3. Establish representative public and internal UI direction using maintained accessible component sources and Odoo-compatible primitives.
+4. Produce hosted English/Arabic desktop/narrow evidence with reduced-motion and keyboard checks.
+5. Obtain explicit client visual acceptance before treating the design direction as locked.
+6. Keep Phase 0 open until its exit criteria are actually met; do not equate the Odoo technical pass with completed discovery.
 
 ## Current blockers / unknowns
 
-MVP broadly accepted; Odoo Community is conditionally recommended after source assessment. Platform selection remains open pending hosted offline/workflow and internal visual proof. Premium modern UI with physics/morphing effects is a client requirement. No numeric capacity estimate, budget or launch date is available; the client deferred budget/timing until before deployment. These do not block current planning. Product variants, offline reconciliation policies and other detailed workflow decisions remain explicit in the scope proposal.
+No blocker prevents the architecture/UI foundation spike. Before affected implementation, resolve the product/design variant convention in business terms, exact item/label presentation, offline scope beyond ordinary sale checkout, missing InstaPay-confirmation handling, refund/exchange policy, factory-finished stock staging choice, and business-order payment/shipment details. Budget/timing and actual hosting resource selection remain deferred until before deployment.
 
 ## Evidence policy
 
-Repository existence and public visibility were checked through GitHub. This documentation foundation is not an application release. Future work must record actual hosted verification and deployment evidence separately.
+Implemented, hosted-tested, visually reviewed and deployed are separate states. Every implementation claim must refer to exact remote evidence. Synthetic proof data only; no credentials or real private business records belong in this public repository.
