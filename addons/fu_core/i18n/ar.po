@@ -1,0 +1,141 @@
+# Translation of Fares Uniform Core to Arabic.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Fares Uniform"
+msgstr "فارس للزي الموحد"
+
+msgid "Fares Product Lookup"
+msgstr "البحث عن منتجات فارس"
+
+msgid "Product Lookup"
+msgstr "البحث عن المنتجات"
+
+msgid "Permanent Item Identity"
+msgstr "هوية الصنف الدائمة"
+
+msgid "Item Code"
+msgstr "كود الصنف"
+
+msgid "Fares On-hand Stock"
+msgstr "مخزون فارس المتاح"
+
+msgid "On-hand Stock"
+msgstr "المخزون المتاح"
+
+msgid "Stock"
+msgstr "المخزون"
+
+msgid "Movement History"
+msgstr "سجل حركات المخزون"
+
+msgid "Stock Movement"
+msgstr "حركة مخزون"
+
+msgid "New Stock Operation"
+msgstr "عملية مخزون جديدة"
+
+msgid "Stock Operation"
+msgstr "عملية مخزون"
+
+msgid "Execute Stock Operation"
+msgstr "تنفيذ عملية المخزون"
+
+msgid "Operation"
+msgstr "العملية"
+
+msgid "Receipt"
+msgstr "استلام"
+
+msgid "Store/Storage Transfer"
+msgstr "نقل بين المتجر والمخزن"
+
+msgid "Opening Count"
+msgstr "جرد افتتاحي"
+
+msgid "Product"
+msgstr "المنتج"
+
+msgid "Quantity"
+msgstr "الكمية"
+
+msgid "Inventory Custody"
+msgstr "عهدة المخزون"
+
+msgid "Source Location"
+msgstr "موقع المصدر"
+
+msgid "Destination Location"
+msgstr "موقع الوجهة"
+
+msgid "From"
+msgstr "من"
+
+msgid "To"
+msgstr "إلى"
+
+msgid "Audit Trail"
+msgstr "سجل التدقيق"
+
+msgid "Reason"
+msgstr "السبب"
+
+msgid "Batch Reference"
+msgstr "مرجع الدفعة"
+
+msgid "Request Key"
+msgstr "مفتاح الطلب"
+
+msgid "Requested by"
+msgstr "طلب بواسطة"
+
+msgid "Executed by"
+msgstr "نُفذ بواسطة"
+
+msgid "Requested at"
+msgstr "وقت الطلب"
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Receipts"
+msgstr "الاستلامات"
+
+msgid "Transfers"
+msgstr "التحويلات"
+
+msgid "Opening Counts"
+msgstr "الجرد الافتتاحي"
+
+msgid "Destination"
+msgstr "الوجهة"
+
+msgid "Fares Uniform Stock Scope"
+msgstr "نطاق مخزون فارس"
+
+msgid "Fares stock locations"
+msgstr "مواقع مخزون فارس"
+
+msgid "No finished-stock products yet"
+msgstr "لا توجد منتجات مخزون نهائي بعد"
+
+msgid "No finished stock in your assigned locations"
+msgstr "لا يوجد مخزون نهائي في المواقع المخصصة لك"
+
+msgid "Create product master data from the authorized native Odoo product-management screen."
+msgstr "أنشئ بيانات المنتج الأساسية من شاشة إدارة المنتجات الأصلية في أودو للمستخدم المصرح له."
+
+msgid "Use this controlled operation so location scope, reason, actor and retry protection stay attached to the native Odoo stock effect."
+msgstr "استخدم هذه العملية المضبوطة حتى يظل نطاق الموقع والسبب والمستخدم وحماية إعادة المحاولة مرتبطين بحركة مخزون أودو الأصلية."
+
+msgid "Why is this stock movement being recorded?"
+msgstr "لماذا يتم تسجيل حركة المخزون هذه؟"
+
+msgid "Cancel"
+msgstr "إلغاء"
