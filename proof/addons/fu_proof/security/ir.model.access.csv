@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fu_proof_order,Proof order administrator,model_fu_proof_order,base.group_system,1,1,1,1
+access_fu_proof_line,Proof demand administrator,model_fu_proof_line,base.group_system,1,1,1,1
+access_fu_proof_task,Proof task administrator,model_fu_proof_task,base.group_system,1,1,1,1
