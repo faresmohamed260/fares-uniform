@@ -1,0 +1,80 @@
+name: Phase 0B shadcn scaffold
+
+on:
+  push:
+    branches:
+      - foundation/phase-0b
+    paths:
+      - .github/workflows/phase0b-shadcn-scaffold.yml
+
+permissions:
+  contents: write
+
+jobs:
+  scaffold:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v5
+        with:
+          ref: foundation/phase-0b
+          fetch-depth: 0
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Add official Tailwind v4 Next.js foundation if needed
+        working-directory: prototype/review-ui
+        run: |
+          npm install --save-exact tailwindcss@4.1.13 @tailwindcss/postcss@4.1.13 postcss@8.5.6
+          if [ ! -f postcss.config.mjs ]; then
+            cat > postcss.config.mjs <<'EOF'
+          const config = {
+            plugins: {
+              "@tailwindcss/postcss": {},
+            },
+          };
+          export default config;
+          EOF
+          fi
+          if ! grep -q '^@import "tailwindcss";' app/globals.css; then
+            printf '@import "tailwindcss";\n\n' > app/globals.css.next
+            cat app/globals.css >> app/globals.css.next
+            mv app/globals.css.next app/globals.css
+          fi
+
+      - name: Initialize shadcn Base UI with RTL support if needed
+        working-directory: prototype/review-ui
+        run: |
+          if [ ! -f components.json ]; then
+            npx shadcn@4.21.0 init --defaults --base base --rtl --yes
+          else
+            npx shadcn@4.21.0 info --json
+          fi
+
+      - name: Add maintained UI primitives
+        working-directory: prototype/review-ui
+        run: npx shadcn@4.21.0 add button card badge tabs dialog sheet progress separator input --yes
+
+      - name: Verify generated foundation
+        working-directory: prototype/review-ui
+        run: |
+          npx shadcn@4.21.0 info --json
+          npm run typecheck
+          npm run build
+
+      - name: Commit generated component foundation
+        run: |
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No generated changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototype/review-ui
+          git commit -m "chore(ui): extend shadcn component foundation"
+          git push origin HEAD:foundation/phase-0b
