@@ -7,6 +7,7 @@
     "license": "LGPL-3",
     "depends": ["fu_core", "point_of_sale"],
     "data": [
+        "security/fu_retail_security.xml",
         "views/pos_payment_method_views.xml",
     ],
     "assets": {

@@ -6,6 +6,7 @@ from odoo.tests import tagged
 class TestRetailPOSOffline(TestPointOfSaleHttpCommon):
     def setUp(self):
         super().setUp()
+        self.pos_user.group_ids += self.env.ref("fu_core.group_fu_cashier")
         cash_journal = self.env["account.journal"].create(
             {
                 "name": "Fares Retail Cash Test",
