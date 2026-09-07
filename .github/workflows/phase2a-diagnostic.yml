@@ -1,0 +1,211 @@
+name: Phase 2A retail diagnostic
+
+on:
+  push:
+    branches: ["phase-2a/retail-checkout-offline"]
+    paths:
+      - ".github/workflows/phase2a-diagnostic.yml"
+      - "addons/fu_retail/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase2a-diagnostic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolate-retail-failures:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: phase2a-diag
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      PGPASSWORD: phase2a-diag
+      ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+      CHROME_BIN: /usr/bin/google-chrome
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v5
+
+      - name: Checkout pinned Odoo Community 19
+        uses: actions/checkout@v5
+        with:
+          repository: odoo/odoo
+          ref: ${{ env.ODOO_SHA }}
+          path: upstream
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev zlib1g-dev
+          python -m pip install -r upstream/requirements.txt
+          python -m pip install websocket-client
+          sudo npm install --global rtlcss@4.3.0
+          mkdir -p diagnostic/screenshots
+          printf 'fares_head=%s\nodoo_head=%s\n' "$GITHUB_SHA" "$(git -C upstream rev-parse HEAD)" > diagnostic/runtime.txt
+          google-chrome --version >> diagnostic/runtime.txt
+          rtlcss --version >> diagnostic/runtime.txt
+
+      - name: Install fu_core + fu_retail without tests
+        id: install
+        continue-on-error: true
+        run: |
+          set +e
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2a-diag \
+            -d fares_phase2a_diag -i fu_core,fu_retail \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee diagnostic/install.log
+          rc=${PIPESTATUS[0]}
+          echo '### Install diagnostic' >> "$GITHUB_STEP_SUMMARY"
+          grep -E 'ERROR|CRITICAL|Traceback|ParseError|ValidationError|TypeError|ReferenceError' diagnostic/install.log | tail -n 80 >> "$GITHUB_STEP_SUMMARY" || true
+          tail -n 60 diagnostic/install.log >> "$GITHUB_STEP_SUMMARY" || true
+          exit "$rc"
+
+      - name: Backend payment-confirmation tests
+        id: backend
+        if: always() && steps.install.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set +e
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2a-diag \
+            -d fares_phase2a_diag -u fu_retail \
+            --test-enable --test-tags='/fu_retail:TestRetailPaymentConfirmation' \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee diagnostic/backend.log
+          rc=${PIPESTATUS[0]}
+          echo '### Backend confirmation diagnostic' >> "$GITHUB_STEP_SUMMARY"
+          grep -E 'ERROR|FAIL|Traceback|AssertionError|ValidationError|TypeError|ReferenceError|tests? in|failures|errors' diagnostic/backend.log | tail -n 100 >> "$GITHUB_STEP_SUMMARY" || true
+          tail -n 80 diagnostic/backend.log >> "$GITHUB_STEP_SUMMARY" || true
+          exit "$rc"
+
+      - name: InstaPay cancel/confirm UI test
+        id: ui
+        if: always() && steps.install.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set +e
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2a-diag \
+            -d fares_phase2a_diag -u fu_retail \
+            --test-enable --test-tags='/fu_retail:TestRetailPOSOffline.test_instapay_cancel_then_confirm_ui_gate' \
+            --screenshots=diagnostic/screenshots/ui \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee diagnostic/ui.log
+          rc=${PIPESTATUS[0]}
+          echo '### InstaPay UI diagnostic' >> "$GITHUB_STEP_SUMMARY"
+          grep -E 'ERROR|FAIL|Traceback|AssertionError|ValidationError|TypeError|ReferenceError|tour|timeout|tests? in|failures|errors' diagnostic/ui.log | tail -n 120 >> "$GITHUB_STEP_SUMMARY" || true
+          tail -n 100 diagnostic/ui.log >> "$GITHUB_STEP_SUMMARY" || true
+          exit "$rc"
+
+      - name: Offline Cash test
+        id: cash
+        if: always() && steps.install.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set +e
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2a-diag \
+            -d fares_phase2a_diag -u fu_retail \
+            --test-enable --test-tags='/fu_retail:TestRetailPOSOffline.test_offline_cash_reload_reconnect_is_idempotent' \
+            --screenshots=diagnostic/screenshots/cash \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee diagnostic/cash.log
+          rc=${PIPESTATUS[0]}
+          echo '### Offline Cash diagnostic' >> "$GITHUB_STEP_SUMMARY"
+          grep -E 'ERROR|FAIL|Traceback|AssertionError|ValidationError|TypeError|ReferenceError|tour|timeout|ConnectionLost|tests? in|failures|errors' diagnostic/cash.log | tail -n 120 >> "$GITHUB_STEP_SUMMARY" || true
+          tail -n 100 diagnostic/cash.log >> "$GITHUB_STEP_SUMMARY" || true
+          exit "$rc"
+
+      - name: Offline confirmed-InstaPay test
+        id: instapay
+        if: always() && steps.install.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set +e
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2a-diag \
+            -d fares_phase2a_diag -u fu_retail \
+            --test-enable --test-tags='/fu_retail:TestRetailPOSOffline.test_offline_instapay_reload_reconnect_is_idempotent' \
+            --screenshots=diagnostic/screenshots/instapay \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee diagnostic/instapay.log
+          rc=${PIPESTATUS[0]}
+          echo '### Offline InstaPay diagnostic' >> "$GITHUB_STEP_SUMMARY"
+          grep -E 'ERROR|FAIL|Traceback|AssertionError|ValidationError|TypeError|ReferenceError|tour|timeout|ConnectionLost|tests? in|failures|errors' diagnostic/instapay.log | tail -n 120 >> "$GITHUB_STEP_SUMMARY" || true
+          tail -n 100 diagnostic/instapay.log >> "$GITHUB_STEP_SUMMARY" || true
+          exit "$rc"
+
+      - name: Retained Phase 1 fu_core regression
+        id: core
+        if: always() && steps.install.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set +e
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2a-diag \
+            -d fares_phase2a_diag -u fu_core \
+            --test-enable --test-tags='/fu_core' \
+            --screenshots=diagnostic/screenshots/core \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee diagnostic/core.log
+          rc=${PIPESTATUS[0]}
+          echo '### Phase 1 regression diagnostic' >> "$GITHUB_STEP_SUMMARY"
+          grep -E 'ERROR|FAIL|Traceback|AssertionError|ValidationError|TypeError|ReferenceError|tests? in|failures|errors' diagnostic/core.log | tail -n 120 >> "$GITHUB_STEP_SUMMARY" || true
+          tail -n 80 diagnostic/core.log >> "$GITHUB_STEP_SUMMARY" || true
+          exit "$rc"
+
+      - name: Report slice outcomes
+        if: always()
+        run: |
+          {
+            echo '## Phase 2A diagnostic slice outcomes'
+            echo '- install: ${{ steps.install.outcome }}'
+            echo '- backend confirmation: ${{ steps.backend.outcome }}'
+            echo '- InstaPay UI: ${{ steps.ui.outcome }}'
+            echo '- offline Cash: ${{ steps.cash.outcome }}'
+            echo '- offline InstaPay: ${{ steps.instapay.outcome }}'
+            echo '- Phase 1 fu_core: ${{ steps.core.outcome }}'
+          } | tee -a diagnostic/outcomes.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase2a-diagnostic-${{ github.sha }}
+          path: diagnostic/
+          retention-days: 3
+
+      - name: Fail diagnostic if any slice failed
+        if: always()
+        run: |
+          test '${{ steps.install.outcome }}' = 'success'
+          test '${{ steps.backend.outcome }}' = 'success'
+          test '${{ steps.ui.outcome }}' = 'success'
+          test '${{ steps.cash.outcome }}' = 'success'
+          test '${{ steps.instapay.outcome }}' = 'success'
+          test '${{ steps.core.outcome }}' = 'success'
