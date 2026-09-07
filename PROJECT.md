@@ -13,7 +13,7 @@
 
 ## Current state — 2026-09-07
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2A — Retail checkout/offline: ACTIVE / CONTRACT AUTHORIZED.**
 
 The accepted MVP boundary covers finished stock, bilingual offline POS, preorders/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics remains future work.
 
@@ -29,9 +29,9 @@ Confirmed product/stock rules remain:
 
 Phase 1 is complete on `phase-1/products-stock-access`. The production `fu_core` foundation has hosted evidence for product identity, Retail Store/Storage custody, opening counts, native receipts/transfers, idempotent stock effects, the Phase 1 role/location-security matrix and native bilingual Odoo product/inventory workflows.
 
-The authoritative tested implementation is `eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3`. GitHub Actions run `34110346764`, job `101704871502`, completed successfully, including the full `fu_core` test gate, real Chrome English/Arabic UI checks and repeatable addon upgrade. Artifact `phase1-product-stock-eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3` is ID `10014163050`, SHA-256 `4e2e1a01b7516d0e7a1b93ef77d4ae48f430ff723098c04981033b96fda71fbc`. Detailed evidence is in `docs/validation/PHASE_1_PRODUCTS_STOCK.md`.
+The authoritative tested Phase 1 implementation is `eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3`. GitHub Actions run `34110346764`, job `101704871502`, completed successfully, including the full `fu_core` test gate, real Chrome English/Arabic UI checks and repeatable addon upgrade. Artifact `phase1-product-stock-eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3` is ID `10014163050`, SHA-256 `4e2e1a01b7516d0e7a1b93ef77d4ae48f430ff723098c04981033b96fda71fbc`. Detailed evidence is in `docs/validation/PHASE_1_PRODUCTS_STOCK.md`.
 
-The Phase 1 closure/docs commit after that run is documentation/CI cleanup only and is not substituted for the exact tested implementation SHA above.
+Phase 2A is authorized on `phase-2a/retail-checkout-offline` under `docs/phases/PHASE_2A_RETAIL_CHECKOUT_OFFLINE.md`. It intentionally covers only ordinary finished-stock checkout, Cash, positively manually confirmed InstaPay and durable offline reconciliation. It must productionize the isolated Odoo 19 offline-restore shim inside Fares-owned retail code and preserve native Odoo POS/order/payment/stock truth. Preorders, balance collection, refunds/exchanges and their unresolved policies are not silently decided by this subphase.
 
 One retail store, one storage location and one checkout per store are confirmed. Numeric product/transaction volumes remain unavailable and must not be invented. Launch date and service budget remain deployment-time decisions.
 
@@ -41,11 +41,13 @@ One retail store, one storage location and one checkout per store are confirmed.
 2. Phase 0A: Odoo technical proof — pass.
 3. Phase 0B: architecture/data/UI foundation — complete; modern/practical operational visual direction approved.
 4. Phase 1: products, finished-stock movements, access controls, opening inventory and bilingual native internal UI — complete; hosted technical gates pass.
-5. Phase 2+: retail POS/preorders/payments/offline reconciliation, production/business workflows, public catalog/reports, then integrated onboarding/UAT/deployment in bounded contracts.
+5. Phase 2A: ordinary retail stock checkout, Cash/confirmed-InstaPay recording and offline reconciliation hardening — active / authorized.
+6. Later retail subphase: preorder/deposit/balance/collection and refund/exchange behavior after targeted policy resolution.
+7. Production/business workflows, public catalog/reports, then integrated onboarding/UAT/deployment in bounded contracts.
 
 ## Immediate next action
 
-**Write and authorize the next bounded retail/POS/preorder contract before implementation.** It should reuse the verified Phase 1 product/stock/security contracts and the native Odoo POS mechanics already proven in Phase 0A, while explicitly defining the smallest testable slice for checkout, preorders, Cash/InstaPay and offline reconciliation without silently deciding deferred business policies.
+**Implement the first Phase 2A production-owned `fu_retail` slice.** Reuse native Odoo POS/Owl and the verified Phase 1 product/security foundation; move only the required Odoo 19 offline-restore compatibility behavior out of the disposable proof addon, add Cash + positive manual InstaPay confirmation semantics, preserve truthful pending/synced state, and prove exact-once reconciliation through hosted tests before broadening the retail slice.
 
 Do not reopen product-design separation, factory-finished custody, size-system variability, sequential item codes or the operational visual direction unless the client changes those decisions.
 
@@ -53,8 +55,8 @@ Do not reopen product-design separation, factory-finished custody, size-system v
 
 Resolve only when their affected phase starts:
 - offline preorder/collection/refund/exchange behavior;
-- missing/delayed InstaPay confirmation policy;
-- refund/exchange eligibility;
+- missing/delayed/ambiguous InstaPay confirmation policy;
+- refund/exchange eligibility and returned-stock/payment treatment;
 - preorder reservation/allocation;
 - production threshold defaults/configuration semantics;
 - business final-payment/partial-shipment rules;
