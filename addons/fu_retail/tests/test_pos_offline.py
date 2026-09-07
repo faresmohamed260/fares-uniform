@@ -45,6 +45,12 @@ class TestRetailPOSOffline(TestPointOfSaleHttpCommon):
         self.start_pos_tour("fu_retail_offline_cash", timeout=180)
         self._assert_single_synced_order("Cash", False)
 
+    def test_offline_cash_arabic_receipt_marks_pending_sync(self):
+        self.env["res.lang"]._activate_and_install_lang("ar_001")
+        self.pos_user.lang = "ar_001"
+        self.start_pos_tour("fu_retail_offline_cash_ar", timeout=180)
+        self._assert_single_synced_order("Cash", False)
+
     def test_offline_instapay_reload_reconnect_is_idempotent(self):
         self.start_pos_tour("fu_retail_offline_instapay", timeout=180)
         self._assert_single_synced_order("InstaPay", True)

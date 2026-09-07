@@ -8,7 +8,44 @@ import * as Offline from "@point_of_sale/../tests/generic_helpers/offline_util";
 import { refresh } from "@point_of_sale/../tests/generic_helpers/utils";
 import { registry } from "@web/core/registry";
 
-function offlineCheckoutSteps(method, requiresConfirmation = false) {
+const EN_PENDING_SYNC = {
+    heading: "Saved on this device",
+    detail: "Pending server sync — this sale is not yet server-confirmed.",
+};
+
+const AR_PENDING_SYNC = {
+    heading: "تم الحفظ على هذا الجهاز",
+    detail: "بانتظار المزامنة مع الخادم — لم يتم تأكيد هذه العملية على الخادم بعد.",
+    direction: "rtl",
+};
+
+function pendingSyncReceiptIsTruthful(expected) {
+    return {
+        trigger: ".receipt-screen .fu-sync-pending",
+        content: "Offline receipt clearly identifies local-only pending sync state",
+        run() {
+            const order = posmodel.getOrder();
+            const pending = document.querySelector(".receipt-screen .fu-sync-pending");
+            const text = pending?.textContent?.replace(/\s+/g, " ").trim() || "";
+            if (order?.isSynced) {
+                throw new Error("Pending-sync receipt rendered for an order already marked synced");
+            }
+            if (!text.includes(expected.heading) || !text.includes(expected.detail)) {
+                throw new Error(`Pending-sync receipt copy mismatch: ${text}`);
+            }
+            if (text.includes("Payment Successful") || pending?.classList.contains("border-success")) {
+                throw new Error("Offline local-only receipt is still presented as server-confirmed success");
+            }
+            if (expected.direction && document.documentElement.dir !== expected.direction) {
+                throw new Error(
+                    `Expected document direction ${expected.direction}, got ${document.documentElement.dir}`
+                );
+            }
+        },
+    };
+}
+
+function offlineCheckoutSteps(method, requiresConfirmation = false, expected = EN_PENDING_SYNC) {
     const paymentSteps = [];
     paymentSteps.push(...PaymentScreen.clickPaymentMethod(method));
     if (requiresConfirmation) {
@@ -41,8 +78,9 @@ function offlineCheckoutSteps(method, requiresConfirmation = false) {
         ...paymentSteps.flat(),
         PaymentScreen.clickValidate(),
         ReceiptScreen.isShown(),
+        pendingSyncReceiptIsTruthful(expected),
         refresh(),
-        Dialog.confirm("Continue with limited functionality"),
+        Dialog.confirm(),
         {
             trigger: "body",
             content: "Paid order survives offline reload in the POS model",
@@ -93,6 +131,10 @@ registry.category("web_tour.tours").add("fu_retail_offline_cash", {
 
 registry.category("web_tour.tours").add("fu_retail_offline_instapay", {
     steps: () => offlineCheckoutSteps("InstaPay", true),
+});
+
+registry.category("web_tour.tours").add("fu_retail_offline_cash_ar", {
+    steps: () => offlineCheckoutSteps("Cash", false, AR_PENDING_SYNC),
 });
 
 registry.category("web_tour.tours").add("fu_retail_instapay_cancel_then_confirm", {
