@@ -78,6 +78,7 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
         ...paymentSteps.flat(),
         PaymentScreen.clickValidate(),
         ReceiptScreen.isShown(),
+        Dialog.confirm(),
         pendingSyncReceiptIsTruthful(expected),
         refresh(),
         Dialog.confirm(),
