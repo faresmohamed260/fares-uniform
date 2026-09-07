@@ -180,3 +180,18 @@ Prioritize maintained prebuilt components over hand-built generic UI to reduce i
 Custom code should primarily compose Fares-specific workflows, domain presentation and motion around those maintained primitives. A custom generic primitive requires a documented gap showing why an existing maintained component is unsuitable. Do not build a second generic component library merely to support animation.
 
 The client explicitly rejected the first technically passing Phase 0B review baseline as insufficient because it relied too heavily on custom UI and its Motion effects were too subtle. Representative visual work must visibly demonstrate the requested modern physics/morphing language—such as spring state transitions, shared-element morphs and ambient/hero shape morphing—rather than merely installing an animation dependency or adding tiny tap effects. Transaction-critical motion remains non-blocking/predictable and `prefers-reduced-motion` support is mandatory.
+
+## D-032 — Spatial 3D UI is part of the design, not decoration
+Status: Accepted by client, 2026-09-07.
+
+The client rejected the revised `fa9ef241...` Phase 0B visual direction as still too basic. A technically passing flat 2D interface with stronger Motion is not sufficient. The approved target requirement is now a **spatial, 3D-first visual language with real physics and morphing behaviors**.
+
+Representative concepts must use meaningful 3D elements, depth, material/lighting, camera or parallax response and physically legible state changes. Physics should include real behavior where appropriate—such as inertia, spring/damping, collision or magnetic snapping—not only CSS transforms that imitate depth. Morphing should preserve object/state continuity across meaningful transitions rather than relying on ordinary fades/slides.
+
+3D must participate in the workflow: products, cart/order state, production queues or public catalog presentation should behave like tangible spatial objects or surfaces. A flat dashboard with a decorative Three.js blob/background does not satisfy this requirement.
+
+Prebuilt-first still governs ordinary controls. Buttons, fields, dialogs, tabs, menus, forms and accessibility infrastructure remain maintained components. Custom 3D/physics scene code is acceptable only for spatial behavior that ordinary maintained UI primitives do not provide, and should itself prefer maintained scene/physics abstractions where possible.
+
+Transaction-critical flows must remain immediate and usable without the 3D interaction path. Barcode scanning/payment cannot be blocked by cinematic motion; every physics-only gesture needs an accessible maintained-control equivalent. Reduced-motion, low-performance and WebGL-unavailable fallbacks must preserve the workflow and information hierarchy.
+
+The current visual baselines are historical technical evidence only. Phase 0B visual approval remains open until a new spatial concept is explicitly accepted. See `docs/ui/SPATIAL_CONCEPT_BRIEF.md`.
