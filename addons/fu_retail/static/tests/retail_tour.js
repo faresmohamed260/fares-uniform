@@ -36,10 +36,13 @@ function pendingSyncReceiptIsTruthful(expected) {
             if (text.includes("Payment Successful") || pending?.classList.contains("border-success")) {
                 throw new Error("Offline local-only receipt is still presented as server-confirmed success");
             }
-            if (expected.direction && document.documentElement.dir !== expected.direction) {
-                throw new Error(
-                    `Expected document direction ${expected.direction}, got ${document.documentElement.dir}`
-                );
+            if (expected.direction) {
+                const renderedDirection = pending ? getComputedStyle(pending).direction : "missing";
+                if (renderedDirection !== expected.direction) {
+                    throw new Error(
+                        `Expected rendered receipt direction ${expected.direction}, got ${renderedDirection}`
+                    );
+                }
             }
         },
     };
