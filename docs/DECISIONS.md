@@ -171,3 +171,12 @@ Status: Evidence-backed project state, 2026-09-07.
 Phase 0 business discovery is complete for the accepted first-release boundary. Representative workflows, roles, operating constraints and acceptance scenarios are documented; the client broadly accepted the MVP direction and subsequently confirmed the product/stock choices blocking the first implementation slice.
 
 Remaining policy questions are explicitly deferred to the implementation phases they affect. Their existence does not reopen Phase 0 unless new information changes the accepted release boundary.
+
+## D-031 — Prebuilt-first UI and conspicuous physics/morphing
+Status: Accepted by client, 2026-09-07.
+
+Prioritize maintained prebuilt components over hand-built generic UI to reduce interaction, accessibility and styling defects. For the public Next.js application, use official shadcn/Base UI components (or an equally maintained component source that better fits a documented need) before creating a generic control. For internal Odoo/POS, use maintained native Odoo/Owl components and extension points before custom generic widgets.
+
+Custom code should primarily compose Fares-specific workflows, domain presentation and motion around those maintained primitives. A custom generic primitive requires a documented gap showing why an existing maintained component is unsuitable. Do not build a second generic component library merely to support animation.
+
+The client explicitly rejected the first technically passing Phase 0B review baseline as insufficient because it relied too heavily on custom UI and its Motion effects were too subtle. Representative visual work must visibly demonstrate the requested modern physics/morphing language—such as spring state transitions, shared-element morphs and ambient/hero shape morphing—rather than merely installing an animation dependency or adding tiny tap effects. Transaction-critical motion remains non-blocking/predictable and `prefers-reduced-motion` support is mandatory.

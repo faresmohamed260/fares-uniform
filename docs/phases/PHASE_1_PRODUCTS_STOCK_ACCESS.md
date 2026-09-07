@@ -15,7 +15,7 @@ This phase establishes trusted inventory identity and movement contracts that la
 - Foundation architecture: `docs/architecture/FOUNDATION_ARCHITECTURE.md`.
 - Client-confirmed product/stock rules: `docs/requirements/PRODUCT_AND_STOCK_RULES.md`.
 - Role/access design: `docs/requirements/ROLES_AND_PERMISSIONS.md`.
-- UI foundation technical gate: implementation `670dd9999788ee01f6df6e000675054ef0153a6a`, hosted run `34070644678`, 12/12 browser tests passed; client visual acceptance remains open.
+- Revised UI foundation technical gate: implementation `fa9ef2413177a54e566c5505e1e858696c8a9bfb`, hosted run `34073833275`, **15/15 browser tests passed** using actual shadcn/Base UI primitives plus conspicuous normal-motion physics and strict reduced-motion suppression; client visual acceptance remains open.
 
 ## In scope
 
@@ -121,9 +121,12 @@ Internal implementation remains Odoo/Owl-native.
 
 Once Phase 0B visual direction is accepted:
 - apply shared Fares semantic design tokens/patterns to the product/stock views touched by this phase;
+- **prebuilt-first is mandatory**: use maintained native Odoo/Owl components and extension points before any custom generic widget; if a generic custom component is necessary, document the missing maintained option;
+- custom code should focus on Fares-specific composition/workflow behavior rather than rebuilding standard controls;
 - support EN/AR/RTL;
 - preserve keyboard operation and visible focus;
-- do not add decorative motion to high-frequency inventory operations;
+- use deliberate Fares-specific spring/morph behavior only where it improves orientation/state continuity, never to slow high-frequency inventory operations;
+- provide reduced-motion behavior for any non-essential spatial animation;
 - do not build React versions of Odoo product/inventory screens merely for styling.
 
 No UI styling work should start before the visual gate is resolved if doing so would lock an unapproved visual direction.

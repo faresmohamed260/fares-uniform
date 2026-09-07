@@ -19,7 +19,7 @@ The accepted MVP boundary covers finished stock, bilingual offline POS, preorder
 
 Phase 0A proved the Odoo Community direction at implementation `1ad528e02ed1a709d34620731d182c5e1cbdebe9`, run `34068805602`: 15/15 tests passed. Odoo remains a conditional technical GO with Fares-owned addons/UX and the isolated offline-restore compatibility shim documented in `docs/validation/ODOO_PROOF.md`.
 
-Phase 0B formalized the hybrid architecture and design-system direction. The disposable representative UI at implementation `670dd9999788ee01f6df6e000675054ef0153a6a` passed hosted run `34070644678`, job `101587223017`: typecheck, optimized build and 12/12 browser tests, with eight EN/AR desktop/mobile screenshots plus interaction/focus/reduced-motion checks. See `docs/validation/UI_FOUNDATION.md`.
+Phase 0B formalized the hybrid architecture and design-system direction. The client rejected the first technically passing UI baseline as too custom-built and too visually restrained. The revised prebuilt-first implementation `fa9ef2413177a54e566c5505e1e858696c8a9bfb` uses actual official shadcn/Base UI primitives with RTL plus visibly stronger Motion spring/morph/shared-layout effects. Hosted run `34073833275`, job `101596052081` passed typecheck, optimized build and **15/15 browser tests**, producing a refreshed eight-screen EN/AR desktop/mobile artifact while verifying maintained primitive use, keyboard Dialog behavior, normal visible physics and exact reduced-motion suppression. See `docs/validation/UI_FOUNDATION.md`.
 
 On 2026-09-07 the client confirmed the remaining product/stock blockers:
 - school/client-specific designs are stocked as different products;
@@ -45,9 +45,9 @@ One retail store, one storage location and one checkout per store are confirmed.
 
 ## Immediate next action
 
-**Client visual review is now the only blocker before Phase 1 execution.**
+**Client visual review of the revised prebuilt-first/fancy-motion direction is now the only blocker before Phase 1 execution.**
 
-Review the Phase 0B rendered direction from hosted run `34070644678` / artifact `phase0b-ui-670dd9999788ee01f6df6e000675054ef0153a6a` (artifact ID `10000345256`). The review should answer whether the overall visual direction is accepted, rejected, or accepted with specific changes.
+Review the refreshed Phase 0B rendered direction from hosted run `34073833275` / artifact `phase0b-ui-fa9ef2413177a54e566c5505e1e858696c8a9bfb` (artifact ID `10001375991`). The previous artifact is superseded for visual review. The client should answer whether this revised direction is accepted, rejected, or accepted with specific changes.
 
 Do not ask the client again about product-design separation, factory-finished custody, size-system variability or sequential item codes unless the client changes those decisions.
 

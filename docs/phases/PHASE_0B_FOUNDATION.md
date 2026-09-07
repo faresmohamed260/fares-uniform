@@ -10,7 +10,8 @@ Turn the Phase 0A conditional Odoo GO into an implementation-ready foundation wi
 - Phase 0 business discovery is now complete for the accepted MVP boundary.
 - Phase 0A implementation commit `1ad528e02ed1a709d34620731d182c5e1cbdebe9` passed 15/15 hosted tests in run `34068805602`.
 - Odoo Community 19.0 is viable for the tested operational scope with the isolated offline-restore compatibility shim in `docs/validation/ODOO_PROOF.md`.
-- Phase 0B UI implementation commit `670dd9999788ee01f6df6e000675054ef0153a6a` passed hosted run `34070644678`, job `101587223017`: typecheck, production build and 12/12 browser tests passed, producing eight EN/AR desktop/mobile screenshots.
+- The first Phase 0B UI baseline at `670dd9999788ee01f6df6e000675054ef0153a6a` technically passed 12/12 but was explicitly rejected by the client as too custom-built and too visually restrained; it is superseded for visual review.
+- Revised prebuilt-first implementation `fa9ef2413177a54e566c5505e1e858696c8a9bfb` passed hosted run `34073833275`, job `101596052081`: typecheck, optimized production build and **15/15 browser tests passed**, producing a refreshed eight-screen EN/AR desktop/mobile set. The tests prove actual shadcn/Base UI primitive use, responsive POS interaction, accessible Dialog behavior, visible keyboard focus, a non-zero normal-motion physics transform and exact reduced-motion suppression.
 - Product/design identity, per-garment size systems, permanent sequential item codes and the absence of a tracked factory-finished stock location are client-confirmed in `docs/requirements/PRODUCT_AND_STOCK_RULES.md`.
 - No production host, real customer data, service purchase or deployment exists.
 
@@ -34,14 +35,14 @@ Turn the Phase 0A conditional Odoo GO into an implementation-ready foundation wi
 See `docs/requirements/PRODUCT_AND_STOCK_RULES.md` for the complete contract.
 
 ## Representative UX foundation
-The reusable design direction includes:
-- semantic tokens for typography, spacing, shape, surfaces, status, focus, motion and RTL;
-- public React components with maintained accessible sources and deliberate Motion usage;
-- internal Odoo/Owl-compatible styling/components, not a React checkout shell;
-- representative POS, preorder/order, production and public catalog surfaces;
-- English/Arabic, desktop/narrow, reduced-motion and keyboard-focused validation.
+The reusable design direction now enforces D-031:
+- **prebuilt-first is mandatory** for generic UI; the public prototype uses official shadcn/Base UI generated with RTL support, while internal ERP/POS must prefer maintained Odoo/Owl primitives;
+- semantic tokens cover typography, spacing, shape, surfaces, status, focus, motion and RTL;
+- Motion is reserved for Fares-specific composition and conspicuous spring/morph/shared-layout behavior rather than reimplementing generic controls;
+- representative POS, preorder/order, production and public catalog surfaces include visible physics/morphing examples;
+- English/Arabic, desktop/narrow, normal-motion, reduced-motion and keyboard-focused behavior is hosted-tested.
 
-The disposable prototype lives under `prototype/review-ui`. Detailed evidence is in `docs/validation/UI_FOUNDATION.md`.
+The disposable prototype lives under `prototype/review-ui`. Detailed evidence is in `docs/validation/UI_FOUNDATION.md`. Client visual taste approval is still open.
 
 ## Explicitly outside this phase
 - Production deployment or production Odoo hosting.
