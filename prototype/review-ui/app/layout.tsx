@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./reduced-motion.css";
 
 export const metadata: Metadata = {
   title: "Fares Uniform — Phase 0B Review",

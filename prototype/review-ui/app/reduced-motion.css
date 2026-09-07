@@ -1,0 +1,13 @@
+@media (prefers-reduced-motion: reduce) {
+  .hero-panel-main,
+  .product-card,
+  .cart-line,
+  .editorial-media,
+  .detail-media,
+  .product-detail,
+  .queue-row {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

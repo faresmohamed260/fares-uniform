@@ -71,8 +71,17 @@ test("keyboard focus is visible on the checkout surface", async ({ page }) => {
   expect(focusState?.outlineWidth).not.toBe("0px");
 });
 
-test("reduced motion is detected by the shared UI layer", async ({ page }) => {
+test("reduced motion suppresses rendered spatial movement", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/public?lang=en", { waitUntil: "networkidle" });
-  await expect(page.locator(".review-root")).toHaveAttribute("data-reduced-motion", "true");
+
+  const mediaMatches = await page.evaluate(() =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  expect(mediaMatches).toBe(true);
+
+  const transform = await page
+    .locator(".hero-panel-main")
+    .evaluate((element) => getComputedStyle(element).transform);
+  expect(transform).toBe("none");
 });
