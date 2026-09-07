@@ -49,7 +49,7 @@ The quantity threshold remains configurable but has no accepted initial value. C
 ## D-009 — Introduce product identification
 Status: Accepted need, 2026-09-06.
 
-The business currently has no item codes/barcodes and identifies products manually. Introduce product codes/barcodes as part of the system. Exact formats, variant model and hardware remain undecided.
+The business currently has no item codes or barcodes and identifies products manually. Introduce product codes/barcodes as part of the system. Exact formats, variant model and hardware remain undecided.
 
 ## D-010 — Payments, returns and partial collection
 Status: Accepted by client, 2026-09-06.
@@ -134,3 +134,17 @@ The proof's bilingual/RTL/responsive compatibility passed its bounded checks, bu
 Status: Client continuation authorization, 2026-09-07.
 
 After receiving the Phase 0A result, the client instructed the developer to "keep going." Continue with the bounded Phase 0B architecture/data/UI foundation contract in `docs/phases/PHASE_0B_FOUNDATION.md`. This authorizes remote foundation work within the already accepted MVP direction; it does not silently resolve listed business-policy unknowns, authorize paid resources or authorize production deployment.
+
+## D-026 — Hybrid system ownership
+Status: Developer architecture decision under Phase 0B, 2026-09-07; production resource selection remains open.
+
+Use Odoo Community as the operational/domain persistence core and a separate Vercel-targeted Next.js public application. Public browser code does not receive broad Odoo credentials or direct database access; a narrow Fares-owned projection/enquiry API provides allowlisted integration. Do not mirror operational stock/orders/balances into Supabase by default.
+
+Keep internal POS on Odoo/Owl mechanics and extensions. Public React code and internal Owl code share design-system concepts/tokens, not runtime components.
+
+## D-027 — UI component and motion strategy
+Status: Developer design-system decision under Phase 0B, 2026-09-07; final visual palette/type/preset remains client-reviewable.
+
+For the public web prototype, prefer maintained source-owned shadcn/ui components before custom generic controls and use Motion for deliberate spring/layout/shared-element transitions. For internal ERP/POS, use Odoo/Owl components and extension points rather than a React checkout rewrite.
+
+Physics/morphing is purposeful, interruptible and non-blocking. Checkout speed wins over decorative motion; reduced-motion, Arabic RTL, keyboard focus and narrow layouts are mandatory review dimensions. Final colors, typography and rendered visual direction remain unapproved until the client reviews representative evidence.

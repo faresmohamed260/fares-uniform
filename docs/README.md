@@ -10,6 +10,8 @@
 | [Roles and permissions](requirements/ROLES_AND_PERMISSIONS.md) | Developer-selected role and access design under client delegation |
 | [Phase 0](phases/PHASE_0_DISCOVERY.md) | Discovery scope and exit criteria |
 | [Platform evaluation and UI direction](architecture/PLATFORM_EVALUATION.md) | Initial Odoo source assessment, requirement matrix and architecture/UI recommendation |
+| [Foundation architecture](architecture/FOUNDATION_ARCHITECTURE.md) | Current Phase 0B system ownership, data/offline/integration contracts and open decisions |
+| [Design system direction](ui/DESIGN_SYSTEM.md) | Component sources, tokens, layout/motion/RTL/accessibility rules and visual-review set |
 | [Phase 0A hosted proof contract](phases/PHASE_0A_ODOO_PROOF.md) | Authorized remote Odoo technical proof and outcome |
 | [Hosted Odoo proof evidence](validation/ODOO_PROOF.md) | Exact tested commits, offline defect, compatibility shim, runtime results and remaining gates |
 | [Phase 0B foundation contract](phases/PHASE_0B_FOUNDATION.md) | Current architecture/data/UI foundation scope and validation gates |
