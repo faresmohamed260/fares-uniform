@@ -44,12 +44,12 @@ Status: Accepted by client, 2026-09-06.
 
 Aggregate demand separately per item size. Automatically create a production task when the configured quantity threshold is reached or the pickup date is seven days away, with the seven-day lead time configurable. Staff mark In production when work begins. Finished means factory completion; Ready for collection means received at the store.
 
-The quantity threshold remains configurable but has no accepted initial value. Color/design grouping details, scheduling semantics, permissions and partial completion are still open.
+The quantity threshold remains configurable but has no accepted initial value. Scheduling semantics, permissions and partial completion are still open. Product/design identity is clarified by D-028.
 
 ## D-009 — Introduce product identification
-Status: Accepted need, 2026-09-06.
+Status: Accepted need, 2026-09-06; format clarified by D-028.
 
-The business currently has no item codes or barcodes and identifies products manually. Introduce product codes/barcodes as part of the system. Exact formats, variant model and hardware remain undecided.
+The business currently has no item codes or barcodes and identifies products manually. Introduce product codes/barcodes as part of the system.
 
 ## D-010 — Payments, returns and partial collection
 Status: Accepted by client, 2026-09-06.
@@ -148,3 +148,26 @@ Status: Developer design-system decision under Phase 0B, 2026-09-07; final visua
 For the public web prototype, prefer maintained source-owned shadcn/ui components before custom generic controls and use Motion for deliberate spring/layout/shared-element transitions. For internal ERP/POS, use Odoo/Owl components and extension points rather than a React checkout rewrite.
 
 Physics/morphing is purposeful, interruptible and non-blocking. Checkout speed wins over decorative motion; reduced-motion, Arabic RTL, keyboard focus and narrow layouts are mandatory review dimensions. Final colors, typography and rendered visual direction remain unapproved until the client reviews representative evidence.
+
+## D-028 — Product identity, sizes and sequential item codes
+Status: Accepted by client, 2026-09-07.
+
+School/client-specific designs are stocked as different products rather than generic base garments awaiting later branding. Keep design/client identity at the product-template boundary when units are not interchangeable.
+
+Size systems differ depending on the garment. Size values and attribute sets are configurable per product family; do not hardcode one global size enum.
+
+Use permanent system-managed sequential variant item codes such as `FU-000001`. School, design, size, color, price and location remain separate fields instead of encoded business meaning inside the SKU.
+
+## D-029 — No tracked factory-finished stock location
+Status: Accepted by client, 2026-09-07.
+
+The client does not need inventory visibility such as "25 finished pieces still at the factory." Keep `Finished` as a production workflow state and track finished on-hand inventory only when Store or Storage records physical receipt. Do not create a `Factory Finished / Awaiting Transfer` inventory location in the initial model.
+
+`Ready for collection` still requires receipt at the Retail Store.
+
+## D-030 — Phase 0 discovery closure
+Status: Evidence-backed project state, 2026-09-07.
+
+Phase 0 business discovery is complete for the accepted first-release boundary. Representative workflows, roles, operating constraints and acceptance scenarios are documented; the client broadly accepted the MVP direction and subsequently confirmed the product/stock choices blocking the first implementation slice.
+
+Remaining policy questions are explicitly deferred to the implementation phases they affect. Their existence does not reopen Phase 0 unless new information changes the accepted release boundary.
