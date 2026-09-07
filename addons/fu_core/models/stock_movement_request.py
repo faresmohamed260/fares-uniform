@@ -198,7 +198,6 @@ class FuStockMovementRequest(models.Model):
                 "move_ids": [
                     Command.create(
                         {
-                            "name": self.product_id.display_name,
                             "product_id": self.product_id.id,
                             "product_uom_qty": self.quantity,
                             "product_uom": self.product_id.uom_id.id,
