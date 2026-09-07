@@ -33,17 +33,19 @@ test("POS uses maintained primitives and keeps checkout state interactive", asyn
   expect(await page.locator('[data-slot="button"]').count()).toBeGreaterThan(5);
   expect(await page.locator('[data-slot="card"]').count()).toBeGreaterThan(3);
 
-  await page.getByTestId("pos-product-polo").click();
-  await expect(page.getByTestId("cart-line-polo")).toContainText("× 3");
+  const visiblePolo = page.locator('[data-testid="pos-product-polo"]:visible').first();
+  await visiblePolo.click();
+  await expect(page.locator('[data-testid="cart-line-polo"]:visible').first()).toContainText("× 3");
 
-  const instapay = page.getByTestId("payment-instapay");
+  const instapay = page.locator('[data-testid="payment-instapay"]:visible').first();
   await instapay.click();
   await expect(instapay).toHaveAttribute("aria-pressed", "true");
   await expect(instapay.locator('[data-motion="payment-shared-highlight"]')).toBeVisible();
 
-  await page.getByTestId("pos-sync-toggle").click();
-  await expect(page.getByTestId("pos-sync-toggle")).toContainText("Pending sync");
-  await expect(page.getByTestId("offline-note")).toBeVisible();
+  const syncToggle = page.locator('[data-testid="pos-sync-toggle"]:visible').first();
+  await syncToggle.click();
+  await expect(syncToggle).toContainText("Pending sync");
+  await expect(page.locator('[data-testid="offline-note"]:visible').first()).toBeVisible();
 });
 
 test("mobile POS uses the maintained Tabs primitive", async ({ page }) => {
