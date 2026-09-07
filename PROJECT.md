@@ -13,7 +13,7 @@
 
 ## Current state — 2026-09-07
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: ACTIVE / PRODUCT-STOCK-SECURITY FOUNDATION VERIFIED.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS.**
 
 The accepted MVP boundary covers finished stock, bilingual offline POS, preorders/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics remains future work.
 
@@ -27,7 +27,11 @@ Confirmed product/stock rules remain:
 - size systems vary by garment and remain configurable per product family;
 - permanent sequential `FU-000001`-style variant codes are accepted.
 
-Phase 1 is executing on `phase-1/products-stock-access`. The production `fu_core` foundation now has hosted evidence for product identity, Retail Store/Storage custody, opening counts, native receipts/transfers, idempotent stock effects and the Phase 1 role/location-security matrix. Exact-head security run `34097747757` at `6f55ea20dca7a6fde4641d9d9f11d991fd896597` reports 0 failures/errors across 22 loaded tests (Odoo stats: 28 tests) and a repeatable addon upgrade. Evidence is recorded in `docs/validation/PHASE_1_PRODUCTS_STOCK.md`.
+Phase 1 is complete on `phase-1/products-stock-access`. The production `fu_core` foundation has hosted evidence for product identity, Retail Store/Storage custody, opening counts, native receipts/transfers, idempotent stock effects, the Phase 1 role/location-security matrix and native bilingual Odoo product/inventory workflows.
+
+The authoritative tested implementation is `eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3`. GitHub Actions run `34110346764`, job `101704871502`, completed successfully, including the full `fu_core` test gate, real Chrome English/Arabic UI checks and repeatable addon upgrade. Artifact `phase1-product-stock-eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3` is ID `10014163050`, SHA-256 `4e2e1a01b7516d0e7a1b93ef77d4ae48f430ff723098c04981033b96fda71fbc`. Detailed evidence is in `docs/validation/PHASE_1_PRODUCTS_STOCK.md`.
+
+The Phase 1 closure/docs commit after that run is documentation/CI cleanup only and is not substituted for the exact tested implementation SHA above.
 
 One retail store, one storage location and one checkout per store are confirmed. Numeric product/transaction volumes remain unavailable and must not be invented. Launch date and service budget remain deployment-time decisions.
 
@@ -36,14 +40,14 @@ One retail store, one storage location and one checkout per store are confirmed.
 1. Phase 0: business discovery and first-release boundary — complete.
 2. Phase 0A: Odoo technical proof — pass.
 3. Phase 0B: architecture/data/UI foundation — complete; modern/practical operational visual direction approved.
-4. Phase 1: products, finished-stock movements, access controls and opening inventory — active; product/stock/security backend slices verified, bilingual internal UI remaining.
+4. Phase 1: products, finished-stock movements, access controls, opening inventory and bilingual native internal UI — complete; hosted technical gates pass.
 5. Phase 2+: retail POS/preorders/payments/offline reconciliation, production/business workflows, public catalog/reports, then integrated onboarding/UAT/deployment in bounded contracts.
 
 ## Immediate next action
 
-**Complete the Phase 1 bilingual Odoo-native internal UI.** Extend maintained Odoo product/inventory views rather than creating a parallel dashboard, expose only the Fares fields/actions needed for the accepted workflows, provide English + Arabic/RTL translations, and capture hosted rendered evidence. Then perform the final Phase 1 exit review.
+**Write and authorize the next bounded retail/POS/preorder contract before implementation.** It should reuse the verified Phase 1 product/stock/security contracts and the native Odoo POS mechanics already proven in Phase 0A, while explicitly defining the smallest testable slice for checkout, preorders, Cash/InstaPay and offline reconciliation without silently deciding deferred business policies.
 
-Do not ask the client again about product-design separation, factory-finished custody, size-system variability, sequential item codes or the operational visual direction unless the client changes those decisions.
+Do not reopen product-design separation, factory-finished custody, size-system variability, sequential item codes or the operational visual direction unless the client changes those decisions.
 
 ## Later explicit decisions
 

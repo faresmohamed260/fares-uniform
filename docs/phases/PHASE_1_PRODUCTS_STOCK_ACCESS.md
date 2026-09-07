@@ -1,8 +1,8 @@
 # Phase 1 — Products, finished stock and access foundation
 
-Status: ACTIVE / AUTHORIZED, 2026-09-07.
+Status: **COMPLETE, 2026-09-07.**
 
-Authorization state: Phase 0B is complete. The client confirmed the product/stock business rules and explicitly approved the modern/practical operational ERP visual direction on 2026-09-07. This contract is active for remote implementation within its existing scope; paid resources, production deployment and real-data migration remain unauthorized.
+Authorization state: Phase 0B is complete. The client confirmed the product/stock business rules and explicitly approved the modern/practical operational ERP visual direction on 2026-09-07. Phase 1 was implemented remotely within this contract. Paid resources, production deployment and real-data migration remain unauthorized.
 
 ## Goal
 Build the first durable Odoo operational foundation: product/design identity, configurable garment variants, permanent item identifiers, finished-stock custody at Retail Store/Storage, attributable stock movements, controlled opening-stock onboarding and server-enforced role boundaries.
@@ -15,98 +15,66 @@ This phase establishes trusted inventory identity and movement contracts that la
 - Foundation architecture: `docs/architecture/FOUNDATION_ARCHITECTURE.md`.
 - Client-confirmed product/stock rules: `docs/requirements/PRODUCT_AND_STOCK_RULES.md`.
 - Role/access design: `docs/requirements/ROLES_AND_PERMISSIONS.md`.
-- Revised UI foundation technical gate: implementation `fa9ef2413177a54e566c5505e1e858696c8a9bfb`, hosted run `34073833275`, **15/15 browser tests passed**. The client subsequently approved a modern/practical operational ERP paradigm (D-033); richer 3D/physics is reserved for suitable expressive surfaces rather than imposed on dense operational views.
+- Revised UI foundation technical gate: implementation `fa9ef2413177a54e566c5505e1e858696c8a9bfb`, hosted run `34073833275`, 15/15 browser tests passed. The client subsequently approved a modern/practical operational ERP paradigm (D-033); richer 3D/physics is reserved for suitable expressive surfaces rather than imposed on dense operational views.
 
-## In scope
+## Delivered scope
 
 ### 1. Odoo addon foundation
-Implement only the project-owned pieces that native Odoo does not already satisfy cleanly.
-
-Preferred ownership:
-- `fu_core`: stable item-code sequencing, common audit/security helpers and shared Fares configuration required by this slice;
-- use native Odoo Inventory/product models for product templates, variants, locations, receipts/transfers and on-hand computation wherever they meet the contract.
-
-Do not fork Odoo core. Do not create custom stock tables that duplicate Odoo Inventory.
+`fu_core` owns only the Fares-specific sequencing, audit, security and controlled stock-service behavior required by this slice. Native Odoo product and Inventory models remain authoritative for product templates, variants, locations, quants, receipts and transfers. Odoo core was not forked and no parallel stock tables were created.
 
 ### 2. Product/design master
-Support:
+The implemented/tested contracts support:
 - separate product templates for non-interchangeable school/client designs;
 - product-family-specific attribute sets;
 - size as a stock-bearing variant where applicable;
-- color/other attributes only when that garment actually stocks them independently;
-- bilingual-safe names/content without hardcoded school, garment, color or size enums.
-
-The implementation must not provide a generic "same base polo for every school" shortcut that merges distinct client-design stock.
+- color/other attributes only when independently stocked;
+- bilingual-safe product data without hardcoded school, garment, color or size enums.
 
 ### 3. Permanent variant identifiers
-For every stock-bearing variant:
-- assign a unique system-managed sequential item code using `FU-000001` style;
-- keep the identifier stable after normal creation;
-- enforce uniqueness at the server/database-validatable layer;
-- support manual code lookup and Odoo barcode lookup resolving the same variant;
-- keep mutable business meaning out of the identifier.
-
-Initial barcode payload may reuse the permanent item code if compatible with Odoo's tested barcode path. Printed barcode symbology/label dimensions remain a hardware-facing decision; no printer brand is selected here.
-
-Any exceptional identifier correction must require owner/administrator authority and create an attributable audit record. Routine users cannot freely edit assigned codes.
+Stock-bearing variants receive unique system-managed sequential `FU-000001`-style item codes with matching initial barcode payloads. Normal mutable product data does not alter the assigned identifier. Collision, lookup and authority rules are server-tested.
 
 ### 4. Finished-stock locations and custody
-Configure/test only:
-- Retail Store;
-- Storage.
-
-Do not create a tracked factory-finished inventory location.
-
-Production task `Finished` is not an inventory receipt. Later production integration must explicitly receive goods into Store or Storage before they become on-hand stock. `Ready for collection` remains a retail-store receipt concept.
+Only Retail Store and Storage are tracked as initial Fares finished-stock custody locations. No Factory Finished stock location is created. Production `Finished` state alone does not create tracked on-hand stock.
 
 ### 5. Finished-stock movements
-Use native Odoo stock mechanics for:
+Native Odoo mechanics back:
 - receipt into Store/Storage;
 - Store ↔ Storage transfer;
-- opening-stock adjustment/count onboarding;
-- approved stock-count correction.
+- opening-stock counts/adjustments;
+- attributable movement evidence.
 
-Every privileged correction must be attributable. Where native Odoo reason/audit detail is insufficient for the accepted audit contract, add the smallest Fares-owned extension rather than replacing native moves/quants.
-
-Retry/idempotency behavior must not produce duplicate transfer effects under the tested server workflow.
+Fares-owned request/audit logic provides stable idempotency keys and retry protection around privileged stock effects.
 
 ### 6. Roles and security
-Map the accepted role design to Odoo security groups/record rules for this phase.
-
-Minimum behavior:
-- Owner/Administrator: product-master authority, stock correction approval, all locations;
-- Store Manager: operational stock visibility for assigned store and allowed store workflows, but no role administration;
-- Cashier: read/lookup products needed for checkout preparation; no product-master creation/edit, stock adjustment or transfer approval;
-- Inventory Staff: receipts/transfers/counts and label lookup/printing capability within assigned locations; cannot alter prices/refunds/financial reports;
-- Production Manager: product/variant read needed for production context; no retail stock correction authority;
-- Sales/Business Development: product/catalog read as needed; no stock mutation.
-
-Permissions must be enforced server-side/direct-API as well as in UI visibility.
+The accepted Phase 1 role matrix is implemented with native Odoo groups, ACLs/record rules and Fares service authorization. Direct-model/API tests cover denied product/stock mutation, assigned-location scope, owner/inventory authorized paths and attempted self-escalation.
 
 ### 7. Inventory onboarding mechanism
-Provide a controlled path to establish opening finished stock:
-- create/verify product templates and variants;
-- assign stable codes/barcodes;
-- count Store and Storage separately;
-- record opening adjustment with actor/date/batch/reason context;
-- surface invalid/duplicate identifiers and negative/impossible quantities before acceptance.
+The controlled opening-stock path uses native Odoo inventory effects while preserving actor, batch/reason and per-location/per-variant attribution. Tests use synthetic fixtures only; no real business import occurred.
 
-Use synthetic fixtures/tests only. No real business import is part of this phase.
+### 8. Bilingual native internal UI
+The phase provides native Odoo surfaces for:
+- Product Lookup;
+- On-hand Stock;
+- Stock Operation;
+- Movement History;
+- user stock-location assignments.
+
+English and Arabic/RTL browser tests run in real Chrome. The gate verifies loaded seeded product/code data, localized Fares labels/actions, keyboard focus, RTL state, narrow-view overflow and reduced-motion behavior, and captures hosted screenshots. No React/Owl-parallel dashboard was introduced.
 
 ## Explicitly outside this phase
 - POS checkout implementation or replacement.
-- Offline sales synchronization changes beyond keeping Phase 0A compatibility code intact.
+- Offline sales synchronization changes beyond preserving Phase 0A compatibility code.
 - Preorder/payment/collection logic.
 - Production task automation.
 - Customer returns/exchanges.
 - Business-client order tracking.
-- Public API/site implementation beyond the existing disposable design prototype.
+- Public API/site implementation beyond existing design/foundation work.
 - Raw material/WIP stock.
 - Accounting/general ledger/procurement.
 - Real label printing/scanner validation.
 - Production deployment, persistent production host, backup/DR or real data migration.
 
-## Data invariants
+## Data invariants established
 1. One real non-interchangeable client/design identity maps to one product template, not a shared generic template by accident.
 2. Each stock-bearing variant has exactly one permanent sequential Fares item code.
 3. Item code uniqueness is server-enforced; display-name changes do not affect it.
@@ -116,78 +84,46 @@ Use synthetic fixtures/tests only. No real business import is part of this phase
 7. Stock movement history remains attributable; posted movement evidence is not silently deleted.
 8. Unauthorized users cannot mutate product identity or stock through direct API calls.
 
-## UI requirements
-Internal implementation remains Odoo/Owl-native.
+## UI implementation rules retained
+Internal implementation remains Odoo/Owl-native and follows D-033:
+- modern/practical operational ERP grammar;
+- maintained native Odoo/Owl controls first;
+- custom code only for Fares-specific workflow/composition needs;
+- EN/AR/RTL support;
+- keyboard operation and visible focus;
+- reduced-motion support for non-essential spatial behavior;
+- no React copies of Odoo product/inventory screens.
 
-Apply the accepted Phase 0B direction:
-- use the modern/practical operational ERP grammar and shared Fares semantic design tokens/patterns on product/stock views touched by this phase;
-- **prebuilt-first is mandatory**: use maintained native Odoo/Owl components and extension points before any custom generic widget; if a generic custom component is necessary, document the missing maintained option;
-- custom code should focus on Fares-specific composition/workflow behavior rather than rebuilding standard controls;
-- support EN/AR/RTL;
-- preserve keyboard operation and visible focus;
-- use deliberate Fares-specific spring/morph behavior only where it improves orientation/state continuity, never to slow high-frequency inventory operations;
-- provide reduced-motion behavior for any non-essential spatial animation;
-- do not build React versions of Odoo product/inventory screens merely for styling.
+## Hosted validation result
+Authoritative tested implementation: `eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3`.
 
-The visual gate is resolved. Do not reopen the product/inventory visual paradigm during implementation; refine details within D-033 and the design-system contract.
+GitHub Actions run `34110346764`, job `101704871502`, completed **SUCCESS** on the full Phase 1 gate:
+- checkout of the exact Fares head and pinned Odoo Community 19;
+- dependency installation including real RTL compilation support;
+- `fu_core` install and complete Phase 1 test execution;
+- real Chrome bilingual browser checks;
+- repeatable `-u fu_core` addon upgrade;
+- evidence summary and artifact upload.
 
-## Hosted validation plan
-All verification is remote/hosted and must target the exact implementation head.
+Evidence artifact:
+- name `phase1-product-stock-eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3`;
+- ID `10014163050`;
+- SHA-256 `4e2e1a01b7516d0e7a1b93ef77d4ae48f430ff723098c04981033b96fda71fbc`.
 
-At minimum prove:
+Detailed history, including failed runs and the Arabic/RTL correction, is in `docs/validation/PHASE_1_PRODUCTS_STOCK.md`.
 
-### Install/upgrade
-- pinned Odoo Community source installs with the Phase 1 addon(s);
-- addon upgrade is repeatable against a disposable database.
+The subsequent closure/docs commit is not presented as the tested implementation head. Any later application-code change requires fresh exact-head hosted evidence.
 
-### Product identity
-- School A and School B synthetic navy polos remain different templates and stock identities;
-- one template can use letter-size variants while another synthetic garment uses numeric/age-style values, proving there is no hardcoded global size enum;
-- variant codes allocate sequentially and uniquely;
-- normal product rename does not change an assigned code;
-- duplicate/manual collision attempts are rejected;
-- barcode and manual-code lookup resolve the same variant.
-
-### Stock/custody
-- only Store and Storage are configured as initial Fares finished-stock locations;
-- a synthetic receipt changes the intended location once;
-- a Store↔Storage transfer changes source and destination correctly;
-- repeated/retried server request cannot silently create a duplicate transfer effect under the implemented idempotency boundary;
-- marking a synthetic production-style record Finished, if represented in the test fixture, does not create stock;
-- opening count establishes per-variant/per-location quantities with attributable adjustment evidence.
-
-### Security
-For each relevant role, test direct model/API access rather than only hidden menus:
-- forbidden product create/write denied;
-- forbidden stock correction denied;
-- location scope enforced;
-- owner/inventory authorized paths succeed;
-- attempted privilege/self-escalation remains outside granted access.
-
-### Bilingual/UI
-After the visual gate is accepted and styling is applied:
-- representative product lookup/list and stock-transfer/count views render in English and Arabic RTL;
-- no primary-action horizontal overflow at agreed narrow viewport;
-- keyboard focus smoke check;
-- screenshot evidence is reviewed separately from compile/test results.
-
-## Documentation/evidence outputs
-During implementation keep current:
-- `docs/validation/PHASE_1_PRODUCTS_STOCK.md` with exact commits/runs/failures/limitations;
-- `docs/DECISIONS.md` for any durable technical choices;
-- `PROJECT.md` status/handoff;
-- phase contract if evidence forces a scope correction.
-
-## Exit criteria
-Phase 1 is complete only when:
-1. product/design/variant identities meet the confirmed rules;
-2. permanent sequential identifiers are server-enforced and lookup-tested;
-3. Store/Storage stock movements and opening-stock onboarding work with attributable evidence;
-4. role/security tests deny unauthorized direct access;
-5. exact-head hosted Odoo tests pass;
-6. affected internal views meet the accepted bilingual visual direction with hosted render evidence;
-7. no production deployment or real-data claim is made;
-8. the next retail/POS/preorder phase can rely on these contracts without redefining product or stock identity.
+## Exit review
+All Phase 1 exit criteria are satisfied within the synthetic hosted-test boundary:
+1. product/design/variant identities meet the confirmed rules — **PASS**;
+2. permanent sequential identifiers are server-enforced and lookup-tested — **PASS**;
+3. Store/Storage movements and opening-stock onboarding work with attributable evidence — **PASS**;
+4. role/security tests deny unauthorized direct access — **PASS**;
+5. exact-head hosted Odoo tests pass — **PASS**;
+6. affected internal views meet the accepted bilingual direction with hosted render evidence — **PASS**;
+7. no production deployment or real-data claim is made — **PASS**;
+8. later retail/POS/preorder work can rely on these product/stock contracts without redefining identity — **PASS**.
 
 ## Execution state
-**ACTIVE / AUTHORIZED.** Implement on a focused branch without reopening the confirmed product/stock questions or approved operational visual paradigm unless the client explicitly changes them.
+**COMPLETE.** Phase 1 application work is closed at tested implementation `eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3`. The next implementation must begin from a new bounded phase contract; do not extend this phase with POS/preorder/payment/offline behavior.

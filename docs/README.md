@@ -14,12 +14,13 @@
 | [Foundation architecture](architecture/FOUNDATION_ARCHITECTURE.md) | Phase 0B system ownership, data/offline/integration contracts and open decisions |
 | [Design system direction](ui/DESIGN_SYSTEM.md) | Component sources, tokens, layout/motion/RTL/accessibility rules and visual-review set |
 | [Representative UI concept brief](ui/CONCEPT_BRIEF.md) | Historical synthetic visible content/hierarchy brief for the superseded flat Phase 0B review surfaces |
-| [Spatial 3D concept brief](ui/SPATIAL_CONCEPT_BRIEF.md) | Current client-required 3D/physics/morphing visual target, behaviors, fallbacks and concept set |
+| [Spatial 3D concept brief](ui/SPATIAL_CONCEPT_BRIEF.md) | Client-requested 3D/physics/morphing concept direction, bounded by the later D-033 operational-ERP approval |
 | [Phase 0A hosted proof contract](phases/PHASE_0A_ODOO_PROOF.md) | Remote Odoo technical proof and outcome |
 | [Hosted Odoo proof evidence](validation/ODOO_PROOF.md) | Exact tested commits, offline defect, compatibility shim, runtime results and remaining gates |
-| [Phase 0B foundation contract](phases/PHASE_0B_FOUNDATION.md) | Current architecture/data/UI foundation scope and one remaining visual gate |
+| [Phase 0B foundation contract](phases/PHASE_0B_FOUNDATION.md) | Completed architecture/data/UI foundation contract and visual-direction outcome |
 | [Phase 0B UI foundation evidence](validation/UI_FOUNDATION.md) | Exact hosted frontend build/render/interaction evidence and superseded visual baselines |
-| [Phase 1 products/stock/access contract](phases/PHASE_1_PRODUCTS_STOCK_ACCESS.md) | Prepared first production-grade Odoo implementation slice; execution blocked until Phase 0B visual decision |
+| [Phase 1 products/stock/access contract](phases/PHASE_1_PRODUCTS_STOCK_ACCESS.md) | Completed first production-grade Odoo products/finished-stock/access/internal-UI slice |
+| [Phase 1 products/stock validation](validation/PHASE_1_PRODUCTS_STOCK.md) | Exact Phase 1 product, stock, security and bilingual native-Odoo hosted evidence, failures and limitations |
 
 Read these documents from GitHub at the beginning of work. Add new documents here when needed, with a clear ownership boundary.
 
