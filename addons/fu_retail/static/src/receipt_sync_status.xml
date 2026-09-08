@@ -29,7 +29,22 @@
                           t-on-click="() => this.pos.orderDetails(this.currentOrder)">Edit Payment</span>
                 </div>
             </div>
-            <div t-if="!currentOrder.isSynced &amp;&amp; !currentOrder.fuSyncReviewRequired"
+            <div t-if="!currentOrder.isSynced &amp;&amp; !currentOrder.fuSyncReviewRequired &amp;&amp; this.pos.syncingOrders.has(currentOrder.uuid)"
+                 class="fu-sync-syncing d-flex flex-column align-items-center mb-3 p-1 p-lg-3 border border-info rounded-3 bg-info-subtle text-info-emphasis fs-3"
+                 role="status"
+                 aria-live="polite">
+                <i t-if="!ui.isSmall" class="fa fa-fw fa-2x fa-cloud-upload"/>
+                <span class="fs-3 fw-bolder">Syncing with server</span>
+                <span class="fs-6 fw-semibold text-center">This sale is being sent for server confirmation.</span>
+                <div class="fs-4 fw-bold d-flex justify-content-center align-items-center gap-2">
+                    <span t-esc="orderAmountPlusTip"/>
+                    <span t-if="this.pos.canEditPayment(currentOrder)"
+                          class="edit-order-payment badge bg-info text-dark rounded cursor-pointer pt-1"
+                          role="button"
+                          t-on-click="() => this.pos.orderDetails(this.currentOrder)">Edit Payment</span>
+                </div>
+            </div>
+            <div t-if="!currentOrder.isSynced &amp;&amp; !currentOrder.fuSyncReviewRequired &amp;&amp; !this.pos.syncingOrders.has(currentOrder.uuid)"
                  class="fu-sync-pending d-flex flex-column align-items-center mb-3 p-1 p-lg-3 border border-warning rounded-3 bg-warning-subtle text-warning-emphasis fs-3"
                  role="status"
                  aria-live="polite">
