@@ -44,7 +44,22 @@
                           t-on-click="() => this.pos.orderDetails(this.currentOrder)">Edit Payment</span>
                 </div>
             </div>
-            <div t-if="!currentOrder.isSynced &amp;&amp; !currentOrder.fuSyncReviewRequired &amp;&amp; !this.pos.syncingOrders.has(currentOrder.uuid)"
+            <div t-if="!currentOrder.isSynced &amp;&amp; !currentOrder.fuSyncReviewRequired &amp;&amp; !this.pos.syncingOrders.has(currentOrder.uuid) &amp;&amp; currentOrder.fuSyncRetryableFailure"
+                 class="fu-sync-retryable d-flex flex-column align-items-center mb-3 p-1 p-lg-3 border border-warning rounded-3 bg-warning-subtle text-warning-emphasis fs-3"
+                 role="status"
+                 aria-live="polite">
+                <i t-if="!ui.isSmall" class="fa fa-fw fa-2x fa-rotate"/>
+                <span class="fs-3 fw-bolder">Sync interrupted</span>
+                <span class="fs-6 fw-semibold text-center">This sale is still saved on this device. Server confirmation failed; retry when the connection is stable.</span>
+                <div class="fs-4 fw-bold d-flex justify-content-center align-items-center gap-2">
+                    <span t-esc="orderAmountPlusTip"/>
+                    <span t-if="this.pos.canEditPayment(currentOrder)"
+                          class="edit-order-payment badge bg-warning text-dark rounded cursor-pointer pt-1"
+                          role="button"
+                          t-on-click="() => this.pos.orderDetails(this.currentOrder)">Edit Payment</span>
+                </div>
+            </div>
+            <div t-if="!currentOrder.isSynced &amp;&amp; !currentOrder.fuSyncReviewRequired &amp;&amp; !this.pos.syncingOrders.has(currentOrder.uuid) &amp;&amp; !currentOrder.fuSyncRetryableFailure"
                  class="fu-sync-pending d-flex flex-column align-items-center mb-3 p-1 p-lg-3 border border-warning rounded-3 bg-warning-subtle text-warning-emphasis fs-3"
                  role="status"
                  aria-live="polite">
