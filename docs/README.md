@@ -22,6 +22,7 @@
 | [Phase 1 products/stock/access contract](phases/PHASE_1_PRODUCTS_STOCK_ACCESS.md) | Completed first production-grade Odoo products/finished-stock/access/internal-UI slice |
 | [Phase 1 products/stock validation](validation/PHASE_1_PRODUCTS_STOCK.md) | Exact Phase 1 product, stock, security and bilingual native-Odoo hosted evidence, failures and limitations |
 | [Phase 2A retail checkout/offline contract](phases/PHASE_2A_RETAIL_CHECKOUT_OFFLINE.md) | Active bounded ordinary retail checkout, Cash/confirmed-InstaPay and offline-reconciliation implementation contract |
+| [Phase 2A retail checkout/offline validation](validation/PHASE_2A_RETAIL_CHECKOUT.md) | Current hosted Phase 2A evidence, retained red runs, green foundations, remaining gates and handoff state |
 
 Read these documents from GitHub at the beginning of work. Add new documents here when needed, with a clear ownership boundary.
 
