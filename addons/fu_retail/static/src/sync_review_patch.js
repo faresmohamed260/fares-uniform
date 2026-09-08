@@ -4,9 +4,14 @@ import { ConnectionLostError } from "@web/core/network/rpc";
 import { patch } from "@web/core/utils/patch";
 
 const REVIEW_STORAGE_PREFIX = "fu_retail.sync_review.";
+const RETRYABLE_STORAGE_PREFIX = "fu_retail.sync_retryable.";
 
 function reviewStorageKey(uuid) {
     return `${REVIEW_STORAGE_PREFIX}${uuid}`;
+}
+
+function retryableStorageKey(uuid) {
+    return `${RETRYABLE_STORAGE_PREFIX}${uuid}`;
 }
 
 function readReviewMarker(uuid) {
@@ -15,6 +20,17 @@ function readReviewMarker(uuid) {
     }
     try {
         return localStorage.getItem(reviewStorageKey(uuid)) === "1";
+    } catch {
+        return false;
+    }
+}
+
+function readRetryableMarker(uuid) {
+    if (!uuid) {
+        return false;
+    }
+    try {
+        return localStorage.getItem(retryableStorageKey(uuid)) === "1";
     } catch {
         return false;
     }
@@ -37,6 +53,23 @@ function writeReviewMarker(order, required) {
     }
 }
 
+function writeRetryableMarker(order, required) {
+    if (!order?.uuid) {
+        return;
+    }
+
+    order.uiState.fuSyncRetryableFailure = Boolean(required);
+    try {
+        if (required) {
+            localStorage.setItem(retryableStorageKey(order.uuid), "1");
+        } else {
+            localStorage.removeItem(retryableStorageKey(order.uuid));
+        }
+    } catch {
+        // The native POS order remains authoritative even if browser storage is unavailable.
+    }
+}
+
 function ordersFromSyncPayload(data, args) {
     const payloads = Array.isArray(args?.[0]) ? args[0] : [];
     return payloads
@@ -48,10 +81,15 @@ patch(PosOrder.prototype, {
     initState() {
         super.initState(...arguments);
         this.uiState.fuSyncReviewRequired = readReviewMarker(this.uuid);
+        this.uiState.fuSyncRetryableFailure = readRetryableMarker(this.uuid);
     },
 
     get fuSyncReviewRequired() {
         return Boolean(this.uiState?.fuSyncReviewRequired || readReviewMarker(this.uuid));
+    },
+
+    get fuSyncRetryableFailure() {
+        return Boolean(this.uiState?.fuSyncRetryableFailure || readRetryableMarker(this.uuid));
     },
 });
 
@@ -65,13 +103,19 @@ patch(PosData.prototype, {
             if (isOrderSync) {
                 for (const order of localOrders) {
                     writeReviewMarker(order, false);
+                    writeRetryableMarker(order, false);
                 }
             }
             return result;
         } catch (error) {
-            if (isOrderSync && !(error instanceof ConnectionLostError)) {
+            if (isOrderSync) {
                 for (const order of localOrders) {
-                    writeReviewMarker(order, true);
+                    if (error instanceof ConnectionLostError) {
+                        writeRetryableMarker(order, true);
+                    } else {
+                        writeRetryableMarker(order, false);
+                        writeReviewMarker(order, true);
+                    }
                 }
             }
             throw error;
