@@ -97,7 +97,7 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Encode combined failure signature
+      - name: Encode exact combined failure
         id: failure_signature
         if: failure()
         run: |
@@ -107,39 +107,35 @@ jobs:
 
           path = Path("evidence/install-and-tests.log")
           lines = path.read_text(errors="replace").splitlines() if path.exists() else []
-          failure_line = re.compile(
-              r"FAIL:|ERROR:|CRITICAL|AssertionError|Tour .*failed|"
-              r"test_[A-Za-z0-9_]+.*(?:failed|error)",
-              re.IGNORECASE,
-          )
-          focused = [line for line in lines if failure_line.search(line)]
-          focused_text = "\n".join(focused)
-          all_text = "\n".join(lines)
-
-          checks = [
-              ("instapay", "test_offline_instapay_reload_reconnect_is_idempotent" in focused_text),
-              ("review", "test_revoked_cashier_reconnect_is_retained_for_review" in focused_text),
-              ("cash", "test_offline_cash_reload_reconnect_is_idempotent" in focused_text),
-              ("cashar", "test_offline_cash_arabic_receipt_marks_pending_sync" in focused_text),
-              ("uigate", "test_instapay_cancel_then_confirm_ui_gate" in focused_text),
-              ("duplicate", "Reconnect/replay must create exactly one paid order" in all_text),
-              ("transition", "Review-required receipt rendered another reconciliation state after marker creation" in all_text),
-              ("reviewmarker", "Rejected sync did not mark the native local order for review" in all_text),
-              ("reviewmissing", "Rejected reconnect did not retain the native local paid order" in all_text),
-              ("servercreated", "Server-rejected offline sale must not become an authoritative paid order" in all_text),
-          ]
-
-          failures = errors = None
-          for line in reversed(lines):
-              match = re.search(r"(\d+)\s+failed,\s*(\d+)\s+error", line, re.IGNORECASE)
+          failures = []
+          for index, line in enumerate(lines):
+              match = re.search(r"\bFAIL:\s+([A-Za-z0-9_.]+)", line)
               if match:
-                  failures, errors = match.groups()
-                  break
+                  failures.append((index, match.group(1)))
 
-          signature = "-".join(f"{name}{int(hit)}" for name, hit in checks)
-          if failures is not None:
-              signature += f"-f{failures}-e{errors}"
-          print(signature[:180])
+          if not failures:
+              print("no-literal-fail-line")
+          else:
+              index, test_name = failures[-1]
+              nearby = "\n".join(lines[index : min(len(lines), index + 45)])
+              reason = ""
+              reason_patterns = (
+                  r"AssertionError:\s*([^\n]+)",
+                  r"Tour[^\n]*(?:failed|timeout|timed out)[^\n]*",
+                  r"RuntimeError:\s*([^\n]+)",
+              )
+              for pattern in reason_patterns:
+                  reason_match = re.search(pattern, nearby, re.IGNORECASE)
+                  if reason_match:
+                      reason = reason_match.group(1) if reason_match.lastindex else reason_match.group(0)
+                      break
+              signature = test_name
+              if reason:
+                  reason = re.sub(r"[^A-Za-z0-9_.-]+", "-", reason).strip("-._")[:80]
+                  if reason:
+                      signature += "__" + reason
+              signature = re.sub(r"[^A-Za-z0-9_.-]+", "-", signature).strip("-._")
+              print(signature[:180] or "unclassified")
           PY
           signature="$(cat evidence/failure-signature.txt)"
           echo "signature=$signature" >> "$GITHUB_OUTPUT"
