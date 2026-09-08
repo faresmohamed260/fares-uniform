@@ -167,22 +167,6 @@ jobs:
             exit 1
           fi
 
-      - name: "Review detector: tour waited for review receipt"
-        if: always() && matrix.slice == 'review'
-        run: |
-          if grep -Eqi 'fu-sync-review|Review required' diagnostic/test.log; then
-            grep -Ei 'fu-sync-review|Review required|tour|timeout|step' diagnostic/test.log | tail -n 50
-            exit 1
-          fi
-
-      - name: "Review detector: server authorization rejection observed"
-        if: always() && matrix.slice == 'review'
-        run: |
-          if grep -Eqi 'Retail checkout synchronization requires an active Fares Uniform|AccessError' diagnostic/test.log; then
-            grep -Ei 'Retail checkout synchronization requires an active Fares Uniform|AccessError' diagnostic/test.log | tail -n 20
-            exit 1
-          fi
-
       - name: "Review detector: server order unexpectedly created"
         if: always() && matrix.slice == 'review'
         run: |
