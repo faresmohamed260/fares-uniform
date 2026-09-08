@@ -107,39 +107,39 @@ jobs:
 
           path = Path("evidence/install-and-tests.log")
           lines = path.read_text(errors="replace").splitlines() if path.exists() else []
-          marker = re.compile(
-              r"FAIL:|ERROR:|CRITICAL|Traceback|AssertionError|Tour .*failed|"
-              r"test_[A-Za-z0-9_]+.*(?:failed|error)|(?:failed|errors?)\s*[=:]",
+          failure_line = re.compile(
+              r"FAIL:|ERROR:|CRITICAL|AssertionError|Tour .*failed|"
+              r"test_[A-Za-z0-9_]+.*(?:failed|error)",
               re.IGNORECASE,
           )
-          indexes = [index for index, line in enumerate(lines) if marker.search(line)]
-          selected = set()
-          for index in indexes[-12:]:
-              selected.update(range(max(0, index - 8), min(len(lines), index + 13)))
-          context = "\n".join(lines[index] for index in sorted(selected))
+          focused = [line for line in lines if failure_line.search(line)]
+          focused_text = "\n".join(focused)
+          all_text = "\n".join(lines)
 
-          tokens = []
-          patterns = (
-              r"\bTest[A-Za-z0-9_]+\.test_[A-Za-z0-9_]+\b",
-              r"\btest_[A-Za-z0-9_]+\b",
-              r"\bfu_retail_[A-Za-z0-9_]+\b",
-              r"\b(?:fu_core|fu_retail)\.[A-Za-z0-9_.]+\b",
-          )
-          for pattern in patterns:
-              for value in re.findall(pattern, context):
-                  if value not in tokens:
-                      tokens.append(value)
+          checks = [
+              ("instapay", "test_offline_instapay_reload_reconnect_is_idempotent" in focused_text),
+              ("review", "test_revoked_cashier_reconnect_is_retained_for_review" in focused_text),
+              ("cash", "test_offline_cash_reload_reconnect_is_idempotent" in focused_text),
+              ("cashar", "test_offline_cash_arabic_receipt_marks_pending_sync" in focused_text),
+              ("uigate", "test_instapay_cancel_then_confirm_ui_gate" in focused_text),
+              ("duplicate", "Reconnect/replay must create exactly one paid order" in all_text),
+              ("transition", "Review-required receipt rendered another reconciliation state after marker creation" in all_text),
+              ("reviewmarker", "Rejected sync did not mark the native local order for review" in all_text),
+              ("reviewmissing", "Rejected reconnect did not retain the native local paid order" in all_text),
+              ("servercreated", "Server-rejected offline sale must not become an authoritative paid order" in all_text),
+          ]
 
-          if not tokens:
-              fallback = next(
-                  (lines[index] for index in reversed(indexes)),
-                  lines[-1] if lines else "no-log",
-              )
-              tokens.append(fallback)
+          failures = errors = None
+          for line in reversed(lines):
+              match = re.search(r"(\d+)\s+failed,\s*(\d+)\s+error", line, re.IGNORECASE)
+              if match:
+                  failures, errors = match.groups()
+                  break
 
-          signature = "__".join(tokens[:8])
-          signature = re.sub(r"[^A-Za-z0-9_.-]+", "-", signature).strip("-._")
-          print((signature or "unclassified")[:120])
+          signature = "-".join(f"{name}{int(hit)}" for name, hit in checks)
+          if failures is not None:
+              signature += f"-f{failures}-e{errors}"
+          print(signature[:180])
           PY
           signature="$(cat evidence/failure-signature.txt)"
           echo "signature=$signature" >> "$GITHUB_OUTPUT"
