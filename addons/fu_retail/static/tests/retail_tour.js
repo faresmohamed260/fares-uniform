@@ -241,6 +241,12 @@ function rejectedReconnectReviewSteps() {
                 if (!order || order.state !== "paid" || order.isSynced) {
                     throw new Error("Rejected reconnect did not retain the native local paid order");
                 }
+                if (!order.fuSyncReviewRequired) {
+                    throw new Error("Rejected sync did not mark the native local order for review");
+                }
+                if (localStorage.getItem(`${REVIEW_STORAGE_PREFIX}${uuid}`) !== "1") {
+                    throw new Error("Review-required marker was not persisted by native order UUID");
+                }
             },
         },
         reviewRequiredReceiptIsTruthful(),
