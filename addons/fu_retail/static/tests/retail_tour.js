@@ -247,6 +247,19 @@ function rejectedReconnectReviewSteps() {
                 if (localStorage.getItem(`${REVIEW_STORAGE_PREFIX}${uuid}`) !== "1") {
                     throw new Error("Review-required marker was not persisted by native order UUID");
                 }
+
+                const deadline = Date.now() + 2000;
+                while (Date.now() < deadline) {
+                    if (document.querySelector(".receipt-screen .fu-sync-review")) {
+                        return;
+                    }
+                    await new Promise((resolve) => setTimeout(resolve, 50));
+                }
+                if (document.querySelector(".receipt-screen")) {
+                    throw new Error(
+                        "Review-required receipt rendered another reconciliation state after marker creation"
+                    );
+                }
             },
         },
         reviewRequiredReceiptIsTruthful(),
