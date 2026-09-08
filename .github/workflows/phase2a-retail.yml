@@ -82,6 +82,21 @@ jobs:
             --stop-after-init --http-interface=127.0.0.1 \
             2>&1 | tee evidence/install-and-tests.log
 
+      - name: Surface combined test failure
+        if: failure()
+        run: |
+          echo '::group::Combined Odoo failure context'
+          grep -nEi 'Traceback|AssertionError|ERROR|CRITICAL|FAIL|Tour|test_|fu_retail|fu_core' evidence/install-and-tests.log 2>/dev/null | tail -n 180 || true
+          echo '--- final log tail ---'
+          tail -n 260 evidence/install-and-tests.log 2>/dev/null || true
+          echo '::endgroup::'
+          {
+            echo '### Combined Odoo failure context'
+            echo '```text'
+            grep -nEi 'Traceback|AssertionError|ERROR|CRITICAL|FAIL|Tour|test_|fu_retail|fu_core' evidence/install-and-tests.log 2>/dev/null | tail -n 140 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Prove repeatable addon upgrade
         run: |
           set -o pipefail
