@@ -57,6 +57,18 @@ msgstr "تعذر على الخادم قبول هذه العملية. احتفظ 
 #. module: fu_retail
 #. odoo-javascript
 #: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
+msgid "Syncing with server"
+msgstr "جارٍ المزامنة مع الخادم"
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
+msgid "This sale is being sent for server confirmation."
+msgstr "جارٍ إرسال هذه العملية إلى الخادم للتأكيد."
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
 msgid "Saved on this device"
 msgstr "تم الحفظ على هذا الجهاز"
 
