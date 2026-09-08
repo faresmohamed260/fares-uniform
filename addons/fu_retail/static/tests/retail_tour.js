@@ -9,12 +9,16 @@ import { refresh } from "@point_of_sale/../tests/generic_helpers/utils";
 import { registry } from "@web/core/registry";
 
 const REVIEW_STORAGE_PREFIX = "fu_retail.sync_review.";
+const RETRYABLE_STORAGE_PREFIX = "fu_retail.sync_retryable.";
 
 const EN_SYNC_STATUS = {
     pendingHeading: "Saved on this device",
     pendingDetail: "Pending server sync — this sale is not yet server-confirmed.",
     syncingHeading: "Syncing with server",
     syncingDetail: "This sale is being sent for server confirmation.",
+    retryableHeading: "Sync interrupted",
+    retryableDetail:
+        "This sale is still saved on this device. Server confirmation failed; retry when the connection is stable.",
     syncedHeading: "Synced to server",
     syncedDetail: "This sale is server-confirmed.",
     reviewHeading: "Review required",
@@ -27,6 +31,9 @@ const AR_SYNC_STATUS = {
     pendingDetail: "بانتظار المزامنة مع الخادم — لم يتم تأكيد هذه العملية على الخادم بعد.",
     syncingHeading: "جارٍ المزامنة مع الخادم",
     syncingDetail: "جارٍ إرسال هذه العملية إلى الخادم للتأكيد.",
+    retryableHeading: "انقطعت المزامنة",
+    retryableDetail:
+        "لا تزال هذه العملية محفوظة على هذا الجهاز. فشل تأكيد الخادم؛ أعد المحاولة عندما يستقر الاتصال.",
     syncedHeading: "تمت المزامنة مع الخادم",
     syncedDetail: "تم تأكيد هذه العملية على الخادم.",
     direction: "rtl",
@@ -63,6 +70,7 @@ function pendingSyncReceiptIsTruthful(expected) {
             }
             if (
                 document.querySelector(".receipt-screen .fu-sync-syncing") ||
+                document.querySelector(".receipt-screen .fu-sync-retryable") ||
                 document.querySelector(".receipt-screen .fu-sync-synced") ||
                 document.querySelector(".receipt-screen .fu-sync-review")
             ) {
@@ -93,12 +101,53 @@ function syncingReceiptIsTruthful(expected) {
             }
             if (
                 document.querySelector(".receipt-screen .fu-sync-pending") ||
+                document.querySelector(".receipt-screen .fu-sync-retryable") ||
                 document.querySelector(".receipt-screen .fu-sync-synced") ||
                 document.querySelector(".receipt-screen .fu-sync-review")
             ) {
                 throw new Error("Syncing receipt rendered another reconciliation state");
             }
             assertRenderedDirection(syncing, expected);
+        },
+    };
+}
+
+function retryableReceiptIsTruthful(expected) {
+    return {
+        trigger: ".receipt-screen .fu-sync-retryable",
+        content: "Transient transport failure remains local and visibly retryable",
+        run() {
+            const uuid = sessionStorage.getItem("fu.retail.order_uuid");
+            const order = posmodel.models["pos.order"].find((candidate) => candidate.uuid === uuid);
+            const retryable = document.querySelector(".receipt-screen .fu-sync-retryable");
+            const text = retryable?.textContent?.replace(/\s+/g, " ").trim() || "";
+            if (!order || order.state !== "paid" || order.isSynced) {
+                throw new Error("Retryable sync failure did not retain the native local paid order");
+            }
+            if (!order.fuSyncRetryableFailure) {
+                throw new Error("Transient sync failure did not mark the native local order retryable");
+            }
+            if (order.fuSyncReviewRequired) {
+                throw new Error("Transient sync failure was incorrectly classified as review-required");
+            }
+            if (posmodel.syncingOrders.has(uuid)) {
+                throw new Error("Retryable receipt rendered while the native order was still syncing");
+            }
+            if (!text.includes(expected.retryableHeading) || !text.includes(expected.retryableDetail)) {
+                throw new Error(`Retryable sync receipt copy mismatch: ${text}`);
+            }
+            if (
+                document.querySelector(".receipt-screen .fu-sync-pending") ||
+                document.querySelector(".receipt-screen .fu-sync-syncing") ||
+                document.querySelector(".receipt-screen .fu-sync-synced") ||
+                document.querySelector(".receipt-screen .fu-sync-review")
+            ) {
+                throw new Error("Retryable receipt rendered another reconciliation state");
+            }
+            if (localStorage.getItem(`${RETRYABLE_STORAGE_PREFIX}${uuid}`) !== "1") {
+                throw new Error("Retryable sync marker was not persisted by native order UUID");
+            }
+            assertRenderedDirection(retryable, expected);
         },
     };
 }
@@ -115,12 +164,19 @@ function syncedReceiptIsTruthful(expected) {
             if (!order?.isSynced) {
                 throw new Error("Server-synced receipt rendered before the order was marked synced");
             }
+            if (order.fuSyncRetryableFailure) {
+                throw new Error("Successful sync did not clear the retryable failure classification");
+            }
+            if (localStorage.getItem(`${RETRYABLE_STORAGE_PREFIX}${uuid}`) !== null) {
+                throw new Error("Successful sync did not clear the persisted retryable marker");
+            }
             if (!text.includes(expected.syncedHeading) || !text.includes(expected.syncedDetail)) {
                 throw new Error(`Server-synced receipt copy mismatch: ${text}`);
             }
             if (
                 document.querySelector(".receipt-screen .fu-sync-pending") ||
                 document.querySelector(".receipt-screen .fu-sync-syncing") ||
+                document.querySelector(".receipt-screen .fu-sync-retryable") ||
                 document.querySelector(".receipt-screen .fu-sync-review")
             ) {
                 throw new Error("Server-synced receipt rendered another reconciliation state");
@@ -148,12 +204,16 @@ function reviewRequiredReceiptIsTruthful(expected = EN_SYNC_STATUS) {
             if (!order.fuSyncReviewRequired) {
                 throw new Error("Rejected sync did not mark the native local order for review");
             }
+            if (order.fuSyncRetryableFailure) {
+                throw new Error("Semantic rejection retained an obsolete retryable classification");
+            }
             if (!text.includes(expected.reviewHeading) || !text.includes(expected.reviewDetail)) {
                 throw new Error(`Review-required receipt copy mismatch: ${text}`);
             }
             if (
                 document.querySelector(".receipt-screen .fu-sync-pending") ||
                 document.querySelector(".receipt-screen .fu-sync-syncing") ||
+                document.querySelector(".receipt-screen .fu-sync-retryable") ||
                 document.querySelector(".receipt-screen .fu-sync-synced")
             ) {
                 throw new Error("Review-required receipt rendered another reconciliation state");
@@ -259,6 +319,38 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
             },
         },
         pendingSyncReceiptIsTruthful(expected),
+        {
+            trigger: "body",
+            content: "Transient reconnect failure keeps the native paid order retryable",
+            async run() {
+                const uuid = sessionStorage.getItem("fu.retail.order_uuid");
+                const order = posmodel.models["pos.order"].find((candidate) => candidate.uuid === uuid);
+                if (!order || order.state !== "paid" || order.isSynced) {
+                    throw new Error("Cannot exercise retryable sync failure without a local paid order");
+                }
+
+                // Keep Odoo's offline transport override active, but let the native sync path
+                // attempt the RPC so the production classifier receives ConnectionLostError.
+                posmodel.data.network.offline = false;
+                await posmodel.syncAllOrders();
+
+                if (!order.fuSyncRetryableFailure) {
+                    throw new Error("Transient sync failure did not mark the native local order retryable");
+                }
+                if (order.fuSyncReviewRequired) {
+                    throw new Error("Transient sync failure was incorrectly classified as review-required");
+                }
+                if (order.isSynced || order.state !== "paid") {
+                    throw new Error("Transient sync failure did not retain the native paid order");
+                }
+                if (localStorage.getItem(`${RETRYABLE_STORAGE_PREFIX}${uuid}`) !== "1") {
+                    throw new Error("Retryable sync marker was not persisted by native order UUID");
+                }
+            },
+        },
+        retryableReceiptIsTruthful(expected),
+        refresh(),
+        retryableReceiptIsTruthful(expected),
         Offline.setOnlineMode(),
         {
             trigger: "body",
@@ -305,6 +397,12 @@ function rejectedReconnectReviewSteps() {
                 }
                 if (!order.fuSyncReviewRequired) {
                     throw new Error("Rejected sync did not mark the native local order for review");
+                }
+                if (order.fuSyncRetryableFailure) {
+                    throw new Error("Semantic rejection retained an obsolete retryable classification");
+                }
+                if (localStorage.getItem(`${RETRYABLE_STORAGE_PREFIX}${uuid}`) !== null) {
+                    throw new Error("Semantic rejection retained the retryable sync marker");
                 }
                 if (localStorage.getItem(`${REVIEW_STORAGE_PREFIX}${uuid}`) !== "1") {
                     throw new Error("Review-required marker was not persisted by native order UUID");
