@@ -69,6 +69,18 @@ msgstr "جارٍ إرسال هذه العملية إلى الخادم للتأك
 #. module: fu_retail
 #. odoo-javascript
 #: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
+msgid "Sync interrupted"
+msgstr "انقطعت المزامنة"
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
+msgid "This sale is still saved on this device. Server confirmation failed; retry when the connection is stable."
+msgstr "لا تزال هذه العملية محفوظة على هذا الجهاز. فشل تأكيد الخادم؛ أعد المحاولة عندما يستقر الاتصال."
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
 msgid "Saved on this device"
 msgstr "تم الحفظ على هذا الجهاز"
 
