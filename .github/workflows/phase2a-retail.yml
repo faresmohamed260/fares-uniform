@@ -97,6 +97,54 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Encode combined failure signature
+        id: failure_signature
+        if: failure()
+        run: |
+          python - <<'PY' > evidence/failure-signature.txt
+          import re
+          from pathlib import Path
+
+          path = Path("evidence/install-and-tests.log")
+          lines = path.read_text(errors="replace").splitlines() if path.exists() else []
+          marker = re.compile(
+              r"FAIL:|ERROR:|CRITICAL|Traceback|AssertionError|Tour .*failed|"
+              r"test_[A-Za-z0-9_]+.*(?:failed|error)|(?:failed|errors?)\s*[=:]",
+              re.IGNORECASE,
+          )
+          indexes = [index for index, line in enumerate(lines) if marker.search(line)]
+          selected = set()
+          for index in indexes[-12:]:
+              selected.update(range(max(0, index - 8), min(len(lines), index + 13)))
+          context = "\n".join(lines[index] for index in sorted(selected))
+
+          tokens = []
+          patterns = (
+              r"\bTest[A-Za-z0-9_]+\.test_[A-Za-z0-9_]+\b",
+              r"\btest_[A-Za-z0-9_]+\b",
+              r"\bfu_retail_[A-Za-z0-9_]+\b",
+              r"\b(?:fu_core|fu_retail)\.[A-Za-z0-9_.]+\b",
+          )
+          for pattern in patterns:
+              for value in re.findall(pattern, context):
+                  if value not in tokens:
+                      tokens.append(value)
+
+          if not tokens:
+              fallback = next(
+                  (lines[index] for index in reversed(indexes)),
+                  lines[-1] if lines else "no-log",
+              )
+              tokens.append(fallback)
+
+          signature = "__".join(tokens[:8])
+          signature = re.sub(r"[^A-Za-z0-9_.-]+", "-", signature).strip("-._")
+          print((signature or "unclassified")[:120])
+          PY
+          signature="$(cat evidence/failure-signature.txt)"
+          echo "signature=$signature" >> "$GITHUB_OUTPUT"
+          echo "Failure signature: $signature"
+
       - name: Prove repeatable addon upgrade
         run: |
           set -o pipefail
@@ -127,6 +175,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase2a-retail-${{ github.sha }}
+          name: phase2a-retail-${{ github.sha }}-${{ steps.failure_signature.outputs.signature || 'no-failure-signature' }}
           path: evidence/
           retention-days: 7
