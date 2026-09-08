@@ -14,6 +14,7 @@
         "point_of_sale._assets_pos": [
             "fu_retail/static/src/offline_restore_patch.js",
             "fu_retail/static/src/payment_confirmation_patch.js",
+            "fu_retail/static/src/sync_review_patch.js",
             "fu_retail/static/src/receipt_sync_status.xml",
         ],
         "web.assets_tests": [

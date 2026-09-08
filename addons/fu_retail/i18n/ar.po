@@ -45,6 +45,18 @@ msgstr "تم تأكيد هذه العملية على الخادم."
 #. module: fu_retail
 #. odoo-javascript
 #: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
+msgid "Review required"
+msgstr "مطلوب مراجعة"
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
+msgid "Server could not accept this sale. Keep it on this device and ask a manager to review before retrying."
+msgstr "تعذر على الخادم قبول هذه العملية. احتفظ بها على هذا الجهاز واطلب من المدير مراجعتها قبل إعادة المحاولة."
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
 msgid "Saved on this device"
 msgstr "تم الحفظ على هذا الجهاز"
 

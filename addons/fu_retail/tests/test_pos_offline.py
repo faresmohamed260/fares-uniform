@@ -1,3 +1,4 @@
+from odoo import Command
 from odoo.addons.point_of_sale.tests.test_frontend import TestPointOfSaleHttpCommon
 from odoo.tests import tagged
 
@@ -55,3 +56,26 @@ class TestRetailPOSOffline(TestPointOfSaleHttpCommon):
     def test_offline_instapay_reload_reconnect_is_idempotent(self):
         self.start_pos_tour("fu_retail_offline_instapay", timeout=180)
         self._assert_single_synced_order("InstaPay", True)
+
+    def test_revoked_cashier_reconnect_is_retained_for_review(self):
+        cashier_group = self.env.ref("fu_core.group_fu_cashier")
+        native_pos_user = self.env.ref("point_of_sale.group_pos_user")
+        self.pos_user.write(
+            {
+                "group_ids": [
+                    Command.link(native_pos_user.id),
+                    Command.unlink(cashier_group.id),
+                ]
+            }
+        )
+        self.assertTrue(self.pos_user.has_group("point_of_sale.group_pos_user"))
+        self.assertFalse(self.pos_user.has_group("fu_core.group_fu_cashier"))
+
+        self.start_pos_tour("fu_retail_revoked_cashier_review", timeout=180)
+
+        self.assertFalse(
+            self.env["pos.order"].search(
+                [("config_id", "=", self.main_pos_config.id), ("state", "=", "paid")]
+            ),
+            "Server-rejected offline sale must not become an authoritative paid order",
+        )

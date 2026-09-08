@@ -8,11 +8,16 @@ import * as Offline from "@point_of_sale/../tests/generic_helpers/offline_util";
 import { refresh } from "@point_of_sale/../tests/generic_helpers/utils";
 import { registry } from "@web/core/registry";
 
+const REVIEW_STORAGE_PREFIX = "fu_retail.sync_review.";
+
 const EN_SYNC_STATUS = {
     pendingHeading: "Saved on this device",
     pendingDetail: "Pending server sync — this sale is not yet server-confirmed.",
     syncedHeading: "Synced to server",
     syncedDetail: "This sale is server-confirmed.",
+    reviewHeading: "Review required",
+    reviewDetail:
+        "Server could not accept this sale. Keep it on this device and ask a manager to review before retrying.",
 };
 
 const AR_SYNC_STATUS = {
@@ -52,8 +57,11 @@ function pendingSyncReceiptIsTruthful(expected) {
             if (text.includes("Payment Successful") || pending?.classList.contains("border-success")) {
                 throw new Error("Offline local-only receipt is still presented as server-confirmed success");
             }
-            if (document.querySelector(".receipt-screen .fu-sync-synced")) {
-                throw new Error("Pending receipt also rendered the server-synced indicator");
+            if (
+                document.querySelector(".receipt-screen .fu-sync-synced") ||
+                document.querySelector(".receipt-screen .fu-sync-review")
+            ) {
+                throw new Error("Pending receipt rendered another reconciliation state at the same time");
             }
             assertRenderedDirection(pending, expected);
         },
@@ -75,10 +83,47 @@ function syncedReceiptIsTruthful(expected) {
             if (!text.includes(expected.syncedHeading) || !text.includes(expected.syncedDetail)) {
                 throw new Error(`Server-synced receipt copy mismatch: ${text}`);
             }
-            if (document.querySelector(".receipt-screen .fu-sync-pending")) {
-                throw new Error("Server-synced receipt still renders the pending-sync indicator");
+            if (
+                document.querySelector(".receipt-screen .fu-sync-pending") ||
+                document.querySelector(".receipt-screen .fu-sync-review")
+            ) {
+                throw new Error("Server-synced receipt rendered another reconciliation state");
             }
             assertRenderedDirection(synced, expected);
+        },
+    };
+}
+
+function reviewRequiredReceiptIsTruthful(expected = EN_SYNC_STATUS) {
+    return {
+        trigger: ".receipt-screen .fu-sync-review",
+        content: "Rejected reconnect remains local and visibly requires review",
+        run() {
+            const uuid = sessionStorage.getItem("fu.retail.order_uuid");
+            const order = posmodel.models["pos.order"].find((candidate) => candidate.uuid === uuid);
+            const review = document.querySelector(".receipt-screen .fu-sync-review");
+            const text = review?.textContent?.replace(/\s+/g, " ").trim() || "";
+            if (!order || order.state !== "paid") {
+                throw new Error("Review-required order is missing from the native POS model");
+            }
+            if (order.isSynced) {
+                throw new Error("Review-required receipt rendered for a server-synced order");
+            }
+            if (!order.fuSyncReviewRequired) {
+                throw new Error("Rejected sync did not mark the native local order for review");
+            }
+            if (!text.includes(expected.reviewHeading) || !text.includes(expected.reviewDetail)) {
+                throw new Error(`Review-required receipt copy mismatch: ${text}`);
+            }
+            if (
+                document.querySelector(".receipt-screen .fu-sync-pending") ||
+                document.querySelector(".receipt-screen .fu-sync-synced")
+            ) {
+                throw new Error("Review-required receipt rendered another reconciliation state");
+            }
+            if (localStorage.getItem(`${REVIEW_STORAGE_PREFIX}${uuid}`) !== "1") {
+                throw new Error("Review-required marker was not persisted by native order UUID");
+            }
         },
     };
 }
@@ -165,6 +210,46 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
     ].flat();
 }
 
+function rejectedReconnectReviewSteps() {
+    return [
+        Chrome.startPoS(),
+        Dialog.confirm(),
+        Offline.setOfflineMode(),
+        ProductScreen.clickDisplayedProduct("Desk Pad"),
+        {
+            trigger: "body",
+            run() {
+                sessionStorage.setItem("fu.retail.order_uuid", posmodel.getOrder().uuid);
+            },
+        },
+        ProductScreen.clickPayButton(),
+        PaymentScreen.clickPaymentMethod("Cash"),
+        PaymentScreen.clickValidate(),
+        ReceiptScreen.isShown(),
+        Dialog.confirm(),
+        pendingSyncReceiptIsTruthful(EN_SYNC_STATUS),
+        refresh(),
+        Dialog.confirm(),
+        Offline.setOnlineMode(),
+        {
+            trigger: "body",
+            content: "Server rejection keeps the native paid order queued locally",
+            async run() {
+                await posmodel.syncAllOrders();
+                const uuid = sessionStorage.getItem("fu.retail.order_uuid");
+                const order = posmodel.models["pos.order"].find((candidate) => candidate.uuid === uuid);
+                if (!order || order.state !== "paid" || order.isSynced) {
+                    throw new Error("Rejected reconnect did not retain the native local paid order");
+                }
+            },
+        },
+        reviewRequiredReceiptIsTruthful(),
+        refresh(),
+        Dialog.confirm(),
+        reviewRequiredReceiptIsTruthful(),
+    ].flat();
+}
+
 registry.category("web_tour.tours").add("fu_retail_offline_cash", {
     steps: () => offlineCheckoutSteps("Cash"),
 });
@@ -175,6 +260,10 @@ registry.category("web_tour.tours").add("fu_retail_offline_instapay", {
 
 registry.category("web_tour.tours").add("fu_retail_offline_cash_ar", {
     steps: () => offlineCheckoutSteps("Cash", false, AR_SYNC_STATUS),
+});
+
+registry.category("web_tour.tours").add("fu_retail_revoked_cashier_review", {
+    steps: rejectedReconnectReviewSteps,
 });
 
 registry.category("web_tour.tours").add("fu_retail_instapay_cancel_then_confirm", {

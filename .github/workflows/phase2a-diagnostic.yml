@@ -49,6 +49,10 @@ jobs:
             label: "Offline confirmed-InstaPay reload/reconnect"
             update_module: fu_retail
             test_tags: "/fu_retail:TestRetailPOSOffline.test_offline_instapay_reload_reconnect_is_idempotent"
+          - slice: review
+            label: "Revoked cashier review-required retention"
+            update_module: fu_retail
+            test_tags: "/fu_retail:TestRetailPOSOffline.test_revoked_cashier_reconnect_is_retained_for_review"
           - slice: core
             label: "Retained Phase 1 fu_core regression"
             update_module: fu_core
