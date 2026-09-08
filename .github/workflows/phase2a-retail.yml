@@ -107,35 +107,38 @@ jobs:
 
           path = Path("evidence/install-and-tests.log")
           lines = path.read_text(errors="replace").splitlines() if path.exists() else []
-          failures = []
-          for index, line in enumerate(lines):
+
+          fail_name = "no-literal-fail-line"
+          for line in lines:
               match = re.search(r"\bFAIL:\s+([A-Za-z0-9_.]+)", line)
               if match:
-                  failures.append((index, match.group(1)))
+                  fail_name = match.group(1)
 
-          if not failures:
-              print("no-literal-fail-line")
-          else:
-              index, test_name = failures[-1]
-              nearby = "\n".join(lines[index : min(len(lines), index + 45)])
-              reason = ""
-              reason_patterns = (
-                  r"AssertionError:\s*([^\n]+)",
-                  r"Tour[^\n]*(?:failed|timeout|timed out)[^\n]*",
-                  r"RuntimeError:\s*([^\n]+)",
-              )
-              for pattern in reason_patterns:
-                  reason_match = re.search(pattern, nearby, re.IGNORECASE)
-                  if reason_match:
-                      reason = reason_match.group(1) if reason_match.lastindex else reason_match.group(0)
-                      break
-              signature = test_name
-              if reason:
-                  reason = re.sub(r"[^A-Za-z0-9_.-]+", "-", reason).strip("-._")[:80]
-                  if reason:
-                      signature += "__" + reason
-              signature = re.sub(r"[^A-Za-z0-9_.-]+", "-", signature).strip("-._")
-              print(signature[:180] or "unclassified")
+          browser_failure = ""
+          for line in lines:
+              match = re.search(r"FAILED:\s*(.+)", line, re.IGNORECASE)
+              if match:
+                  browser_failure = match.group(1).strip()
+
+          if not browser_failure:
+              for line in lines:
+                  lowered = line.lower()
+                  if "tour" in lowered and any(
+                      token in lowered for token in ("timeout", "timed out", "failed", "error")
+                  ):
+                      if "odoo.starttour" not in lowered:
+                          browser_failure = line.strip()
+
+          def clean(value, limit):
+              value = re.sub(r"[^A-Za-z0-9_.-]+", "-", value).strip("-._")
+              return value[:limit]
+
+          signature = clean(fail_name, 95)
+          if browser_failure:
+              detail = clean(browser_failure, 105)
+              if detail:
+                  signature += "__step-" + detail
+          print(signature[:205] or "unclassified")
           PY
           signature="$(cat evidence/failure-signature.txt)"
           echo "signature=$signature" >> "$GITHUB_OUTPUT"
