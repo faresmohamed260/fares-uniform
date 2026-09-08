@@ -264,7 +264,6 @@ function rejectedReconnectReviewSteps() {
         },
         reviewRequiredReceiptIsTruthful(),
         refresh(),
-        Dialog.confirm(),
         reviewRequiredReceiptIsTruthful(),
     ].flat();
 }
