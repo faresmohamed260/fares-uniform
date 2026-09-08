@@ -128,6 +128,68 @@ jobs:
             --stop-after-init --http-interface=127.0.0.1 \
             2>&1 | tee diagnostic/test.log
 
+      - name: "Review detector: JavaScript runtime error"
+        if: always() && matrix.slice == 'review'
+        run: |
+          if grep -Eqi 'TypeError|ReferenceError|OwlError|Uncaught' diagnostic/test.log; then
+            grep -Ei 'TypeError|ReferenceError|OwlError|Uncaught' diagnostic/test.log | tail -n 30
+            exit 1
+          fi
+
+      - name: "Review detector: native local order missing"
+        if: always() && matrix.slice == 'review'
+        run: |
+          if grep -Fq 'Review-required order is missing from the native POS model' diagnostic/test.log || \
+             grep -Fq 'Rejected reconnect did not retain the native local paid order' diagnostic/test.log; then
+            exit 1
+          fi
+
+      - name: "Review detector: review marker missing"
+        if: always() && matrix.slice == 'review'
+        run: |
+          if grep -Fq 'Rejected sync did not mark the native local order for review' diagnostic/test.log || \
+             grep -Fq 'Review-required marker was not persisted by native order UUID' diagnostic/test.log; then
+            exit 1
+          fi
+
+      - name: "Review detector: order incorrectly server-synced"
+        if: always() && matrix.slice == 'review'
+        run: |
+          if grep -Fq 'Review-required receipt rendered for a server-synced order' diagnostic/test.log; then
+            exit 1
+          fi
+
+      - name: "Review detector: receipt copy or state collision"
+        if: always() && matrix.slice == 'review'
+        run: |
+          if grep -Fq 'Review-required receipt copy mismatch' diagnostic/test.log || \
+             grep -Fq 'Review-required receipt rendered another reconciliation state' diagnostic/test.log; then
+            exit 1
+          fi
+
+      - name: "Review detector: tour waited for review receipt"
+        if: always() && matrix.slice == 'review'
+        run: |
+          if grep -Eqi 'fu-sync-review|Review required' diagnostic/test.log; then
+            grep -Ei 'fu-sync-review|Review required|tour|timeout|step' diagnostic/test.log | tail -n 50
+            exit 1
+          fi
+
+      - name: "Review detector: server authorization rejection observed"
+        if: always() && matrix.slice == 'review'
+        run: |
+          if grep -Eqi 'Retail checkout synchronization requires an active Fares Uniform|AccessError' diagnostic/test.log; then
+            grep -Ei 'Retail checkout synchronization requires an active Fares Uniform|AccessError' diagnostic/test.log | tail -n 20
+            exit 1
+          fi
+
+      - name: "Review detector: server order unexpectedly created"
+        if: always() && matrix.slice == 'review'
+        run: |
+          if grep -Fq 'Server-rejected offline sale must not become an authoritative paid order' diagnostic/test.log; then
+            exit 1
+          fi
+
       - name: Publish diagnostic tail
         if: always()
         run: |
@@ -138,9 +200,9 @@ jobs:
             echo '- pinned Odoo: `'${ODOO_SHA}'`'
             if [ -f diagnostic/test.log ]; then
               echo '### Test signals'
-              grep -E 'ERROR|FAIL|Traceback|AssertionError|ValidationError|TypeError|ReferenceError|tour|timeout|ConnectionLost|tests? in|failures|errors' diagnostic/test.log | tail -n 120 || true
+              grep -E 'ERROR|FAIL|Traceback|AssertionError|ValidationError|AccessError|TypeError|ReferenceError|OwlError|Uncaught|tour|timeout|fu-sync-review|Review required|tests? in|failures|errors' diagnostic/test.log | tail -n 160 || true
               echo '### Test tail'
-              tail -n 100 diagnostic/test.log || true
+              tail -n 120 diagnostic/test.log || true
             else
               echo '### Install signals'
               grep -E 'ERROR|CRITICAL|Traceback|ParseError|ValidationError|TypeError|ReferenceError' diagnostic/install.log | tail -n 100 || true
