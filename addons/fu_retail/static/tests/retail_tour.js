@@ -13,6 +13,8 @@ const REVIEW_STORAGE_PREFIX = "fu_retail.sync_review.";
 const EN_SYNC_STATUS = {
     pendingHeading: "Saved on this device",
     pendingDetail: "Pending server sync — this sale is not yet server-confirmed.",
+    syncingHeading: "Syncing with server",
+    syncingDetail: "This sale is being sent for server confirmation.",
     syncedHeading: "Synced to server",
     syncedDetail: "This sale is server-confirmed.",
     reviewHeading: "Review required",
@@ -23,6 +25,8 @@ const EN_SYNC_STATUS = {
 const AR_SYNC_STATUS = {
     pendingHeading: "تم الحفظ على هذا الجهاز",
     pendingDetail: "بانتظار المزامنة مع الخادم — لم يتم تأكيد هذه العملية على الخادم بعد.",
+    syncingHeading: "جارٍ المزامنة مع الخادم",
+    syncingDetail: "جارٍ إرسال هذه العملية إلى الخادم للتأكيد.",
     syncedHeading: "تمت المزامنة مع الخادم",
     syncedDetail: "تم تأكيد هذه العملية على الخادم.",
     direction: "rtl",
@@ -58,12 +62,43 @@ function pendingSyncReceiptIsTruthful(expected) {
                 throw new Error("Offline local-only receipt is still presented as server-confirmed success");
             }
             if (
+                document.querySelector(".receipt-screen .fu-sync-syncing") ||
                 document.querySelector(".receipt-screen .fu-sync-synced") ||
                 document.querySelector(".receipt-screen .fu-sync-review")
             ) {
                 throw new Error("Pending receipt rendered another reconciliation state at the same time");
             }
             assertRenderedDirection(pending, expected);
+        },
+    };
+}
+
+function syncingReceiptIsTruthful(expected) {
+    return {
+        trigger: ".receipt-screen .fu-sync-syncing",
+        content: "Native Odoo synchronization is visibly distinct from pending and synced states",
+        run() {
+            const uuid = sessionStorage.getItem("fu.retail.order_uuid");
+            const order = posmodel.models["pos.order"].find((candidate) => candidate.uuid === uuid);
+            const syncing = document.querySelector(".receipt-screen .fu-sync-syncing");
+            const text = syncing?.textContent?.replace(/\s+/g, " ").trim() || "";
+            if (!order || order.isSynced) {
+                throw new Error("Syncing receipt rendered for a server-synced or missing order");
+            }
+            if (!posmodel.syncingOrders.has(uuid)) {
+                throw new Error("Syncing receipt rendered without native Odoo syncing state");
+            }
+            if (!text.includes(expected.syncingHeading) || !text.includes(expected.syncingDetail)) {
+                throw new Error(`Syncing receipt copy mismatch: ${text}`);
+            }
+            if (
+                document.querySelector(".receipt-screen .fu-sync-pending") ||
+                document.querySelector(".receipt-screen .fu-sync-synced") ||
+                document.querySelector(".receipt-screen .fu-sync-review")
+            ) {
+                throw new Error("Syncing receipt rendered another reconciliation state");
+            }
+            assertRenderedDirection(syncing, expected);
         },
     };
 }
@@ -85,6 +120,7 @@ function syncedReceiptIsTruthful(expected) {
             }
             if (
                 document.querySelector(".receipt-screen .fu-sync-pending") ||
+                document.querySelector(".receipt-screen .fu-sync-syncing") ||
                 document.querySelector(".receipt-screen .fu-sync-review")
             ) {
                 throw new Error("Server-synced receipt rendered another reconciliation state");
@@ -117,6 +153,7 @@ function reviewRequiredReceiptIsTruthful(expected = EN_SYNC_STATUS) {
             }
             if (
                 document.querySelector(".receipt-screen .fu-sync-pending") ||
+                document.querySelector(".receipt-screen .fu-sync-syncing") ||
                 document.querySelector(".receipt-screen .fu-sync-synced")
             ) {
                 throw new Error("Review-required receipt rendered another reconciliation state");
@@ -197,6 +234,31 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
                 );
             },
         },
+        {
+            trigger: "body",
+            content: "Native Odoo syncing state is visible on the receipt",
+            async run() {
+                const uuid = sessionStorage.getItem("fu.retail.order_uuid");
+                const order = posmodel.models["pos.order"].find((candidate) => candidate.uuid === uuid);
+                if (!order || order.isSynced) {
+                    throw new Error("Cannot exercise syncing receipt without a local unsynced order");
+                }
+                posmodel.syncingOrders.add(uuid);
+                await new Promise((resolve) =>
+                    requestAnimationFrame(() => requestAnimationFrame(resolve))
+                );
+            },
+        },
+        syncingReceiptIsTruthful(expected),
+        {
+            trigger: "body",
+            content: "Return the native order to pending before reconnect",
+            run() {
+                const uuid = sessionStorage.getItem("fu.retail.order_uuid");
+                posmodel.syncingOrders.delete(uuid);
+            },
+        },
+        pendingSyncReceiptIsTruthful(expected),
         Offline.setOnlineMode(),
         {
             trigger: "body",
