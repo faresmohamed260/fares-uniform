@@ -372,8 +372,11 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
             },
         },
         retryableReceiptIsTruthful(expected),
+        Offline.setOfflineMode(),
         refresh(),
+        Dialog.confirm(),
         retryableReceiptIsTruthful(expected),
+        Offline.setOnlineMode(),
         {
             trigger: "body",
             content: "Reconnect and replay synchronization safely",
@@ -446,7 +449,6 @@ function rejectedReconnectReviewSteps() {
         },
         reviewRequiredReceiptIsTruthful(),
         refresh(),
-        Dialog.confirm(),
         reviewRequiredReceiptIsTruthful(),
     ].flat();
 }
