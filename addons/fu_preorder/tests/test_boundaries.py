@@ -92,17 +92,32 @@ class TestPreorderDirectMutationBoundary(TransactionCase):
         picking = self.env["stock.picking"].sudo().browse(picking_id)
         move = picking.move_ids
 
-        with self.assertRaises(AccessError):
+        with self.assertRaises(
+            AccessError,
+            msg="sale.order direct cashier mutation must be denied",
+        ):
             order.with_user(self.cashier).write(
                 {"commitment_date": fields.Datetime.now() + timedelta(days=30)}
             )
-        with self.assertRaises(AccessError):
+        with self.assertRaises(
+            AccessError,
+            msg="sale.order.line direct cashier mutation must be denied",
+        ):
             line.with_user(self.cashier).write({"product_uom_qty": 2})
-        with self.assertRaises(AccessError):
+        with self.assertRaises(
+            AccessError,
+            msg="account.payment direct cashier mutation must be denied",
+        ):
             payment.with_user(self.cashier).write({"amount": payment.amount})
-        with self.assertRaises(AccessError):
+        with self.assertRaises(
+            AccessError,
+            msg="stock.picking direct store-manager mutation must be denied",
+        ):
             picking.with_user(self.store_manager).write({"origin": "forbidden-direct-edit"})
-        with self.assertRaises(AccessError):
+        with self.assertRaises(
+            AccessError,
+            msg="stock.move direct store-manager mutation must be denied",
+        ):
             move.with_user(self.store_manager).write({"product_uom_qty": 2})
 
         self.assertEqual(order.state, "draft")
