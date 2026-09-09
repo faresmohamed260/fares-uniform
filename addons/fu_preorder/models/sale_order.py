@@ -345,7 +345,6 @@ class SaleOrder(models.Model):
             line = line_by_id[line_id]
             new_moves |= self.env["stock.move"].sudo().create(
                 {
-                    "name": line.name,
                     "product_id": line.product_id.id,
                     "product_uom_qty": quantity,
                     "product_uom": line.product_uom_id.id,
