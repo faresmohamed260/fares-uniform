@@ -97,6 +97,7 @@ patch(PosData.prototype, {
     async call(model, method, args = [], kwargs = {}, queue = false) {
         const isOrderSync = model === "pos.order" && method === "sync_from_ui";
         const localOrders = isOrderSync ? ordersFromSyncPayload(this, args) : [];
+        const syncStartedWhileOffline = isOrderSync && this.network.offline;
 
         try {
             const result = await super.call(model, method, args, kwargs, queue);
@@ -111,7 +112,9 @@ patch(PosData.prototype, {
             if (isOrderSync) {
                 for (const order of localOrders) {
                     if (error instanceof ConnectionLostError) {
-                        writeRetryableMarker(order, true);
+                        if (!syncStartedWhileOffline) {
+                            writeRetryableMarker(order, true);
+                        }
                     } else {
                         writeRetryableMarker(order, false);
                         writeReviewMarker(order, true);
