@@ -40,6 +40,27 @@ class TestRetailPOSOffline(TestPointOfSaleHttpCommon):
         self.assertEqual(orders.payment_ids.fu_manual_confirmed, manual_confirmed)
         self.assertAlmostEqual(orders.amount_paid, orders.amount_total)
 
+        self.assertEqual(len(orders.lines), 1, "The checkout fixture must contain one sold product line")
+        self.assertEqual(
+            len(orders.picking_ids),
+            1,
+            "Reconnect/replay must create exactly one authoritative stock picking",
+        )
+        picking = orders.picking_ids
+        self.assertEqual(picking.state, "done", "The authoritative POS stock picking must be done")
+        self.assertEqual(
+            len(picking.move_ids),
+            1,
+            "Reconnect/replay must create exactly one stock move for the sold product",
+        )
+        move = picking.move_ids
+        self.assertEqual(move.product_id, orders.lines.product_id)
+        self.assertAlmostEqual(
+            move.quantity,
+            orders.lines.qty,
+            msg="Reconnect/replay must execute stock exactly once for the sold quantity",
+        )
+
     def test_instapay_cancel_then_confirm_ui_gate(self):
         self.start_pos_tour("fu_retail_instapay_cancel_then_confirm", timeout=180)
 
