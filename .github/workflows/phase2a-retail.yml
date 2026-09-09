@@ -1,4 +1,5 @@
 name: Phase 2A retail checkout foundation
+# Final authoritative Phase 2A exact-head gate after temporary diagnostics were retired.
 
 on:
   push:
