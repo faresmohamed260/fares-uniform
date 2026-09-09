@@ -1,8 +1,10 @@
 # Phase 2B — School-uniform preorder, balance and collection
 
-Status: **AUTHORIZED PLANNING / TARGETED POLICY GATES OPEN, 2026-09-09.**
+Status: **SERVER FOUNDATION / HOSTED GATE PASS; PHASE INCOMPLETE, 2026-09-10.**
 
-Authorization state: after Phase 2A technical closure, the client instructed the developer to keep going. This authorizes bounded planning for the next accepted retail slice. It does **not** authorize guessing unresolved commercial policy, production deployment, real data migration, bank integration or refund/exchange rules.
+The policy questions below are retained as historical planning context. Their accepted answers are authoritative in [Phase 2B policy decisions](../requirements/PHASE_2B_POLICY_DECISIONS.md). Current client direction explicitly authorizes continued remote development and hosted debugging of the existing branch, without merge.
+
+Authorization state: the recorded Phase 2B policy decisions close the bounded planning questions and authorize implementation. The current client instruction explicitly renews actual remote development and hosted validation. Production deployment, real data migration, bank integration, refund/exchange rules and merging remain outside this authorization.
 
 ## Why this is a separate retail slice
 
@@ -53,7 +55,7 @@ Replace the current paper preorder/collection flow with an attributable Odoo-own
 
 Prefer standard Odoo sale/order/payment/stock concepts where they fit, but do not force ordinary `pos.order` semantics onto a workflow that needs future pickup, deposits and staged collection if that creates misleading accounting or stock truth.
 
-Before implementation, inspect the pinned Odoo Community 19 models and choose the smallest extension that preserves:
+The pinned Odoo Community 19 model inspection is recorded in `docs/architecture/PHASE_2B_PREORDER_MODEL.md`. Implementation must preserve:
 - one authoritative preorder identity;
 - immutable/attributable payment events;
 - explicit ordered, ready and collected quantities;
@@ -65,7 +67,7 @@ Do not introduce Supabase or another database as an operational mirror.
 
 ## Intended state semantics
 
-The exact technical model is not selected yet, but staff must be able to distinguish at least these business conditions without conflating them:
+The native Sales/payment/stock model is selected in `docs/architecture/PHASE_2B_PREORDER_MODEL.md`; but staff must be able to distinguish at least these business conditions without conflating them:
 
 - preorder accepted / awaiting production or readiness;
 - balance due;
@@ -120,20 +122,20 @@ May oversee store preorder/payment/collection records and resolve later manager-
 ### Inventory Staff / Production Manager
 Their existing scopes remain. `Ready for collection` requires Retail Store receipt; production mutation belongs to the bounded production workflow rather than giving Cashier broad stock authority.
 
-## Offline boundary — unresolved before implementation
+## Offline boundary — resolved; historical questions
 
 Phase 2A proves durable **ordinary checkout** offline. That result must not be silently generalized to preorders or collection.
 
-The client must decide separately whether an internet outage may allow:
+The accepted decision requires connectivity for all three actions below; these were evaluated separately:
 - creation of a new preorder;
 - recording an additional preorder payment;
 - collection/release of items from an existing preorder.
 
 Collection is higher risk than ordinary checkout because staff must know the whole-order balance is settled and the quantity is actually eligible/ready. If collection remains online-only, the UI must fail closed and explain why rather than relying on stale cached balance/readiness.
 
-## Targeted policy gates
+## Targeted policy gates — resolved
 
-Implementation must not begin by guessing these answers.
+All five answers are recorded in `docs/requirements/PHASE_2B_POLICY_DECISIONS.md`. The questions below document what was decided; they are not open gates.
 
 ### P2B-01 — Offline preorder creation
 During an internet outage, should staff be allowed to create a **new preorder** and take an initial Cash/confirmed-InstaPay payment, or should preorder creation require the server?
@@ -179,7 +181,7 @@ D-014 already requires the entire remaining **financial** balance first; this qu
 - legal/tax receipt finalization;
 - production deployment, hardware certification or real data migration.
 
-## Hosted validation plan after policy closure
+## Hosted validation plan
 
 Implementation validation must remain remote and exact-head on pinned Odoo Community 19.
 
@@ -215,6 +217,6 @@ Phase 2B can close only when:
 
 ## Execution state
 
-**AUTHORIZED PLANNING; IMPLEMENTATION BLOCKED ONLY BY THE TARGETED POLICY GATES ABOVE.**
+**SERVER FOUNDATION HOSTED GATE PASS; PHASE INCOMPLETE.**
 
-Do not reopen Phase 0 or Phase 2A. Record client answers as durable decisions/requirements, then implement the smallest Odoo-native Phase 2B slice supported by those answers.
+Do not reopen Phase 0 or Phase 2A. Use the recorded policy decisions and continue the smallest Odoo-native Phase 2B slice. Exact-head evidence and remaining gates are owned by `docs/validation/PHASE_2B_PREORDER_COLLECTION.md`. A server test pass alone does not close the UI, authorization or allocation/POS interaction gates.

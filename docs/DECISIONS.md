@@ -205,3 +205,10 @@ The client clarified that the earlier 3D-first correction was being judged on a 
 D-032 remains useful for **expressive surfaces**, not as the default composition for dense ERP work. Rich 3D, real physics and morphing are still desired for the public/marketing site, product showcase/detail and carefully chosen low-frequency transitions where they improve the experience without harming business-task clarity. Operational motion may use polished springs/shared-layout continuity, but scanning, checkout, stock work and data-heavy screens remain stable and practical.
 
 D-031 remains mandatory: use maintained prebuilt components before custom generic controls. The client-approved concept board is represented durably by this decision and `docs/ui/DESIGN_SYSTEM.md`; the generated conversation image itself is not runtime evidence.
+
+## D-034 — Phase 2B policy closure and development continuation
+Status: Accepted policies recorded 2026-09-09; explicit development continuation 2026-09-10.
+
+[Phase 2B policy decisions](requirements/PHASE_2B_POLICY_DECISIONS.md) closes P2B-01 through P2B-05: preorder creation, additional payments and collection require connectivity; any positive payment up to the remaining balance is allowed; stock is allocated only when physically available at the Retail Store; ready subsets may be collected after the whole balance is settled.
+
+The client explicitly instructed continued development on the existing Phase 2B branch using repository docs and exact-head hosted CI. This authorizes the narrow evidence-supported fixture/compatibility corrections and continued validation. It does not authorize a merge or production deployment. Current evidence belongs in `docs/validation/PHASE_2B_PREORDER_COLLECTION.md`.

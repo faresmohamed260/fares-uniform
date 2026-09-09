@@ -13,7 +13,7 @@
 
 ## Current state — 2026-09-09
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2A — Retail checkout/offline: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2B — Preorder/balance/collection: AUTHORIZED PLANNING / TARGETED POLICY GATES OPEN.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2A — Retail checkout/offline: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2B — Preorder/balance/collection: SERVER FOUNDATION / HOSTED GATE PASS; PHASE INCOMPLETE.**
 
 The accepted MVP boundary covers finished stock, bilingual offline POS, preorders/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics remains future work.
 
@@ -65,28 +65,15 @@ Documentation commits after `dcdf...` are closure/planning-only and must not be 
 
 The stacked Phase 2A pull request is PR #4, **open and draft**, from `phase-2a/retail-checkout-offline` onto `phase-1/products-stock-access`. Do not merge without explicit client authorization.
 
-## Phase 2B planning
+## Phase 2B implementation
 
-Phase 2B is defined by `docs/phases/PHASE_2B_PREORDER_COLLECTION.md` and targets school-uniform preorder creation, deposit/balance tracking, D-014 full-balance-before-any-collection enforcement and partial physical collection. Refund/exchange execution remains a later retail slice.
+Phase 2B follows `docs/phases/PHASE_2B_PREORDER_COLLECTION.md`. The five policy gates are closed by `docs/requirements/PHASE_2B_POLICY_DECISIONS.md`: all preorder operations require connectivity; any positive payment up to the remaining balance is allowed; reservation occurs against Retail Store stock, independently of preorder acceptance; ready subsets may be collected after the whole balance is settled.
 
-Pinned-Odoo technical model inspection is complete and recorded in `docs/architecture/PHASE_2B_PREORDER_MODEL.md` at planning commit `181990ba6999779f98d68b78e711dcfb7092671d`.
+The server-first `fu_preorder` implementation uses native Sales Orders, payments and stock transfers. Broad preorder UI, bilingual rendered validation and phase closure remain outstanding. No merge or production deployment is authorized.
 
-Current technical boundary:
-- use native `sale.order` / `sale.order.line` as the preorder identity instead of duplicating order/line truth in a new ledger;
-- use native Odoo payment records for actual payment events;
-- use native `stock.picking` / `stock.move` records for physical collection/release;
-- derive balance and collected quantities from authoritative records rather than editable parallel totals;
-- keep server-side role, balance and eligible-quantity checks authoritative;
-- do not use native POS-Sales down payment unchanged before the reservation policy is resolved, because pinned `pos_sale` auto-confirms linked draft Sales Orders and pinned `sale_stock` confirmation launches stock rules.
+The original implementation `9e8119721246fec1d3f5ee2dc2ec1cdf78e9d317` failed hosted run `34401548535`: the actual log reports 0 failures and 2 errors out of 45 tests. Both errors occur during fixture opening stock because the required batch reference is missing, before reservation. The prior conversation's 37/38 and duplicated-S description is not supported by this run.
 
-Implementation is blocked only by the five targeted policy gates in the Phase 2B contract:
-1. P2B-01 — whether new preorder creation/initial payment may occur offline;
-2. P2B-02 — separately, whether additional preorder payment and item collection may occur offline;
-3. P2B-03 — the allowed deposit amount rule when not paying in full;
-4. P2B-04 — when/how stock becomes reserved or allocated to a preorder;
-5. P2B-05 — whether a fully paid customer may collect ready subsets before the whole preorder is physically ready.
-
-Do not guess these answers. Once resolved, implement the smallest Odoo-native `fu_preorder` slice supported by them and validate server invariants before broad UI work.
+The fixture correction and per-variant reservation assertions are at `1642eee39a11ffd83305cb9f56e2bb5aae7119fe`. The subsequent one-line Odoo 19 move-field correction is at `afe867a742173a8801d4e30c0607a1d6fde4ed08`. Hosted run `34407009131`, job `102652293775`: **45 tests pass; repeatable upgrade passes**. Per-variant stock reservation and partial/final collection/replay pass. See `docs/validation/PHASE_2B_PREORDER_COLLECTION.md` for exact-head results and remaining work.
 
 One retail store, one storage location and one checkout per store remain confirmed. Numeric product/transaction volumes remain unavailable and must not be invented. Launch date and service budget remain deployment-time decisions.
 
@@ -97,7 +84,7 @@ One retail store, one storage location and one checkout per store remain confirm
 3. Phase 0B: architecture/data/UI foundation — complete; modern/practical operational visual direction approved.
 4. Phase 1: products, finished-stock movements, access controls, opening inventory and bilingual native internal UI — complete; hosted technical gates pass.
 5. Phase 2A: ordinary retail stock checkout, Cash/confirmed-InstaPay recording and durable offline reconciliation — complete; hosted technical gates pass.
-6. Phase 2B: school-uniform preorder, deposit/balance and partial collection — authorized planning; technical model analysis complete; five targeted policy gates remain before implementation.
+6. Phase 2B: school-uniform preorder, deposit/balance and partial collection — server foundation hosted gate passes; policy gates recorded; UI and remaining exit gates outstanding.
 7. Later retail slice: refund/exchange execution and its unresolved settlement/returned-stock policy.
 8. Production/business workflows, public catalog/reports, then integrated onboarding/UAT/deployment in bounded contracts.
 
@@ -107,9 +94,9 @@ One retail store, one storage location and one checkout per store remain confirm
 
 1. Keep Phase 2A PR #4 draft and unmerged until explicit authorization and stacked-base readiness.
 2. Do not repeat the Phase 2B pinned-Odoo model investigation; `docs/architecture/PHASE_2B_PREORDER_MODEL.md` owns that result.
-3. Resolve only P2B-01 through P2B-05 from the client; do not broaden discovery into refund/exchange or deployment questions.
-4. Full-balance-before-partial-collection is already confirmed under D-014 and must not be re-asked.
-5. After those answers are recorded durably, start the smallest server-first `fu_preorder` implementation and hosted tests.
+3. Preserve the green Phase 2B server checkpoint `afe867a742173a8801d4e30c0607a1d6fde4ed08` and its hosted evidence.
+4. Preserve D-014 and the accepted policy decisions; do not re-ask resolved questions.
+5. After server invariants pass, continue the bounded native preorder UI and outstanding role/stock validation required by the phase contract.
 6. Continue to use native Odoo/Owl for operational ERP behavior, keep native Odoo records authoritative and follow prebuilt-first UI rules.
 
 Do not reopen product-design separation, factory-finished custody, size-system variability, sequential item codes, full-balance-before-partial-collection or the operational visual direction unless the client changes those decisions.
