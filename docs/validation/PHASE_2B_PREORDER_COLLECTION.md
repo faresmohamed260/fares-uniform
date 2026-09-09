@@ -50,6 +50,21 @@ Artifact `phase2b-preorder-afe867a742173a8801d4e30c0607a1d6fde4ed08`: ID `101258
 
 Subsequent documentation-only commits do not represent newer tested application code. No merge or deployment occurred.
 
+## Reservation/POS and direct-native-mutation boundary — red checkpoint
+
+Boundary implementation: `dabd3edb22c25cf22acdec078d146ff7678490b7` (`test(preorder): protect reservations from POS checkout`).
+
+This slice adds:
+- a `fu_preorder` server guard before native POS stock effects so ordinary checkout cannot intentionally consume quantity already reserved as Ready for collection;
+- a native POS integration regression for one unallocated unit followed by a second sale attempt against two preorder-reserved units;
+- direct native-record mutation denial coverage for Cashier-level access, so the bounded preorder services do not become a back door to broad Sales/Accounting/Stock mutation.
+
+[Run 34409189514](https://github.com/faresmohamed260/fares-uniform/actions/runs/34409189514), job `102659354063`, tested exact implementation `dabd3edb22c25cf22acdec078d146ff7678490b7`: **FAILURE — 40 tests, 1 failure, 0 errors**. Evidence upload succeeded; repeatable addon upgrade was skipped after the test step failed.
+
+The failing regression is `TestFaresPreorderSecurityBoundary.test_native_records_still_refuse_direct_cashier_mutation`: an expected `AccessError` was not raised. The retained hosted log establishes the authorization-boundary failure but, from the available excerpt, does not justify naming one specific native write as the culprit. The next change must identify the exact bypass and close it without weakening the test or granting broad native Sales/Accounting/Stock mutation rights.
+
+Because the exact-head gate is red, this run does **not** validate the new reservation-versus-POS guard as complete even though that guard is present in the code. Keep the last green server checkpoint `afe867a742173a8801d4e30c0607a1d6fde4ed08` distinct from this newer red application/test checkpoint.
+
 ## Remaining phase gates
 
-A passing server suite does not establish Phase 2B completion. Continue the phase contract's native preorder UI, EN/AR RTL rendered/interaction validation, direct-mutation authorization coverage and allocation versus ordinary-POS availability validation. No deployment, real data migration, refund/exchange behavior or merge is implied.
+Phase 2B remains incomplete. First close the direct native-mutation authorization gap and rerun the exact-head hosted Phase 2B gate so the same run proves the reservation-versus-ordinary-POS boundary and repeatable addon upgrade. After that server/security boundary is green, continue the phase contract's bounded native preorder UI plus EN/AR RTL rendered/interaction validation. No deployment, real data migration, refund/exchange behavior or merge is implied.
