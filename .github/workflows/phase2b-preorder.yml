@@ -69,6 +69,90 @@ jobs:
           google-chrome --version >> evidence/runtime.txt
           rtlcss --version >> evidence/runtime.txt
 
+      - name: Install diagnostic database without tests
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag \
+            -i fu_core,fu_retail,fu_preorder \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/diagnostic-install.log
+
+      - name: Diagnostic sale.order direct mutation boundary
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag -u fu_preorder \
+            --test-enable --test-tags='/fu_preorder:TestPreorderDirectMutationBoundary.test_direct_sale_order_mutation_is_denied' \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/diagnostic-sale-order.log
+
+      - name: Diagnostic sale.order.line direct mutation boundary
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag -u fu_preorder \
+            --test-enable --test-tags='/fu_preorder:TestPreorderDirectMutationBoundary.test_direct_sale_order_line_mutation_is_denied' \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/diagnostic-sale-order-line.log
+
+      - name: Diagnostic account.payment direct mutation boundary
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag -u fu_preorder \
+            --test-enable --test-tags='/fu_preorder:TestPreorderDirectMutationBoundary.test_direct_account_payment_mutation_is_denied' \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/diagnostic-account-payment.log
+
+      - name: Diagnostic stock.picking direct mutation boundary
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag -u fu_preorder \
+            --test-enable --test-tags='/fu_preorder:TestPreorderDirectMutationBoundary.test_direct_stock_picking_mutation_is_denied' \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/diagnostic-stock-picking.log
+
+      - name: Diagnostic stock.move direct mutation boundary
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag -u fu_preorder \
+            --test-enable --test-tags='/fu_preorder:TestPreorderDirectMutationBoundary.test_direct_stock_move_mutation_is_denied' \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/diagnostic-stock-move.log
+
+      - name: Diagnostic POS preorder reservation boundary
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag -u fu_preorder \
+            --test-enable --test-tags='/fu_preorder:TestPreorderPOSReservationBoundary.test_pos_can_sell_only_free_stock_and_replay_cannot_consume_reservation' \
+            --screenshots=evidence/screenshots \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/diagnostic-pos-reservation.log
+
       - name: Install addons and run Phase 1 plus Phase 2A plus Phase 2B tests
         run: |
           set -o pipefail
