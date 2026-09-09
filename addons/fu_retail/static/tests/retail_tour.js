@@ -342,17 +342,16 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
                 const originalOrmCall = posmodel.data.orm.call;
                 let injectedFailure = false;
                 posmodel.data.orm.call = function (model, method, args, kwargs) {
-                    if (!injectedFailure && model === "pos.order" && method === "sync_from_ui") {
+                    if (model === "pos.order" && method === "sync_from_ui") {
                         injectedFailure = true;
                         throw new ConnectionLostError();
                     }
                     return originalOrmCall.call(this, model, method, args, kwargs);
                 };
-                try {
-                    await posmodel.syncAllOrders();
-                } finally {
-                    posmodel.data.orm.call = originalOrmCall;
-                }
+                // Keep order transport blocked until the following persisted offline transition.
+                // Reloading the page discards this test-only override. Restoring it here would leave
+                // a tour-step gap in which Odoo can legitimately auto-retry and erase Retryable.
+                await posmodel.syncAllOrders();
 
                 if (!injectedFailure) {
                     throw new Error("Retryable sync exercise did not reach the order transport call");
