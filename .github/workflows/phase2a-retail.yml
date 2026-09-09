@@ -82,68 +82,6 @@ jobs:
             --stop-after-init --http-interface=127.0.0.1 \
             2>&1 | tee evidence/install-and-tests.log
 
-      - name: Surface combined test failure
-        if: failure()
-        run: |
-          echo '::group::Combined Odoo failure context'
-          grep -nEi 'Traceback|AssertionError|ERROR|CRITICAL|FAIL|Tour|test_|fu_retail|fu_core' evidence/install-and-tests.log 2>/dev/null | tail -n 180 || true
-          echo '--- final log tail ---'
-          tail -n 260 evidence/install-and-tests.log 2>/dev/null || true
-          echo '::endgroup::'
-          {
-            echo '### Combined Odoo failure context'
-            echo '```text'
-            grep -nEi 'Traceback|AssertionError|ERROR|CRITICAL|FAIL|Tour|test_|fu_retail|fu_core' evidence/install-and-tests.log 2>/dev/null | tail -n 140 || true
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Encode exact combined failure
-        id: failure_signature
-        if: failure()
-        run: |
-          python - <<'PY' > evidence/failure-signature.txt
-          import re
-          from pathlib import Path
-
-          path = Path("evidence/install-and-tests.log")
-          lines = path.read_text(errors="replace").splitlines() if path.exists() else []
-
-          fail_name = "no-literal-fail-line"
-          for line in lines:
-              match = re.search(r"\bFAIL:\s+([A-Za-z0-9_.]+)", line)
-              if match:
-                  fail_name = match.group(1)
-
-          browser_failure = ""
-          for line in lines:
-              match = re.search(r"FAILED:\s*(.+)", line, re.IGNORECASE)
-              if match:
-                  browser_failure = match.group(1).strip()
-
-          if not browser_failure:
-              for line in lines:
-                  lowered = line.lower()
-                  if "tour" in lowered and any(
-                      token in lowered for token in ("timeout", "timed out", "failed", "error")
-                  ):
-                      if "odoo.starttour" not in lowered:
-                          browser_failure = line.strip()
-
-          def clean(value, limit):
-              value = re.sub(r"[^A-Za-z0-9_.-]+", "-", value).strip("-._")
-              return value[:limit]
-
-          signature = clean(fail_name, 95)
-          if browser_failure:
-              detail = clean(browser_failure, 105)
-              if detail:
-                  signature += "__step-" + detail
-          print(signature[:205] or "unclassified")
-          PY
-          signature="$(cat evidence/failure-signature.txt)"
-          echo "signature=$signature" >> "$GITHUB_OUTPUT"
-          echo "Failure signature: $signature"
-
       - name: Prove repeatable addon upgrade
         run: |
           set -o pipefail
@@ -174,6 +112,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase2a-retail-${{ github.sha }}-${{ steps.failure_signature.outputs.signature || 'no-failure-signature' }}
+          name: phase2a-retail-${{ github.sha }}
           path: evidence/
           retention-days: 7
