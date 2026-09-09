@@ -59,7 +59,7 @@ class TestPreorderDirectMutationBoundary(TransactionCase):
             }
         )
 
-    def test_native_records_cannot_bypass_bounded_preorder_services(self):
+    def _prepare_native_records(self):
         order_id = self.env["sale.order"].with_user(self.cashier).fu_create_preorder(
             self.partner.id,
             fields.Datetime.now() + timedelta(days=14),
@@ -91,39 +91,45 @@ class TestPreorderDirectMutationBoundary(TransactionCase):
         )
         picking = self.env["stock.picking"].sudo().browse(picking_id)
         move = picking.move_ids
+        return order, line, payment, picking, move
 
-        with self.assertRaises(
-            AccessError,
-            msg="sale.order direct cashier mutation must be denied",
-        ):
-            order.with_user(self.cashier).write(
-                {"commitment_date": fields.Datetime.now() + timedelta(days=30)}
-            )
-        with self.assertRaises(
-            AccessError,
-            msg="sale.order.line direct cashier mutation must be denied",
-        ):
-            line.with_user(self.cashier).write({"product_uom_qty": 2})
-        with self.assertRaises(
-            AccessError,
-            msg="account.payment direct cashier mutation must be denied",
-        ):
-            payment.with_user(self.cashier).write({"amount": payment.amount})
-        with self.assertRaises(
-            AccessError,
-            msg="stock.picking direct store-manager mutation must be denied",
-        ):
-            picking.with_user(self.store_manager).write({"origin": "forbidden-direct-edit"})
-        with self.assertRaises(
-            AccessError,
-            msg="stock.move direct store-manager mutation must be denied",
-        ):
-            move.with_user(self.store_manager).write({"product_uom_qty": 2})
-
+    def _assert_boundary_state(self, order, line, picking):
         self.assertEqual(order.state, "draft")
         self.assertAlmostEqual(order.fu_amount_paid, order.amount_total / 2)
         self.assertEqual(picking.state, "assigned")
         self.assertAlmostEqual(line.fu_ready_qty, 1)
+
+    def test_direct_sale_order_mutation_is_denied(self):
+        order, line, _payment, picking, _move = self._prepare_native_records()
+        with self.assertRaises(AccessError):
+            order.with_user(self.cashier).write(
+                {"commitment_date": fields.Datetime.now() + timedelta(days=30)}
+            )
+        self._assert_boundary_state(order, line, picking)
+
+    def test_direct_sale_order_line_mutation_is_denied(self):
+        order, line, _payment, picking, _move = self._prepare_native_records()
+        with self.assertRaises(AccessError):
+            line.with_user(self.cashier).write({"product_uom_qty": 2})
+        self._assert_boundary_state(order, line, picking)
+
+    def test_direct_account_payment_mutation_is_denied(self):
+        order, line, payment, picking, _move = self._prepare_native_records()
+        with self.assertRaises(AccessError):
+            payment.with_user(self.cashier).write({"amount": payment.amount})
+        self._assert_boundary_state(order, line, picking)
+
+    def test_direct_stock_picking_mutation_is_denied(self):
+        order, line, _payment, picking, _move = self._prepare_native_records()
+        with self.assertRaises(AccessError):
+            picking.with_user(self.store_manager).write({"origin": "forbidden-direct-edit"})
+        self._assert_boundary_state(order, line, picking)
+
+    def test_direct_stock_move_mutation_is_denied(self):
+        order, line, _payment, picking, move = self._prepare_native_records()
+        with self.assertRaises(AccessError):
+            move.with_user(self.store_manager).write({"product_uom_qty": 2})
+        self._assert_boundary_state(order, line, picking)
 
 
 @tagged("post_install", "-at_install")
