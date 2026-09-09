@@ -5,7 +5,7 @@
     "category": "Sales/Sales",
     "author": "Fares Uniform",
     "license": "LGPL-3",
-    "depends": ["fu_core", "sale_stock", "account"],
+    "depends": ["fu_core", "fu_retail", "sale_stock", "account"],
     "data": [],
     "installable": True,
     "application": False,
