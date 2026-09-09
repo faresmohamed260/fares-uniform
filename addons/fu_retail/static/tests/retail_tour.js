@@ -6,6 +6,7 @@ import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_
 import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
 import * as Offline from "@point_of_sale/../tests/generic_helpers/offline_util";
 import { refresh } from "@point_of_sale/../tests/generic_helpers/utils";
+import { ConnectionLostError } from "@web/core/network/rpc";
 import { registry } from "@web/core/registry";
 
 const REVIEW_STORAGE_PREFIX = "fu_retail.sync_review.";
@@ -319,6 +320,7 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
             },
         },
         pendingSyncReceiptIsTruthful(expected),
+        Offline.setOnlineMode(),
         {
             trigger: "body",
             content: "Transient reconnect failure keeps the native paid order retryable",
@@ -329,11 +331,32 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
                     throw new Error("Cannot exercise retryable sync failure without a local paid order");
                 }
 
-                // Keep Odoo's offline transport override active, but let the native sync path
-                // attempt the RPC so the production classifier receives ConnectionLostError.
-                posmodel.data.network.offline = false;
-                await posmodel.syncAllOrders();
+                const deadline = Date.now() + 2000;
+                while (Date.now() < deadline && (posmodel.data.network.offline || !navigator.onLine)) {
+                    await new Promise((resolve) => setTimeout(resolve, 50));
+                }
+                if (posmodel.data.network.offline || !navigator.onLine) {
+                    throw new Error("Retryable sync exercise did not start from an online state");
+                }
 
+                const originalOrmCall = posmodel.data.orm.call;
+                let injectedFailure = false;
+                posmodel.data.orm.call = function (model, method, args, kwargs) {
+                    if (!injectedFailure && model === "pos.order" && method === "sync_from_ui") {
+                        injectedFailure = true;
+                        throw new ConnectionLostError();
+                    }
+                    return originalOrmCall.call(this, model, method, args, kwargs);
+                };
+                try {
+                    await posmodel.syncAllOrders();
+                } finally {
+                    posmodel.data.orm.call = originalOrmCall;
+                }
+
+                if (!injectedFailure) {
+                    throw new Error("Retryable sync exercise did not reach the order transport call");
+                }
                 if (!order.fuSyncRetryableFailure) {
                     throw new Error("Transient sync failure did not mark the native local order retryable");
                 }
@@ -351,7 +374,6 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
         retryableReceiptIsTruthful(expected),
         refresh(),
         retryableReceiptIsTruthful(expected),
-        Offline.setOnlineMode(),
         {
             trigger: "body",
             content: "Reconnect and replay synchronization safely",
@@ -424,6 +446,7 @@ function rejectedReconnectReviewSteps() {
         },
         reviewRequiredReceiptIsTruthful(),
         refresh(),
+        Dialog.confirm(),
         reviewRequiredReceiptIsTruthful(),
     ].flat();
 }

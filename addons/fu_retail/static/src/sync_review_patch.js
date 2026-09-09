@@ -97,7 +97,8 @@ patch(PosData.prototype, {
     async call(model, method, args = [], kwargs = {}, queue = false) {
         const isOrderSync = model === "pos.order" && method === "sync_from_ui";
         const localOrders = isOrderSync ? ordersFromSyncPayload(this, args) : [];
-        const syncStartedWhileOffline = isOrderSync && this.network.offline;
+        const syncStartedWhileOffline =
+            isOrderSync && (this.network.offline || globalThis.navigator?.onLine === false);
 
         try {
             const result = await super.call(model, method, args, kwargs, queue);
