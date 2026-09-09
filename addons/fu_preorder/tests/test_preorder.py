@@ -49,6 +49,8 @@ class TestFaresPreorder(TransactionCase):
             }
         )
         cls.products = template.product_variant_ids.sorted("id")
+        if len(cls.products) != 2:
+            raise AssertionError("The S/M fixture must create two distinct stock variants")
         cls.partner = cls.env["res.partner"].create({"name": "Phase 2B Synthetic Customer"})
 
         cls.cash_journal = cls.env["account.journal"].create(
@@ -139,6 +141,7 @@ class TestFaresPreorder(TransactionCase):
             quantity=quantity,
             destination_location_id=self.store.id,
             reason="Phase 2B synthetic opening stock",
+            batch_ref="P2B-SYNTHETIC-OPENING",
         )
 
     def test_preorder_creation_uses_draft_sale_identity_without_stock_reservation(self):
@@ -223,8 +226,15 @@ class TestFaresPreorder(TransactionCase):
         order = self._create_preorder()
         first_line = order.order_line.filtered(lambda line: line.product_id == self.products[0])
         second_line = order.order_line.filtered(lambda line: line.product_id == self.products[1])
+        self.assertEqual(len(first_line), 1)
+        self.assertEqual(len(second_line), 1)
+        self.assertNotEqual(first_line.product_id, second_line.product_id)
         self._seed_store(self.products[0], 2, "P2B-COLLECT-STOCK-001")
         self._seed_store(self.products[1], 2, "P2B-COLLECT-STOCK-002")
+
+        Quant = self.env["stock.quant"].sudo()
+        for product in self.products:
+            self.assertAlmostEqual(Quant._get_available_quantity(product, self.store), 2)
 
         picking_id = order.with_user(self.inventory).fu_allocate_ready(
             [
@@ -234,6 +244,15 @@ class TestFaresPreorder(TransactionCase):
         )
         picking = self.env["stock.picking"].sudo().browse(picking_id)
         self.assertEqual(picking.state, "assigned")
+        self.assertEqual(len(picking.move_ids), 2)
+        for line in (first_line, second_line):
+            move = picking.move_ids.filtered(lambda item: item.fu_preorder_line_id == line)
+            self.assertEqual(len(move), 1)
+            self.assertEqual(move.product_id, line.product_id)
+            self.assertEqual(move.location_id, self.store)
+            self.assertAlmostEqual(move.product_uom_qty, 1)
+            self.assertAlmostEqual(move.quantity, 1)
+            self.assertAlmostEqual(Quant._get_available_quantity(line.product_id, self.store), 1)
         self.assertAlmostEqual(first_line.fu_ready_qty, 1)
         self.assertAlmostEqual(second_line.fu_ready_qty, 1)
         self.assertEqual(order.fu_collection_state, "ready")
