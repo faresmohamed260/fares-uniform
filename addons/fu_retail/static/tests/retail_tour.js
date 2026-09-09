@@ -375,13 +375,88 @@ function offlineCheckoutSteps(method, requiresConfirmation = false, expected = E
         refresh(),
         Dialog.confirm(),
         retryableReceiptIsTruthful(expected),
-        Offline.setOnlineMode(),
         {
             trigger: "body",
-            content: "Reconnect and replay synchronization safely",
+            content: "A lost server acknowledgement replays the same native order UUID safely",
             async run() {
-                await posmodel.syncAllOrders();
-                await posmodel.syncAllOrders();
+                const uuid = sessionStorage.getItem("fu.retail.order_uuid");
+                const order = posmodel.models["pos.order"].find((candidate) => candidate.uuid === uuid);
+                if (!order || order.state !== "paid" || order.isSynced) {
+                    throw new Error("Lost-ack replay requires the retained native paid order");
+                }
+                if (!order.fuSyncRetryableFailure) {
+                    throw new Error("Lost-ack replay must begin from the persisted retryable state");
+                }
+
+                const originalOrmCall = posmodel.data.orm.call;
+                let firstServerCallStarted = false;
+                let acknowledgementDropped = false;
+                let allowReplay = false;
+                let replayReachedServer = false;
+
+                posmodel.data.orm.call = async function (model, method, args, kwargs) {
+                    const isOrderSync = model === "pos.order" && method === "sync_from_ui";
+                    const carriesNativeUuid = isOrderSync && JSON.stringify(args).includes(uuid);
+                    if (isOrderSync && !carriesNativeUuid) {
+                        throw new Error("Order synchronization payload did not preserve the native order UUID");
+                    }
+                    if (carriesNativeUuid) {
+                        if (!firstServerCallStarted) {
+                            firstServerCallStarted = true;
+                            const result = await originalOrmCall.call(this, model, method, args, kwargs);
+                            acknowledgementDropped = true;
+                            throw new ConnectionLostError();
+                        }
+                        if (!allowReplay) {
+                            // Prevent online-event auto-retries from reaching the server while the
+                            // first accepted request is being converted into an artificial lost ack.
+                            throw new ConnectionLostError();
+                        }
+                        replayReachedServer = true;
+                    }
+                    return originalOrmCall.call(this, model, method, args, kwargs);
+                };
+
+                try {
+                    await Offline.setOnlineMode().run();
+                    // Ensure a native sync attempt even if the online event has not scheduled one yet.
+                    await posmodel.syncAllOrders();
+
+                    const lostAckDeadline = Date.now() + 5000;
+                    while (
+                        Date.now() < lostAckDeadline &&
+                        (!acknowledgementDropped || posmodel.syncingOrders.has(uuid))
+                    ) {
+                        await new Promise((resolve) => setTimeout(resolve, 50));
+                    }
+                    if (!acknowledgementDropped) {
+                        throw new Error("Lost-ack exercise never reached and accepted the server request");
+                    }
+                    if (posmodel.syncingOrders.has(uuid)) {
+                        throw new Error("Native syncing state did not settle after the lost acknowledgement");
+                    }
+                    if (order.isSynced || order.state !== "paid") {
+                        throw new Error("Lost acknowledgement incorrectly removed the native paid order");
+                    }
+                    if (!order.fuSyncRetryableFailure) {
+                        throw new Error("Lost acknowledgement was not classified as retryable");
+                    }
+                    if (localStorage.getItem(`${RETRYABLE_STORAGE_PREFIX}${uuid}`) !== "1") {
+                        throw new Error("Lost acknowledgement did not retain the retryable UUID marker");
+                    }
+
+                    allowReplay = true;
+                    await posmodel.syncAllOrders();
+                } finally {
+                    posmodel.data.orm.call = originalOrmCall;
+                }
+
+                if (!replayReachedServer) {
+                    throw new Error("The same native order UUID was not replayed to the server");
+                }
+                if (!order.isSynced) {
+                    throw new Error("Same-UUID replay did not reconcile the native order");
+                }
             },
         },
         syncedReceiptIsTruthful(expected),
