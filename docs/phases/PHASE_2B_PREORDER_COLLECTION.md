@@ -1,6 +1,6 @@
 # Phase 2B — School-uniform preorder, balance and collection
 
-Status: **SERVER FOUNDATION AND RESERVATION/SECURITY BOUNDARY / HOSTED GATE PASS; PHASE INCOMPLETE, 2026-09-10.**
+Status: **SERVER FOUNDATION AND RESERVATION/SECURITY BOUNDARY / HOSTED GATE PASS; NATIVE UI IMPLEMENTED; FINAL HOSTED UI GATE RED; PHASE INCOMPLETE, 2026-09-11.**
 
 The policy questions below are retained as historical planning context. Their accepted answers are authoritative in [Phase 2B policy decisions](../requirements/PHASE_2B_POLICY_DECISIONS.md). Current client direction explicitly authorizes continued remote development and hosted debugging of the existing branch, without merge.
 
@@ -217,6 +217,18 @@ Phase 2B can close only when:
 
 ## Execution state
 
-**SERVER FOUNDATION AND RESERVATION/SECURITY BOUNDARY HOSTED GATE PASS; PHASE INCOMPLETE.**
+**SERVER FOUNDATION AND RESERVATION/SECURITY BOUNDARY HOSTED GATE PASS; NATIVE UI IMPLEMENTED; FINAL HOSTED UI GATE RED; PHASE INCOMPLETE.**
 
-Do not reopen Phase 0 or Phase 2A. Use the recorded policy decisions and continue the smallest Odoo-native Phase 2B slice. Exact-head evidence and remaining gates are owned by `docs/validation/PHASE_2B_PREORDER_COLLECTION.md`. The full combined hosted gate at `2816a8cbe1dce703ae0310b242d34ef92f0c6928` closes the current direct-native-mutation and allocation/POS boundary issue (51 tests and repeatable upgrade pass). Next work is the bounded native preorder UI and EN/AR RTL rendered/interaction validation; server evidence alone does not close those UI gates.
+The full combined hosted gate at server authority `2816a8cbe1dce703ae0310b242d34ef92f0c6928` closes the direct-native-mutation and allocation/POS boundary issue: 51 tests and repeatable upgrade pass. That server result remains authoritative for those invariants and must not be confused with later red UI diagnostic heads.
+
+### Hosted UI validation status — 2026-09-11
+
+The bounded native Odoo UI now exists: a read-only preorder workspace plus transient create, payment, readiness-allocation and collection wizards. Mutations continue to delegate to guarded server services. The UI includes the online-required guard and an Arabic translation catalog; broad custom frontend state or a second operational ledger was not introduced.
+
+Hosted UI debugging established several important negative findings before the current checkpoint. The owner-context fixture defect was corrected at `db3764e426711cfb4b3c6b80e4d686ff07aa4d2e`. Arabic selection metadata and rendered `Partially collected` state were separately proven, and the collection dialog itself was proven to open; the dialog-footer query was synchronized at `a0941519c268964f0b16f5c2c1451af987b0d3f9`. Later collection-header rendering synchronization is at `434a4f5add4f6acebae31b57a7cd7721f3c353f5`.
+
+The current pre-documentation diagnostic head is `09ac573b639b8d6a36fff15538b138e687313cdd`, run `34536257546`. Its native/core Arabic control comparisons are green for core stock/product UI, while the Phase 2B `payment-ar` and `collection-ar` method jobs are red. Payment-Arabic job `103068452209` fails before opening the payment dialog with the exact browser error `Record payment action missing`. The Arabic PO is loaded and the page is running under `ar_001`; together with the green core control jobs, this rules out a generic Arabic translation/RTL stack failure. Collection-Arabic job `103068452331` still needs one direct log read to record its exact current failure before changing that path.
+
+Do not regress to the earlier translation/footer-race loop. The active blocker is Phase 2B native header method-action discovery/render synchronization. The next implementation/test change should inspect the actual rendered Odoo 19 action control, locate/wait for it by stable semantic/action identity, and keep localization as an independent assertion. Existing keyboard-focus and RTL evidence must remain; solving selector timing must not weaken accessibility or Arabic coverage.
+
+Phase 2B can close only after the corrected isolated paths pass and the **authoritative combined Phase 1 + Phase 2A + Phase 2B suite plus repeatable addon upgrade** is green at one exact application SHA. The final acceptance artifact must preserve the required hosted UI screenshots/evidence. Temporary diagnostic workflow(s) should then be removed, and documentation must record the exact tested application SHA separately from later cleanup/documentation commits. No merge is authorized without explicit client approval.
