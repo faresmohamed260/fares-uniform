@@ -144,22 +144,27 @@ msgid "Balance Due"
 msgstr "الرصيد المستحق"
 
 #. module: fu_preorder
+#: model:ir.model.fields.selection,name:fu_preorder.selection__sale_order__fu_payment_state__balance_due
 msgid "Balance due"
 msgstr "رصيد مستحق"
 
 #. module: fu_preorder
+#: model:ir.model.fields.selection,name:fu_preorder.selection__sale_order__fu_payment_state__paid
 msgid "Fully paid"
 msgstr "مدفوع بالكامل"
 
 #. module: fu_preorder
+#: model:ir.model.fields.selection,name:fu_preorder.selection__account_payment__fu_payment_kind__cash
 msgid "Cash"
 msgstr "نقدًا"
 
 #. module: fu_preorder
+#: model:ir.model.fields.selection,name:fu_preorder.selection__account_payment__fu_payment_kind__instapay
 msgid "InstaPay"
 msgstr "إنستاباي"
 
 #. module: fu_preorder
+#: model:ir.model.fields.selection,name:fu_preorder.selection__account_payment__fu_payment_kind__bank
 msgid "Bank"
 msgstr "بنك"
 
@@ -188,22 +193,27 @@ msgid "Collection State"
 msgstr "حالة الاستلام"
 
 #. module: fu_preorder
+#: model:ir.model.fields.selection,name:fu_preorder.selection__sale_order__fu_collection_state__awaiting_ready
 msgid "Awaiting readiness"
 msgstr "في انتظار الجاهزية"
 
 #. module: fu_preorder
+#: model:ir.model.fields.selection,name:fu_preorder.selection__sale_order__fu_collection_state__partially_ready
 msgid "Partially ready"
 msgstr "جاهز جزئيًا"
 
 #. module: fu_preorder
+#: model:ir.model.fields.selection,name:fu_preorder.selection__sale_order__fu_collection_state__ready
 msgid "Ready for collection"
 msgstr "جاهز للاستلام"
 
 #. module: fu_preorder
+#: model:ir.model.fields.selection,name:fu_preorder.selection__sale_order__fu_collection_state__partially_collected
 msgid "Partially collected"
 msgstr "تم الاستلام جزئيًا"
 
 #. module: fu_preorder
+#: model:ir.model.fields.selection,name:fu_preorder.selection__sale_order__fu_collection_state__collected
 msgid "Fully collected"
 msgstr "تم الاستلام بالكامل"
 
