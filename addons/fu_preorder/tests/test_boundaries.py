@@ -176,7 +176,10 @@ class TestPreorderPOSReservationBoundary(CommonPosTest):
         )
         if not self.config.current_session_id:
             self.config.open_ui()
-        self.assertTrue(self.config.current_session_id, "POS test config must have an open session")
+        self.pos_session = self.config.current_session_id
+        self.assertTrue(self.pos_session, "POS test config must have an open session")
+        if self.pos_session.state == "opening_control":
+            self.pos_session.set_opening_control(0, None)
 
         self.product = self.env["product.product"].create(
             {
@@ -214,11 +217,60 @@ class TestPreorderPOSReservationBoundary(CommonPosTest):
         )
 
     def _pos_payload(self, order_uuid):
-        return self.create_ui_order_data(
-            [(self.product, 1)],
-            pos_order_ui_args={"user_id": self.pos_user.id},
-            uuid=order_uuid,
+        quantity = 1
+        price_unit = self.config.pricelist_id._get_product_price(self.product, quantity)
+        cash_payment_method = self.config.payment_method_ids.filtered(
+            lambda method: method.is_cash_count and not method.split_transactions
+        )[:1]
+        self.assertTrue(
+            cash_payment_method,
+            "POS test config must expose a non-split cash payment method",
         )
+        line_client_id = 1 + sum(order_uuid.encode("utf-8"))
+        return {
+            "amount_paid": price_unit,
+            "amount_return": 0,
+            "amount_tax": 0,
+            "amount_total": price_unit,
+            "date_order": fields.Datetime.to_string(fields.Datetime.now()),
+            "fiscal_position_id": self.config.default_fiscal_position_id.id,
+            "pricelist_id": self.config.pricelist_id.id,
+            "name": f"Order {order_uuid}",
+            "last_order_preparation_change": "{}",
+            "lines": [
+                (
+                    0,
+                    0,
+                    {
+                        "id": line_client_id,
+                        "pack_lot_ids": [],
+                        "price_unit": price_unit,
+                        "product_id": self.product.id,
+                        "price_subtotal": price_unit,
+                        "price_subtotal_incl": price_unit,
+                        "qty": quantity,
+                        "tax_ids": [(6, 0, [])],
+                        "discount": 0.0,
+                    },
+                )
+            ],
+            "partner_id": False,
+            "session_id": self.pos_session.id,
+            "payment_ids": [
+                (
+                    0,
+                    0,
+                    {
+                        "amount": price_unit,
+                        "name": fields.Datetime.now(),
+                        "payment_method_id": cash_payment_method.id,
+                    },
+                )
+            ],
+            "uuid": order_uuid,
+            "user_id": self.pos_user.id,
+            "to_invoice": False,
+        }
 
     def test_pos_can_sell_only_free_stock_and_replay_cannot_consume_reservation(self):
         Quant = self.env["stock.quant"].sudo()
