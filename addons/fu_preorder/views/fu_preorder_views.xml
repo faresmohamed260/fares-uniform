@@ -283,14 +283,8 @@
                 <field name="partner_id"/>
                 <field name="commitment_date"/>
                 <field name="fu_store_location_id"/>
-                <filter string="Balance Due" name="balance_due" domain="[('fu_payment_state', '=', 'balance_due')]"/>
-                <filter string="Fully Paid" name="fully_paid" domain="[('fu_payment_state', '=', 'paid')]"/>
-                <filter string="Ready for Collection" name="ready" domain="[('fu_collection_state', 'in', ['ready', 'partially_ready', 'partially_collected'])]"/>
-                <filter string="Fully Collected" name="collected" domain="[('fu_collection_state', '=', 'collected')]"/>
                 <group>
                     <filter string="Collection Store" name="group_store" context="{'group_by': 'fu_store_location_id'}"/>
-                    <filter string="Payment State" name="group_payment" context="{'group_by': 'fu_payment_state'}"/>
-                    <filter string="Collection State" name="group_collection" context="{'group_by': 'fu_collection_state'}"/>
                 </group>
             </search>
         </field>
