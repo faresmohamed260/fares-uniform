@@ -20,14 +20,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  fresh-install-bisect:
-    name: fresh-${{ matrix.suite }}
+  preorder-foundation:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    strategy:
-      fail-fast: false
-      matrix:
-        suite: [fu_core, fu_retail, fu_preorder]
+    timeout-minutes: 55
     services:
       postgres:
         image: postgres:16
@@ -70,39 +65,53 @@ jobs:
           mkdir -p evidence/screenshots
           printf 'fares_head=%s\n' "$GITHUB_SHA" > evidence/runtime.txt
           printf 'odoo_head=%s\n' "$(git -C upstream rev-parse HEAD)" >> evidence/runtime.txt
-          printf 'suite=%s\n' "${{ matrix.suite }}" >> evidence/runtime.txt
           python --version >> evidence/runtime.txt
           google-chrome --version >> evidence/runtime.txt
           rtlcss --version >> evidence/runtime.txt
 
-      - name: Fresh install with ${{ matrix.suite }} tests
+      - name: Install addons and run Phase 1 plus Phase 2A plus Phase 2B tests
         run: |
           set -o pipefail
           python upstream/odoo-bin \
             --addons-path=upstream/addons,addons \
             --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
-            -d fares_phase2b_fresh \
+            -d fares_phase2b \
             -i fu_core,fu_retail,fu_preorder \
-            --test-enable --test-tags='/${{ matrix.suite }}' \
+            --test-enable --test-tags='/fu_core,/fu_retail,/fu_preorder' \
             --screenshots=evidence/screenshots \
             --stop-after-init --http-interface=127.0.0.1 \
-            2>&1 | tee evidence/fresh-${{ matrix.suite }}.log
+            2>&1 | tee evidence/install-and-tests.log
+
+      - name: Prove repeatable addon upgrade
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b \
+            -u fu_core,fu_retail,fu_preorder \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/upgrade.log
 
       - name: Summarize evidence
         if: always()
         run: |
           {
-            echo '## Phase 2B fresh-install addon bisection'
+            echo '## Phase 2B preorder/balance/collection foundation'
             echo
             cat evidence/runtime.txt 2>/dev/null || true
             echo
-            grep -E 'tests? in|failures|errors|ERROR|FAIL' evidence/fresh-${{ matrix.suite }}.log 2>/dev/null | tail -n 160 || true
+            echo '### Test summary lines'
+            grep -E 'tests? in|failures|errors|fu_core|fu_retail|fu_preorder|Chrome|screenshot' evidence/install-and-tests.log 2>/dev/null | tail -n 140 || true
+            echo
+            echo '### Hosted screenshots'
+            find evidence/screenshots -type f -maxdepth 3 -printf '%P\n' 2>/dev/null | sort || true
           } | tee evidence/summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload exact-head evidence
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase2b-fresh-${{ matrix.suite }}-${{ github.sha }}
+          name: phase2b-preorder-${{ github.sha }}
           path: evidence/
           retention-days: 7
