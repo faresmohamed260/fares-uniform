@@ -1,0 +1,280 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * fu_preorder
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#. module: fu_preorder
+msgid "Preorders"
+msgstr "الطلبات المسبقة"
+
+#. module: fu_preorder
+msgid "Preorder List"
+msgstr "قائمة الطلبات المسبقة"
+
+#. module: fu_preorder
+msgid "Preorder"
+msgstr "الطلب المسبق"
+
+#. module: fu_preorder
+msgid "New Preorder"
+msgstr "طلب مسبق جديد"
+
+#. module: fu_preorder
+msgid "Create Preorder"
+msgstr "إنشاء الطلب المسبق"
+
+#. module: fu_preorder
+msgid "Customer"
+msgstr "العميل"
+
+#. module: fu_preorder
+msgid "Customer & Promise"
+msgstr "العميل وموعد الاستلام"
+
+#. module: fu_preorder
+msgid "Promised Pickup"
+msgstr "موعد الاستلام الموعود"
+
+#. module: fu_preorder
+msgid "Collection Store"
+msgstr "متجر الاستلام"
+
+#. module: fu_preorder
+msgid "Collection"
+msgstr "الاستلام"
+
+#. module: fu_preorder
+msgid "Items"
+msgstr "الأصناف"
+
+#. module: fu_preorder
+msgid "Product"
+msgstr "المنتج"
+
+#. module: fu_preorder
+msgid "Quantity"
+msgstr "الكمية"
+
+#. module: fu_preorder
+msgid "Online connection required."
+msgstr "يلزم اتصال بالإنترنت."
+
+#. module: fu_preorder
+msgid "Preorder creation uses live server checks."
+msgstr "إنشاء الطلب المسبق يعتمد على تحقق مباشر من الخادم."
+
+#. module: fu_preorder
+msgid "Payment uses the current server balance and authorization."
+msgstr "تسجيل الدفعة يعتمد على الرصيد والصلاحيات الحالية من الخادم."
+
+#. module: fu_preorder
+msgid "Readiness allocation uses live Retail Store availability."
+msgstr "تخصيص الجاهزية يعتمد على المخزون المتاح حاليًا في متجر التجزئة."
+
+#. module: fu_preorder
+msgid "Collection uses live balance, readiness and prior-collection checks."
+msgstr "الاستلام يعتمد على تحقق مباشر من الرصيد والجاهزية وعمليات الاستلام السابقة."
+
+#. module: fu_preorder
+msgid "Preorder actions use live server checks."
+msgstr "إجراءات الطلب المسبق تعتمد على تحقق مباشر من الخادم."
+
+#. module: fu_preorder
+msgid "Online — preorder actions use live server checks."
+msgstr "متصل — إجراءات الطلب المسبق تستخدم تحققًا مباشرًا من الخادم."
+
+#. module: fu_preorder
+msgid "Offline — preorder actions are disabled until connection returns."
+msgstr "غير متصل — إجراءات الطلب المسبق معطلة حتى عودة الاتصال."
+
+#. module: fu_preorder
+msgid "Record Preorder Payment"
+msgstr "تسجيل دفعة الطلب المسبق"
+
+#. module: fu_preorder
+msgid "Record Payment"
+msgstr "تسجيل دفعة"
+
+#. module: fu_preorder
+msgid "Payment"
+msgstr "الدفع"
+
+#. module: fu_preorder
+msgid "Payment Summary"
+msgstr "ملخص الدفع"
+
+#. module: fu_preorder
+msgid "Payment History"
+msgstr "سجل المدفوعات"
+
+#. module: fu_preorder
+msgid "Payment Method"
+msgstr "طريقة الدفع"
+
+#. module: fu_preorder
+msgid "Payment State"
+msgstr "حالة الدفع"
+
+#. module: fu_preorder
+msgid "Payment Reference"
+msgstr "مرجع الدفعة"
+
+#. module: fu_preorder
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: fu_preorder
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: fu_preorder
+msgid "Paid"
+msgstr "المدفوع"
+
+#. module: fu_preorder
+msgid "Balance Due"
+msgstr "الرصيد المستحق"
+
+#. module: fu_preorder
+msgid "Balance due"
+msgstr "رصيد مستحق"
+
+#. module: fu_preorder
+msgid "Fully paid"
+msgstr "مدفوع بالكامل"
+
+#. module: fu_preorder
+msgid "Cash"
+msgstr "نقدًا"
+
+#. module: fu_preorder
+msgid "InstaPay"
+msgstr "إنستاباي"
+
+#. module: fu_preorder
+msgid "Bank"
+msgstr "بنك"
+
+#. module: fu_preorder
+msgid "I confirm the bank notification was observed"
+msgstr "أؤكد أنه تمت مشاهدة إشعار البنك"
+
+#. module: fu_preorder
+msgid "Method"
+msgstr "الطريقة"
+
+#. module: fu_preorder
+msgid "Manual Confirmation"
+msgstr "تأكيد يدوي"
+
+#. module: fu_preorder
+msgid "Recorded By"
+msgstr "سجلها"
+
+#. module: fu_preorder
+msgid "Fulfillment"
+msgstr "التجهيز والاستلام"
+
+#. module: fu_preorder
+msgid "Collection State"
+msgstr "حالة الاستلام"
+
+#. module: fu_preorder
+msgid "Awaiting readiness"
+msgstr "في انتظار الجاهزية"
+
+#. module: fu_preorder
+msgid "Partially ready"
+msgstr "جاهز جزئيًا"
+
+#. module: fu_preorder
+msgid "Ready for collection"
+msgstr "جاهز للاستلام"
+
+#. module: fu_preorder
+msgid "Partially collected"
+msgstr "تم الاستلام جزئيًا"
+
+#. module: fu_preorder
+msgid "Fully collected"
+msgstr "تم الاستلام بالكامل"
+
+#. module: fu_preorder
+msgid "Allocate Ready Stock"
+msgstr "تخصيص المخزون الجاهز"
+
+#. module: fu_preorder
+msgid "Ready Items"
+msgstr "الأصناف الجاهزة"
+
+#. module: fu_preorder
+msgid "Record Collection"
+msgstr "تسجيل الاستلام"
+
+#. module: fu_preorder
+msgid "Collection Reference"
+msgstr "مرجع الاستلام"
+
+#. module: fu_preorder
+msgid "The whole preorder balance must be paid before collection."
+msgstr "يجب سداد كامل رصيد الطلب المسبق قبل أي استلام."
+
+#. module: fu_preorder
+msgid "Ordered"
+msgstr "المطلوب"
+
+#. module: fu_preorder
+msgid "Ready"
+msgstr "الجاهز"
+
+#. module: fu_preorder
+msgid "Collected"
+msgstr "المستلم"
+
+#. module: fu_preorder
+msgid "Remaining"
+msgstr "المتبقي"
+
+#. module: fu_preorder
+msgid "Unallocated"
+msgstr "غير المخصص"
+
+#. module: fu_preorder
+msgid "Store Free Stock"
+msgstr "المخزون الحر بالمتجر"
+
+#. module: fu_preorder
+msgid "Allocate Quantity"
+msgstr "كمية التخصيص"
+
+#. module: fu_preorder
+msgid "Collect Quantity"
+msgstr "كمية الاستلام"
+
+#. module: fu_preorder
+msgid "Ready for Collection"
+msgstr "جاهز للاستلام"
+
+#. module: fu_preorder
+msgid "Fully Paid"
+msgstr "مدفوع بالكامل"
+
+#. module: fu_preorder
+msgid "Fully Collected"
+msgstr "تم الاستلام بالكامل"
+
+#. module: fu_preorder
+msgid "No preorders in your assigned Retail Store"
+msgstr "لا توجد طلبات مسبقة في متجر التجزئة المخصص لك"
+
+#. module: fu_preorder
+msgid "Use New Preorder while online to create the first school-uniform preorder."
+msgstr "استخدم طلب مسبق جديد أثناء الاتصال لإنشاء أول طلب مسبق للزي المدرسي."

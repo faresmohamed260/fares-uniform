@@ -1,0 +1,33 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fu_preorder_sale_order_owner,Fares preorder sale order owner,sale.model_sale_order,fu_core.group_fu_owner_admin,1,0,0,0
+access_fu_preorder_sale_order_manager,Fares preorder sale order manager,sale.model_sale_order,fu_core.group_fu_store_manager,1,0,0,0
+access_fu_preorder_sale_order_cashier,Fares preorder sale order cashier,sale.model_sale_order,fu_core.group_fu_cashier,1,0,0,0
+access_fu_preorder_sale_order_inventory,Fares preorder sale order inventory,sale.model_sale_order,fu_core.group_fu_inventory_staff,1,0,0,0
+access_fu_preorder_sale_line_owner,Fares preorder sale line owner,sale.model_sale_order_line,fu_core.group_fu_owner_admin,1,0,0,0
+access_fu_preorder_sale_line_manager,Fares preorder sale line manager,sale.model_sale_order_line,fu_core.group_fu_store_manager,1,0,0,0
+access_fu_preorder_sale_line_cashier,Fares preorder sale line cashier,sale.model_sale_order_line,fu_core.group_fu_cashier,1,0,0,0
+access_fu_preorder_sale_line_inventory,Fares preorder sale line inventory,sale.model_sale_order_line,fu_core.group_fu_inventory_staff,1,0,0,0
+access_fu_preorder_payment_owner,Fares preorder payment owner,account.model_account_payment,fu_core.group_fu_owner_admin,1,0,0,0
+access_fu_preorder_payment_manager,Fares preorder payment manager,account.model_account_payment,fu_core.group_fu_store_manager,1,0,0,0
+access_fu_preorder_payment_cashier,Fares preorder payment cashier,account.model_account_payment,fu_core.group_fu_cashier,1,0,0,0
+access_fu_preorder_create_wizard_owner,Fares preorder create wizard owner,model_fu_preorder_create_wizard,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_preorder_create_wizard_manager,Fares preorder create wizard manager,model_fu_preorder_create_wizard,fu_core.group_fu_store_manager,1,1,1,1
+access_fu_preorder_create_wizard_cashier,Fares preorder create wizard cashier,model_fu_preorder_create_wizard,fu_core.group_fu_cashier,1,1,1,1
+access_fu_preorder_create_line_owner,Fares preorder create line owner,model_fu_preorder_create_line,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_preorder_create_line_manager,Fares preorder create line manager,model_fu_preorder_create_line,fu_core.group_fu_store_manager,1,1,1,1
+access_fu_preorder_create_line_cashier,Fares preorder create line cashier,model_fu_preorder_create_line,fu_core.group_fu_cashier,1,1,1,1
+access_fu_preorder_payment_wizard_owner,Fares preorder payment wizard owner,model_fu_preorder_payment_wizard,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_preorder_payment_wizard_manager,Fares preorder payment wizard manager,model_fu_preorder_payment_wizard,fu_core.group_fu_store_manager,1,1,1,1
+access_fu_preorder_payment_wizard_cashier,Fares preorder payment wizard cashier,model_fu_preorder_payment_wizard,fu_core.group_fu_cashier,1,1,1,1
+access_fu_preorder_allocation_wizard_owner,Fares preorder allocation wizard owner,model_fu_preorder_allocation_wizard,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_preorder_allocation_wizard_manager,Fares preorder allocation wizard manager,model_fu_preorder_allocation_wizard,fu_core.group_fu_store_manager,1,1,1,1
+access_fu_preorder_allocation_wizard_inventory,Fares preorder allocation wizard inventory,model_fu_preorder_allocation_wizard,fu_core.group_fu_inventory_staff,1,1,1,1
+access_fu_preorder_allocation_line_owner,Fares preorder allocation line owner,model_fu_preorder_allocation_line,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_preorder_allocation_line_manager,Fares preorder allocation line manager,model_fu_preorder_allocation_line,fu_core.group_fu_store_manager,1,1,1,1
+access_fu_preorder_allocation_line_inventory,Fares preorder allocation line inventory,model_fu_preorder_allocation_line,fu_core.group_fu_inventory_staff,1,1,1,1
+access_fu_preorder_collection_wizard_owner,Fares preorder collection wizard owner,model_fu_preorder_collection_wizard,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_preorder_collection_wizard_manager,Fares preorder collection wizard manager,model_fu_preorder_collection_wizard,fu_core.group_fu_store_manager,1,1,1,1
+access_fu_preorder_collection_wizard_cashier,Fares preorder collection wizard cashier,model_fu_preorder_collection_wizard,fu_core.group_fu_cashier,1,1,1,1
+access_fu_preorder_collection_line_owner,Fares preorder collection line owner,model_fu_preorder_collection_line,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_preorder_collection_line_manager,Fares preorder collection line manager,model_fu_preorder_collection_line,fu_core.group_fu_store_manager,1,1,1,1
+access_fu_preorder_collection_line_cashier,Fares preorder collection line cashier,model_fu_preorder_collection_line,fu_core.group_fu_cashier,1,1,1,1

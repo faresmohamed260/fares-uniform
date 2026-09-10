@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fu_preorder_create_wizard_form" model="ir.ui.view">
+        <field name="name">fu.preorder.create.wizard.form</field>
+        <field name="model">fu.preorder.create.wizard</field>
+        <field name="arch" type="xml">
+            <form string="New Preorder">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>New Preorder</h1>
+                    </div>
+                    <div class="alert alert-info fu-online-required-banner" role="alert">
+                        <strong>Online connection required.</strong>
+                        <span class="fu-online-state">Preorder creation uses live server checks.</span>
+                    </div>
+                    <group>
+                        <group string="Customer &amp; Promise">
+                            <field name="partner_id" options="{'no_quick_create': True}"/>
+                            <field name="commitment_date"/>
+                        </group>
+                        <group string="Collection">
+                            <field name="allowed_store_ids" invisible="1"/>
+                            <field name="store_location_id" domain="[('id', 'in', allowed_store_ids)]" options="{'no_create': True, 'no_quick_create': True}"/>
+                        </group>
+                    </group>
+                    <group string="Items">
+                        <field name="line_ids" nolabel="1">
+                            <list editable="bottom" create="true" delete="true">
+                                <field name="product_id" options="{'no_create': True, 'no_quick_create': True}"/>
+                                <field name="quantity"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_create" type="object" string="Create Preorder" class="btn-primary fu-online-required-action" data-hotkey="q"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_preorder_create_wizard" model="ir.actions.act_window">
+        <field name="name">New Preorder</field>
+        <field name="res_model">fu.preorder.create.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="fu_preorder_create_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="fu_preorder_payment_wizard_form" model="ir.ui.view">
+        <field name="name">fu.preorder.payment.wizard.form</field>
+        <field name="model">fu.preorder.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Record Preorder Payment">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Record Preorder Payment</h1>
+                    </div>
+                    <div class="alert alert-info fu-online-required-banner" role="alert">
+                        <strong>Online connection required.</strong>
+                        <span class="fu-online-state">Payment uses the current server balance and authorization.</span>
+                    </div>
+                    <group>
+                        <group string="Preorder">
+                            <field name="preorder_id"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="balance_due"/>
+                        </group>
+                        <group string="Payment">
+                            <field name="amount"/>
+                            <field name="journal_key"/>
+                            <field name="requires_manual_confirmation" invisible="1"/>
+                            <field name="manual_confirmed" invisible="not requires_manual_confirmation" required="requires_manual_confirmation"/>
+                            <field name="payment_uuid" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_record_payment" type="object" string="Record Payment" class="btn-primary fu-online-required-action" data-hotkey="q"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_preorder_payment_wizard" model="ir.actions.act_window">
+        <field name="name">Record Preorder Payment</field>
+        <field name="res_model">fu.preorder.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="fu_preorder_payment_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="fu_preorder_allocation_wizard_form" model="ir.ui.view">
+        <field name="name">fu.preorder.allocation.wizard.form</field>
+        <field name="model">fu.preorder.allocation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Allocate Ready Stock">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Allocate Ready Stock</h1>
+                    </div>
+                    <div class="alert alert-info fu-online-required-banner" role="alert">
+                        <strong>Online connection required.</strong>
+                        <span class="fu-online-state">Readiness allocation uses live Retail Store availability.</span>
+                    </div>
+                    <group>
+                        <field name="preorder_id"/>
+                        <field name="store_location_id"/>
+                    </group>
+                    <group string="Items">
+                        <field name="line_ids" nolabel="1">
+                            <list editable="bottom" create="false" delete="false">
+                                <field name="product_id"/>
+                                <field name="ordered_qty"/>
+                                <field name="ready_qty"/>
+                                <field name="collected_qty" optional="hide"/>
+                                <field name="unallocated_qty"/>
+                                <field name="available_stock_qty"/>
+                                <field name="quantity"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_allocate" type="object" string="Allocate Ready Stock" class="btn-primary fu-online-required-action" data-hotkey="q"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_preorder_allocation_wizard" model="ir.actions.act_window">
+        <field name="name">Allocate Ready Stock</field>
+        <field name="res_model">fu.preorder.allocation.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="fu_preorder_allocation_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="fu_preorder_collection_wizard_form" model="ir.ui.view">
+        <field name="name">fu.preorder.collection.wizard.form</field>
+        <field name="model">fu.preorder.collection.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Record Collection">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Record Collection</h1>
+                    </div>
+                    <div class="alert alert-info fu-online-required-banner" role="alert">
+                        <strong>Online connection required.</strong>
+                        <span class="fu-online-state">Collection uses live balance, readiness and prior-collection checks.</span>
+                    </div>
+                    <field name="fully_paid" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" invisible="fully_paid">
+                        The whole preorder balance must be paid before collection.
+                    </div>
+                    <group>
+                        <field name="preorder_id"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="balance_due"/>
+                        <field name="collection_uuid" invisible="1"/>
+                    </group>
+                    <group string="Ready Items">
+                        <field name="line_ids" nolabel="1">
+                            <list editable="bottom" create="false" delete="false">
+                                <field name="product_id"/>
+                                <field name="ordered_qty"/>
+                                <field name="ready_qty"/>
+                                <field name="collected_qty"/>
+                                <field name="remaining_qty"/>
+                                <field name="quantity"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_collect" type="object" string="Record Collection" class="btn-primary fu-online-required-action" data-hotkey="q" invisible="not fully_paid"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_preorder_collection_wizard" model="ir.actions.act_window">
+        <field name="name">Record Collection</field>
+        <field name="res_model">fu.preorder.collection.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="fu_preorder_collection_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="fu_preorder_list" model="ir.ui.view">
+        <field name="name">fu.sale.order.preorder.list</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <list string="Preorders" create="false" edit="false" delete="false" decoration-danger="fu_payment_state == 'balance_due'" decoration-success="fu_collection_state == 'collected'">
+                <field name="name" string="Preorder"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="commitment_date" string="Promised Pickup"/>
+                <field name="fu_store_location_id" string="Collection Store"/>
+                <field name="amount_total" string="Total" widget="monetary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier"/>
+                <field name="fu_balance_due" string="Balance Due" widget="monetary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier"/>
+                <field name="fu_payment_state" string="Payment State" widget="badge" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier"/>
+                <field name="fu_collection_state" string="Collection State" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="fu_preorder_form" model="ir.ui.view">
+        <field name="name">fu.sale.order.preorder.form</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <form string="Preorder" create="false" edit="false" delete="false">
+                <header>
+                    <button name="%(action_fu_preorder_payment_wizard)d" type="action" string="Record Payment" class="btn-primary fu-online-required-action" context="{'default_preorder_id': id}" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier" invisible="fu_payment_state == 'paid'"/>
+                    <button name="%(action_fu_preorder_allocation_wizard)d" type="action" string="Allocate Ready Stock" class="btn-secondary fu-online-required-action" context="{'default_preorder_id': id}" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_inventory_staff" invisible="fu_collection_state == 'collected'"/>
+                    <button name="%(action_fu_preorder_collection_wizard)d" type="action" string="Record Collection" class="btn-primary fu-online-required-action" context="{'default_preorder_id': id}" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier" invisible="fu_payment_state != 'paid' or fu_collection_state in ['awaiting_ready', 'collected']"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Preorder"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <div class="alert alert-info fu-online-required-banner" role="alert">
+                        <strong>Online connection required.</strong>
+                        <span class="fu-online-state">Preorder actions use live server checks.</span>
+                    </div>
+                    <group>
+                        <group string="Customer &amp; Promise">
+                            <field name="partner_id"/>
+                            <field name="commitment_date"/>
+                            <field name="fu_store_location_id"/>
+                        </group>
+                        <group string="Payment Summary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="amount_total" string="Total"/>
+                            <field name="fu_amount_paid" string="Paid"/>
+                            <field name="fu_balance_due" string="Balance Due"/>
+                            <field name="fu_payment_state" string="Payment State" widget="badge"/>
+                        </group>
+                        <group string="Fulfillment">
+                            <field name="fu_collection_state" string="Collection State" widget="badge"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Items">
+                            <field name="order_line" readonly="1">
+                                <list create="false" edit="false" delete="false">
+                                    <field name="product_id"/>
+                                    <field name="product_uom_qty" string="Ordered"/>
+                                    <field name="fu_ready_qty" string="Ready"/>
+                                    <field name="fu_collected_qty" string="Collected"/>
+                                    <field name="fu_remaining_qty" string="Remaining"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Payment History" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier">
+                            <field name="fu_preorder_payment_ids" readonly="1">
+                                <list create="false" edit="false" delete="false">
+                                    <field name="date"/>
+                                    <field name="fu_payment_kind" string="Method" widget="badge"/>
+                                    <field name="amount"/>
+                                    <field name="fu_manual_confirmed" string="Manual Confirmation"/>
+                                    <field name="fu_recorded_by_user_id" string="Recorded By"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="fu_preorder_search" model="ir.ui.view">
+        <field name="name">fu.sale.order.preorder.search</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <search string="Preorders">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="commitment_date"/>
+                <field name="fu_store_location_id"/>
+                <filter string="Balance Due" name="balance_due" domain="[('fu_payment_state', '=', 'balance_due')]"/>
+                <filter string="Fully Paid" name="fully_paid" domain="[('fu_payment_state', '=', 'paid')]"/>
+                <filter string="Ready for Collection" name="ready" domain="[('fu_collection_state', 'in', ['ready', 'partially_ready', 'partially_collected'])]"/>
+                <filter string="Fully Collected" name="collected" domain="[('fu_collection_state', '=', 'collected')]"/>
+                <group>
+                    <filter string="Collection Store" name="group_store" context="{'group_by': 'fu_store_location_id'}"/>
+                    <filter string="Payment State" name="group_payment" context="{'group_by': 'fu_payment_state'}"/>
+                    <filter string="Collection State" name="group_collection" context="{'group_by': 'fu_collection_state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fu_preorders" model="ir.actions.act_window">
+        <field name="name">Preorders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('fu_is_preorder', '=', True)]</field>
+        <field name="context">{'create': False}</field>
+        <field name="search_view_id" ref="fu_preorder_search"/>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('fu_preorder_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('fu_preorder_form')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No preorders in your assigned Retail Store</p>
+            <p>Use New Preorder while online to create the first school-uniform preorder.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_fu_preorders_root" name="Preorders" parent="fu_core.menu_fu_root" sequence="30" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier,fu_core.group_fu_inventory_staff"/>
+    <menuitem id="menu_fu_preorders" name="Preorder List" parent="menu_fu_preorders_root" action="action_fu_preorders" sequence="10" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier,fu_core.group_fu_inventory_staff"/>
+    <menuitem id="menu_fu_preorder_new" name="New Preorder" parent="menu_fu_preorders_root" action="action_fu_preorder_create_wizard" sequence="20" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier"/>
+</odoo>

@@ -29,10 +29,35 @@ class AccountPayment(models.Model):
         readonly=True,
         ondelete="restrict",
     )
+    fu_payment_kind = fields.Selection(
+        [
+            ("cash", "Cash"),
+            ("instapay", "InstaPay"),
+            ("bank", "Bank"),
+        ],
+        string="Fares payment method",
+        compute="_compute_fu_payment_kind",
+    )
 
     _fu_preorder_payment_uuid_unique = models.UniqueIndex(
         "(fu_preorder_payment_uuid) WHERE fu_preorder_payment_uuid IS NOT NULL"
     )
+
+    @api.depends("fu_preorder_id", "journal_id.type", "journal_id.fu_confirmation_mode")
+    def _compute_fu_payment_kind(self):
+        for payment in self:
+            if not payment.fu_preorder_id:
+                payment.fu_payment_kind = False
+                continue
+            journal = payment.sudo().journal_id
+            if journal.type == "cash":
+                payment.fu_payment_kind = "cash"
+            elif journal.type == "bank" and journal.fu_confirmation_mode == "bank_notification":
+                payment.fu_payment_kind = "instapay"
+            elif journal.type == "bank":
+                payment.fu_payment_kind = "bank"
+            else:
+                payment.fu_payment_kind = False
 
     @api.constrains("fu_preorder_id", "partner_id", "currency_id", "amount", "state")
     def _check_fu_preorder_payment_integrity(self):
