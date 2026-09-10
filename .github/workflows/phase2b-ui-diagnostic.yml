@@ -1,0 +1,177 @@
+name: Phase 2B UI diagnostic
+
+on:
+  push:
+    branches: ["phase-2b/preorder-balance-collection"]
+    paths:
+      - ".github/workflows/phase2b-ui-diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase2b-ui-diagnostic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  install-isolation:
+    name: Install isolation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: phase2b-only
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+    steps:
+      - name: Checkout Fares exact head
+        uses: actions/checkout@v5
+      - name: Checkout pinned Odoo Community 19
+        uses: actions/checkout@v5
+        with:
+          repository: odoo/odoo
+          ref: ${{ env.ODOO_SHA }}
+          path: upstream
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Odoo dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev zlib1g-dev
+          python -m pip install -r upstream/requirements.txt
+          python -m pip install websocket-client
+          sudo npm install --global rtlcss@4.3.0
+      - name: Install retained Phase 1 plus Phase 2A baseline
+        run: |
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag_install \
+            -i fu_core,fu_retail \
+            --stop-after-init --http-interface=127.0.0.1
+      - name: Install fu_preorder without tests
+        run: |
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag_install \
+            -i fu_preorder \
+            --stop-after-init --http-interface=127.0.0.1
+
+  ui-contract-tests:
+    name: UI contract tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: phase2b-only
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+    steps:
+      - name: Checkout Fares exact head
+        uses: actions/checkout@v5
+      - name: Checkout pinned Odoo Community 19
+        uses: actions/checkout@v5
+        with:
+          repository: odoo/odoo
+          ref: ${{ env.ODOO_SHA }}
+          path: upstream
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Odoo dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev zlib1g-dev
+          python -m pip install -r upstream/requirements.txt
+          python -m pip install websocket-client
+          sudo npm install --global rtlcss@4.3.0
+      - name: Run only TestFaresPreorderUIContracts
+        run: |
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag_contract \
+            -i fu_core,fu_retail,fu_preorder \
+            --test-enable --test-tags='/fu_preorder:TestFaresPreorderUIContracts' \
+            --stop-after-init --http-interface=127.0.0.1
+
+  bilingual-browser-tests:
+    name: Bilingual browser tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: phase2b-only
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+      CHROME_BIN: /usr/bin/google-chrome
+    steps:
+      - name: Checkout Fares exact head
+        uses: actions/checkout@v5
+      - name: Checkout pinned Odoo Community 19
+        uses: actions/checkout@v5
+        with:
+          repository: odoo/odoo
+          ref: ${{ env.ODOO_SHA }}
+          path: upstream
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Odoo dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev zlib1g-dev
+          python -m pip install -r upstream/requirements.txt
+          python -m pip install websocket-client
+          sudo npm install --global rtlcss@4.3.0
+          mkdir -p evidence/screenshots
+      - name: Run only TestFaresPreorderBilingualUI
+        run: |
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag_browser \
+            -i fu_core,fu_retail,fu_preorder \
+            --test-enable --test-tags='/fu_preorder:TestFaresPreorderBilingualUI' \
+            --screenshots=evidence/screenshots \
+            --stop-after-init --http-interface=127.0.0.1
+      - name: Upload diagnostic screenshots
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase2b-ui-diagnostic-${{ github.sha }}
+          path: evidence/
+          retention-days: 2
