@@ -359,6 +359,7 @@ class TestFaresPreorderBilingualUI(HttpCase):
     def _show_payment(self, arabic=False):
         self._set_language(arabic)
         action = self._record_action(self.balance_order, "Hosted payment UI")
+        payment_action = self.env.ref("fu_preorder.action_fu_preorder_payment_wizard")
         expected_button = "تسجيل دفعة" if arabic else "Record Payment"
         expected_dialog = "تسجيل دفعة الطلب المسبق" if arabic else "Record Preorder Payment"
         code = f"""
@@ -372,8 +373,8 @@ class TestFaresPreorderBilingualUI(HttpCase):
                     }}
                     throw new Error('Timed out waiting for ' + selector);
                 }};
-                const actionButton = [...document.querySelectorAll('button')].find(button => button.innerText.includes({expected_button!r}));
-                if (!actionButton) throw new Error('Record payment action missing');
+                const actionButton = await waitFor('.o_form_statusbar button[name="{payment_action.id}"]');
+                if (!actionButton.innerText.includes({expected_button!r})) throw new Error('Localized record payment action missing');
                 actionButton.click();
                 const dialog = await waitFor('.o_dialog');
                 if (!dialog.innerText.includes({expected_dialog!r})) throw new Error('Localized payment dialog missing');
@@ -438,6 +439,8 @@ class TestFaresPreorderBilingualUI(HttpCase):
     def _show_collection_arabic(self):
         self._set_language(True)
         action = self._record_action(self.partial_order, "Hosted collection UI")
+        collection_action = self.env.ref("fu_preorder.action_fu_preorder_collection_wizard")
+        action_selector = f'.o_form_statusbar button[name="{collection_action.id}"]'
         code = """
             (async () => {
                 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -449,19 +452,10 @@ class TestFaresPreorderBilingualUI(HttpCase):
                     }
                     throw new Error('Timed out waiting for ' + selector);
                 };
-                const waitForButtonText = async (text) => {
-                    for (let i = 0; i < 100; i++) {
-                        const node = [...document.querySelectorAll('button')].find(
-                            button => button.innerText.includes(text)
-                        );
-                        if (node) return node;
-                        await sleep(50);
-                    }
-                    throw new Error('Timed out waiting for button text: ' + text);
-                };
                 const form = document.querySelector('.o_form_view');
                 if (!form || !form.innerText.includes('تم الاستلام جزئيًا')) throw new Error('Arabic partial-collection state missing');
-                const actionButton = await waitForButtonText('تسجيل الاستلام');
+                const actionButton = await waitFor('__ACTION_SELECTOR__');
+                if (!actionButton.innerText.includes('تسجيل الاستلام')) throw new Error('Localized record collection action missing');
                 actionButton.click();
                 const dialog = await waitFor('.o_dialog');
                 if (!dialog.innerText.includes('الأصناف الجاهزة')) throw new Error('Arabic ready-items context missing');
@@ -470,7 +464,7 @@ class TestFaresPreorderBilingualUI(HttpCase):
                 if (document.activeElement !== submit) throw new Error('Collection action cannot receive keyboard focus');
                 console.log('test successful');
             })();
-        """
+        """.replace("__ACTION_SELECTOR__", action_selector)
         with capture_views("preorder_collection_ar", rtl=True):
             self.browser_js(
                 f"/odoo/action-{action.id}",
