@@ -11,9 +11,9 @@
 - Source of truth: repository code and docs; no reliance on session memory or local files.
 - Execution: remote only.
 
-## Current state — 2026-09-10
+## Current state — 2026-09-11
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2A — Retail checkout/offline: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2B — Preorder/balance/collection: SERVER FOUNDATION AND RESERVATION/SECURITY BOUNDARY HOSTED PASS; UI GATES OUTSTANDING; PHASE INCOMPLETE.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2A — Retail checkout/offline: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2B — Preorder/balance/collection: SERVER FOUNDATION AND RESERVATION/SECURITY BOUNDARY HOSTED PASS; NATIVE UI IMPLEMENTED; HOSTED UI VALIDATION STILL RED IN PHASE 2B PAYMENT/COLLECTION ACTION DISCOVERY; PHASE INCOMPLETE.**
 
 The accepted MVP boundary covers finished stock, bilingual offline POS, preorders/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics remains future work.
 
@@ -69,7 +69,7 @@ The stacked Phase 2A pull request is PR #4, **open and draft**, from `phase-2a/r
 
 Phase 2B follows `docs/phases/PHASE_2B_PREORDER_COLLECTION.md`. The five policy gates are closed by `docs/requirements/PHASE_2B_POLICY_DECISIONS.md`: all preorder operations require connectivity; any positive payment up to the remaining balance is allowed; reservation occurs against Retail Store stock, independently of preorder acceptance; ready subsets may be collected after the whole balance is settled.
 
-The server-first `fu_preorder` implementation uses native Sales Orders, payments and stock transfers. Broad preorder UI, bilingual rendered validation and phase closure remain outstanding. No merge or production deployment is authorized.
+The server-first `fu_preorder` implementation uses native Sales Orders, payments and stock transfers. The bounded native operational UI is now implemented as a read-only preorder workspace plus create/payment/readiness-allocation/collection transient wizards, with the online-only guard and Arabic catalog. Phase 2B remains incomplete because the final hosted rendered UI gate is still red. No merge or production deployment is authorized.
 
 The original implementation `9e8119721246fec1d3f5ee2dc2ec1cdf78e9d317` failed hosted run `34401548535`: the actual log reports 0 failures and 2 errors out of 45 tests. Both errors occur during fixture opening stock because the required batch reference is missing, before reservation. The prior conversation's 37/38 and duplicated-S description is not supported by this run.
 
@@ -77,9 +77,19 @@ The fixture correction and per-variant reservation assertions are at `1642eee39a
 
 The historical red boundary implementation is `dabd3edb22c25cf22acdec078d146ff7678490b7` (`test(preorder): protect reservations from POS checkout`). It adds a `fu_preorder` guard intended to prevent ordinary POS stock effects from consuming preorder-ready reservations, plus direct native-mutation and native POS boundary tests. Hosted run `34409189514`, job `102659354063`, is **RED — 40 tests, 1 failure, 0 errors**. The failure is `TestFaresPreorderSecurityBoundary.test_native_records_still_refuse_direct_cashier_mutation`: an expected `AccessError` was not raised. Repeatable addon upgrade was skipped after the failed test step. This historical failure is retained below; the newer verified checkpoint now closes this boundary.
 
-The current authoritative tested implementation is `2816a8cbe1dce703ae0310b242d34ef92f0c6928`. Hosted run `34428218381`, job `102717890627`, passed **51 tests with 0 failures and 0 errors**, plus repeatable `fu_core + fu_retail + fu_preorder` upgrade. This includes the five isolated direct-native-mutation regressions and ordinary POS free-stock/reservation/replay boundary. The stock guards were added at `248e77e6d66fd8d2cf630b07708f32159b90bec4`; later fixes repair the POS test fixture and payload for pinned Odoo. The full combined gate is restored; diagnostic-only green runs are not substituted for it.
+The current authoritative **server/security** tested implementation remains `2816a8cbe1dce703ae0310b242d34ef92f0c6928`. Hosted run `34428218381`, job `102717890627`, passed **51 tests with 0 failures and 0 errors**, plus repeatable `fu_core + fu_retail + fu_preorder` upgrade. This includes the five isolated direct-native-mutation regressions and ordinary POS free-stock/reservation/replay boundary. The stock guards were added at `248e77e6d66fd8d2cf630b07708f32159b90bec4`; later fixes repair the POS test fixture and payload for pinned Odoo. The full combined gate is restored for that server checkpoint; diagnostic-only green runs are not substituted for it.
 
-See `docs/validation/PHASE_2B_PREORDER_COLLECTION.md` for exact-head results and retained red history. Documentation after this tested head does not represent a newer application implementation.
+### Current Phase 2B UI diagnostic state — 2026-09-11
+
+UI implementation and hosted debugging continued after the server checkpoint. Important implementation/test corrections include the owner-context hosted fixture fix at `db3764e426711cfb4b3c6b80e4d686ff07aa4d2e`, Arabic selection occurrence metadata at `5bfecb5c1904354b0daf46c349ea54caee8f084c`, the awaited collection-dialog footer action at `a0941519c268964f0b16f5c2c1451af987b0d3f9`, and later Arabic collection-action synchronization at `434a4f5add4f6acebae31b57a7cd7721f3c353f5`.
+
+Current branch head before this documentation update is diagnostic commit `09ac573b639b8d6a36fff15538b138e687313cdd` (`ci(preorder): add Arabic control-group UI tests`). It is **not** a verified application head. Diagnostic run `34536257546` is red: native/core Arabic stock/product control jobs pass, while the Phase 2B Arabic payment and collection method jobs fail. Payment job `103068452209` fails exactly with `Error: Record payment action missing` before its dialog opens. This evidence rules out a generic Arabic translation/RTL failure and moves the remaining investigation to Phase 2B header action discovery/render synchronization. Collection job `103068452331` must be read once for its exact current error before changing that path; do not infer it from payment.
+
+Payment diagnostic artifact `phase2b-ui-method-payment-ar-09ac573b639b8d6a36fff15538b138e687313cdd` is ID `10175619112`, digest `sha256:10e9d1e429e09fca0fdc22816d0194095b584c89dc265ecf859f800c2edcd766`. These diagnostic artifacts are temporary evidence and do not replace a final green acceptance artifact.
+
+Do **not** return to the disproven translation/footer-race loop. The next fix should inspect how the Phase 2B native header actions are actually rendered in pinned Odoo 19, use a stable semantic/action selector or render wait as appropriate, and keep a separate Arabic-label assertion plus the existing keyboard-focus/RTL coverage. After the isolated payment/collection methods are green, rerun the authoritative combined Phase 1 + 2A + 2B workflow and repeatable upgrade. Remove the temporary diagnostic workflow only after it is no longer needed, then record the exact green application SHA/run/job/artifact/screenshots before Phase 2B closure.
+
+See `docs/validation/PHASE_2B_PREORDER_COLLECTION.md` for exact-head results and retained red history. Documentation after tested application heads does not itself represent newer tested application code.
 
 One retail store, one storage location and one checkout per store remain confirmed. Numeric product/transaction volumes remain unavailable and must not be invented. Launch date and service budget remain deployment-time decisions.
 
@@ -90,22 +100,24 @@ One retail store, one storage location and one checkout per store remain confirm
 3. Phase 0B: architecture/data/UI foundation — complete; modern/practical operational visual direction approved.
 4. Phase 1: products, finished-stock movements, access controls, opening inventory and bilingual native internal UI — complete; hosted technical gates pass.
 5. Phase 2A: ordinary retail stock checkout, Cash/confirmed-InstaPay recording and durable offline reconciliation — complete; hosted technical gates pass.
-6. Phase 2B: school-uniform preorder, deposit/balance and partial collection — policy gates recorded; server and reservation/security boundary verified at `2816a8cbe1dce703ae0310b242d34ef92f0c6928`; native preorder UI/rendered exit gates remain outstanding.
+6. Phase 2B: school-uniform preorder, deposit/balance and partial collection — policy gates recorded; server and reservation/security boundary verified at `2816a8cbe1dce703ae0310b242d34ef92f0c6928`; native preorder UI implemented; final rendered payment/collection action discovery and acceptance gates remain outstanding.
 7. Later retail slice: refund/exchange execution and its unresolved settlement/returned-stock policy.
 8. Production/business workflows, public catalog/reports, then integrated onboarding/UAT/deployment in bounded contracts.
 
 ## Immediate next action
 
-**Do not reopen Phase 2A implementation debugging unless new evidence or a later upstream Odoo change invalidates its green boundary.**
+**Do not reopen Phase 2A implementation debugging or the already-disproved Phase 2B Arabic translation/footer-race theories unless new evidence explicitly invalidates those results.**
 
 1. Keep Phase 2A PR #4 draft and unmerged until explicit authorization and stacked-base readiness.
 2. Do not repeat the Phase 2B pinned-Odoo model investigation; `docs/architecture/PHASE_2B_PREORDER_MODEL.md` owns that result.
 3. Preserve the historical green and red checkpoints in validation evidence; current server/security authority is `2816a8cbe1dce703ae0310b242d34ef92f0c6928`, run `34428218381`.
 4. Preserve D-014 and the accepted policy decisions; do not re-ask resolved questions.
-5. The direct native-mutation and reservation-versus-ordinary-POS blocking issue is resolved by the current full hosted gate. Do not repeat the completed bisection.
-6. Next implement the bounded native preorder UI for creation, payment, readiness and collection, with online-only failure handling and EN/AR RTL rendered/interaction validation required by the phase contract.
-7. Keep the combined Phase 1/2A/2B hosted regression and repeatable-upgrade gate for subsequent implementation changes.
-8. Continue to use native Odoo/Owl for operational ERP behavior, keep native Odoo records authoritative and follow prebuilt-first UI rules.
+5. Treat current diagnostic head `09ac573b639b8d6a36fff15538b138e687313cdd` and run `34536257546` as red diagnostic evidence, not application verification.
+6. Fetch collection-Arabic job `103068452331` once and record its exact failure. Payment-Arabic job `103068452209` is already established as `Record payment action missing`; do not loop on that log.
+7. Inspect the actual pinned-Odoo rendering of the Phase 2B header method actions and update the browser test/interaction to wait for or select the stable semantic action while independently asserting the Arabic label and retaining keyboard-focus/RTL evidence. Do not weaken localization coverage.
+8. When the isolated payment/collection UI cases are green, rerun the authoritative combined Phase 1 + 2A + 2B hosted regression and repeatable-addon-upgrade gate.
+9. After that exact application SHA is green, remove the temporary Phase 2B diagnostic workflow, update the phase/validation/project closeout evidence, and only then mark Phase 2B complete. No PR merge without explicit client authorization.
+10. Continue to use native Odoo/Owl for operational ERP behavior, keep native Odoo records authoritative and follow prebuilt-first UI rules.
 
 Do not reopen product-design separation, factory-finished custody, size-system variability, sequential item codes, full-balance-before-partial-collection or the operational visual direction unless the client changes those decisions.
 
