@@ -15,26 +15,84 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  bilingual-browser-case:
-    name: Browser ${{ matrix.label }}
+  arabic-selection-metadata:
+    name: Arabic selection metadata
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: phase2b-only
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+    steps:
+      - name: Checkout Fares exact head
+        uses: actions/checkout@v5
+
+      - name: Checkout pinned Odoo Community 19
+        uses: actions/checkout@v5
+        with:
+          repository: odoo/odoo
+          ref: ${{ env.ODOO_SHA }}
+          path: upstream
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Odoo dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev zlib1g-dev
+          python -m pip install -r upstream/requirements.txt
+          sudo npm install --global rtlcss@4.3.0
+
+      - name: Install addons without tests
+        run: |
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag_metadata \
+            -i fu_core,fu_retail,fu_preorder \
+            --stop-after-init --http-interface=127.0.0.1
+
+      - name: Arabic partially-collected selection resolves server-side
+        run: |
+          python upstream/odoo-bin shell \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag_metadata \
+            --no-http <<'PY'
+          from odoo.addons.fu_core.tests.visual_capture import install_arabic
+
+          admin = env.ref("base.user_admin")
+          install_arabic(env, admin)
+          metadata = env["sale.order"].with_context(lang="ar_001").fields_get(["fu_collection_state"])
+          selection = dict(metadata["fu_collection_state"]["selection"])
+          actual = selection.get("partially_collected")
+          expected = "تم الاستلام جزئيًا"
+          print(f"partially_collected={actual!r}")
+          if actual != expected:
+              raise AssertionError(f"Expected Arabic selection {expected!r}, got {actual!r}")
+          PY
+
+  collection-browser-checkpoint:
+    name: Collection AR ${{ matrix.checkpoint }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - label: create-en
-            test: test_preorder_creation_english_online_guard
-          - label: create-ar
-            test: test_preorder_creation_arabic_rtl_online_guard
-          - label: payment-en
-            test: test_preorder_payment_english_online_guard
-          - label: payment-ar
-            test: test_preorder_payment_arabic_rtl_online_guard
-          - label: readiness-en
-            test: test_preorder_readiness_allocation_english
-          - label: collection-ar
-            test: test_preorder_partial_collection_arabic_rtl
+        checkpoint: [form, state, button, dialog, focus]
     services:
       postgres:
         image: postgres:16
@@ -49,6 +107,7 @@ jobs:
     env:
       ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
       CHROME_BIN: /usr/bin/google-chrome
+      CHECKPOINT: ${{ matrix.checkpoint }}
     steps:
       - name: Checkout Fares exact head
         uses: actions/checkout@v5
@@ -76,8 +135,45 @@ jobs:
           mkdir -p evidence/screenshots
           printf 'fares_head=%s\n' "$GITHUB_SHA" > evidence/runtime.txt
           printf 'odoo_head=%s\n' "$(git -C upstream rev-parse HEAD)" >> evidence/runtime.txt
+          printf 'checkpoint=%s\n' "$CHECKPOINT" >> evidence/runtime.txt
 
-      - name: Run ${{ matrix.test }}
+      - name: Instrument progressive collection checkpoint
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path("addons/fu_preorder/tests/test_ui.py")
+          text = path.read_text()
+          checkpoint = os.environ["CHECKPOINT"]
+          state_anchor = "if (!form || !form.innerText.includes('تم الاستلام جزئيًا')) throw new Error('Arabic partial-collection state missing');"
+          button_anchor = "if (!actionButton) throw new Error('Arabic collection action missing');"
+          dialog_anchor = "if (!dialog.innerText.includes('الأصناف الجاهزة')) throw new Error('Arabic ready-items context missing');"
+
+          if checkpoint == "form":
+              replacement = "if (!form) throw new Error('Arabic preorder form missing');\n                console.log('test successful'); return;"
+              if state_anchor not in text:
+                  raise AssertionError("state checkpoint anchor missing")
+              text = text.replace(state_anchor, replacement, 1)
+          elif checkpoint == "state":
+              if state_anchor not in text:
+                  raise AssertionError("state checkpoint anchor missing")
+              text = text.replace(state_anchor, state_anchor + "\n                console.log('test successful'); return;", 1)
+          elif checkpoint == "button":
+              if button_anchor not in text:
+                  raise AssertionError("button checkpoint anchor missing")
+              text = text.replace(button_anchor, button_anchor + "\n                console.log('test successful'); return;", 1)
+          elif checkpoint == "dialog":
+              if dialog_anchor not in text:
+                  raise AssertionError("dialog checkpoint anchor missing")
+              text = text.replace(dialog_anchor, dialog_anchor + "\n                console.log('test successful'); return;", 1)
+          elif checkpoint != "focus":
+              raise AssertionError(f"Unknown checkpoint: {checkpoint}")
+
+          path.write_text(text)
+          PY
+
+      - name: Run collection Arabic checkpoint ${{ matrix.checkpoint }}
         run: |
           set -o pipefail
           python upstream/odoo-bin \
@@ -85,7 +181,7 @@ jobs:
             --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
             -d fares_phase2b_diag_browser \
             -i fu_core,fu_retail,fu_preorder \
-            --test-enable --test-tags='/fu_preorder:TestFaresPreorderBilingualUI.${{ matrix.test }}' \
+            --test-enable --test-tags='/fu_preorder:TestFaresPreorderBilingualUI.test_preorder_partial_collection_arabic_rtl' \
             --screenshots=evidence/screenshots \
             --stop-after-init --http-interface=127.0.0.1 \
             2>&1 | tee evidence/browser.log
@@ -94,12 +190,12 @@ jobs:
         if: always()
         run: |
           {
-            echo '## Phase 2B browser diagnostic: ${{ matrix.label }}'
+            echo '## Phase 2B collection Arabic checkpoint: ${{ matrix.checkpoint }}'
             echo
             cat evidence/runtime.txt 2>/dev/null || true
             echo
             echo '### Failure and browser lines'
-            grep -E 'ERROR|FAIL|Traceback|AssertionError|test successful|browser|Chrome|screenshot|${{ matrix.test }}' evidence/browser.log 2>/dev/null | tail -n 120 || true
+            grep -E 'ERROR|FAIL|Traceback|AssertionError|test successful|browser|Chrome|screenshot|test_preorder_partial_collection_arabic_rtl' evidence/browser.log 2>/dev/null | tail -n 120 || true
             echo
             echo '### Hosted screenshots'
             find evidence/screenshots -type f -maxdepth 3 -printf '%P\n' 2>/dev/null | sort || true
@@ -109,6 +205,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase2b-ui-${{ matrix.label }}-${{ github.sha }}
+          name: phase2b-ui-collection-ar-${{ matrix.checkpoint }}-${{ github.sha }}
           path: evidence/
           retention-days: 2
