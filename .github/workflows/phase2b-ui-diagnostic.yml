@@ -5,6 +5,7 @@ on:
     branches: ["phase-2b/preorder-balance-collection"]
     paths:
       - ".github/workflows/phase2b-ui-diagnostic.yml"
+      - "addons/fu_preorder/tests/**"
   workflow_dispatch:
 
 permissions:
@@ -15,14 +16,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  collection-ar-post-fix:
-    name: Collection AR post-fix ${{ matrix.checkpoint }}
+  collection-ar-sequence:
+    name: Collection AR sequence ${{ matrix.checkpoint }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        checkpoint: [submit-nocapture, focus-nocapture, full-capture]
+        checkpoint:
+          - action-found
+          - dialog-opened
+          - ready-context
+          - submit-found
+          - focus
+          - full-capture
     services:
       postgres:
         image: postgres:16
@@ -67,7 +74,7 @@ jobs:
           printf 'odoo_head=%s\n' "$(git -C upstream rev-parse HEAD)" >> evidence/runtime.txt
           printf 'checkpoint=%s\n' "$CHECKPOINT" >> evidence/runtime.txt
 
-      - name: Instrument current post-fix checkpoint
+      - name: Instrument collection checkpoint
         run: |
           python - <<'PY'
           import os
@@ -77,31 +84,38 @@ jobs:
           text = path.read_text()
           checkpoint = os.environ["CHECKPOINT"]
 
-          submit_anchor = "const submit = await waitFor('.o_dialog button[name=\"action_collect\"]');"
+          anchors = {
+              "action-found": "const actionButton = await waitForButtonText('تسجيل الاستلام');",
+              "dialog-opened": "const dialog = await waitFor('.o_dialog');",
+              "ready-context": "if (!dialog.innerText.includes('الأصناف الجاهزة')) throw new Error('Arabic ready-items context missing');",
+              "submit-found": "const submit = await waitFor('.o_dialog button[name=\"action_collect\"]');",
+              "focus": "if (document.activeElement !== submit) throw new Error('Collection action cannot receive keyboard focus');",
+          }
           capture_anchor = 'with capture_views("preorder_collection_ar", rtl=True):'
 
-          if submit_anchor not in text:
-              raise AssertionError("current awaited collection submit anchor missing")
           if capture_anchor not in text:
               raise AssertionError("collection capture anchor missing")
 
-          if checkpoint == "submit-nocapture":
+          if checkpoint == "full-capture":
+              pass
+          elif checkpoint in anchors:
+              anchor = anchors[checkpoint]
+              if anchor not in text:
+                  raise AssertionError(f"collection checkpoint anchor missing: {checkpoint}")
               text = text.replace(
-                  submit_anchor,
-                  submit_anchor + "\n                console.log('test successful'); return;",
+                  anchor,
+                  anchor + "\n                console.log('test successful'); return;",
                   1,
               )
-
-          if checkpoint in {"submit-nocapture", "focus-nocapture"}:
               text = "from contextlib import nullcontext\n" + text
               text = text.replace(capture_anchor, "with nullcontext():", 1)
-          elif checkpoint != "full-capture":
+          else:
               raise AssertionError(f"Unknown checkpoint: {checkpoint}")
 
           path.write_text(text)
           PY
 
-      - name: Run collection Arabic post-fix ${{ matrix.checkpoint }}
+      - name: Run collection Arabic ${{ matrix.checkpoint }}
         run: |
           set -o pipefail
           python upstream/odoo-bin \
@@ -118,7 +132,7 @@ jobs:
         if: always()
         run: |
           {
-            echo '## Phase 2B collection Arabic post-fix: ${{ matrix.checkpoint }}'
+            echo '## Phase 2B collection Arabic sequence: ${{ matrix.checkpoint }}'
             echo
             cat evidence/runtime.txt 2>/dev/null || true
             echo
@@ -133,6 +147,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase2b-ui-collection-post-fix-${{ matrix.checkpoint }}-${{ github.sha }}
+          name: phase2b-ui-collection-sequence-${{ matrix.checkpoint }}-${{ github.sha }}
           path: evidence/
           retention-days: 2
