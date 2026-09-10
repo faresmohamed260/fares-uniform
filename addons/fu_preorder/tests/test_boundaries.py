@@ -174,7 +174,9 @@ class TestPreorderPOSReservationBoundary(CommonPosTest):
                 "fu_stock_location_ids": [Command.set([self.store.id])],
             }
         )
-        self.open_new_session()
+        if not self.config.current_session_id:
+            self.config.open_ui()
+        self.assertTrue(self.config.current_session_id, "POS test config must have an open session")
 
         self.product = self.env["product.product"].create(
             {
