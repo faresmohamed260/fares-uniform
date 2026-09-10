@@ -81,8 +81,49 @@ The current POS regression seeds two store units and reserves one: ordinary POS 
 
 Artifact `phase2b-preorder-2816a8cbe1dce703ae0310b242d34ef92f0c6928`: ID `10133552960`, digest `sha256:f3913b42d90e1dfbd75102c8eadc77fa445bc6622bbe5360e42679bb67825fcb`. Run/job metadata, decoded hosted logs, workflow source and artifact metadata were reviewed remotely. Earlier diagnostic failures remain in GitHub history; the narrower green diagnostic run `34427854358` is not the full-gate authority.
 
+## UI implementation and hosted diagnostic checkpoint — 2026-09-11
+
+The native Phase 2B operational UI is implemented. It uses the existing Odoo model as authority and adds a read-only preorder workspace plus transient create, payment, readiness-allocation and collection wizards. The browser-facing online guard fails Phase 2B mutations closed during connectivity loss. Arabic translations and RTL validation remain part of the exit contract.
+
+Important UI/test lineage retained for audit:
+- `a84d1d157269df270781e82b1e23649465646b17` — initial native preorder operations UI;
+- `1a07f16731555b9f1188fa32c599e8b8580a228e` — UI search-control correction;
+- `db3764e426711cfb4b3c6b80e4d686ff07aa4d2e` — hosted browser fixture setup runs guarded preorder operations as Owner/admin rather than weakening production authorization;
+- `5bfecb5c1904354b0daf46c349ea54caee8f084c` — Odoo selection-translation occurrence metadata;
+- `a0941519c268964f0b16f5c2c1451af987b0d3f9` — collection dialog footer lookup waits for `button[name="action_collect"]` instead of querying immediately after the dialog shell appears;
+- `434a4f5add4f6acebae31b57a7cd7721f3c353f5` — later Arabic collection header-action render synchronization;
+- `09ac573b639b8d6a36fff15538b138e687313cdd` — current pre-documentation diagnostic head, adding Arabic control-group comparisons. This is diagnostic-only and is not a green application authority.
+
+The latest hosted diagnostic run is [34536257546](https://github.com/faresmohamed260/fares-uniform/actions/runs/34536257546) at exact head `09ac573b639b8d6a36fff15538b138e687313cdd`: **FAILURE**.
+
+Current method/control evidence:
+- `UI method core-stock-ar`, job `103068451701`: **SUCCESS**;
+- `UI method core-product-ar`, job `103068452590`: **SUCCESS**;
+- `UI method payment-ar`, job `103068452209`: **FAILURE**;
+- `UI method collection-ar`, job `103068452331`: **FAILURE**.
+
+The completed payment-Arabic job log establishes the exact browser error: **`Error: Record payment action missing`**. The page is loaded in Arabic (`ar_001`), the `fu_preorder` Arabic catalog is loaded, the order form satisfies the ready condition and the failure occurs before the payment dialog opens, when the test searches rendered buttons by visible Arabic text. This is not evidence of a generic Arabic/RTL failure: the current run's native/core Arabic stock/product controls pass.
+
+Payment diagnostic artifact `phase2b-ui-method-payment-ar-09ac573b639b8d6a36fff15538b138e687313cdd`: ID `10175619112`, digest `sha256:10e9d1e429e09fca0fdc22816d0194095b584c89dc265ecf859f800c2edcd766`.
+
+The exact current `collection-ar` failure has **not yet been recorded here**. The next session must fetch job `103068452331` once and use that actual log; do not assume it matches payment merely because both jobs are red.
+
+### Conclusions that must not be reopened without contradictory evidence
+
+Previous hosted isolation already showed that Arabic selection metadata and the rendered partial-collection state work, the collection dialog can open, and the awaited collection dialog footer control was a real synchronization correction. The current control-group evidence additionally shows that native/core Arabic control rendering works. Therefore do not return to repeated PO translation edits, generic RTL theories, or the already-fixed immediate-dialog-footer query as default explanations.
+
+The active problem is now **Phase 2B header method-action discovery/render synchronization**. Inspect how the buttons defined by the Phase 2B native view are rendered by pinned Odoo 19. Prefer a stable semantic/action selector or a deliberate render wait to visible-text-only discovery, while preserving a separate assertion that the presented label is correctly Arabic. Keep the keyboard-focus and RTL capture assertions; a test synchronization fix must not weaken localization or accessibility coverage.
+
 ## Remaining phase gates
 
-The current server/security blocking issue is resolved and the branch is ready for the next planned work item: bounded native preorder UI plus EN/AR RTL rendered/interaction validation, including online-only failure handling. Phase 2B remains incomplete until those phase-contract gates pass. The current green server/retained-regression gate does not prove a preorder UI that has not been implemented. No deployment, real data migration, refund/exchange behavior or merge occurred.
+Phase 2B remains incomplete. The next technical sequence is:
+1. read `collection-ar` job `103068452331` once and record its exact current failure;
+2. inspect the actual rendered/defined payment and collection header actions against pinned Odoo 19 and apply the smallest evidence-supported synchronization/selector fix;
+3. rerun the affected hosted UI methods until payment/collection pass without weakening Arabic-label, keyboard-focus, online-guard or RTL assertions;
+4. rerun the authoritative combined `/fu_core,/fu_retail,/fu_preorder` Phase 1 + Phase 2A + Phase 2B gate at one exact application SHA;
+5. require the repeatable `fu_core + fu_retail + fu_preorder` addon upgrade to pass;
+6. require final hosted screenshot/evidence artifact upload;
+7. remove the temporary Phase 2B diagnostic workflow after it is no longer needed;
+8. update this validation record and the phase/project status with the exact tested application SHA, run, job, artifact, digest and screenshot paths before marking Phase 2B complete.
 
-The handoff correction changes documentation only. Read-back and consistency checks apply; the exact tested application/workflow authority remains `2816a8cbe1dce703ae0310b242d34ef92f0c6928`.
+The fully verified server/security authority remains `2816a8cbe1dce703ae0310b242d34ef92f0c6928`, run `34428218381`, job `102717890627`. Later UI/diagnostic commits do not supersede that authority until the complete acceptance gate passes. Documentation commits after the diagnostic head likewise do not represent a newer tested application implementation. No deployment, real data migration, refund/exchange behavior or merge occurred.
