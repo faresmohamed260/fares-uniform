@@ -449,10 +449,19 @@ class TestFaresPreorderBilingualUI(HttpCase):
                     }
                     throw new Error('Timed out waiting for ' + selector);
                 };
+                const waitForButtonText = async (text) => {
+                    for (let i = 0; i < 100; i++) {
+                        const node = [...document.querySelectorAll('button')].find(
+                            button => button.innerText.includes(text)
+                        );
+                        if (node) return node;
+                        await sleep(50);
+                    }
+                    throw new Error('Timed out waiting for button text: ' + text);
+                };
                 const form = document.querySelector('.o_form_view');
                 if (!form || !form.innerText.includes('تم الاستلام جزئيًا')) throw new Error('Arabic partial-collection state missing');
-                const actionButton = [...document.querySelectorAll('button')].find(button => button.innerText.includes('تسجيل الاستلام'));
-                if (!actionButton) throw new Error('Arabic collection action missing');
+                const actionButton = await waitForButtonText('تسجيل الاستلام');
                 actionButton.click();
                 const dialog = await waitFor('.o_dialog');
                 if (!dialog.innerText.includes('الأصناف الجاهزة')) throw new Error('Arabic ready-items context missing');
