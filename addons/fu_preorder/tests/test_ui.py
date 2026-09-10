@@ -456,8 +456,7 @@ class TestFaresPreorderBilingualUI(HttpCase):
                 actionButton.click();
                 const dialog = await waitFor('.o_dialog');
                 if (!dialog.innerText.includes('الأصناف الجاهزة')) throw new Error('Arabic ready-items context missing');
-                const submit = dialog.querySelector('button[name="action_collect"]');
-                if (!submit) throw new Error('Collection submit action missing');
+                const submit = await waitFor('.o_dialog button[name="action_collect"]');
                 submit.focus();
                 if (document.activeElement !== submit) throw new Error('Collection action cannot receive keyboard focus');
                 console.log('test successful');
