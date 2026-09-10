@@ -294,13 +294,13 @@ class TestFaresPreorderBilingualUI(HttpCase):
 
     @classmethod
     def _create_order(cls, lines):
-        order_id = cls.env["sale.order"].fu_create_preorder(
+        order_id = cls.env["sale.order"].with_user(cls.admin).fu_create_preorder(
             cls.partner.id,
             fields.Datetime.now() + timedelta(days=14),
             lines,
             cls.store.id,
         )
-        return cls.env["sale.order"].browse(order_id)
+        return cls.env["sale.order"].with_user(cls.admin).browse(order_id)
 
     def _set_language(self, arabic):
         if arabic:
