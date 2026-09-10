@@ -153,6 +153,45 @@ jobs:
             --stop-after-init --http-interface=127.0.0.1 \
             2>&1 | tee evidence/diagnostic-pos-reservation.log
 
+      - name: Diagnostic fu_core suite
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag -u fu_core \
+            --test-enable --test-tags='/fu_core' \
+            --screenshots=evidence/screenshots \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/diagnostic-fu-core.log
+
+      - name: Diagnostic fu_retail suite
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag -u fu_retail \
+            --test-enable --test-tags='/fu_retail' \
+            --screenshots=evidence/screenshots \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/diagnostic-fu-retail.log
+
+      - name: Diagnostic fu_preorder suite
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
+            -d fares_phase2b_diag -u fu_preorder \
+            --test-enable --test-tags='/fu_preorder' \
+            --screenshots=evidence/screenshots \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/diagnostic-fu-preorder.log
+
       - name: Install addons and run Phase 1 plus Phase 2A plus Phase 2B tests
         run: |
           set -o pipefail
