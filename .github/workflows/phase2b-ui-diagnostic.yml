@@ -24,18 +24,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - label: core-product-ar
+            test_tag: /fu_core:TestFaresBilingualUI.test_product_lookup_arabic_rtl
+          - label: core-stock-ar
+            test_tag: /fu_core:TestFaresBilingualUI.test_stock_operation_arabic_rtl
           - label: creation-en
-            selector: test_preorder_creation_english_online_guard
+            test_tag: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_creation_english_online_guard
           - label: creation-ar
-            selector: test_preorder_creation_arabic_rtl_online_guard
+            test_tag: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_creation_arabic_rtl_online_guard
           - label: payment-en
-            selector: test_preorder_payment_english_online_guard
+            test_tag: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_payment_english_online_guard
           - label: payment-ar
-            selector: test_preorder_payment_arabic_rtl_online_guard
+            test_tag: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_payment_arabic_rtl_online_guard
           - label: allocation-en
-            selector: test_preorder_readiness_allocation_english
+            test_tag: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_readiness_allocation_english
           - label: collection-ar
-            selector: test_preorder_partial_collection_arabic_rtl
+            test_tag: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_partial_collection_arabic_rtl
     services:
       postgres:
         image: postgres:16
@@ -78,7 +82,7 @@ jobs:
           printf 'fares_head=%s\n' "$GITHUB_SHA" > evidence/runtime.txt
           printf 'odoo_head=%s\n' "$(git -C upstream rev-parse HEAD)" >> evidence/runtime.txt
           printf 'label=%s\n' '${{ matrix.label }}' >> evidence/runtime.txt
-          printf 'selector=%s\n' '${{ matrix.selector }}' >> evidence/runtime.txt
+          printf 'test_tag=%s\n' '${{ matrix.test_tag }}' >> evidence/runtime.txt
 
       - name: Run ${{ matrix.label }}
         run: |
@@ -88,7 +92,7 @@ jobs:
             --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
             -d fares_phase2b_diag_${{ strategy.job-index }} \
             -i fu_core,fu_retail,fu_preorder \
-            --test-enable --test-tags='/fu_preorder:TestFaresPreorderBilingualUI.${{ matrix.selector }}' \
+            --test-enable --test-tags='${{ matrix.test_tag }}' \
             --screenshots=evidence/screenshots \
             --stop-after-init --http-interface=127.0.0.1 \
             2>&1 | tee evidence/browser.log
@@ -102,7 +106,7 @@ jobs:
             cat evidence/runtime.txt 2>/dev/null || true
             echo
             echo '### Failure/browser lines'
-            grep -E 'ERROR|FAIL|Traceback|AssertionError|test successful|browser|Chrome|screenshot|TestFaresPreorderBilingualUI' evidence/browser.log 2>/dev/null | tail -n 200 || true
+            grep -E 'ERROR|FAIL|Traceback|AssertionError|test successful|browser|Chrome|screenshot|TestFares(Bilingual|PreorderBilingual)UI' evidence/browser.log 2>/dev/null | tail -n 200 || true
             echo
             echo '### Hosted screenshots'
             find evidence/screenshots -type f -maxdepth 3 -printf '%P\n' 2>/dev/null | sort || true
