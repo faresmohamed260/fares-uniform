@@ -1,6 +1,6 @@
 # Phase 2B — School-uniform preorder, balance and collection
 
-Status: **SERVER FOUNDATION / HOSTED GATE PASS; PHASE INCOMPLETE, 2026-09-10.**
+Status: **SERVER FOUNDATION AND RESERVATION/SECURITY BOUNDARY / HOSTED GATE PASS; PHASE INCOMPLETE, 2026-09-10.**
 
 The policy questions below are retained as historical planning context. Their accepted answers are authoritative in [Phase 2B policy decisions](../requirements/PHASE_2B_POLICY_DECISIONS.md). Current client direction explicitly authorizes continued remote development and hosted debugging of the existing branch, without merge.
 
@@ -217,6 +217,6 @@ Phase 2B can close only when:
 
 ## Execution state
 
-**SERVER FOUNDATION HOSTED GATE PASS; PHASE INCOMPLETE.**
+**SERVER FOUNDATION AND RESERVATION/SECURITY BOUNDARY HOSTED GATE PASS; PHASE INCOMPLETE.**
 
-Do not reopen Phase 0 or Phase 2A. Use the recorded policy decisions and continue the smallest Odoo-native Phase 2B slice. Exact-head evidence and remaining gates are owned by `docs/validation/PHASE_2B_PREORDER_COLLECTION.md`. A server test pass alone does not close the UI, authorization or allocation/POS interaction gates.
+Do not reopen Phase 0 or Phase 2A. Use the recorded policy decisions and continue the smallest Odoo-native Phase 2B slice. Exact-head evidence and remaining gates are owned by `docs/validation/PHASE_2B_PREORDER_COLLECTION.md`. The full combined hosted gate at `2816a8cbe1dce703ae0310b242d34ef92f0c6928` closes the current direct-native-mutation and allocation/POS boundary issue (51 tests and repeatable upgrade pass). Next work is the bounded native preorder UI and EN/AR RTL rendered/interaction validation; server evidence alone does not close those UI gates.

@@ -65,6 +65,24 @@ The failing regression is `TestFaresPreorderSecurityBoundary.test_native_records
 
 Because the exact-head gate is red, this run does **not** validate the new reservation-versus-POS guard as complete even though that guard is present in the code. Keep the last green server checkpoint `afe867a742173a8801d4e30c0607a1d6fde4ed08` distinct from this newer red application/test checkpoint.
 
+## Current verified reservation/security checkpoint
+
+Remote branch verified on 2026-09-10: `phase-2b/preorder-balance-collection`, exact implementation HEAD `2816a8cbe1dce703ae0310b242d34ef92f0c6928`. GitHub's default branch remains `main` at `0e75d9a067eb741d77fdac1de03bc6c17fc80858`; it is not the active Phase 2B implementation branch.
+
+The active branch is 11 commits ahead of prior documentation handoff `65bba31aa53f374acb1e99b508db64cd61b15972`. Current remote source and hosted logs supersede that stale red handoff:
+- `248e77e6d66fd8d2cf630b07708f32159b90bec4` adds create/write/unlink guards for linked native preorder pickings and moves. Ordinary non-elevated native mutation is denied; approved service execution remains elevated after its business checks.
+- `1102cc6ddc8225dbc6a8985dfa116f3e2896f0e7` isolates the Sales Order, Sales line, payment, picking and move denial tests.
+- `552ac8e3ca468a314b44c83342bfccc372b0a381`, `04164dc70b9d666543d20c698167893d0bbb5414` and `eb48586d37d994841c0a2603d8de52ddfa6f75b8` make the POS fixture deterministic, use the pinned session API and supply a self-contained synchronization payload.
+- `2816a8cbe1dce703ae0310b242d34ef92f0c6928` restores the full combined validation workflow after diagnostic bisection.
+
+[Run 34428218381](https://github.com/faresmohamed260/fares-uniform/actions/runs/34428218381), [job 102717890627](https://github.com/faresmohamed260/fares-uniform/actions/runs/34428218381/job/102717890627), tested that exact HEAD: **SUCCESS — 0 failed, 0 errors out of 51 tests**. The hosted job log explicitly records all five isolated direct-mutation tests and `TestPreorderPOSReservationBoundary.test_pos_can_sell_only_free_stock_and_replay_cannot_consume_reservation`. The combined `/fu_core,/fu_retail,/fu_preorder` gate and repeatable addon upgrade both pass on pinned Odoo `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
+
+The current POS regression seeds two store units and reserves one: ordinary POS sells the free unit, a second sale against the reserved unit is rejected and rolled back, and replay of the first UUID keeps one order/picking while the preorder reservation remains assigned. This is the actual current fixture, superseding the older three-unit description above.
+
+Artifact `phase2b-preorder-2816a8cbe1dce703ae0310b242d34ef92f0c6928`: ID `10133552960`, digest `sha256:f3913b42d90e1dfbd75102c8eadc77fa445bc6622bbe5360e42679bb67825fcb`. Run/job metadata, decoded hosted logs, workflow source and artifact metadata were reviewed remotely. Earlier diagnostic failures remain in GitHub history; the narrower green diagnostic run `34427854358` is not the full-gate authority.
+
 ## Remaining phase gates
 
-Phase 2B remains incomplete. First close the direct native-mutation authorization gap and rerun the exact-head hosted Phase 2B gate so the same run proves the reservation-versus-ordinary-POS boundary and repeatable addon upgrade. After that server/security boundary is green, continue the phase contract's bounded native preorder UI plus EN/AR RTL rendered/interaction validation. No deployment, real data migration, refund/exchange behavior or merge is implied.
+The current server/security blocking issue is resolved and the branch is ready for the next planned work item: bounded native preorder UI plus EN/AR RTL rendered/interaction validation, including online-only failure handling. Phase 2B remains incomplete until those phase-contract gates pass. The current green server/retained-regression gate does not prove a preorder UI that has not been implemented. No deployment, real data migration, refund/exchange behavior or merge occurred.
+
+The handoff correction changes documentation only. Read-back and consistency checks apply; the exact tested application/workflow authority remains `2816a8cbe1dce703ae0310b242d34ef92f0c6928`.
