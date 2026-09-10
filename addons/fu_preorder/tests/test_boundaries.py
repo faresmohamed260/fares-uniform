@@ -137,6 +137,7 @@ class TestPreorderPOSReservationBoundary(CommonPosTest):
     def setUp(self):
         super().setUp()
         self.env.user.group_ids += self.env.ref("fu_core.group_fu_owner_admin")
+        self.env["stock.location"]._fu_configure_initial_locations()
         self.store = self.env["stock.location"].search(
             [
                 ("company_id", "=", self.env.company.id),
@@ -144,6 +145,7 @@ class TestPreorderPOSReservationBoundary(CommonPosTest):
             ],
             limit=1,
         )
+        self.assertTrue(self.store, "POS test company must have a configured Retail Store")
         self.warehouse = self.env["stock.warehouse"].search(
             [
                 ("company_id", "=", self.env.company.id),
