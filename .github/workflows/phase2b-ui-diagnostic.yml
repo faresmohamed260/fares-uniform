@@ -15,14 +15,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  collection-ar-final-split:
-    name: Collection AR ${{ matrix.checkpoint }}
+  current-ui-isolation:
+    name: Current UI ${{ matrix.case }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        checkpoint: [submit-nocapture, focus-nocapture, capture-dialog]
+        include:
+          - case: contracts
+            tags: /fu_preorder:TestFaresPreorderUIContracts
+          - case: create-en
+            tags: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_creation_english_online_guard
+          - case: create-ar
+            tags: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_creation_arabic_rtl_online_guard
+          - case: payment-en
+            tags: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_payment_english_online_guard
+          - case: payment-ar
+            tags: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_payment_arabic_rtl_online_guard
+          - case: allocation-en
+            tags: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_readiness_allocation_english
+          - case: collection-ar
+            tags: /fu_preorder:TestFaresPreorderBilingualUI.test_preorder_partial_collection_arabic_rtl
+          - case: browser-class
+            tags: /fu_preorder:TestFaresPreorderBilingualUI
     services:
       postgres:
         image: postgres:16
@@ -37,7 +53,6 @@ jobs:
     env:
       ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
       CHROME_BIN: /usr/bin/google-chrome
-      CHECKPOINT: ${{ matrix.checkpoint }}
     steps:
       - name: Checkout Fares exact head
         uses: actions/checkout@v5
@@ -65,65 +80,32 @@ jobs:
           mkdir -p evidence/screenshots
           printf 'fares_head=%s\n' "$GITHUB_SHA" > evidence/runtime.txt
           printf 'odoo_head=%s\n' "$(git -C upstream rev-parse HEAD)" >> evidence/runtime.txt
-          printf 'checkpoint=%s\n' "$CHECKPOINT" >> evidence/runtime.txt
+          printf 'case=%s\n' '${{ matrix.case }}' >> evidence/runtime.txt
+          printf 'tags=%s\n' '${{ matrix.tags }}' >> evidence/runtime.txt
 
-      - name: Instrument final collection split
-        run: |
-          python - <<'PY'
-          import os
-          from pathlib import Path
-
-          path = Path("addons/fu_preorder/tests/test_ui.py")
-          text = path.read_text()
-          checkpoint = os.environ["CHECKPOINT"]
-
-          submit_anchor = "if (!submit) throw new Error('Collection submit action missing');"
-          capture_anchor = 'with capture_views("preorder_collection_ar", rtl=True):'
-
-          if submit_anchor not in text:
-              raise AssertionError("collection submit anchor missing")
-          if capture_anchor not in text:
-              raise AssertionError("collection capture anchor missing")
-
-          if checkpoint in {"submit-nocapture", "capture-dialog"}:
-              text = text.replace(
-                  submit_anchor,
-                  submit_anchor + "\n                console.log('test successful'); return;",
-                  1,
-              )
-
-          if checkpoint in {"submit-nocapture", "focus-nocapture"}:
-              text = "from contextlib import nullcontext\n" + text
-              text = text.replace(capture_anchor, "with nullcontext():", 1)
-          elif checkpoint != "capture-dialog":
-              raise AssertionError(f"Unknown checkpoint: {checkpoint}")
-
-          path.write_text(text)
-          PY
-
-      - name: Run collection Arabic ${{ matrix.checkpoint }}
+      - name: Run current Phase 2B UI case
         run: |
           set -o pipefail
           python upstream/odoo-bin \
             --addons-path=upstream/addons,addons \
             --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
-            -d fares_phase2b_diag_browser \
+            -d fares_phase2b_diag_ui \
             -i fu_core,fu_retail,fu_preorder \
-            --test-enable --test-tags='/fu_preorder:TestFaresPreorderBilingualUI.test_preorder_partial_collection_arabic_rtl' \
+            --test-enable --test-tags='${{ matrix.tags }}' \
             --screenshots=evidence/screenshots \
             --stop-after-init --http-interface=127.0.0.1 \
-            2>&1 | tee evidence/browser.log
+            2>&1 | tee evidence/ui.log
 
       - name: Summarize diagnostic evidence
         if: always()
         run: |
           {
-            echo '## Phase 2B collection Arabic final split: ${{ matrix.checkpoint }}'
+            echo '## Phase 2B current UI isolation: ${{ matrix.case }}'
             echo
             cat evidence/runtime.txt 2>/dev/null || true
             echo
-            echo '### Failure and browser lines'
-            grep -E 'ERROR|FAIL|Traceback|AssertionError|test successful|browser|Chrome|screenshot|test_preorder_partial_collection_arabic_rtl' evidence/browser.log 2>/dev/null | tail -n 160 || true
+            echo '### Failure/browser lines'
+            grep -E 'ERROR|FAIL|Traceback|AssertionError|test successful|browser|Chrome|screenshot|fu_preorder' evidence/ui.log 2>/dev/null | tail -n 200 || true
             echo
             echo '### Hosted screenshots'
             find evidence/screenshots -type f -maxdepth 3 -printf '%P\n' 2>/dev/null | sort || true
@@ -133,6 +115,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase2b-ui-collection-ar-${{ matrix.checkpoint }}-${{ github.sha }}
+          name: phase2b-ui-current-${{ matrix.case }}-${{ github.sha }}
           path: evidence/
           retention-days: 2
