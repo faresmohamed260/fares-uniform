@@ -20,9 +20,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  preorder-fresh-install-bisect:
+  fresh-install-bisect:
+    name: fresh-${{ matrix.suite }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 55
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [fu_core, fu_retail, fu_preorder]
     services:
       postgres:
         image: postgres:16
@@ -65,56 +70,25 @@ jobs:
           mkdir -p evidence/screenshots
           printf 'fares_head=%s\n' "$GITHUB_SHA" > evidence/runtime.txt
           printf 'odoo_head=%s\n' "$(git -C upstream rev-parse HEAD)" >> evidence/runtime.txt
+          printf 'suite=%s\n' "${{ matrix.suite }}" >> evidence/runtime.txt
           python --version >> evidence/runtime.txt
           google-chrome --version >> evidence/runtime.txt
           rtlcss --version >> evidence/runtime.txt
 
-      - name: Fresh install with fu_core tests only
-        id: corefresh
-        continue-on-error: true
+      - name: Fresh install with ${{ matrix.suite }} tests
         run: |
           set -o pipefail
           python upstream/odoo-bin \
             --addons-path=upstream/addons,addons \
             --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
-            -d fares_phase2b_corefresh \
+            -d fares_phase2b_fresh \
             -i fu_core,fu_retail,fu_preorder \
-            --test-enable --test-tags='/fu_core' \
-            --screenshots=evidence/screenshots/core \
+            --test-enable --test-tags='/${{ matrix.suite }}' \
+            --screenshots=evidence/screenshots \
             --stop-after-init --http-interface=127.0.0.1 \
-            2>&1 | tee evidence/fresh-fu-core.log
+            2>&1 | tee evidence/fresh-${{ matrix.suite }}.log
 
-      - name: Fresh install with fu_retail tests only
-        id: retailfresh
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          python upstream/odoo-bin \
-            --addons-path=upstream/addons,addons \
-            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
-            -d fares_phase2b_retailfresh \
-            -i fu_core,fu_retail,fu_preorder \
-            --test-enable --test-tags='/fu_retail' \
-            --screenshots=evidence/screenshots/retail \
-            --stop-after-init --http-interface=127.0.0.1 \
-            2>&1 | tee evidence/fresh-fu-retail.log
-
-      - name: Fresh install with fu_preorder tests only
-        id: preorderfresh
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          python upstream/odoo-bin \
-            --addons-path=upstream/addons,addons \
-            --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
-            -d fares_phase2b_preorderfresh \
-            -i fu_core,fu_retail,fu_preorder \
-            --test-enable --test-tags='/fu_preorder' \
-            --screenshots=evidence/screenshots/preorder \
-            --stop-after-init --http-interface=127.0.0.1 \
-            2>&1 | tee evidence/fresh-fu-preorder.log
-
-      - name: Assert fresh-install diagnostic result is visible
+      - name: Summarize evidence
         if: always()
         run: |
           {
@@ -122,22 +96,13 @@ jobs:
             echo
             cat evidence/runtime.txt 2>/dev/null || true
             echo
-            echo "fu_core=${{ steps.corefresh.outcome }}"
-            echo "fu_retail=${{ steps.retailfresh.outcome }}"
-            echo "fu_preorder=${{ steps.preorderfresh.outcome }}"
-            echo
-            echo '### Summary lines'
-            grep -hE 'tests? in|failures|errors|ERROR|FAIL' evidence/fresh-*.log 2>/dev/null | tail -n 180 || true
+            grep -E 'tests? in|failures|errors|ERROR|FAIL' evidence/fresh-${{ matrix.suite }}.log 2>/dev/null | tail -n 160 || true
           } | tee evidence/summary.md >> "$GITHUB_STEP_SUMMARY"
-
-          test "${{ steps.corefresh.outcome }}" = success
-          test "${{ steps.retailfresh.outcome }}" = success
-          test "${{ steps.preorderfresh.outcome }}" = success
 
       - name: Upload exact-head evidence
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase2b-fresh-bisect-${{ github.sha }}
+          name: phase2b-fresh-${{ matrix.suite }}-${{ github.sha }}
           path: evidence/
           retention-days: 7
