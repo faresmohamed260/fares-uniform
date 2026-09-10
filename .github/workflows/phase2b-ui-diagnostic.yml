@@ -16,20 +16,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  collection-ar-sequence:
-    name: Collection AR sequence ${{ matrix.checkpoint }}
+  bilingual-ui-method:
+    name: UI method ${{ matrix.label }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        checkpoint:
-          - action-found
-          - dialog-opened
-          - ready-context
-          - submit-found
-          - focus
-          - full-capture
+        include:
+          - label: creation-en
+            selector: test_preorder_creation_english_online_guard
+          - label: creation-ar
+            selector: test_preorder_creation_arabic_rtl_online_guard
+          - label: payment-en
+            selector: test_preorder_payment_english_online_guard
+          - label: payment-ar
+            selector: test_preorder_payment_arabic_rtl_online_guard
+          - label: allocation-en
+            selector: test_preorder_readiness_allocation_english
+          - label: collection-ar
+            selector: test_preorder_partial_collection_arabic_rtl
     services:
       postgres:
         image: postgres:16
@@ -44,7 +50,6 @@ jobs:
     env:
       ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
       CHROME_BIN: /usr/bin/google-chrome
-      CHECKPOINT: ${{ matrix.checkpoint }}
     steps:
       - name: Checkout Fares exact head
         uses: actions/checkout@v5
@@ -72,58 +77,18 @@ jobs:
           mkdir -p evidence/screenshots
           printf 'fares_head=%s\n' "$GITHUB_SHA" > evidence/runtime.txt
           printf 'odoo_head=%s\n' "$(git -C upstream rev-parse HEAD)" >> evidence/runtime.txt
-          printf 'checkpoint=%s\n' "$CHECKPOINT" >> evidence/runtime.txt
+          printf 'label=%s\n' '${{ matrix.label }}' >> evidence/runtime.txt
+          printf 'selector=%s\n' '${{ matrix.selector }}' >> evidence/runtime.txt
 
-      - name: Instrument collection checkpoint
-        run: |
-          python - <<'PY'
-          import os
-          from pathlib import Path
-
-          path = Path("addons/fu_preorder/tests/test_ui.py")
-          text = path.read_text()
-          checkpoint = os.environ["CHECKPOINT"]
-
-          anchors = {
-              "action-found": "const actionButton = await waitForButtonText('تسجيل الاستلام');",
-              "dialog-opened": "const dialog = await waitFor('.o_dialog');",
-              "ready-context": "if (!dialog.innerText.includes('الأصناف الجاهزة')) throw new Error('Arabic ready-items context missing');",
-              "submit-found": "const submit = await waitFor('.o_dialog button[name=\"action_collect\"]');",
-              "focus": "if (document.activeElement !== submit) throw new Error('Collection action cannot receive keyboard focus');",
-          }
-          capture_anchor = 'with capture_views("preorder_collection_ar", rtl=True):'
-
-          if capture_anchor not in text:
-              raise AssertionError("collection capture anchor missing")
-
-          if checkpoint == "full-capture":
-              pass
-          elif checkpoint in anchors:
-              anchor = anchors[checkpoint]
-              if anchor not in text:
-                  raise AssertionError(f"collection checkpoint anchor missing: {checkpoint}")
-              text = text.replace(
-                  anchor,
-                  anchor + "\n                console.log('test successful'); return;",
-                  1,
-              )
-              text = "from contextlib import nullcontext\n" + text
-              text = text.replace(capture_anchor, "with nullcontext():", 1)
-          else:
-              raise AssertionError(f"Unknown checkpoint: {checkpoint}")
-
-          path.write_text(text)
-          PY
-
-      - name: Run collection Arabic ${{ matrix.checkpoint }}
+      - name: Run ${{ matrix.label }}
         run: |
           set -o pipefail
           python upstream/odoo-bin \
             --addons-path=upstream/addons,addons \
             --db_host=127.0.0.1 --db_user=odoo --db_password=phase2b-only \
-            -d fares_phase2b_diag_collection \
+            -d fares_phase2b_diag_${{ strategy.job-index }} \
             -i fu_core,fu_retail,fu_preorder \
-            --test-enable --test-tags='/fu_preorder:TestFaresPreorderBilingualUI.test_preorder_partial_collection_arabic_rtl' \
+            --test-enable --test-tags='/fu_preorder:TestFaresPreorderBilingualUI.${{ matrix.selector }}' \
             --screenshots=evidence/screenshots \
             --stop-after-init --http-interface=127.0.0.1 \
             2>&1 | tee evidence/browser.log
@@ -132,12 +97,12 @@ jobs:
         if: always()
         run: |
           {
-            echo '## Phase 2B collection Arabic sequence: ${{ matrix.checkpoint }}'
+            echo '## Phase 2B real UI method: ${{ matrix.label }}'
             echo
             cat evidence/runtime.txt 2>/dev/null || true
             echo
             echo '### Failure/browser lines'
-            grep -E 'ERROR|FAIL|Traceback|AssertionError|test successful|browser|Chrome|screenshot|test_preorder_partial_collection_arabic_rtl' evidence/browser.log 2>/dev/null | tail -n 200 || true
+            grep -E 'ERROR|FAIL|Traceback|AssertionError|test successful|browser|Chrome|screenshot|TestFaresPreorderBilingualUI' evidence/browser.log 2>/dev/null | tail -n 200 || true
             echo
             echo '### Hosted screenshots'
             find evidence/screenshots -type f -maxdepth 3 -printf '%P\n' 2>/dev/null | sort || true
@@ -147,6 +112,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase2b-ui-collection-sequence-${{ matrix.checkpoint }}-${{ github.sha }}
+          name: phase2b-ui-method-${{ matrix.label }}-${{ github.sha }}
           path: evidence/
           retention-days: 2
