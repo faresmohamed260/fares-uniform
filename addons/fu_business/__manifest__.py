@@ -1,11 +1,11 @@
 {
     "name": "Fares Uniform Business Clients",
-    "summary": "Business-client enquiry, design and sample workflow with policy-gated native quotations",
-    "version": "19.0.1.0.0",
+    "summary": "Business-client enquiry, sample, payment and guarded shipment workflow",
+    "version": "19.0.2.0.0",
     "category": "Sales/CRM",
     "author": "Fares Uniform",
     "license": "LGPL-3",
-    "depends": ["fu_core", "sale_crm"],
+    "depends": ["fu_core", "fu_preorder", "sale_crm", "sale_stock"],
     "data": [
         "security/fu_business_security.xml",
         "security/ir.model.access.csv",

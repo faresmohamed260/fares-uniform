@@ -66,8 +66,8 @@ class FuBusinessQuotationWizard(models.TransientModel):
                 raise ValidationError(_("Candidate item quantity must be greater than zero."))
             if line.unit_price < 0:
                 raise ValidationError(_("Candidate unit price cannot be negative."))
-            if not line.product_id.sale_ok:
-                raise ValidationError(_("Candidate products must be available for sale."))
+            if not line.product_id.sale_ok or not line.product_id.is_storable:
+                raise ValidationError(_("Candidate products must be sellable finished-stock products."))
 
         commands = [Command.clear()]
         commands.extend(
@@ -80,26 +80,42 @@ class FuBusinessQuotationWizard(models.TransientModel):
             )
             for line in self.line_ids
         )
+        has_payment = order._fu_has_business_payment()
+        vals = {
+            "client_order_ref": self.client_order_ref or False,
+            "commitment_date": self.commitment_date or False,
+            "order_line": commands,
+        }
+        if has_payment:
+            vals.update(
+                {
+                    "fu_business_change_approved_by_id": self.env.user.id,
+                    "fu_business_change_approved_at": fields.Datetime.now(),
+                }
+            )
         order.sudo().with_context(
             **{_INTERNAL_CONTEXT: True, "sale_no_log_for_new_lines": True}
-        ).write(
+        ).write(vals)
+        order.invalidate_recordset()
+        if has_payment and order.currency_id.compare_amounts(
+            order._fu_live_business_paid_amount(), order.amount_total
+        ) > 0:
+            raise ValidationError(
+                _("An approved commercial change cannot reduce the order total below recorded business payments.")
+            )
+
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "fu_business.action_fu_business_quotations"
+        )
+        action.update(
             {
-                "client_order_ref": self.client_order_ref or False,
-                "commitment_date": self.commitment_date or False,
-                "order_line": commands,
+                "res_id": order.id,
+                "view_mode": "form",
+                "views": [(self.env.ref("fu_business.fu_business_sale_order_form").id, "form")],
+                "target": "current",
             }
         )
-
-        view = self.env.ref("fu_business.fu_business_sale_order_form")
-        return {
-            "type": "ir.actions.act_window",
-            "name": self.env._("Business Quotation"),
-            "res_model": "sale.order",
-            "res_id": order.id,
-            "view_mode": "form",
-            "views": [(view.id, "form")],
-            "target": "current",
-        }
+        return action
 
 
 class FuBusinessQuotationWizardLine(models.TransientModel):
@@ -115,7 +131,7 @@ class FuBusinessQuotationWizardLine(models.TransientModel):
         "product.product",
         string="Product",
         required=True,
-        domain="[('sale_ok', '=', True)]",
+        domain=[("sale_ok", "=", True), ("is_storable", "=", True)],
     )
     quantity = fields.Float(
         string="Quantity",

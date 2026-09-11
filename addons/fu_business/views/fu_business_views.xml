@@ -46,13 +46,13 @@
                     <button name="action_fu_request_revision" type="object" string="Request Revision" invisible="fu_sample_state != 'sent'"/>
                     <button name="action_fu_approve_sample" type="object" string="Approve Sample" class="btn-primary" invisible="fu_sample_state != 'sent'"/>
                     <button name="action_fu_reject_sample" type="object" string="Reject Sample" invisible="fu_sample_state != 'sent'"/>
-                    <button name="action_fu_create_business_quotation" type="object" string="Prepare Draft Quotation" class="btn-primary" invisible="fu_sample_state != 'approved'"/>
+                    <button name="action_fu_create_business_quotation" type="object" string="Prepare Business Order" class="btn-primary" invisible="fu_sample_state != 'approved'"/>
                     <field name="fu_sample_state" widget="statusbar" statusbar_visible="not_started,preparing,sent,revision,approved,rejected"/>
                 </header>
                 <sheet>
                     <field name="fu_business_client" invisible="1"/>
-                    <div class="alert alert-warning" role="alert">
-                        Commercial confirmation, payment, shipment and cancellation remain policy-gated in this Phase 3B slice.
+                    <div class="alert alert-info" role="alert">
+                        Commercial execution follows the accepted Phase 3B deposit, full-balance-before-shipment and no-partial-shipment rules. B2B refunds and credits remain excluded.
                     </div>
                     <div class="oe_title">
                         <label for="name"/>
@@ -81,7 +81,7 @@
                     <group string="Meeting / enquiry notes">
                         <field name="description" nolabel="1" placeholder="Record design discussion, requirements and follow-up notes..."/>
                     </group>
-                    <group string="Draft quotations">
+                    <group string="Business orders">
                         <field name="order_ids" readonly="1" nolabel="1"/>
                     </group>
                 </sheet>
@@ -114,11 +114,14 @@
         <field name="name">fu.business.sale.order.list</field>
         <field name="model">sale.order</field>
         <field name="arch" type="xml">
-            <list string="Business Quotations" create="0" edit="0" delete="0">
+            <list string="Business Orders" create="0" edit="0" delete="0">
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="opportunity_id"/>
                 <field name="amount_total"/>
+                <field name="fu_business_amount_paid"/>
+                <field name="fu_business_balance_due"/>
+                <field name="fu_business_payment_state"/>
                 <field name="commitment_date"/>
                 <field name="state"/>
             </list>
@@ -129,28 +132,45 @@
         <field name="name">fu.business.sale.order.form</field>
         <field name="model">sale.order</field>
         <field name="arch" type="xml">
-            <form string="Business Quotation" create="0" edit="0" delete="0">
+            <form string="Business Order" create="0" edit="0" delete="0">
                 <header>
-                    <button name="action_fu_open_draft_editor" type="object" string="Edit Draft Details" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_fu_open_draft_editor" type="object" string="Edit Draft Details" class="btn-primary" groups="fu_core.group_fu_sales_bd" invisible="state != 'draft' or fu_business_amount_paid &gt; 0"/>
+                    <button name="action_fu_open_draft_editor" type="object" string="Edit / Approve Draft Change" class="btn-primary" groups="fu_core.group_fu_owner_admin" invisible="state != 'draft'"/>
+                    <button name="action_fu_open_business_payment" type="object" string="Record Payment" class="btn-primary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier" invisible="state not in ('draft', 'sale') or fu_business_balance_due &lt;= 0"/>
+                    <button name="action_fu_confirm_business_order" type="object" string="Confirm Business Order" class="btn-primary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_sales_bd" invisible="state != 'draft' or fu_business_amount_paid &lt;= 0"/>
+                    <button name="action_fu_cancel_business_draft" type="object" string="Cancel Unpaid Draft" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_sales_bd" invisible="state != 'draft' or fu_business_amount_paid &gt; 0"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sale,cancel"/>
                 </header>
                 <sheet>
                     <field name="fu_business_order" invisible="1"/>
                     <div class="alert alert-warning" role="alert">
-                        Draft only. Confirmation, payment and shipment remain blocked until Phase 3B commercial policies are accepted.
+                        A positive negotiated deposit is required before confirmation. The full remaining balance is required before complete shipment release. Partial shipment and cancellation after payment are blocked in this MVP.
                     </div>
                     <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
                     <group>
-                        <group string="Commercial draft">
+                        <group string="Commercial terms">
                             <field name="partner_id" readonly="1"/>
                             <field name="opportunity_id" readonly="1"/>
                             <field name="user_id" readonly="1"/>
                             <field name="client_order_ref" readonly="1"/>
                             <field name="commitment_date" readonly="1"/>
                         </group>
-                        <group string="Status">
-                            <field name="state" readonly="1"/>
+                        <group string="Payment and release">
                             <field name="amount_untaxed" readonly="1"/>
                             <field name="amount_total" readonly="1"/>
+                            <field name="fu_business_amount_paid" readonly="1"/>
+                            <field name="fu_business_balance_due" readonly="1"/>
+                            <field name="fu_business_payment_state" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Commercial audit">
+                        <group>
+                            <field name="fu_business_confirmed_by_id" readonly="1"/>
+                            <field name="fu_business_confirmed_at" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="fu_business_change_approved_by_id" readonly="1"/>
+                            <field name="fu_business_change_approved_at" readonly="1"/>
                         </group>
                     </group>
                     <field name="order_line" readonly="1">
@@ -174,7 +194,7 @@
                 <sheet>
                     <field name="quotation_id" invisible="1"/>
                     <div class="alert alert-warning" role="alert">
-                        Candidate details only. Saving does not confirm the order, record payment, or authorize shipment.
+                        Before payment, assigned Sales/BD may edit the draft. After payment, only Owner/Admin may approve a draft commercial change. Saving never authorizes shipment.
                     </div>
                     <group string="Commercial details">
                         <field name="client_order_ref"/>
@@ -206,8 +226,44 @@
         <field name="target">new</field>
     </record>
 
+    <record id="fu_business_payment_wizard_form" model="ir.ui.view">
+        <field name="name">fu.business.payment.wizard.form</field>
+        <field name="model">fu.business.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Record Business Payment">
+                <sheet>
+                    <field name="order_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="requires_manual_confirmation" invisible="1"/>
+                    <field name="payment_uuid" invisible="1"/>
+                    <div class="alert alert-info" role="alert">
+                        Enter the negotiated positive deposit or later balance payment. No deposit percentage is preselected. Payments cannot exceed the remaining balance.
+                    </div>
+                    <group>
+                        <field name="balance_due" readonly="1"/>
+                        <field name="amount"/>
+                        <field name="journal_key"/>
+                        <field name="manual_confirmed" invisible="not requires_manual_confirmation"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_record_payment" type="object" string="Record Payment" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_business_payment_wizard" model="ir.actions.act_window">
+        <field name="name">Record Business Payment</field>
+        <field name="res_model">fu.business.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="fu_business_payment_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
     <record id="action_fu_business_quotations" model="ir.actions.act_window">
-        <field name="name">Business Quotations</field>
+        <field name="name">Business Orders</field>
         <field name="res_model">sale.order</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('fu_business_order', '=', True)]</field>
@@ -225,7 +281,83 @@
         <field name="act_window_id" ref="action_fu_business_quotations"/>
     </record>
 
-    <menuitem id="menu_fu_business_root" name="Business Clients" sequence="55" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_sales_bd"/>
+    <record id="fu_business_delivery_list" model="ir.ui.view">
+        <field name="name">fu.business.delivery.list</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <list string="Business Deliveries" create="0" edit="0" delete="0">
+                <field name="name"/>
+                <field name="sale_id"/>
+                <field name="partner_id"/>
+                <field name="location_id"/>
+                <field name="scheduled_date"/>
+                <field name="state"/>
+                <field name="fu_business_released_by_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="fu_business_delivery_form" model="ir.ui.view">
+        <field name="name">fu.business.delivery.form</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <form string="Business Delivery" create="0" edit="0" delete="0">
+                <header>
+                    <button name="fu_release_business_delivery" type="object" string="Release Complete Shipment" class="btn-primary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_inventory_staff" invisible="state in ('done', 'cancel')"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert">
+                        Release is allowed only when the whole business-order balance is paid and every ordered item is available in this single delivery. Partial shipment is disabled.
+                    </div>
+                    <group>
+                        <group string="Delivery">
+                            <field name="name" readonly="1"/>
+                            <field name="sale_id" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="scheduled_date" readonly="1"/>
+                        </group>
+                        <group string="Stock scope">
+                            <field name="location_id" readonly="1"/>
+                            <field name="location_dest_id" readonly="1"/>
+                            <field name="fu_business_released_by_id" readonly="1"/>
+                            <field name="fu_business_released_at" readonly="1"/>
+                        </group>
+                    </group>
+                    <field name="move_ids" readonly="1">
+                        <list create="0" edit="0" delete="0">
+                            <field name="product_id"/>
+                            <field name="product_uom_qty"/>
+                            <field name="quantity"/>
+                            <field name="state"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_business_deliveries" model="ir.actions.act_window">
+        <field name="name">Business Deliveries</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('sale_id.fu_business_order', '=', True), ('location_dest_id.usage', '=', 'customer')]</field>
+    </record>
+    <record id="action_fu_business_deliveries_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="fu_business_delivery_list"/>
+        <field name="act_window_id" ref="action_fu_business_deliveries"/>
+    </record>
+    <record id="action_fu_business_deliveries_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="fu_business_delivery_form"/>
+        <field name="act_window_id" ref="action_fu_business_deliveries"/>
+    </record>
+
+    <menuitem id="menu_fu_business_root" name="Business Clients" sequence="55" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_sales_bd,fu_core.group_fu_store_manager,fu_core.group_fu_cashier,fu_core.group_fu_inventory_staff"/>
     <menuitem id="menu_fu_business_clients" name="Enquiries &amp; Samples" parent="menu_fu_business_root" action="action_fu_business_clients" sequence="10" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_sales_bd"/>
-    <menuitem id="menu_fu_business_quotations" name="Draft Quotations" parent="menu_fu_business_root" action="action_fu_business_quotations" sequence="20" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_sales_bd"/>
+    <menuitem id="menu_fu_business_quotations" name="Business Orders &amp; Payments" parent="menu_fu_business_root" action="action_fu_business_quotations" sequence="20" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_sales_bd,fu_core.group_fu_store_manager,fu_core.group_fu_cashier"/>
+    <menuitem id="menu_fu_business_deliveries" name="Business Deliveries" parent="menu_fu_business_root" action="action_fu_business_deliveries" sequence="30" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_inventory_staff"/>
 </odoo>

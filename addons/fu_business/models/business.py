@@ -33,6 +33,32 @@ _SALES_EDITABLE_FIELDS = {
     "fu_sample_notes",
 }
 
+_BUSINESS_LINK_FIELDS = {"fu_business_order", "opportunity_id"}
+_BUSINESS_AUDIT_FIELDS = {
+    "fu_business_confirmed_by_id",
+    "fu_business_confirmed_at",
+    "fu_business_change_approved_by_id",
+    "fu_business_change_approved_at",
+}
+_BUSINESS_COMMERCIAL_FIELDS = {
+    "partner_id",
+    "client_order_ref",
+    "commitment_date",
+    "order_line",
+    "pricelist_id",
+    "currency_id",
+    "payment_term_id",
+}
+
+
+def _trusted_context(env, key):
+    """Internal context flags are valid only with sudo execution.
+
+    RPC callers can supply arbitrary context values, so a context flag by itself
+    must never authorize a protected Fares transition.
+    """
+    return bool(env.su and env.context.get(key))
+
 
 class CrmLead(models.Model):
     _inherit = "crm.lead"
@@ -137,9 +163,9 @@ class CrmLead(models.Model):
             if vals.get("fu_business_client") or self.env.context.get("default_fu_business_client"):
                 self._fu_assert_business_operator()
                 vals["fu_business_client"] = True
-                if _SAMPLE_PROTECTED_FIELDS.intersection(vals) - {"fu_business_client"}:
-                    if not self.env.context.get(_TRANSITION_CONTEXT):
-                        raise AccessError(_("Business sample state and audit fields are system controlled."))
+                protected = _SAMPLE_PROTECTED_FIELDS.intersection(vals) - {"fu_business_client"}
+                if protected and not _trusted_context(self.env, _TRANSITION_CONTEXT):
+                    raise AccessError(_("Business sample state and audit fields are system controlled."))
                 if not self.env.su and self._fu_is_sales() and not self._fu_is_owner():
                     vals["user_id"] = self.env.user.id
                     vals["company_id"] = self.env.company.id
@@ -158,7 +184,7 @@ class CrmLead(models.Model):
             business._fu_assert_business_operator()
             business._fu_assert_business_scope()
             protected = _SAMPLE_PROTECTED_FIELDS.intersection(vals)
-            if protected and not self.env.context.get(_TRANSITION_CONTEXT):
+            if protected and not _trusted_context(self.env, _TRANSITION_CONTEXT):
                 raise AccessError(_("Business sample state and audit fields are system controlled."))
             if not self.env.su and self._fu_is_sales() and not self._fu_is_owner():
                 disallowed = set(vals) - _SALES_EDITABLE_FIELDS
@@ -250,7 +276,7 @@ class CrmLead(models.Model):
             [
                 ("opportunity_id", "=", self.id),
                 ("fu_business_order", "=", True),
-                ("state", "in", ["draft", "sent"]),
+                ("state", "in", ["draft", "sent", "sale"]),
             ],
             order="id",
             limit=1,
@@ -274,7 +300,7 @@ class CrmLead(models.Model):
         view = self.env.ref("fu_business.fu_business_sale_order_form")
         return {
             "type": "ir.actions.act_window",
-            "name": self.env._("Business Quotation"),
+            "name": self.env._("Business Order"),
             "res_model": "sale.order",
             "res_id": order.id,
             "view_mode": "form",
@@ -293,6 +319,28 @@ class SaleOrder(models.Model):
         index=True,
         readonly=True,
     )
+    fu_business_confirmed_by_id = fields.Many2one(
+        "res.users",
+        string="Business order confirmed by",
+        readonly=True,
+        copy=False,
+    )
+    fu_business_confirmed_at = fields.Datetime(
+        string="Business order confirmed at",
+        readonly=True,
+        copy=False,
+    )
+    fu_business_change_approved_by_id = fields.Many2one(
+        "res.users",
+        string="Last commercial change approved by",
+        readonly=True,
+        copy=False,
+    )
+    fu_business_change_approved_at = fields.Datetime(
+        string="Last commercial change approved at",
+        readonly=True,
+        copy=False,
+    )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -304,7 +352,7 @@ class SaleOrder(models.Model):
                 opportunity and opportunity.fu_business_client
             )
             if is_business:
-                if not self.env.context.get(_INTERNAL_CONTEXT):
+                if not _trusted_context(self.env, _INTERNAL_CONTEXT):
                     raise AccessError(_("Fares business quotations must be created from an approved business enquiry."))
                 vals["fu_business_order"] = True
             prepared.append(vals)
@@ -338,21 +386,54 @@ class SaleOrder(models.Model):
             raise ValidationError(_("Only draft Fares business quotations may be edited here."))
         if not self.opportunity_id or self.opportunity_id.fu_sample_state != "approved":
             raise ValidationError(_("An approved sample is required before editing draft quotation details."))
+        if self._fu_has_business_payment() and not self.env.user.has_group(_OWNER_GROUP):
+            raise AccessError(_("Post-payment commercial changes require Owner/Admin approval."))
         return True
 
-    def action_fu_open_draft_editor(self):
+    def _fu_assert_ready_for_confirmation(self):
         self.ensure_one()
-        self._fu_assert_draft_editor_access()
-        view = self.env.ref("fu_business.fu_business_quotation_wizard_form")
-        return {
-            "type": "ir.actions.act_window",
-            "name": self.env._("Draft Quotation Details"),
-            "res_model": "fu.business.quotation.wizard",
-            "view_mode": "form",
-            "views": [(view.id, "form")],
-            "target": "new",
-            "context": {"default_quotation_id": self.id},
-        }
+        if self.state != "draft":
+            raise ValidationError(_("Only a draft Fares business quotation may be confirmed."))
+        if not self.opportunity_id or self.opportunity_id.fu_sample_state != "approved":
+            raise ValidationError(_("An approved sample is required before business-order confirmation."))
+        lines = self.order_line.filtered(lambda line: not line.display_type and not line.is_downpayment)
+        if not lines:
+            raise ValidationError(_("Add at least one business-order item before confirmation."))
+        for line in lines:
+            if not line.product_id or not line.product_id.sale_ok or not line.product_id.is_storable:
+                raise ValidationError(_("Business-order items must be sellable finished-stock products."))
+            if line.product_uom_id.compare(line.product_uom_qty, 0.0) <= 0:
+                raise ValidationError(_("Business-order item quantities must be positive."))
+        if not self.commitment_date:
+            raise ValidationError(_("A business-order delivery date is required before confirmation."))
+        if self.currency_id.compare_amounts(self._fu_live_business_paid_amount(), 0.0) <= 0:
+            raise ValidationError(_("Record a positive negotiated deposit before confirming the business order."))
+        return True
+
+    def action_fu_confirm_business_order(self):
+        self.ensure_one()
+        self._fu_assert_business_scope()
+        self._fu_assert_ready_for_confirmation()
+        actor_id = self.env.user.id
+        order = self.sudo().with_context(**{_COMMERCIAL_CONTEXT: True})
+        order.action_confirm()
+        order.with_context(**{_INTERNAL_CONTEXT: True}).write(
+            {
+                "fu_business_confirmed_by_id": actor_id,
+                "fu_business_confirmed_at": fields.Datetime.now(),
+            }
+        )
+        return True
+
+    def action_fu_cancel_business_draft(self):
+        self.ensure_one()
+        self._fu_assert_business_scope()
+        if self.state != "draft":
+            raise ValidationError(_("Only an unpaid draft business order may be cancelled in this MVP."))
+        if self._fu_has_business_payment():
+            raise ValidationError(_("A business order with recorded money cannot be cancelled until B2B refund/credit policy is implemented."))
+        self.sudo().with_context(**{_COMMERCIAL_CONTEXT: True}).action_cancel()
+        return True
 
     def write(self, vals):
         business = self._fu_business_records()
@@ -362,24 +443,78 @@ class SaleOrder(models.Model):
         becoming_business = bool(vals.get("fu_business_order")) or bool(
             incoming_opportunity and incoming_opportunity.fu_business_client
         )
-        if becoming_business and not self.env.context.get(_INTERNAL_CONTEXT):
+        trusted_internal = _trusted_context(self.env, _INTERNAL_CONTEXT)
+        trusted_commercial = _trusted_context(self.env, _COMMERCIAL_CONTEXT)
+        trusted = trusted_internal or trusted_commercial
+
+        if becoming_business and not trusted_internal:
             raise AccessError(_("Business-order linkage is system controlled."))
         if business:
-            if {"fu_business_order", "opportunity_id"}.intersection(vals) and not self.env.context.get(
-                _INTERNAL_CONTEXT
-            ):
+            if _BUSINESS_LINK_FIELDS.intersection(vals) and not trusted_internal:
                 raise AccessError(_("Business-order linkage is system controlled."))
-            if vals.get("state") not in (None, "draft", "sent") and not self.env.context.get(
-                _COMMERCIAL_CONTEXT
-            ):
-                raise ValidationError(
-                    _("Business-order confirmation, shipment and cancellation remain policy-gated in Phase 3B.")
-                )
+            if _BUSINESS_AUDIT_FIELDS.intersection(vals) and not trusted_internal:
+                raise AccessError(_("Business-order audit fields are system controlled."))
+            if _BUSINESS_COMMERCIAL_FIELDS.intersection(vals) and not trusted:
+                raise AccessError(_("Business commercial terms must be changed through the controlled Fares workflow."))
+            if "state" in vals and not trusted:
+                raise ValidationError(_("Business-order state transitions must use the controlled Fares workflow."))
+            if self.filtered(lambda order: order.state != "draft") and _BUSINESS_COMMERCIAL_FIELDS.intersection(vals):
+                raise ValidationError(_("Confirmed business-order commercial terms cannot be changed in this MVP."))
         return super().write(vals)
 
     def action_confirm(self):
-        if self._fu_business_records() and not self.env.context.get(_COMMERCIAL_CONTEXT):
-            raise ValidationError(
-                _("Business-order confirmation remains blocked until Phase 3B commercial policies are accepted.")
-            )
+        business = self._fu_business_records()
+        if business and not _trusted_context(self.env, _COMMERCIAL_CONTEXT):
+            raise ValidationError(_("Business-order confirmation must use the controlled Fares confirmation action."))
         return super().action_confirm()
+
+    def action_cancel(self):
+        business = self._fu_business_records()
+        if business:
+            if not _trusted_context(self.env, _COMMERCIAL_CONTEXT):
+                raise ValidationError(_("Business-order cancellation must use the controlled Fares workflow."))
+            if any(order._fu_has_business_payment() for order in business):
+                raise ValidationError(_("A business order with recorded money cannot be cancelled until B2B refund/credit policy is implemented."))
+            if any(order.state not in ("draft", "sent") for order in business):
+                raise ValidationError(_("Confirmed business orders cannot be cancelled in this MVP."))
+        return super().action_cancel()
+
+
+class SaleOrderLine(models.Model):
+    _inherit = "sale.order.line"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        trusted = _trusted_context(self.env, _INTERNAL_CONTEXT) or _trusted_context(
+            self.env, _COMMERCIAL_CONTEXT
+        )
+        if not trusted:
+            for vals in vals_list:
+                order = self.env["sale.order"].browse(vals.get("order_id")).exists()
+                if order and order._fu_business_records():
+                    raise AccessError(_("Business-order lines must be changed through the controlled Fares workflow."))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        business_lines = self.filtered(lambda line: line.order_id._fu_business_records())
+        trusted = _trusted_context(self.env, _INTERNAL_CONTEXT) or _trusted_context(
+            self.env, _COMMERCIAL_CONTEXT
+        )
+        if business_lines and not trusted:
+            raise AccessError(_("Business-order lines must be changed through the controlled Fares workflow."))
+        if business_lines.filtered(lambda line: line.order_id.state != "draft") and not _trusted_context(
+            self.env, _COMMERCIAL_CONTEXT
+        ):
+            raise ValidationError(_("Confirmed business-order lines cannot be changed in this MVP."))
+        return super().write(vals)
+
+    def unlink(self):
+        business_lines = self.filtered(lambda line: line.order_id._fu_business_records())
+        trusted = _trusted_context(self.env, _INTERNAL_CONTEXT) or _trusted_context(
+            self.env, _COMMERCIAL_CONTEXT
+        )
+        if business_lines and not trusted:
+            raise AccessError(_("Business-order lines must be changed through the controlled Fares workflow."))
+        if business_lines.filtered(lambda line: line.order_id.state != "draft"):
+            raise ValidationError(_("Confirmed business-order lines cannot be removed in this MVP."))
+        return super().unlink()

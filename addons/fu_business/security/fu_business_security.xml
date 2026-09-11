@@ -13,29 +13,106 @@
             <field name="domain_force">[('fu_business_client', '=', True), ('company_id', 'in', company_ids), ('user_id', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('fu_core.group_fu_sales_bd'))]"/>
         </record>
+
         <record id="rule_fu_business_order_owner" model="ir.rule">
-            <field name="name">Fares business quotations: owner companies</field>
+            <field name="name">Fares business orders: owner companies</field>
             <field name="model_id" ref="sale.model_sale_order"/>
             <field name="domain_force">[('fu_business_order', '=', True), ('company_id', 'in', company_ids)]</field>
             <field name="groups" eval="[(4, ref('fu_core.group_fu_owner_admin'))]"/>
         </record>
         <record id="rule_fu_business_order_sales" model="ir.rule">
-            <field name="name">Fares business quotations: assigned sales user</field>
+            <field name="name">Fares business orders: assigned sales user</field>
             <field name="model_id" ref="sale.model_sale_order"/>
             <field name="domain_force">[('fu_business_order', '=', True), ('company_id', 'in', company_ids), ('opportunity_id.user_id', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('fu_core.group_fu_sales_bd'))]"/>
         </record>
+        <record id="rule_fu_business_order_payment_staff" model="ir.rule">
+            <field name="name">Fares business orders: payment staff companies</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="domain_force">[('fu_business_order', '=', True), ('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_cashier')), (4, ref('fu_core.group_fu_store_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_fu_business_order_inventory" model="ir.rule">
+            <field name="name">Fares business orders: inventory shipment context</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="domain_force">[('fu_business_order', '=', True), ('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_inventory_staff'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
         <record id="rule_fu_business_order_line_owner" model="ir.rule">
-            <field name="name">Fares business quotation lines: owner companies</field>
+            <field name="name">Fares business order lines: owner companies</field>
             <field name="model_id" ref="sale.model_sale_order_line"/>
             <field name="domain_force">[('order_id.fu_business_order', '=', True), ('company_id', 'in', company_ids)]</field>
             <field name="groups" eval="[(4, ref('fu_core.group_fu_owner_admin'))]"/>
         </record>
         <record id="rule_fu_business_order_line_sales" model="ir.rule">
-            <field name="name">Fares business quotation lines: assigned sales user</field>
+            <field name="name">Fares business order lines: assigned sales user</field>
             <field name="model_id" ref="sale.model_sale_order_line"/>
             <field name="domain_force">[('order_id.fu_business_order', '=', True), ('company_id', 'in', company_ids), ('order_id.opportunity_id.user_id', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('fu_core.group_fu_sales_bd'))]"/>
+        </record>
+        <record id="rule_fu_business_order_line_operations" model="ir.rule">
+            <field name="name">Fares business order lines: operational read</field>
+            <field name="model_id" ref="sale.model_sale_order_line"/>
+            <field name="domain_force">[('order_id.fu_business_order', '=', True), ('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_cashier')), (4, ref('fu_core.group_fu_store_manager')), (4, ref('fu_core.group_fu_inventory_staff'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_fu_business_payment_operations" model="ir.rule">
+            <field name="name">Fares business payments: payment staff companies</field>
+            <field name="model_id" ref="account.model_account_payment"/>
+            <field name="domain_force">[('fu_business_order_id.fu_business_order', '=', True), ('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_cashier')), (4, ref('fu_core.group_fu_store_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_fu_business_picking_owner" model="ir.rule">
+            <field name="name">Fares business deliveries: owner companies</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="domain_force">[('sale_id.fu_business_order', '=', True), ('location_dest_id.usage', '=', 'customer'), ('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_owner_admin'))]"/>
+        </record>
+        <record id="rule_fu_business_picking_operations" model="ir.rule">
+            <field name="name">Fares business deliveries: assigned source locations</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="domain_force">[('sale_id.fu_business_order', '=', True), ('location_dest_id.usage', '=', 'customer'), ('location_id', 'in', user.fu_stock_location_ids.ids), ('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_inventory_staff')), (4, ref('fu_core.group_fu_store_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_fu_business_move_owner" model="ir.rule">
+            <field name="name">Fares business delivery moves: owner companies</field>
+            <field name="model_id" ref="stock.model_stock_move"/>
+            <field name="domain_force">[('sale_line_id.order_id.fu_business_order', '=', True), ('picking_id.location_dest_id.usage', '=', 'customer'), ('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_owner_admin'))]"/>
+        </record>
+        <record id="rule_fu_business_move_operations" model="ir.rule">
+            <field name="name">Fares business delivery moves: assigned source locations</field>
+            <field name="model_id" ref="stock.model_stock_move"/>
+            <field name="domain_force">[('sale_line_id.order_id.fu_business_order', '=', True), ('picking_id.location_dest_id.usage', '=', 'customer'), ('location_id', 'in', user.fu_stock_location_ids.ids), ('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_inventory_staff')), (4, ref('fu_core.group_fu_store_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
     </data>
 </odoo>
