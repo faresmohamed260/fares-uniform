@@ -60,6 +60,12 @@ class TestFaresBusinessWorkflow(TransactionCase):
         self.assertEqual(lead.user_id, self.sales)
         self.assertEqual(lead.type, "opportunity")
         self.assertEqual(lead.fu_sample_state, "not_started")
+        self.assertEqual(lead.phone, "+200000000000")
+        self.assertFalse(self.partner.sudo().phone)
+
+        lead.write({"phone": "+201111111111"})
+        self.assertEqual(lead.phone, "+201111111111")
+        self.assertFalse(self.partner.sudo().phone)
 
         for user in (self.cashier, self.inventory, self.production):
             with self.assertRaises(AccessError):
@@ -165,6 +171,16 @@ class TestFaresBusinessWorkflow(TransactionCase):
                 }
             )
         self.assertEqual(order.state, "draft")
+
+    def test_ordinary_order_cannot_be_relinked_into_business_path(self):
+        lead = self._lead("relink")
+        ordinary = self.env["sale.order"].sudo().create({"partner_id": self.partner.id})
+        with self.assertRaisesRegex(AccessError, "linkage is system controlled"):
+            ordinary.write({"opportunity_id": lead.id, "state": "sale"})
+        ordinary.invalidate_recordset(["opportunity_id", "state", "fu_business_order"])
+        self.assertFalse(ordinary.opportunity_id)
+        self.assertFalse(ordinary.fu_business_order)
+        self.assertEqual(ordinary.state, "draft")
 
     def test_ordinary_non_business_sale_confirmation_is_not_globally_blocked(self):
         order = self.env["sale.order"].sudo().create({"partner_id": self.partner.id})

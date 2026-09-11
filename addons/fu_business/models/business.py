@@ -7,6 +7,7 @@ _SALES_GROUP = "fu_core.group_fu_sales_bd"
 _TRANSITION_CONTEXT = "fu_business_transition"
 _INTERNAL_CONTEXT = "fu_business_internal"
 _COMMERCIAL_CONTEXT = "fu_business_commercial_execution"
+_NO_PARTNER_SYNC_CONTEXT = "fu_business_no_partner_sync"
 
 _SAMPLE_PROTECTED_FIELDS = {
     "fu_business_client",
@@ -115,9 +116,22 @@ class CrmLead(models.Model):
         if any(lead.user_id != self.env.user for lead in self):
             raise AccessError(_("Sales staff may manage only their assigned business enquiries."))
 
+    def _get_partner_email_update(self, force_void=True):
+        self.ensure_one()
+        if self.fu_business_client and self.env.context.get(_NO_PARTNER_SYNC_CONTEXT):
+            return False
+        return super()._get_partner_email_update(force_void=force_void)
+
+    def _get_partner_phone_update(self, force_void=True):
+        self.ensure_one()
+        if self.fu_business_client and self.env.context.get(_NO_PARTNER_SYNC_CONTEXT):
+            return False
+        return super()._get_partner_phone_update(force_void=force_void)
+
     @api.model_create_multi
     def create(self, vals_list):
         prepared = []
+        sales_business_create = False
         for incoming in vals_list:
             vals = dict(incoming)
             if vals.get("fu_business_client") or self.env.context.get("default_fu_business_client"):
@@ -130,11 +144,16 @@ class CrmLead(models.Model):
                     vals["user_id"] = self.env.user.id
                     vals["company_id"] = self.env.company.id
                     vals["type"] = "opportunity"
+                    sales_business_create = True
             prepared.append(vals)
-        return super().create(prepared)
+        create_self = self
+        if sales_business_create:
+            create_self = self.with_context(**{_NO_PARTNER_SYNC_CONTEXT: True})
+        return super(CrmLead, create_self).create(prepared)
 
     def write(self, vals):
         business = self.filtered("fu_business_client")
+        sales_business_write = False
         if business:
             business._fu_assert_business_operator()
             business._fu_assert_business_scope()
@@ -145,7 +164,11 @@ class CrmLead(models.Model):
                 disallowed = set(vals) - _SALES_EDITABLE_FIELDS
                 if disallowed:
                     raise AccessError(_("Sales staff cannot change protected business-enquiry fields."))
-        return super().write(vals)
+                sales_business_write = True
+        write_self = self
+        if sales_business_write:
+            write_self = self.with_context(**{_NO_PARTNER_SYNC_CONTEXT: True})
+        return super(CrmLead, write_self).write(vals)
 
     def unlink(self):
         if self.filtered("fu_business_client"):
@@ -295,6 +318,14 @@ class SaleOrder(models.Model):
 
     def write(self, vals):
         business = self._fu_business_records()
+        incoming_opportunity = self.env["crm.lead"]
+        if vals.get("opportunity_id"):
+            incoming_opportunity = self.env["crm.lead"].browse(vals["opportunity_id"]).exists()
+        becoming_business = bool(vals.get("fu_business_order")) or bool(
+            incoming_opportunity and incoming_opportunity.fu_business_client
+        )
+        if becoming_business and not self.env.context.get(_INTERNAL_CONTEXT):
+            raise AccessError(_("Business-order linkage is system controlled."))
         if business:
             if {"fu_business_order", "opportunity_id"}.intersection(vals) and not self.env.context.get(
                 _INTERNAL_CONTEXT

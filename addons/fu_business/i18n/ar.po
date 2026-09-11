@@ -13,86 +13,117 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #. module: fu_business
+#: model:ir.actions.act_window,name:fu_business.action_fu_business_clients
+#: model:ir.ui.menu,name:fu_business.menu_fu_business_root
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_list
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_search
 msgid "Business Clients"
 msgstr "عملاء الشركات"
 
 #. module: fu_business
+#: model:ir.ui.menu,name:fu_business.menu_fu_business_clients
 msgid "Enquiries & Samples"
 msgstr "الاستفسارات والعينات"
 
 #. module: fu_business
+#: model:ir.ui.menu,name:fu_business.menu_fu_business_quotations
 msgid "Draft Quotations"
 msgstr "عروض الأسعار المبدئية"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Business Enquiry"
 msgstr "استفسار عميل شركة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Business enquiry"
 msgstr "استفسار عميل شركة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Start Sample"
 msgstr "بدء تجهيز العينة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Mark Sample Sent"
 msgstr "تحديد العينة كمرسلة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Request Revision"
 msgstr "طلب تعديل"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Approve Sample"
 msgstr "اعتماد العينة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Reject Sample"
 msgstr "رفض العينة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Prepare Draft Quotation"
 msgstr "إعداد عرض سعر مبدئي"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Client and contact"
 msgstr "العميل وبيانات الاتصال"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Design and sample"
 msgstr "التصميم والعينة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Meeting / enquiry notes"
 msgstr "ملاحظات الاجتماع / الاستفسار"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Draft quotations"
 msgstr "عروض الأسعار المبدئية"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Record design discussion, requirements and follow-up notes..."
+msgstr "سجّل مناقشة التصميم والمتطلبات وملاحظات المتابعة..."
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
 msgid "Commercial confirmation, payment, shipment and cancellation remain policy-gated in this Phase 3B slice."
 msgstr "يظل تأكيد الطلب التجاري والدفع والشحن والإلغاء محجوبًا حتى اعتماد سياسات المرحلة 3B."
 
 #. module: fu_business
+#: model:ir.actions.act_window,name:fu_business.action_fu_business_quotations
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_list
 msgid "Business Quotations"
 msgstr "عروض أسعار الشركات"
 
 #. module: fu_business
+#: code:addons/fu_business/models/business.py:0
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
 msgid "Business Quotation"
 msgstr "عرض سعر شركة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
 msgid "Commercial draft"
 msgstr "المسودة التجارية"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
 msgid "Status"
 msgstr "الحالة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
 msgid "Draft only. Confirmation, payment and shipment remain blocked until Phase 3B commercial policies are accepted."
 msgstr "مسودة فقط. يظل التأكيد والدفع والشحن محجوبًا حتى اعتماد السياسات التجارية للمرحلة 3B."
 
@@ -142,49 +173,56 @@ msgid "Sample decided at"
 msgstr "وقت قرار العينة"
 
 #. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__not_started
 msgid "Not started"
 msgstr "لم تبدأ"
 
 #. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__preparing
 msgid "Preparing"
 msgstr "قيد التجهيز"
 
 #. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__sent
 msgid "Sent"
 msgstr "مرسلة"
 
 #. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__revision
 msgid "Revision requested"
 msgstr "مطلوب تعديل"
 
 #. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__approved
 msgid "Approved"
 msgstr "معتمدة"
 
 #. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__rejected
 msgid "Rejected"
 msgstr "مرفوضة"
 
 #. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_sale_order__fu_business_order
 msgid "Fares business order"
 msgstr "طلب شركة لدى فارس"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_search
 msgid "Sample Approved"
 msgstr "العينة معتمدة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_search
 msgid "Revision Requested"
 msgstr "مطلوب تعديل"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_search
 msgid "Salesperson"
 msgstr "مسؤول المبيعات"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_search
 msgid "Sample Status"
 msgstr "حالة العينة"
-
-#. module: fu_business
-msgid "Group By"
-msgstr "تجميع حسب"
