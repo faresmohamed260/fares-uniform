@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fu_business_lead_list" model="ir.ui.view">
+        <field name="name">fu.business.lead.list</field>
+        <field name="model">crm.lead</field>
+        <field name="arch" type="xml">
+            <list string="Business Clients" default_order="date_deadline asc, id desc" delete="0">
+                <field name="name"/>
+                <field name="partner_name"/>
+                <field name="contact_name"/>
+                <field name="user_id"/>
+                <field name="fu_sample_state"/>
+                <field name="date_deadline"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="fu_business_lead_search" model="ir.ui.view">
+        <field name="name">fu.business.lead.search</field>
+        <field name="model">crm.lead</field>
+        <field name="arch" type="xml">
+            <search string="Business Clients">
+                <field name="name"/>
+                <field name="partner_name"/>
+                <field name="contact_name"/>
+                <field name="user_id"/>
+                <field name="fu_sample_state"/>
+                <filter name="sample_approved" string="Sample Approved" domain="[('fu_sample_state', '=', 'approved')]"/>
+                <filter name="sample_revision" string="Revision Requested" domain="[('fu_sample_state', '=', 'revision')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_sample" string="Sample Status" context="{'group_by': 'fu_sample_state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="fu_business_lead_form" model="ir.ui.view">
+        <field name="name">fu.business.lead.form</field>
+        <field name="model">crm.lead</field>
+        <field name="arch" type="xml">
+            <form string="Business Enquiry" delete="0">
+                <header>
+                    <button name="action_fu_prepare_sample" type="object" string="Start Sample" class="btn-primary" invisible="fu_sample_state not in ('not_started', 'revision')"/>
+                    <button name="action_fu_mark_sample_sent" type="object" string="Mark Sample Sent" class="btn-primary" invisible="fu_sample_state != 'preparing'"/>
+                    <button name="action_fu_request_revision" type="object" string="Request Revision" invisible="fu_sample_state != 'sent'"/>
+                    <button name="action_fu_approve_sample" type="object" string="Approve Sample" class="btn-primary" invisible="fu_sample_state != 'sent'"/>
+                    <button name="action_fu_reject_sample" type="object" string="Reject Sample" invisible="fu_sample_state != 'sent'"/>
+                    <button name="action_fu_create_business_quotation" type="object" string="Prepare Draft Quotation" class="btn-primary" invisible="fu_sample_state != 'approved'"/>
+                    <field name="fu_sample_state" widget="statusbar" statusbar_visible="not_started,preparing,sent,revision,approved,rejected"/>
+                </header>
+                <sheet>
+                    <field name="fu_business_client" invisible="1"/>
+                    <div class="alert alert-warning" role="alert">
+                        Commercial confirmation, payment, shipment and cancellation remain policy-gated in this Phase 3B slice.
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Business enquiry"/></h1>
+                    </div>
+                    <group>
+                        <group string="Client and contact">
+                            <field name="partner_id"/>
+                            <field name="partner_name"/>
+                            <field name="contact_name"/>
+                            <field name="email_from"/>
+                            <field name="phone"/>
+                            <field name="user_id" readonly="1"/>
+                            <field name="date_deadline"/>
+                        </group>
+                        <group string="Design and sample">
+                            <field name="fu_design_requirements"/>
+                            <field name="fu_sample_reference"/>
+                            <field name="fu_sample_notes"/>
+                            <field name="fu_sample_sent_by_id" readonly="1"/>
+                            <field name="fu_sample_sent_at" readonly="1"/>
+                            <field name="fu_sample_decided_by_id" readonly="1"/>
+                            <field name="fu_sample_decided_at" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Meeting / enquiry notes">
+                        <field name="description" nolabel="1" placeholder="Record design discussion, requirements and follow-up notes..."/>
+                    </group>
+                    <group string="Draft quotations">
+                        <field name="order_ids" readonly="1" nolabel="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_business_clients" model="ir.actions.act_window">
+        <field name="name">Business Clients</field>
+        <field name="res_model">crm.lead</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('fu_business_client', '=', True)]</field>
+        <field name="context">{'default_fu_business_client': True, 'default_type': 'opportunity'}</field>
+    </record>
+    <record id="action_fu_business_clients_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="fu_business_lead_list"/>
+        <field name="act_window_id" ref="action_fu_business_clients"/>
+    </record>
+    <record id="action_fu_business_clients_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="fu_business_lead_form"/>
+        <field name="act_window_id" ref="action_fu_business_clients"/>
+    </record>
+
+    <record id="fu_business_sale_order_list" model="ir.ui.view">
+        <field name="name">fu.business.sale.order.list</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <list string="Business Quotations" create="0" edit="0" delete="0">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="opportunity_id"/>
+                <field name="amount_total"/>
+                <field name="commitment_date"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="fu_business_sale_order_form" model="ir.ui.view">
+        <field name="name">fu.business.sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <form string="Business Quotation" create="0" edit="0" delete="0">
+                <sheet>
+                    <field name="fu_business_order" invisible="1"/>
+                    <div class="alert alert-warning" role="alert">
+                        Draft only. Confirmation, payment and shipment remain blocked until Phase 3B commercial policies are accepted.
+                    </div>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group string="Commercial draft">
+                            <field name="partner_id" readonly="1"/>
+                            <field name="opportunity_id" readonly="1"/>
+                            <field name="user_id" readonly="1"/>
+                            <field name="commitment_date" readonly="1"/>
+                        </group>
+                        <group string="Status">
+                            <field name="state" readonly="1"/>
+                            <field name="amount_untaxed" readonly="1"/>
+                            <field name="amount_total" readonly="1"/>
+                        </group>
+                    </group>
+                    <field name="order_line" readonly="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_business_quotations" model="ir.actions.act_window">
+        <field name="name">Business Quotations</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('fu_business_order', '=', True)]</field>
+    </record>
+    <record id="action_fu_business_quotations_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="fu_business_sale_order_list"/>
+        <field name="act_window_id" ref="action_fu_business_quotations"/>
+    </record>
+    <record id="action_fu_business_quotations_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="fu_business_sale_order_form"/>
+        <field name="act_window_id" ref="action_fu_business_quotations"/>
+    </record>
+
+    <menuitem id="menu_fu_business_root" name="Business Clients" sequence="55" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_sales_bd"/>
+    <menuitem id="menu_fu_business_clients" name="Enquiries &amp; Samples" parent="menu_fu_business_root" action="action_fu_business_clients" sequence="10" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_sales_bd"/>
+    <menuitem id="menu_fu_business_quotations" name="Draft Quotations" parent="menu_fu_business_root" action="action_fu_business_quotations" sequence="20" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_sales_bd"/>
+</odoo>

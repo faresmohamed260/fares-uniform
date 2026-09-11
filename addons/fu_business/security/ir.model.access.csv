@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fu_business_lead_owner,Fares business enquiry owner,crm.model_crm_lead,fu_core.group_fu_owner_admin,1,1,1,0
+access_fu_business_lead_sales,Fares business enquiry sales,crm.model_crm_lead,fu_core.group_fu_sales_bd,1,1,1,0
+access_fu_business_order_owner,Fares business quotation owner,sale.model_sale_order,fu_core.group_fu_owner_admin,1,0,0,0
+access_fu_business_order_sales,Fares business quotation sales,sale.model_sale_order,fu_core.group_fu_sales_bd,1,0,0,0
+access_fu_business_order_line_owner,Fares business quotation line owner,sale.model_sale_order_line,fu_core.group_fu_owner_admin,1,0,0,0
+access_fu_business_order_line_sales,Fares business quotation line sales,sale.model_sale_order_line,fu_core.group_fu_sales_bd,1,0,0,0
