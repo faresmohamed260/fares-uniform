@@ -89,3 +89,195 @@ msgstr "تم الحفظ على هذا الجهاز"
 #: code:addons/fu_retail/static/src/receipt_sync_status.xml:0
 msgid "Pending server sync — this sale is not yet server-confirmed."
 msgstr "بانتظار المزامنة مع الخادم — لم يتم تأكيد هذه العملية على الخادم بعد."
+
+#. module: fu_retail
+#: model:ir.actions.act_window,name:fu_retail.action_fu_retail_return_requests
+#: model:ir.ui.menu,name:fu_retail.menu_fu_retail_returns
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_list
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_search
+msgid "Returns & Exchanges"
+msgstr "المرتجعات والاستبدالات"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Return / Exchange"
+msgstr "إرجاع / استبدال"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Submit Request"
+msgstr "إرسال الطلب"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Approve"
+msgstr "اعتماد"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Execute Return / Exchange"
+msgstr "تنفيذ الإرجاع / الاستبدال"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Original Sale"
+msgstr "البيع الأصلي"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Original Transaction"
+msgstr "المعاملة الأصلية"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Return Policy"
+msgstr "سياسة الإرجاع"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Settlement"
+msgstr "التسوية"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Returned Items"
+msgstr "الأصناف المرتجعة"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Original Sale Line"
+msgstr "بند البيع الأصلي"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Returned Item"
+msgstr "الصنف المرتجع"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Replacement Size"
+msgstr "المقاس البديل"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Inspection"
+msgstr "الفحص"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Accept as Sellable"
+msgstr "قبول كصالح للبيع"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Mark Non-sellable"
+msgstr "تصنيف كغير صالح للبيع"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Audit Trail"
+msgstr "سجل التدقيق"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Native Odoo Records"
+msgstr "سجلات أودو الأصلية"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Online connection required."
+msgstr "يتطلب اتصالًا بالإنترنت."
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Returns and exchanges use live server authorization, payment and stock checks."
+msgstr "تستخدم المرتجعات والاستبدالات تحققًا مباشرًا من الصلاحيات والدفع والمخزون على الخادم."
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "InstaPay settlement confirmed"
+msgstr "تم تأكيد تسوية InstaPay"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__exchange_difference_preview
+msgid "Current price difference"
+msgstr "فرق السعر الحالي"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__physical_received
+msgid "Returned item physically received"
+msgstr "تم استلام الصنف المرتجع فعليًا"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__settlement_reference
+msgid "Settlement Reference"
+msgstr "مرجع التسوية"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_line__inspection_state
+msgid "Inspection State"
+msgstr "حالة الفحص"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_request__operation__refund
+msgid "Refund"
+msgstr "استرداد"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_request__operation__exchange
+msgid "Size exchange"
+msgstr "استبدال المقاس"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_request__eligibility_path__no_reason
+msgid "Consumer return / exchange"
+msgstr "إرجاع / استبدال للمستهلك"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_request__eligibility_path__defect
+msgid "Defective item"
+msgstr "صنف معيب"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_line__inspection_state__pending
+msgid "Pending inspection"
+msgstr "بانتظار الفحص"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_line__inspection_state__accepted
+msgid "Accepted as sellable"
+msgstr "مقبول للبيع"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_line__inspection_state__non_sellable
+msgid "Non-sellable"
+msgstr "غير صالح للبيع"
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/return_online_guard.js:0
+msgid "Online — returns and exchanges use live server authorization."
+msgstr "متصل — تستخدم المرتجعات والاستبدالات صلاحيات الخادم المباشرة."
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/return_online_guard.js:0
+msgid "Offline — returns and exchanges are disabled until connection returns."
+msgstr "غير متصل — تم تعطيل المرتجعات والاستبدالات حتى عودة الاتصال."
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/return_entry_patch.js:0
+msgid "Returns and exchanges require an online connection."
+msgstr "تتطلب المرتجعات والاستبدالات اتصالًا بالإنترنت."
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/return_entry_patch.xml:0
+msgid "Returns / Exchanges"
+msgstr "المرتجعات / الاستبدالات"

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fu_retail_return_request_list" model="ir.ui.view">
+        <field name="name">fu.retail.return.request.list</field>
+        <field name="model">fu.retail.return.request</field>
+        <field name="arch" type="xml">
+            <list string="Returns &amp; Exchanges" decoration-success="state == 'done'" decoration-warning="state == 'requested'" decoration-danger="state == 'rejected'">
+                <field name="request_key" string="Request"/>
+                <field name="source_order_id" string="Original Transaction"/>
+                <field name="operation" widget="badge"/>
+                <field name="eligibility_path" string="Eligibility"/>
+                <field name="store_location_id" string="Store"/>
+                <field name="reason"/>
+                <field name="state" widget="badge"/>
+                <field name="requested_by_id" string="Requested By" optional="hide"/>
+                <field name="approved_by_id" string="Approved By" optional="hide"/>
+                <field name="executed_by_id" string="Executed By" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="fu_retail_return_request_form" model="ir.ui.view">
+        <field name="name">fu.retail.return.request.form</field>
+        <field name="model">fu.retail.return.request</field>
+        <field name="arch" type="xml">
+            <form string="Return / Exchange" create="true" delete="false">
+                <header>
+                    <button name="action_submit" type="object" string="Submit Request" class="btn-primary fu-return-online-required-action" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier" invisible="state != 'draft'"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary fu-return-online-required-action" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager" invisible="state != 'requested'"/>
+                    <button name="action_execute" type="object" string="Execute Return / Exchange" class="btn-primary fu-return-online-required-action" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager" invisible="state != 'approved'"/>
+                    <button name="action_reject" type="object" string="Reject" class="btn-secondary fu-return-online-required-action" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager" invisible="state not in ['draft', 'requested']"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,requested,approved,done,rejected"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="request_key" string="Return / Exchange"/>
+                        <h1><field name="request_key" readonly="1"/></h1>
+                    </div>
+                    <div class="alert alert-info fu-return-online-required-banner" role="alert">
+                        <strong>Online connection required.</strong>
+                        <span class="fu-return-online-state">Returns and exchanges use live server authorization, payment and stock checks.</span>
+                    </div>
+                    <group>
+                        <group string="Original Sale">
+                            <field name="source_order_id" domain="[('state', 'in', ['paid', 'done']), ('is_refund', '=', False)]" options="{'no_create': True, 'no_quick_create': True}" readonly="state != 'draft'"/>
+                            <field name="store_location_id" readonly="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Return Policy">
+                            <field name="operation" readonly="state != 'draft'"/>
+                            <field name="eligibility_path" readonly="state != 'draft'"/>
+                            <field name="reason" readonly="state != 'draft'"/>
+                            <field name="physical_received" readonly="state in ['done', 'rejected']"/>
+                        </group>
+                    </group>
+                    <group string="Settlement">
+                        <group>
+                            <field name="exchange_difference_preview" widget="monetary" invisible="operation != 'exchange'"/>
+                            <div class="text-muted" invisible="operation != 'exchange'">
+                                Positive means collect from the customer; negative means refund to the customer. Final settlement is recomputed by the server.
+                            </div>
+                        </group>
+                        <group>
+                            <field name="settlement_reference" readonly="state in ['done', 'rejected']"/>
+                            <field name="bank_refund_confirmed" string="InstaPay settlement confirmed" readonly="state in ['done', 'rejected']"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Returned Items">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom" create="true" delete="true">
+                                    <field name="source_line_id" string="Original Sale Line" domain="[('order_id', '=', parent.source_order_id), ('qty', '>', 0)]" options="{'no_create': True, 'no_quick_create': True}"/>
+                                    <field name="source_product_template_id" invisible="1"/>
+                                    <field name="product_id" string="Returned Item"/>
+                                    <field name="quantity"/>
+                                    <field name="replacement_product_id" string="Replacement Size" domain="[('product_tmpl_id', '=', source_product_template_id), ('id', '!=', product_id)]" options="{'no_create': True, 'no_quick_create': True}" column_invisible="parent.operation != 'exchange'"/>
+                                    <field name="inspection_state" widget="badge" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Inspection" invisible="state != 'done'" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_inventory_staff">
+                            <div class="alert alert-warning" role="alert">
+                                Returned garments remain outside sellable stock until each line is explicitly accepted.
+                            </div>
+                            <field name="line_ids" readonly="1">
+                                <list create="false" edit="false" delete="false">
+                                    <field name="product_id" string="Returned Item"/>
+                                    <field name="quantity"/>
+                                    <field name="inspection_state" widget="badge"/>
+                                    <field name="inspected_by_id" string="Inspected By" optional="hide"/>
+                                    <field name="inspected_at" string="Inspected At" optional="hide"/>
+                                    <button name="action_accept_sellable" type="object" string="Accept as Sellable" class="btn-primary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_inventory_staff" invisible="inspection_state != 'pending'"/>
+                                    <button name="action_mark_non_sellable" type="object" string="Mark Non-sellable" class="btn-secondary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_inventory_staff" invisible="inspection_state != 'pending'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Audit Trail">
+                            <group>
+                                <group string="Request">
+                                    <field name="requested_by_id" readonly="1"/>
+                                    <field name="requested_at" readonly="1"/>
+                                    <field name="approved_by_id" readonly="1"/>
+                                    <field name="approved_at" readonly="1"/>
+                                </group>
+                                <group string="Execution">
+                                    <field name="executed_by_id" readonly="1"/>
+                                    <field name="executed_at" readonly="1"/>
+                                    <field name="rejected_by_id" readonly="1"/>
+                                    <field name="rejected_at" readonly="1"/>
+                                </group>
+                            </group>
+                            <group string="Native Odoo Records">
+                                <field name="refund_order_id" readonly="1"/>
+                                <field name="exchange_order_id" readonly="1"/>
+                                <field name="quarantine_picking_id" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="fu_retail_return_request_search" model="ir.ui.view">
+        <field name="name">fu.retail.return.request.search</field>
+        <field name="model">fu.retail.return.request</field>
+        <field name="arch" type="xml">
+            <search string="Returns &amp; Exchanges">
+                <field name="request_key"/>
+                <field name="source_order_id"/>
+                <field name="reason"/>
+                <field name="store_location_id"/>
+                <filter name="needs_approval" string="Needs Approval" domain="[('state', '=', 'requested')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="completed" string="Completed" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter name="refunds" string="Refunds" domain="[('operation', '=', 'refund')]"/>
+                <filter name="exchanges" string="Size Exchanges" domain="[('operation', '=', 'exchange')]"/>
+                <group>
+                    <filter name="group_store" string="Store" context="{'group_by': 'store_location_id'}"/>
+                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                    <filter name="group_operation" string="Operation" context="{'group_by': 'operation'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fu_retail_return_requests" model="ir.actions.act_window">
+        <field name="name">Returns &amp; Exchanges</field>
+        <field name="res_model">fu.retail.return.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="fu_retail_return_request_search"/>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('fu_retail_return_request_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('fu_retail_return_request_form')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No return or exchange requests yet</p>
+            <p>Create a request only while online and link it to the original completed retail transaction.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_fu_retail_returns" name="Returns &amp; Exchanges" parent="fu_core.menu_fu_root" action="action_fu_retail_return_requests" sequence="40" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier,fu_core.group_fu_inventory_staff"/>
+</odoo>
