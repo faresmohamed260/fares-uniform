@@ -1,6 +1,6 @@
 # Phase 2C — Retail refunds and size exchanges
 
-Status: **PLANNING ACTIVE; BUSINESS POLICY GATES OPEN; IMPLEMENTATION NOT STARTED.**
+Status: **PLANNING ACTIVE; PINNED ODOO MODEL BOUNDARY COMPLETE; BUSINESS POLICY GATES OPEN; IMPLEMENTATION NOT STARTED.**
 
 Branch: `phase-2c/refunds-exchanges`.
 
@@ -29,21 +29,27 @@ Phase 2B is complete at application authority `af64b858cf6f2be6a143bb19e836721ab
 
 ## Odoo-native technical direction
 
-Current Odoo 19 documentation and upstream source show a native order-based POS refund flow: a paid original order is selected, refundable lines/quantities are chosen, a refund order is created and linked back to the original order, and the refund is settled through the POS payment flow. Odoo also provides native stock return/reverse-transfer mechanisms for customer returns.
+The exact pinned Odoo Community commit `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` has now been inspected. The authoritative analysis is `docs/architecture/PHASE_2C_REFUND_RETURN_MODEL.md`.
 
-References used for planning:
-- https://www.odoo.com/documentation/19.0/applications/sales/point_of_sale/use.html#return-and-refund-products
-- https://github.com/odoo/odoo/blob/19.0/addons/point_of_sale/models/pos_order.py
-- https://www.odoo.com/documentation/19.0/applications/inventory_and_mrp/repairs/repair_orders.html#return-order
+Pinned findings:
+1. native POS refund lines are linked to their original POS line through `refunded_orderline_id` and Odoo computes cumulative `refunded_qty`;
+2. native POS rejects refund quantity beyond the outstanding source quantity;
+3. a delivered POS refund's negative line creates the return stock effect and links its stock move to the original done outgoing move through `origin_returned_move_id`;
+4. refund-before-delivery cancels/reduces the still-open outbound effect instead of manufacturing a false customer return;
+5. generic `stock.return.picking` creates a separate reverse picking and is appropriate for non-POS delivery reversal, not as an additional stock effect on top of a POS refund;
+6. pinned `sale_stock` preserves `sale_line_id` and `sale_id` through generic returns;
+7. mixed positive/negative POS lines are processed as separate outgoing/return stock effects, giving a sound native basis for a different-variant size exchange plus explicit net settlement.
 
-Before implementation, inspect the exact pinned Odoo Community commit `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`; the moving `19.0` branch/documentation is architectural guidance, not exact-code authority.
+Current Odoo 19 documentation is behavioral guidance only; pinned source controls compatibility.
 
-Preferred implementation direction unless pinned-source evidence contradicts it:
-1. use native order-linked refund records rather than editing/deleting the original POS order;
-2. use native stock return effects or a bounded service over them rather than positive inventory adjustments masquerading as returns;
-3. model a size exchange as an attributable return of the original variant plus a new sale/release of the replacement variant, with any price difference handled explicitly;
-4. preserve links among original sale, return/refund, payment reversal/settlement and stock movement;
-5. keep replay/idempotency guards around every Fares-owned mutation boundary.
+Implementation direction:
+1. use native order-linked POS refund records rather than editing/deleting the original POS order;
+2. let the POS refund own its native return stock effect; never double-return the same quantity through the generic reverse-transfer wizard;
+3. use `stock.return.picking` only where a non-POS/native delivery reversal is actually the owning workflow;
+4. model a size exchange as an attributable native return of the original variant plus a positive sale/release of the replacement variant, with any price difference handled explicitly;
+5. preserve links among original sale, refund, payment settlement and stock movement;
+6. keep replay/idempotency guards around every Fares-owned approval/execution boundary;
+7. do not execute a return into sellable Retail Store stock until P2C-05 determines whether inspection occurs before refund or requires a non-sellable/inspection location.
 
 ## Proposed functional scope
 
@@ -137,7 +143,7 @@ If the replacement variant/product has a different selling price, should the cus
 ### P2C-05 — Returned-stock disposition
 When a returned garment is physically received, when does it become sellable stock again?
 
-**Recommended default:** staff must explicitly confirm it is sellable before it returns to available Retail Store stock. Damaged/used/non-sellable items must not inflate sellable stock; the implementation may need a bounded non-sellable/inspection disposition rather than a generic inventory adjustment.
+**Recommended default:** staff must explicitly confirm it is sellable before it returns to available Retail Store stock. If inspection occurs only after the refund, route the item to a dedicated non-sellable/inspection location first. Damaged/used/non-sellable items must not inflate sellable stock.
 
 ### P2C-06 — Preorder cancellation versus post-collection return
 Should this phase also support cancellation/refund of an **uncollected** preorder, or only returns/exchanges of items already physically released to the customer?
@@ -171,6 +177,8 @@ Hosted validation must include at least:
 - Store Manager can approve only within assigned store scope;
 - repeated request/approval/execution does not duplicate financial or stock effects;
 - cumulative partial refund cannot exceed original eligible quantity;
+- delivered POS refund creates exactly one native return stock effect and never a duplicate generic reverse transfer;
+- refund-before-delivery cancels/reduces the open delivery without a fabricated customer return;
 - returned item is not made sellable until the accepted stock-disposition condition is satisfied;
 - exchange returns the original variant and issues the replacement variant exactly once;
 - price difference settlement follows the accepted P2C-04 rule;
@@ -184,7 +192,7 @@ Hosted validation must include at least:
 
 Before implementation starts:
 - record accepted P2C-01 through P2C-07 decisions in an authoritative requirements/decision document;
-- inspect and record the exact pinned-Odoo refund/return model boundary;
+- keep `docs/architecture/PHASE_2C_REFUND_RETURN_MODEL.md` as the exact pinned-Odoo refund/return boundary;
 - update role/permission detail only if the accepted workflow changes the already-delegated approval design.
 
 Before phase closure:

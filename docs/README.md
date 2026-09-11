@@ -27,7 +27,8 @@
 | [Phase 2B Odoo model analysis](architecture/PHASE_2B_PREORDER_MODEL.md) | Pinned-Odoo technical boundary for preorder identity, payments and collection |
 | [Phase 2B policy decisions](requirements/PHASE_2B_POLICY_DECISIONS.md) | Accepted connectivity, deposit, allocation and partial-readiness policy |
 | [Phase 2B validation](validation/PHASE_2B_PREORDER_COLLECTION.md) | Final exact-head hosted evidence, retained red/green chronology, application authority and cleanup lineage |
-| [Phase 2C refunds/exchanges contract](phases/PHASE_2C_REFUNDS_EXCHANGES.md) | Active refund/size-exchange planning contract, native-Odoo direction, blocking policy gates and validation/exit requirements |
+| [Phase 2C refunds/exchanges contract](phases/PHASE_2C_REFUNDS_EXCHANGES.md) | Active refund/size-exchange phase contract, blocking policy gates and validation/exit requirements |
+| [Phase 2C pinned refund/return model](architecture/PHASE_2C_REFUND_RETURN_MODEL.md) | Exact pinned-Odoo POS refund, stock-return, exchange and ownership boundary |
 
 Read these documents from GitHub at the beginning of work. Add new documents here when needed, with a clear ownership boundary.
 
