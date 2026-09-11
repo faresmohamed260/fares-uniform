@@ -1,194 +1,182 @@
 # Phase 3B validation — business-client workflow
 
-Status: **EXPANDED POLICY-NEUTRAL SLICE VERIFIED; FULL PHASE 3B REMAINS ACTIVE/POLICY-GATED.**
+Status: **COMPLETE — POLICY-ENABLED COMMERCIAL EXECUTION VERIFIED.**
 
 Branch: `phase-3b/business-client-orders`.
 
 Starting Phase 3A documentation lineage: `f7ceb2690ad87efa186e553e081d2ff1721660d0`.
 
-Authoritative Phase 3B policy-neutral application/test SHA: **`70e8c4d781106d894ded5a506c05b8c789ca9e05`**.
+Authoritative Phase 3B application/test SHA: **`d6efa76a99c0732423b354d2d9f787f6ccbdebec`**.
 
 Pinned Odoo Community SHA: `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
-Full Phase 3B is not closed. P3B-01 through P3B-04 remain open and commercial confirmation/payment/shipment/cancellation remain fail-closed.
+P3B-01 through P3B-04 are accepted in `docs/requirements/PHASE_3B_POLICY_DECISIONS.md` and are implemented for the bounded MVP business-client path. B2B refunds/credits, post-confirmation commercial amendments, partial shipments, customer credit terms, cards/wallets, bank API automation, deployment and real-data migration remain excluded.
 
 ## Validation ownership
 
-This document owns the exact-hosted Phase 3B chronology and distinguishes:
-- the verified policy-neutral enquiry/sample implementation;
-- the later policy-neutral controlled draft-quotation editor;
-- future policy-enabled commercial implementation;
-- hosted-tested application SHAs;
-- browser/rendered evidence;
-- repeatable upgrade evidence;
-- later documentation-only commits.
+This document owns the exact hosted Phase 3B chronology and distinguishes:
+- the earlier policy-neutral enquiry/sample/draft-detail milestone;
+- the accepted commercial policy decisions;
+- the policy-enabled payment/confirmation/shipment implementation;
+- red-run causes and fixes;
+- the final hosted-tested application authority;
+- later documentation-only closure commits.
 
-The green result below is a verified Phase 3B milestone, not full Phase 3B closure.
+## Accepted commercial rules proven
 
-## Required policy-neutral gate — result
+The final gate proves the following server-side behavior:
 
-The exact-head gate proves:
+1. business-client enquiry/design/sample work remains on native `crm.lead` with bounded Sales/BD scope;
+2. draft commercial identity remains native `sale.order` / `sale.order.line` and is created only after sample approval;
+3. a negotiated positive business payment is required before commercial confirmation;
+4. no fixed/default deposit percentage is invented;
+5. payment recording is retry-safe and cannot overpay the order;
+6. InstaPay requires positive staff confirmation of the observed bank notification when its journal is configured that way;
+7. Sales/BD cannot spoof internal execution context to bypass protected writes;
+8. after any posted business payment, Sales/BD commercial edits are denied;
+9. Owner/Admin may make a controlled post-payment draft commercial change with actor/time attribution;
+10. after commercial confirmation, the Fares workflow does not permit commercial-line mutation;
+11. draft cancellation is allowed only before money is recorded;
+12. once money is recorded, cancellation/payment rewrite is blocked rather than inventing refund, forfeiture or credit behavior;
+13. the entire remaining balance must be zero before customer shipment release;
+14. partial customer shipment/backorder release is blocked for this MVP;
+15. every ordered quantity must be physically available in the single customer delivery before release;
+16. Sales/BD cannot validate/release the shipment;
+17. Inventory Staff / Store Manager shipment execution remains bounded to assigned Fares stock-location scope;
+18. Owner/Admin authority on shared native models does not accidentally narrow authority for existing multi-role users;
+19. ordinary non-business sale/payment/stock behavior remains unaffected;
+20. all prior Phase 1 through Phase 3A regressions remain green;
+21. EN/AR/RTL business enquiry, draft-editor, payment and delivery UI checks pass on desktop and narrow layouts;
+22. repeatable upgrade succeeds for `fu_core,fu_retail,fu_preorder,fu_production,fu_business` on the same database and exact application SHA.
 
-1. Fares Sales/BD can create an assigned business-client enquiry without gaining unrelated broad administration;
-2. Cashier, Inventory Staff and Production Manager cannot create the protected business workflow merely from their existing roles;
-3. design requirements and sample context remain attached to native `crm.lead` rather than a parallel CRM ledger;
-4. direct write of protected sample-state/audit fields is denied;
-5. valid sample transitions work and invalid transitions fail closed;
-6. sample sent/approval/rejection actor and timestamps are attributable;
-7. approved sample does not itself create payment, stock, picking or confirmed-sale effects;
-8. native-linked draft quotation creation is denied before sample approval and allowed after approval;
-9. repeated draft-quotation action is retry-safe and does not silently create duplicate commercial identities;
-10. assigned Sales/BD or Owner may prepare candidate product, quantity, unit-price, customer-reference and promised-delivery details through the guarded draft editor after sample approval;
-11. the draft editor does not grant broad native `sale.order` / `sale.order.line` write authority to Sales/BD;
-12. draft-editor retry replaces candidate lines instead of duplicating them and creates no payment, picking, stock-release or confirmation effects;
-13. a Fares business quotation/order cannot be confirmed server-side while P3B-01 through P3B-04 remain unresolved;
-14. an ordinary draft quotation cannot be relinked into the protected Fares business path to bypass the confirmation guard;
-15. ordinary non-business sale behavior is not globally blocked by the Phase 3B guard;
-16. Sales/BD enquiry phone/email changes stay on the business `crm.lead` and do not silently grant or exercise linked `res.partner` write authority;
-17. EN/AR/RTL business workflow and draft-editor UI, keyboard focus and desktop/narrow rendering pass;
-18. Arabic draft-editor title, warning, fields, Save and Cancel controls are localized and rendered RTL;
-19. all prior Phase 1 through Phase 3A regressions remain green;
-20. repeatable upgrade succeeds for `fu_core,fu_retail,fu_preorder,fu_production,fu_business` on the same database and exact application SHA.
+## Final authoritative green gate
 
-## Authoritative green gate
-
-Application SHA: **`70e8c4d781106d894ded5a506c05b8c789ca9e05`**.
+Application SHA: **`d6efa76a99c0732423b354d2d9f787f6ccbdebec`**.
 
 Workflow: `Phase 3B business clients`.
 
-Run: **`34617949241`**.
+Run: **`34634425338`**.
 
-Job: **`103324461450`** (`business-workflow`).
+Job: **`103378750321`** (`business-workflow`).
 
 Run result: **success**.
 
 Combined test result:
 
-`0 failed, 0 error(s) of 108 tests when loading database 'fares_phase3b'`.
+`0 failed, 0 error(s) of 118 tests when loading database 'fares_phase3b'`.
 
-Repeatable upgrade result: **success** for `fu_core,fu_retail,fu_preorder,fu_production,fu_business` on the same database and exact application SHA. The upgrade log contains the already-known `fu_preorder` translation-at-import warning; all five modules load and the registry completes successfully.
+Repeatable upgrade result: **success** for `fu_core,fu_retail,fu_preorder,fu_production,fu_business` on the same database and exact application SHA. The retained upgrade log contains the already-known `fu_preorder` translation-at-import diagnostic; all five Fares addons load and the Odoo registry completes successfully.
 
 Exact-head evidence artifact:
-- ID: **`10271630267`**;
-- name: `phase3b-business-70e8c4d781106d894ded5a506c05b8c789ca9e05`;
-- digest: **`sha256:a466f88680fa7faf39c52cd63a9d60cda122ad966bf9ea9f9290fa4a0d2b9444`**;
-- created: 2026-09-11T15:51:41Z;
-- expiry recorded by GitHub: 2026-09-18T15:51:41Z.
+- ID: **`10277960160`**;
+- name: `phase3b-business-d6efa76a99c0732423b354d2d9f787f6ccbdebec`;
+- digest: **`sha256:109ce8fd952f8389caafaf727a75dd3a7b0aed033d1fd5cccb5c661f862281da`**;
+- created: 2026-09-11T18:45:56Z;
+- expiry recorded by GitHub: 2026-09-18T18:45:54Z.
 
-Representative retained Phase 3B screenshots include:
-- `business_clients_en_desktop_20260911_155016_913128_test_business_clients_english.png`;
-- `business_clients_en_narrow_reduced_20260911_155017_089346_test_business_clients_english.png`;
-- `business_clients_ar_desktop_20260911_155014_226958_test_business_clients_arabic_rtl.png`;
-- `business_clients_ar_narrow_reduced_20260911_155014_387862_test_business_clients_arabic_rtl.png`;
-- `business_draft_editor_en_desktop_20260911_155029_693230_test_business_draft_editor_english.png`;
-- `business_draft_editor_en_narrow_reduced_20260911_155029_816432_test_business_draft_editor_english.png`;
-- `business_draft_editor_ar_desktop_20260911_155027_221075_test_business_draft_editor_arabic_rtl.png`;
-- `business_draft_editor_ar_narrow_reduced_20260911_155027_347523_test_business_draft_editor_arabic_rtl.png`.
+Retained runtime evidence:
+- Fares head `d6efa76a99c0732423b354d2d9f787f6ccbdebec`;
+- Odoo head `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`;
+- Python 3.12.14;
+- Google Chrome 152.0.7977.82;
+- rtlcss 4.3.0.
 
-Visual review confirms:
-- English business and editor desktop/narrow layouts remain usable without document-level horizontal overflow;
-- Arabic desktop/narrow layouts render in Odoo RTL mode;
-- the Arabic draft editor visibly renders `تفاصيل عرض السعر المبدئي`, the localized policy warning, localized field/section labels, `حفظ المسودة`, and `إلغاء`;
-- keyboard-focus assertions pass for the relevant primary workflow controls;
-- synthetic customer/enquiry fixture values remain their original test-data language and are not UI localization defects.
+Representative final Phase 3B screenshots include:
+- `business_clients_en_desktop_20260911_184451_111244_test_business_clients_english.png`;
+- `business_clients_ar_desktop_20260911_184448_239272_test_business_clients_arabic_rtl.png`;
+- `business_draft_editor_en_desktop_20260911_184518_192528_test_business_draft_editor_english.png`;
+- `business_draft_editor_ar_desktop_20260911_184515_455645_test_business_draft_editor_arabic_rtl.png`;
+- `business_payment_en_desktop_20260911_184531_834548_test_business_payment_english.png`;
+- `business_payment_en_narrow_reduced_20260911_184531_978704_test_business_payment_english.png`;
+- `business_payment_ar_desktop_20260911_184529_072581_test_business_payment_arabic_rtl.png`;
+- `business_payment_ar_narrow_reduced_20260911_184529_225624_test_business_payment_arabic_rtl.png`;
+- `business_delivery_en_desktop_20260911_184504_679276_test_business_delivery_english.png`;
+- `business_delivery_en_narrow_reduced_20260911_184504_830154_test_business_delivery_english.png`;
+- `business_delivery_ar_desktop_20260911_184502_223980_test_business_delivery_arabic_rtl.png`;
+- `business_delivery_ar_narrow_reduced_20260911_184502_360965_test_business_delivery_arabic_rtl.png`.
 
-The retained Phase 3B browser logs end with `test successful`. Remaining Chrome stderr messages are headless-runner environment noise such as D-Bus/UPower/GCM warnings, not application JavaScript/test failures.
+Manual review of the final evidence confirms usable desktop/narrow payment and delivery layouts, Arabic RTL rendering, localized payment/release controls and warnings, and no application JavaScript/test exception. The browser logs end with `test successful`; remaining Chrome stderr is ordinary headless-runner environment noise.
 
 ## Red-to-green chronology
 
-### Contract and architecture
+### Policy-neutral foundation and verified milestone
 
-`e1bcfdec0b2597971af8ba2f24daf459dfa8d89d` — `docs(phase3b): define business-client order contract`.
+`e1bcfdec0b2597971af8ba2f24daf459dfa8d89d` — defined the Phase 3B business-client contract.
 
-`d27b437ebb99962bd429cf8f990b1870afdcedf2` — `docs(phase3b): record business workflow ownership`.
+The policy-neutral enquiry/sample/draft-detail work was ultimately verified at application SHA **`70e8c4d781106d894ded5a506c05b8c789ca9e05`**, run `34617949241`, job `103324461450`, with **108 tests, 0 failures, 0 errors**, a successful five-addon repeatable upgrade, and artifact `10271630267` / digest `sha256:a466f88680fa7faf39c52cd63a9d60cda122ad966bf9ea9f9290fa4a0d2b9444`.
 
-`e311c95592354ce696bd9b8e1123ab14eac2b6cb` — `docs(phase3b): isolate open commercial policy gates`.
+That milestone intentionally did not enable payment/confirmation/shipment until the client resolved P3B-01 through P3B-04.
 
-`64b2046dbe41c775003ee68e53852200cfd0b971` — `docs(phase3b): authorize policy-neutral first slice`.
+### Commercial policies accepted
 
-### Initial application — red
+`cc0a52361b1e0c87ebc94a2059aa8ae973b453d4` — `docs(phase3b): accept commercial execution policies`.
 
-`97181b741d890a4823aafdef353ea672945aaa8a` — `feat(business): add policy-gated enquiry and sample workflow`.
+The accepted rules require full balance before shipment, prohibit partial customer shipment in MVP, use a freely negotiated positive deposit up to the order total, require Owner/Admin approval for post-payment draft commercial changes, and fail closed on cancellation once money exists.
 
-Run `34605221838`, job `103281883338`: failed before application tests because Odoo 19 RelaxNG rejected decorated attributes on the Phase 3B search-view `<group>`.
+### First policy-enabled implementation — red
 
-Artifact `10266850092`, digest `sha256:95a802dbbb3daba48320784b115e5c4de38f51543d3e62392320368b4d6d2a10` retained the failure.
+`57c36661e38f100217f8cd1b3dd6cacc17731411` — `feat(business): enable approved commercial execution`.
 
-### Search-view compatibility fix — red at next layer
+Run **`34627489784`**, job **`103356009123`**: combined tests failed with **1 failure and 21 errors of 118 tests**; repeatable upgrade was correctly skipped.
 
-`17e8ddcaedebd1fcfcf6ce9928733ac3b8f2497d` — `fix(business): use valid Odoo 19 search group`.
+Artifact:
+- ID `10274817487`;
+- name `phase3b-business-57c36661e38f100217f8cd1b3dd6cacc17731411`;
+- digest `sha256:d2359527cf9d2593b1a6c01c2dbe1ab90accc858aec17d107b9d488b99dcdef4`.
 
-Run `34607185301`, job `103288384284`: XML/module installation advanced past the first failure, then the combined gate reported `1 failed, 6 error(s) of 103 tests`.
+The broad regression root cause was record-rule composition on shared native stock models: the new Owner/Admin rules used a business-only domain. Existing synthetic retail users that also carry Owner/Admin therefore lost ordinary stock visibility through the intersection of applicable global/group rules. The established Fares convention is that Owner/Admin rules on shared native models are non-restrictive; operational stock roles carry the bounded location domain.
 
-Artifact `10266779274`, digest `sha256:e212fdd27c6393b46c7f2b7c6b78e24e18204937871e7ee4e1ca70f6b276119c` showed two root causes:
-- Sales/BD business lead creation with a linked partner and enquiry phone/email triggered native CRM inverse synchronization into `res.partner`, correctly failing because Sales/BD does not have broad contact-write authority;
-- the Arabic browser test did not receive the Phase 3B view-term translations because the PO entries lacked the Odoo `model_terms:ir.ui.view,arch_db:...` source bindings used by already-green project addons.
+The same run also exposed two test-layer issues: stale ORM reservation cache after a deliberately rejected shipment attempt, and a brittle English browser assertion against the `Stock scope` group heading rather than stable location fields.
 
-Remote review also found an untested linkage bypass: an ordinary draft quotation could attempt to become a business quotation by writing a business `opportunity_id` in the same ORM call before the original pre-write business filter classified it.
+### Owner/multi-role and test hardening — second red
 
-### Narrow-boundary, localization and linkage hardening — first green safe slice
+`a26e1dce5e451a5114e05e8425b69ddc64a30cd1` — `fix(business): preserve owner and stock workflow scope`.
 
-`79149f901d03c92fcd5b0ea432637660a2d102cf` — `fix(business): preserve narrow sales contact boundary`.
+This narrow follow-up:
+- restored non-restrictive Owner/Admin rules on shared native models;
+- retained bounded assigned-location scope for operational stock roles;
+- invalidated picking/move cache after the expected failed reservation savepoint;
+- replaced the brittle delivery group-heading assertion with stable stock-location field presence.
 
-This commit:
-- suppresses native partner phone/email inverse synchronization only for bounded Sales/BD writes on Fares business leads, keeping enquiry details on `crm.lead` without granting contact mutation authority;
-- adds regressions proving the linked partner remains unchanged;
-- detects and denies ordinary-order relinking into a Fares business opportunity unless the internal guarded path is used;
-- adds the correct Odoo view-term and selection metadata to Arabic translations;
-- preserves every commercial policy guard.
+No accepted payment or shipment policy was weakened.
 
-Run `34608365252`, job `103292327204`: **green**, 104 tests with zero failures/errors plus successful repeatable five-addon upgrade and retained EN/AR/RTL evidence.
+Run **`34632722124`**, job **`103373201310`** then improved to **0 failures and 1 error of 118 tests**; the repeatable upgrade was again correctly skipped.
 
-Artifact `10267231815`, digest `sha256:be5e61300fd525ca192948ea5cb91874a0942f54fd53dcd4d2195cf68e8d7aae`.
+Artifact:
+- ID `10277746414`;
+- digest `sha256:952dbc10f1d0d6c7450f48d120ab85a4bba18fd8acf59b3ae9aa51d1aef38699`.
 
-### Controlled draft-quotation editor — automated green, visual localization defect retained
+The only remaining error was `test_full_balance_and_full_stock_are_required_for_complete_shipment`: after proving release failed at one unit of stock, the test called the Fares `opening` stock operation with quantity `2` and expected it to add two units.
 
-`07a7219b97c07bf539803dfdcc5a1e5deb84e345` — `feat(business): add controlled draft quotation details`.
+### Opening-count fixture correction — final green
 
-This policy-neutral increment added the guarded transient editor for candidate products, quantities, unit prices, customer reference and promised delivery date while retaining read-only native sale ACLs for Sales/BD and keeping confirmation/payment/shipment fail-closed.
+Remote source inspection of `fu.stock.movement.request` proved that the `opening` operation is an **absolute inventory count**, not an additive receipt. Therefore the test had left on-hand stock at 2 against ordered demand 3; the production code correctly refused release.
 
-Run `34610757131`, job `103300563815`: **green**, 108 tests with zero failures/errors plus successful repeatable five-addon upgrade.
+`d6efa76a99c0732423b354d2d9f787f6ccbdebec` — `test(business): seed full shipment stock count` changed only the final synthetic opening count from `2` to `3`.
 
-Artifact `10268636565`, digest `sha256:31e7fc145e6392c1c37998af03cd8fba1a6509de52b368b8b3251cd7938aa07a`.
+The one-line test correction does not alter application, security, payment or shipment behavior. It makes the fixture actually represent the accepted condition “all three ordered units are physically available.”
 
-Manual visual review found that the Arabic editor body/fields/warning/Save control and RTL layout were correct, but the modal title and Cancel control remained English. Therefore this technically green SHA was deliberately not promoted as the final expanded safe-slice authority.
+Run `34634425338`, job `103378750321`: **green, 118 tests, 0 failures, 0 errors**, followed by a successful repeatable five-addon upgrade and retained EN/AR/RTL evidence.
 
-### Strengthened localization assertion — red as intended
+## Application authority vs closure documentation
 
-`88726112def99392dad6e725db22ce1c7935cbfe` — `fix(business): localize draft editor actions`.
+Treat **`d6efa76a99c0732423b354d2d9f787f6ccbdebec`** as the Phase 3B **application authority**.
 
-The browser contract was strengthened to require the Arabic modal title `تفاصيل عرض السعر المبدئي` and Arabic Cancel `إلغاء`.
+Any later documentation-only closure commits on `phase-3b/business-client-orders` do not become newer application proof merely by becoming branch HEAD.
 
-Run `34612119541`, job `103304921879`: **red**, `1 failed, 0 error(s) of 108 tests`; the only failure was `test_business_draft_editor_arabic_rtl` reporting `Localized draft-editor title missing`.
+## Remaining exclusions
 
-Artifact `10268534125`, digest `sha256:9032a2f2c7828c3fc36ddfc78a3df56e498379175bd88207bc8df66050df1ee9` retained the failure. This proved that a Python-built action title remained English in that RPC path even when using environment-aware translation.
+Phase 3B closure does not authorize or define:
+- B2B deposit refund/forfeiture policy;
+- B2B credit notes/refunds;
+- post-confirmation commercial amendment workflow;
+- partial customer shipment/backorders;
+- customer credit terms or pay-after-delivery terms;
+- cards/wallets;
+- automated bank integration;
+- raw/WIP inventory or procurement planning;
+- automated customer messaging;
+- public online purchasing;
+- production deployment or real-data migration.
 
-### Native translated action path — final expanded safe-slice green
-
-`70e8c4d781106d894ded5a506c05b8c789ca9e05` — `fix(business): use translated draft editor action`.
-
-The final fix keeps the existing server-side draft-editor scope check, then returns a persisted `ir.actions.act_window` whose `name` follows Odoo's normal translated-field path. The Arabic PO binds the action name explicitly. No business policy, sale confirmation, payment, stock or shipment behavior changed.
-
-Two transient placeholder commits (`439dbce52cb5141b93b17a0e812b6e0514256c34` and `91bcb496b9e62597014b0f261276c1c4cc70988b`) were corrected immediately in forward-only history. The final application tree at `70e8c4d...` removes their placeholder files; comparing `88726112...` to `70e8c4d...` shows only the intended three Phase 3B localization/action files changed.
-
-Run `34617949241`, job `103324461450`: **green**, 108 tests with zero failures/errors plus successful repeatable five-addon upgrade.
-
-Artifact `10271630267`, digest `sha256:a466f88680fa7faf39c52cd63a9d60cda122ad966bf9ea9f9290fa4a0d2b9444`.
-
-Final rendered evidence confirms the Arabic modal title and Cancel control are localized on desktop and narrow layouts, while English rendering remains correct.
-
-## Application authority vs later documentation
-
-Treat **`70e8c4d781106d894ded5a506c05b8c789ca9e05`** as the Phase 3B **expanded policy-neutral application authority** until a later application SHA passes an equal-or-stronger Phase 1–3B gate.
-
-Documentation-only commits made after this SHA do not become newer application proof merely by becoming branch HEAD.
-
-## Remaining Phase 3B gate
-
-Full Phase 3B still requires explicit resolution or explicit exclusion of:
-- P3B-01 remaining-balance due point;
-- P3B-02 partial-shipment policy/payment coupling;
-- P3B-03 deposit amount/default/minimum rule;
-- P3B-04 post-approval/deposit edits, cancellation and deposit treatment.
-
-Until those decisions are accepted, the verified application intentionally creates no Phase 3B deposit routine, balance-due enforcement, shipment authorization or confirmed-order cancellation/refund/credit path, and business `action_confirm()` remains server-blocked.
+Those remain later bounded work.
