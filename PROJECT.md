@@ -13,30 +13,28 @@
 
 ## Current state — 2026-09-11
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / OPERATIONAL VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE. Phase 2A — Retail checkout/offline: COMPLETE. Phase 2B — Preorder/balance/collection: COMPLETE. Phase 2C — Retail refunds/size exchanges: COMPLETE. Phase 3A — Preorder production queue/workflow: COMPLETE / AUTHORITATIVE PHASE 1–3A HOSTED GATE, REPEATABLE FOUR-ADDON UPGRADE AND EN/AR/RTL EVIDENCE PASS. Phase 3B — Business-client workflow: ACTIVE / EXPANDED POLICY-NEUTRAL ENQUIRY+SAMPLE+DRAFT-DETAIL SLICE VERIFIED; COMMERCIAL EXECUTION STILL GATED BY P3B-01 THROUGH P3B-04.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / OPERATIONAL VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE. Phase 2A — Retail checkout/offline: COMPLETE. Phase 2B — Preorder/balance/collection: COMPLETE. Phase 2C — Retail refunds/size exchanges: COMPLETE. Phase 3A — Preorder production queue/workflow: COMPLETE. Phase 3B — Business-client enquiry/sample/order/deposit/balance/shipment: COMPLETE / AUTHORITATIVE PHASE 1–3B HOSTED GATE, REPEATABLE FIVE-ADDON UPGRADE AND EN/AR/RTL EVIDENCE PASS.**
 
 Current branch: `phase-3b/business-client-orders`, stacked from Phase 3A closure head `f7ceb2690ad87efa186e553e081d2ff1721660d0`.
 
-The authoritative Phase 3B policy-neutral application/test SHA is **`70e8c4d781106d894ded5a506c05b8c789ca9e05`**. Later Phase 3B documentation-only commits do not supersede that tested application authority.
+Authoritative Phase 3B application/test SHA: **`d6efa76a99c0732423b354d2d9f787f6ccbdebec`**. Later documentation-only closure commits do not supersede that tested application authority.
 
-Verified expanded Phase 3B safe-slice hosted authority:
+Final Phase 3B hosted authority:
 - workflow: `Phase 3B business clients`;
-- run: `34617949241`;
-- job: `103324461450`;
-- result: **108 tests, 0 failures, 0 errors**;
+- run: `34634425338`;
+- job: `103378750321`;
+- result: **118 tests, 0 failures, 0 errors**;
 - repeatable upgrade: `fu_core,fu_retail,fu_preorder,fu_production,fu_business` — success;
-- artifact ID: `10271630267`;
-- artifact: `phase3b-business-70e8c4d781106d894ded5a506c05b8c789ca9e05`;
-- digest: `sha256:a466f88680fa7faf39c52cd63a9d60cda122ad966bf9ea9f9290fa4a0d2b9444`;
-- EN/AR/RTL enquiry and draft-editor desktop+narrow browser evidence plus keyboard focus — pass.
-
-The inherited Phase 3A application authority remains `ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc` for the completed production phase; Phase 3B has its own separately verified policy-neutral authority above.
+- artifact ID: `10277960160`;
+- artifact: `phase3b-business-d6efa76a99c0732423b354d2d9f787f6ccbdebec`;
+- digest: `sha256:109ce8fd952f8389caafaf727a75dd3a7b0aed033d1fd5cccb5c661f862281da`;
+- EN/AR/RTL business enquiry, draft editor, payment and complete-delivery desktop+narrow browser evidence — pass.
 
 No merge, production deployment or real-data migration occurred.
 
 ## Product and architecture direction
 
-Odoo Community is the operational/domain core. Fares-owned addons extend Odoo rather than duplicating its CRM, sales, payment or stock ledgers. Dense operational screens follow the accepted practical ERP direction; expressive 3D/physics/morphing remains for public/product-showcase surfaces where useful.
+Odoo Community is the operational/domain core. Fares-owned addons extend Odoo rather than duplicating its product, POS, CRM, sales, payment or stock ledgers. Dense operational screens follow the accepted practical ERP direction; expressive 3D/physics/morphing remains for public/product-showcase surfaces where useful.
 
 Confirmed product/stock rules remain:
 - school/client-specific designs are distinct stocked products when units are not interchangeable;
@@ -52,20 +50,24 @@ Confirmed product/stock rules remain:
 ## Completed implementation phases
 
 ### Phase 1 — products, finished stock and access
+
 Authoritative tested application: `eb7b4aaf7f180b15d9f5e593f84f0cfe34bb8df3`. See `docs/validation/PHASE_1_PRODUCTS_STOCK.md`.
 
 ### Phase 2A — ordinary retail checkout/offline
-Complete under `docs/phases/PHASE_2A_RETAIL_CHECKOUT_OFFLINE.md` and `docs/validation/PHASE_2A_RETAIL_CHECKOUT.md`.
+
+Complete under `docs/phases/PHASE_2A_RETAIL_CHECKOUT_OFFLINE.md` and `docs/validation/PHASE_2A_RETAIL_CHECKOUT.md`. Offline Cash checkout and controlled synchronization remain mandatory; InstaPay remains connectivity/confirmation bounded.
 
 ### Phase 2B — preorder, balance and partial collection
+
 Authoritative application/test SHA `af64b858cf6f2be6a143bb19e836721abc216221`. See `docs/validation/PHASE_2B_PREORDER_COLLECTION.md`.
 
 ### Phase 2C — retail refunds and size exchanges
+
 Authoritative application/test SHA `62369e62dd1e5d2505e089c6a5ede296a24bcb3b`; run `34596450064`, job `103253225096`, 82/82 tests plus repeatable three-addon upgrade. See `docs/validation/PHASE_2C_REFUNDS_EXCHANGES.md`.
 
 ### Phase 3A — preorder production queue/workflow
 
-Authoritative application/test SHA **`ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc`**.
+Authoritative application/test SHA `ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc`; run `34601274874`, job `103268897396`, 93 tests plus repeatable four-addon upgrade.
 
 Delivered:
 - exact product-variant/size demand aggregation;
@@ -78,50 +80,36 @@ Delivered:
 - Phase 2B Retail Store receipt/allocation remains authoritative for Ready for collection;
 - EN/AR/RTL desktop/narrow browser evidence and keyboard focus.
 
-## Active Phase 3B — business-client workflow
+### Phase 3B — business-client workflow
 
 Phase contract: `docs/phases/PHASE_3B_BUSINESS_CLIENT_ORDERS.md`.
 
 Architecture: `docs/architecture/PHASE_3B_BUSINESS_ORDER_MODEL.md`.
 
-Policy ledger: `docs/requirements/PHASE_3B_POLICY_DECISIONS.md`.
+Accepted policy ledger: `docs/requirements/PHASE_3B_POLICY_DECISIONS.md`.
 
-Validation chronology: `docs/validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md`.
+Final validation: `docs/validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md`.
 
-Pinned-Odoo ownership decision:
-- native `crm.lead` owns enquiry/company/contact/meeting/notes;
-- native `sale.order` through `sale_crm` owns the commercial draft/order identity;
-- native payments/accounting remain financial truth;
-- native stock pickings/moves remain shipment truth;
-- Fares code adds only design/sample workflow, bounded draft-preparation controls, role/security boundaries and guarded transitions.
+Pinned-Odoo ownership:
+- native `crm.lead` owns enquiry/company/contact/meeting/design context;
+- native `sale.order` / `sale.order.line` owns commercial order identity and amounts;
+- native posted payment/accounting records own financial truth;
+- native `stock.picking` / `stock.move` owns physical shipment truth;
+- Fares code adds bounded sample/commercial/payment/release workflows, audit and security only.
 
-### Verified expanded policy-neutral milestone
+Accepted commercial rules now implemented and verified:
+- positive negotiated deposit required before confirmation, with no invented deposit percentage;
+- Cash and positively confirmed InstaPay business payments are bounded and retry-safe;
+- overpayment and posted-payment rewrite/cancellation fail closed;
+- after a posted payment, Sales/BD commercial edits require Owner/Admin approval while still draft;
+- paid business work cannot be cancelled until a later B2B refund/credit policy exists;
+- the entire remaining balance must be settled before goods leave Fares custody;
+- partial customer shipments are disabled in the MVP;
+- all ordered quantities must be physically available in the single customer delivery before controlled release;
+- shipment roles remain assigned-location scoped; Sales/BD cannot release stock;
+- ordinary non-business sale/payment/stock paths and all earlier phases remain unaffected.
 
-Application/test SHA **`70e8c4d781106d894ded5a506c05b8c789ca9e05`** delivers and proves:
-- business enquiry/design/meeting notes on native CRM;
-- attributable sample preparation/sent/revision/approval/rejection workflow;
-- Sales/BD assigned-record scope without broad contact-write authority;
-- prospect phone/email can remain on the enquiry without silently mutating linked `res.partner` records;
-- one native-linked draft quotation only after approved sample, retry-safe;
-- guarded candidate product/quantity/unit-price, customer-reference and promised-delivery-date editing on that native draft;
-- Sales/BD does not gain broad native `sale.order` / `sale.order.line` write access;
-- repeated draft-detail save replaces candidate lines rather than duplicating them;
-- server-side business-order confirmation/state escalation denial while commercial policies remain open;
-- relinking an ordinary quotation into the protected business path cannot bypass the guard;
-- no policy-neutral payment, picking, stock-release or shipment-authorization effect;
-- ordinary non-business sale confirmation remains unaffected;
-- EN/AR/RTL desktop+narrow rendering, localized Arabic editor title/actions, keyboard focus and no-horizontal-overflow checks pass;
-- combined Phase 1–3B regressions and repeatable five-addon upgrade pass.
-
-The verified policy-neutral slice still must not implement or imply deposits, balance-due enforcement, shipment authorization, confirmed-order cancellation/refund/credit or an invented payment term.
-
-Open commercial decisions remain:
-- **P3B-01:** remaining-balance due point;
-- **P3B-02:** partial-shipment permission/payment coupling;
-- **P3B-03:** deposit amount/default/minimum;
-- **P3B-04:** post-approval/deposit edits/cancellation and deposit treatment.
-
-The policy-neutral milestone is verified, but full Phase 3B remains open until these policy gates are explicitly decided or explicitly excluded with accepted fail-closed behavior and the resulting commercial path is hosted-tested.
+The final test-only correction at `d6efa76a...` fixed a synthetic fixture misunderstanding: the Fares `opening` stock operation is an absolute count, not an additive receipt. The three-unit shipment test now sets the final opening count to 3. Shipment logic was not weakened.
 
 ## Roadmap
 
@@ -133,28 +121,28 @@ The policy-neutral milestone is verified, but full Phase 3B remains open until t
 6. Phase 2B preorder/balance/collection — complete.
 7. Phase 2C consumer retail refunds/size exchanges — complete.
 8. Phase 3A preorder production automation/workflow — complete.
-9. Phase 3B business-client enquiry/sample/order/deposit/shipment/balance — **active; expanded policy-neutral slice verified, commercial policy gates open**.
-10. Public catalog/enquiry and operational reports.
+9. Phase 3B business-client enquiry/sample/order/deposit/shipment/balance — **complete**.
+10. Public catalog/enquiry and operational reports — **next bounded product work**.
 11. Integrated UAT, onboarding rehearsal and explicitly authorized deployment planning.
 
 ## Immediate next action
 
 1. Keep stacked branches/PRs unmerged until explicit authorization.
-2. Treat `70e8c4d781106d894ded5a506c05b8c789ca9e05` as the Phase 3B policy-neutral application authority despite later docs-only commits.
-3. Preserve the verified enquiry/sample/draft-detail behavior and narrow role boundaries while Phase 3B remains active.
-4. Resolve P3B-01 through P3B-04 explicitly before enabling commercial confirmation, deposit/payment enforcement, shipment authorization or confirmed-order cancellation behavior.
-5. Once policies are accepted, implement only the resulting bounded commercial path using native Odoo sale/payment/stock truth and add direct bypass/idempotency/security regressions.
-6. Run a new exact-head combined Phase 1–3B hosted gate and repeatable five-addon upgrade for the policy-enabled application SHA before full Phase 3B closure.
-7. Keep documentation-only lineage separate from tested application authority.
-8. Do not infer or invent open commercial policies from the historical high-level workflow.
-9. No merge, deployment or real-data migration without explicit client authorization.
+2. Treat `d6efa76a99c0732423b354d2d9f787f6ccbdebec` as the Phase 3B application authority despite later docs-only commits.
+3. Preserve the completed Phase 1–3B behavior and role boundaries while starting the next roadmap slice.
+4. Before implementation, split the next roadmap item into bounded contracts: public catalog/enquiry and operational reports should not be conflated if their architecture/security/evidence needs differ.
+5. Reuse the existing public-catalog decisions: no public price or stock, website form + WhatsApp + phone enquiry routes, no automatic messaging implied.
+6. Reuse the accepted MVP report categories—daily sales, Cash/InstaPay totals, low stock, upcoming/overdue orders and customer balances—but define exact report formulas, date semantics, role visibility and treatment of deposits/refunds before implementation where still open.
+7. Continue exact-head hosted regression gates and preserve tested application SHA vs docs-only closure lineage.
+8. No merge, deployment or real-data migration without explicit client authorization.
 
 ## Later explicit decisions
 
 Resolve only when their affected work starts:
-- Phase 3B P3B-01 through P3B-04;
-- B2B return/credit policy;
-- report definitions, stock-warning settings and deposit-vs-sale treatment;
+- B2B deposit refund/forfeiture and credit-note/refund policy;
+- post-confirmation business-order amendment workflow;
+- any future partial-shipment or customer-credit terms;
+- report formulas/filters, stock-warning settings and deposit-vs-sale treatment;
 - tax/legal receipt/business identity details when legally relevant;
 - actual hardware compatibility and label dimensions;
 - production hosting/resources, budget and launch timing.
