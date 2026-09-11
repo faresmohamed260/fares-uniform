@@ -19,7 +19,8 @@ export function EnquiryForm({ language, sourceProductSlug }: { language: PublicL
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const phone = String(form.get("phone") ?? "").trim();
     const email = String(form.get("email") ?? "").trim();
     if (!phone && !email) {
@@ -45,7 +46,7 @@ export function EnquiryForm({ language, sourceProductSlug }: { language: PublicL
       if (!response.ok || !body.reference) throw new Error(body.error || text.error);
       setState({ kind: "success", reference: body.reference });
       keyRef.current = "";
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (error) {
       setState({ kind: "error", message: error instanceof Error ? error.message : text.error });
     }

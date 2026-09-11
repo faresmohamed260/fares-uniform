@@ -57,10 +57,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with: { python-version: "3.12" }
+      - name: Set up Node for rtlcss
+        uses: actions/setup-node@v4
+        with: { node-version: "22" }
       - name: Install Odoo dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev rtlcss
+          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev
+          npm install --global rtlcss@4.3.0
           python -m pip install --upgrade pip
           pip install -r odoo/requirements.txt
       - name: Install addons and run Phase 1 through Phase 4A tests
