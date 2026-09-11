@@ -1,6 +1,6 @@
 # Phase 2C — Retail refunds and size exchanges
 
-Status: **PLANNING ACTIVE; PINNED ODOO MODEL BOUNDARY COMPLETE; BUSINESS POLICY GATES OPEN; IMPLEMENTATION NOT STARTED.**
+Status: **PLANNING ACTIVE; PINNED ODOO MODEL BOUNDARY COMPLETE; EGYPT CONSUMER-POLICY BASELINE RESEARCHED; CLIENT POLICY GATES OPEN; IMPLEMENTATION NOT STARTED.**
 
 Branch: `phase-2c/refunds-exchanges`.
 
@@ -27,9 +27,21 @@ Authoritative repository requirements already establish:
 
 Phase 2B is complete at application authority `af64b858cf6f2be6a143bb19e836721abc216221`, run `34547236245`, job `103102402060`. Its later cleanup and documentation lineage does not replace that tested application SHA.
 
+## External consumer-policy baseline
+
+`docs/requirements/PHASE_2C_POLICY_RESEARCH.md` records current Egypt Consumer Protection Agency guidance researched on 2026-09-11.
+
+For consumer retail, the CPA guidance states:
+- a 14-day return/exchange period from receipt without reason, subject to published exceptions;
+- a 30-day return/exchange right for defective goods;
+- for defective returns, replacement/refund without extra cost and refund by the same purchase method;
+- exceptions to the no-reason path include compliant goods made to special consumer specifications, consumer-caused condition changes, and certain clothing categories such as underwear/wedding dresses when packaging is removed.
+
+This is an implementation constraint, not a final legal opinion. B2B/customer-commercial transactions are outside the CPA consumer definition cited by the research and remain a later contract-policy slice.
+
 ## Odoo-native technical direction
 
-The exact pinned Odoo Community commit `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` has now been inspected. The authoritative analysis is `docs/architecture/PHASE_2C_REFUND_RETURN_MODEL.md`.
+The exact pinned Odoo Community commit `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` has been inspected. The authoritative analysis is `docs/architecture/PHASE_2C_REFUND_RETURN_MODEL.md`.
 
 Pinned findings:
 1. native POS refund lines are linked to their original POS line through `refunded_orderline_id` and Odoo computes cumulative `refunded_qty`;
@@ -39,8 +51,6 @@ Pinned findings:
 5. generic `stock.return.picking` creates a separate reverse picking and is appropriate for non-POS delivery reversal, not as an additional stock effect on top of a POS refund;
 6. pinned `sale_stock` preserves `sale_line_id` and `sale_id` through generic returns;
 7. mixed positive/negative POS lines are processed as separate outgoing/return stock effects, giving a sound native basis for a different-variant size exchange plus explicit net settlement.
-
-Current Odoo 19 documentation is behavioral guidance only; pinned source controls compatibility.
 
 Implementation direction:
 1. use native order-linked POS refund records rather than editing/deleting the original POS order;
@@ -110,50 +120,41 @@ Inherited role design is binding unless the client changes it:
 - may approve/administer allowed refund/exchange actions and later documented exceptional corrections;
 - exceptional behavior still requires explicit recorded reason/evidence rather than silent mutation.
 
-## Blocking business policy gates
+## Blocking client policy gates
 
-These gates must be resolved before production behavior is implemented. Recommendations are developer proposals only, not client decisions.
+Statutory consumer constraints are recorded above. The remaining choices below determine how the software operationalizes them. Recommendations are proposals until the client accepts them.
 
-### P2C-01 — Proof of purchase / source transaction
-What source evidence is required to use the automated refund/exchange flow?
+### P2C-01 — Proof/source transaction
 
-**Recommended default:** require selection of the original recorded sale/preorder collection. Do not support anonymous standalone refunds in the Fares workflow initially; exceptional no-receipt cases require Owner/Manager handling under a later explicit rule.
+**Recommended:** require selection of the original recorded sale for the automated flow. Exceptional proof disputes are Manager/Owner-only and remain outside routine Cashier execution. Do not expose native anonymous standalone refunds initially.
 
-### P2C-02 — Eligibility window and item condition
-How long after sale/collection may an item be returned or exchanged, and what item condition is required?
+### P2C-02 — Eligibility and condition implementation
 
-Need an explicit business rule for time window plus conditions such as unused/unworn, original condition/tags, manufacturing defect exceptions, or other accepted criteria. Do not invent a legal/business return window.
+The consumer-retail implementation must not undercut the researched CPA baseline: 14-day no-reason path subject to published exceptions, plus 30-day defective path.
 
-### P2C-03 — Refund payment treatment
-For an approved refund, how is money returned for:
-- original Cash payment;
-- original confirmed-InstaPay payment;
-- transactions paid using more than one payment event where applicable?
+**Recommended:** use receipt/physical-delivery date as the eligibility clock; distinguish genuinely made-to-special-specification compliant items from normal stocked uniforms; require the item to satisfy the applicable statutory condition rule. The client still needs to decide whether Fares offers any better/longer voluntary policy than the statutory baseline.
 
-**Recommended technical rule:** preserve the original payment record and create explicit reversal/refund evidence. Do not edit posted payment history.
+### P2C-03 — Refund payment execution
+
+For defective consumer goods, researched CPA guidance requires refund by the same purchase method.
+
+**Recommended:** Cash purchase -> Cash refund; confirmed InstaPay purchase -> outbound InstaPay refund with staff manually recording positive bank evidence until automation exists. Preserve original payment; create a new explicit refund record. Multi-method allocation requires a separate accepted rule if the use case exists.
 
 ### P2C-04 — Size-exchange price difference
-If the replacement variant/product has a different selling price, should the customer:
-- pay the positive difference;
-- receive the negative difference as a refund;
-- or should another store policy apply?
 
-**Recommended default:** settle the exact difference explicitly in the exchange transaction using the accepted payment/refund policy.
+**Recommended:** settle the exact difference explicitly. Customer pays a positive difference; a negative difference is refunded under P2C-03. Equal price produces no money movement.
 
 ### P2C-05 — Returned-stock disposition
-When a returned garment is physically received, when does it become sellable stock again?
 
-**Recommended default:** staff must explicitly confirm it is sellable before it returns to available Retail Store stock. If inspection occurs only after the refund, route the item to a dedicated non-sellable/inspection location first. Damaged/used/non-sellable items must not inflate sellable stock.
+**Recommended:** inspect before sellable re-entry. If refund can occur before final condition classification, return to a dedicated non-sellable `Returns / Inspection` location and move to Retail Store sellable stock only after explicit acceptance. Damaged/non-sellable returns never inflate sellable stock.
 
-### P2C-06 — Preorder cancellation versus post-collection return
-Should this phase also support cancellation/refund of an **uncollected** preorder, or only returns/exchanges of items already physically released to the customer?
+### P2C-06 — Uncollected preorder cancellation
 
-**Recommended scope control:** implement returns/exchanges for physically completed/released retail transactions first. Treat cancellation/refund of an uncollected preorder as a separate policy path because it interacts with deposits, reservations and production demand.
+**Recommended:** exclude uncollected-preorder cancellation/refund from Phase 2C. It interacts with deposits, reservations and production demand and should receive its own bounded policy path.
 
 ### P2C-07 — Connectivity
-May refund/exchange actions be executed during an internet outage?
 
-**Recommended default:** require connectivity for request approval and execution. Refund eligibility, prior refunded quantity, payment history and current authorization are server-authoritative, so Phase 2A ordinary-offline-sale proof should not be generalized here.
+**Recommended:** require connectivity for request, approval and execution. Eligibility, prior refunded quantity, payment history and authorization are server-authoritative; Phase 2A ordinary offline-sale proof does not generalize to refunds.
 
 ## UI direction
 
@@ -193,6 +194,7 @@ Hosted validation must include at least:
 Before implementation starts:
 - record accepted P2C-01 through P2C-07 decisions in an authoritative requirements/decision document;
 - keep `docs/architecture/PHASE_2C_REFUND_RETURN_MODEL.md` as the exact pinned-Odoo refund/return boundary;
+- keep `docs/requirements/PHASE_2C_POLICY_RESEARCH.md` as external research rather than silently treating recommendations as client decisions;
 - update role/permission detail only if the accepted workflow changes the already-delegated approval design.
 
 Before phase closure:
@@ -205,14 +207,15 @@ Before phase closure:
 
 Phase 2C can close only when:
 1. P2C-01 through P2C-07 are accepted or explicitly deferred without leaving unsafe ambiguity;
-2. original sale/payment history is preserved and all reversals are linked/attributable;
-3. refund/exchange quantity and payment effects are bounded and idempotent;
-4. returned-stock disposition cannot silently inflate sellable stock;
-5. exchange variant and price-difference handling are explicit and tested;
-6. role/store-scope boundaries are server-enforced;
-7. connectivity behavior is explicit and tested;
-8. EN/AR/RTL representative UI passes;
-9. Phase 1 + Phase 2A + Phase 2B regressions and repeatable upgrades remain green;
-10. no B2B, tax/legal, card/wallet, repair or deployment policy is smuggled into the result.
+2. researched statutory constraints are represented without claiming final legal certification;
+3. original sale/payment history is preserved and all reversals are linked/attributable;
+4. refund/exchange quantity and payment effects are bounded and idempotent;
+5. returned-stock disposition cannot silently inflate sellable stock;
+6. exchange variant and price-difference handling are explicit and tested;
+7. role/store-scope boundaries are server-enforced;
+8. connectivity behavior is explicit and tested;
+9. EN/AR/RTL representative UI passes;
+10. Phase 1 + Phase 2A + Phase 2B regressions and repeatable upgrades remain green;
+11. no B2B, tax/legal, card/wallet, repair or deployment policy is smuggled into the result.
 
 Implementation must not start by guessing the open client policies above.

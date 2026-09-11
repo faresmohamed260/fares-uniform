@@ -13,7 +13,7 @@
 
 ## Current state — 2026-09-11
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2A — Retail checkout/offline: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2B — Preorder/balance/collection: COMPLETE / AUTHORITATIVE COMBINED HOSTED GATE, REPEATABLE UPGRADE AND EXACT-HEAD EVIDENCE PASS. Phase 2C — Refunds/exchanges: PLANNING ACTIVE; PINNED ODOO MODEL BOUNDARY COMPLETE; BUSINESS POLICY GATES OPEN; IMPLEMENTATION NOT STARTED.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2A — Retail checkout/offline: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2B — Preorder/balance/collection: COMPLETE / AUTHORITATIVE COMBINED HOSTED GATE, REPEATABLE UPGRADE AND EXACT-HEAD EVIDENCE PASS. Phase 2C — Refunds/exchanges: PLANNING ACTIVE; PINNED ODOO MODEL + EGYPT CONSUMER-POLICY BASELINE RESEARCH COMPLETE; CLIENT POLICY GATES OPEN; IMPLEMENTATION NOT STARTED.**
 
 Active branch: `phase-2c/refunds-exchanges`, stacked from verified Phase 2B closure `5f341fb4aa5eacb12191dd41afa43c02000abcd4`.
 
@@ -55,15 +55,17 @@ No merge, production deployment or real-data migration occurred.
 
 ## Phase 2C planning — refunds and size exchanges
 
-The active Phase 2C contract is `docs/phases/PHASE_2C_REFUNDS_EXCHANGES.md`. The exact pinned-Odoo technical boundary is `docs/architecture/PHASE_2C_REFUND_RETURN_MODEL.md`.
+The active Phase 2C contract is `docs/phases/PHASE_2C_REFUNDS_EXCHANGES.md`. The exact pinned-Odoo technical boundary is `docs/architecture/PHASE_2C_REFUND_RETURN_MODEL.md`. Current external consumer-policy research is `docs/requirements/PHASE_2C_POLICY_RESEARCH.md`.
 
 Discovery and MVP scope already confirm that refunds and size exchanges are allowed, while detailed eligibility, payment treatment and returned-stock behavior were intentionally deferred to this retail phase. Existing role design already places refund/exchange approval with Store Manager/Owner and limits Cashier to requesting/routine execution rather than approval.
 
 Pinned Odoo Community commit `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` has been inspected for POS refund lines, POS stock effects and generic stock returns. Native POS refunds preserve source-line identity, cap cumulative refund quantity, and create the appropriate return stock effect for delivered goods. Generic `stock.return.picking` preserves move/picking lineage and is reserved for workflows where it owns the delivery reversal; it must not be layered on top of an ordinary POS refund. Different-variant size exchange can use a source-linked negative refund leg plus a positive replacement sale leg, with policy-controlled net settlement.
 
+Egypt Consumer Protection Agency guidance researched on 2026-09-11 establishes a consumer-retail baseline that the software must not undercut: 14-day no-reason returns/exchanges subject to published exceptions, 30 days for defective goods, and same-purchase-method refund language for defective returns. The custom-specification exception is not treated as a blanket exception for every stocked school uniform. This research is implementation guidance, not final legal certification.
+
 No custom refund ledger or custom stock-return engine is required. Fares should own only the bounded eligibility/approval/audit/idempotency layer and the policy-driven settlement/stock-disposition decisions.
 
-Phase 2C implementation is blocked only by business-policy gates that the repository explicitly forbids the developer from inventing: source/proof requirement, eligibility window/item condition, Cash/InstaPay refund treatment, exchange price differences, returned-stock disposition, uncollected-preorder cancellation scope, and offline/online behavior. The phase contract records developer recommendations for each gate.
+Phase 2C implementation is now blocked only by client choices on how to operationalize the statutory baseline: source/proof exception handling, whether to offer rights beyond the baseline, exact InstaPay outbound-refund confirmation, multi-method settlement if needed, exchange price differences, returned-stock inspection/disposition, uncollected-preorder cancellation scope, and offline/online behavior. Recommended defaults are recorded in the phase contract.
 
 One retail store, one storage location and one checkout per store remain confirmed. Numeric product/transaction volumes remain unavailable and must not be invented. Launch date and service budget remain deployment-time decisions.
 
@@ -75,17 +77,17 @@ One retail store, one storage location and one checkout per store remain confirm
 4. Phase 1: products, finished-stock movements, access controls, opening inventory and bilingual native internal UI — complete; hosted technical gates pass.
 5. Phase 2A: ordinary retail stock checkout, Cash/confirmed-InstaPay recording and durable offline reconciliation — complete; hosted technical gates pass.
 6. Phase 2B: school-uniform preorder, deposit/balance and partial collection — complete; authoritative combined hosted gate, repeatable upgrade and exact-head evidence pass at `af64b858cf6f2be6a143bb19e836721abc216221`.
-7. Phase 2C: refund/exchange policy and execution — planning active; pinned technical boundary complete; policy gates open; implementation not started.
+7. Phase 2C: refund/exchange policy and execution — planning active; pinned technical and consumer-policy research complete; client policy gates open; implementation not started.
 8. Production/business workflows, public catalog/reports, then integrated onboarding/UAT/deployment in bounded contracts.
 
 ## Immediate next action
 
 1. Keep existing stacked PRs unmerged until explicit authorization.
-2. Use `docs/phases/PHASE_2C_REFUNDS_EXCHANGES.md` as the active contract and `docs/architecture/PHASE_2C_REFUND_RETURN_MODEL.md` as the pinned technical boundary.
-3. Resolve P2C-01 through P2C-07 as one bounded client policy round; record accepted answers before implementation.
+2. Use the Phase 2C contract, pinned model analysis and policy research as the active planning authority.
+3. Resolve the remaining P2C client choices as one bounded approval round; record accepted answers before implementation.
 4. After policy acceptance, implement a thin server-authorized approval/execution layer over native source-linked POS refund and stock records; do not create a parallel ledger or duplicate POS return with a generic reverse transfer.
 5. Preserve server-enforced Store Manager approval, store scope, idempotency, EN/AR/RTL and prior-phase regressions.
-6. Validate both refund-before-delivery and delivered-item refund stock semantics, different-variant exchange, price difference, replay and direct-native-mutation denial in hosted CI.
+6. Validate statutory-window boundaries, custom-spec exception handling, refund-before-delivery/delivered-return stock semantics, different-variant exchange, price difference, replay and direct-native-mutation denial in hosted CI.
 7. No merge, deployment or real-data migration without explicit client authorization.
 
 Do not reopen product-design separation, factory-finished custody, size-system variability, sequential item codes, full-balance-before-partial-collection, Phase 2A offline-sale semantics or the resolved Phase 2B selector/Arabic-binding bugs unless the client or contradictory hosted evidence changes them.
