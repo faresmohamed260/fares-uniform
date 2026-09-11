@@ -432,7 +432,7 @@ class TestFaresBusinessWorkflow(TransactionCase):
             picking.with_user(self.inventory).fu_release_business_delivery()
         picking.invalidate_recordset()
         picking.move_ids.invalidate_recordset()
-        self._seed_store(2, "P3B-SHIP-STOCK-REST")
+        self._seed_store(3, "P3B-SHIP-STOCK-REST")
         picking.with_user(self.inventory).fu_release_business_delivery()
         picking.invalidate_recordset()
         self.assertEqual(picking.state, "done")
