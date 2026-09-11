@@ -206,6 +206,46 @@ class TestRetailExchanges(CommonPosTest):
         self.assertEqual(payment.payment_method_id, self.cash_payment_method)
         self.assertAlmostEqual(payment.amount, -2.0, places=2)
 
+    def test_exchange_rejects_replacement_stock_shortage(self):
+        source = self._sale(self.small)
+        for _index in range(6):
+            self._sale(self.medium)
+        self.assertEqual(
+            self.env["stock.quant"].sudo()._get_available_quantity(self.medium, self.store),
+            0,
+        )
+
+        request = self._exchange_request(source, self.medium)
+        request.action_submit()
+        request.action_approve()
+        with self.assertRaisesRegex(ValidationError, "does not have enough sellable stock"):
+            request.action_execute()
+        self.assertEqual(request.state, "approved")
+        self.assertFalse(request.exchange_order_id)
+
+    def test_instapay_exchange_refund_difference_requires_and_records_evidence(self):
+        missing = self._exchange_request(
+            self._sale(self.large, method=self.bank_payment_method), self.small
+        )
+        missing.action_submit()
+        missing.action_approve()
+        with self.assertRaisesRegex(ValidationError, "manual bank evidence"):
+            missing.action_execute()
+
+        request = self._exchange_request(
+            self._sale(self.large, method=self.bank_payment_method),
+            self.small,
+            bank_refund_confirmed=True,
+            settlement_reference="IP-EXCHANGE-OUT-001",
+        )
+        exchange = self._execute(request)
+        self.assertAlmostEqual(exchange.amount_total, -2.0, places=2)
+        payment = exchange.payment_ids.ensure_one()
+        self.assertEqual(payment.payment_method_id, self.bank_payment_method)
+        self.assertAlmostEqual(payment.amount, -2.0, places=2)
+        self.assertTrue(payment.fu_manual_confirmed)
+        self.assertEqual(payment.name, "IP-EXCHANGE-OUT-001")
+
     def test_exchange_rejects_mixed_source_payment(self):
         request = self._exchange_request(self._mixed_sale(self.small), self.medium)
         with self.assertRaisesRegex(ValidationError, "exactly one supported payment method"):
