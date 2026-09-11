@@ -13,21 +13,24 @@
 
 ## Current state — 2026-09-11
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / OPERATIONAL VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE. Phase 2A — Retail checkout/offline: COMPLETE. Phase 2B — Preorder/balance/collection: COMPLETE. Phase 2C — Retail refunds/size exchanges: COMPLETE. Phase 3A — Preorder production queue/workflow: COMPLETE / AUTHORITATIVE PHASE 1–3A HOSTED GATE, REPEATABLE FOUR-ADDON UPGRADE AND EN/AR/RTL EVIDENCE PASS. Phase 3B — Business-client workflow: ACTIVE / POLICY-NEUTRAL ENQUIRY+SAMPLE SLICE AUTHORIZED; COMMERCIAL EXECUTION STILL GATED BY P3B-01 THROUGH P3B-04.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / OPERATIONAL VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE. Phase 2A — Retail checkout/offline: COMPLETE. Phase 2B — Preorder/balance/collection: COMPLETE. Phase 2C — Retail refunds/size exchanges: COMPLETE. Phase 3A — Preorder production queue/workflow: COMPLETE / AUTHORITATIVE PHASE 1–3A HOSTED GATE, REPEATABLE FOUR-ADDON UPGRADE AND EN/AR/RTL EVIDENCE PASS. Phase 3B — Business-client workflow: ACTIVE / POLICY-NEUTRAL ENQUIRY+SAMPLE SLICE VERIFIED; COMMERCIAL EXECUTION STILL GATED BY P3B-01 THROUGH P3B-04.**
 
 Current branch: `phase-3b/business-client-orders`, stacked from Phase 3A closure head `f7ceb2690ad87efa186e553e081d2ff1721660d0`.
 
-The authoritative Phase 3A application/test SHA remains **`ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc`**. Phase 3B does not inherit that green status; its own application SHA must pass a new combined hosted gate.
+The authoritative Phase 3B policy-neutral application/test SHA is **`79149f901d03c92fcd5b0ea432637660a2d102cf`**. Later Phase 3B documentation-only commits do not supersede that tested application authority.
 
-Final Phase 3A hosted authority:
-- workflow: `Phase 3A preorder production`;
-- run: `34601274874`;
-- job: `103268897396`;
-- result: 93 tests, 0 failures, 0 errors;
-- repeatable upgrade: `fu_core,fu_retail,fu_preorder,fu_production` — success;
-- artifact ID: `10264163466`;
-- artifact: `phase3a-production-ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc`;
-- digest: `sha256:0e94e65beaa25c92c27337c200186dd765c2a5f1c1ee9b5735130a0fc60770d5`.
+Verified Phase 3B safe-slice hosted authority:
+- workflow: `Phase 3B business clients`;
+- run: `34608365252`;
+- job: `103292327204`;
+- result: **104 tests, 0 failures, 0 errors**;
+- repeatable upgrade: `fu_core,fu_retail,fu_preorder,fu_production,fu_business` — success;
+- artifact ID: `10267231815`;
+- artifact: `phase3b-business-79149f901d03c92fcd5b0ea432637660a2d102cf`;
+- digest: `sha256:be5e61300fd525ca192948ea5cb91874a0942f54fd53dcd4d2195cf68e8d7aae`;
+- EN/AR/RTL desktop+narrow browser evidence and keyboard focus — pass.
+
+The inherited Phase 3A application authority remains `ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc` for the completed production phase; Phase 3B now has its own separately verified safe-slice authority above.
 
 No merge, production deployment or real-data migration occurred.
 
@@ -92,15 +95,22 @@ Pinned-Odoo ownership decision:
 - native stock pickings/moves remain shipment truth;
 - Fares code adds only design/sample workflow, role/security boundaries and guarded transitions.
 
-The policy-neutral first slice may implement:
-- business enquiry/design/meeting notes;
-- sample workflow and attributable approval/rejection;
-- Sales/BD own/assigned-record scope;
-- native-linked draft quotation after sample approval;
-- server-side confirmation guard while commercial policies remain open;
-- EN/AR/RTL UI plus combined hosted regressions/upgrade.
+### Verified policy-neutral milestone
 
-The first slice must not implement or imply deposits, balance-due enforcement, shipment authorization, confirmed-order cancellation/refund/credit or an invented payment term.
+Application/test SHA **`79149f901d03c92fcd5b0ea432637660a2d102cf`** delivers and proves:
+- business enquiry/design/meeting notes on native CRM;
+- attributable sample preparation/sent/revision/approval/rejection workflow;
+- Sales/BD assigned-record scope without broad contact-write authority;
+- prospect phone/email can remain on the enquiry without silently mutating linked `res.partner` records;
+- native-linked draft quotation only after approved sample, retry-safe;
+- server-side business-order confirmation/state escalation denial while commercial policies remain open;
+- relinking an ordinary quotation into the protected business path cannot bypass the guard;
+- no first-slice payment, picking or stock effect;
+- ordinary non-business sale confirmation remains unaffected;
+- EN/AR/RTL desktop+narrow rendering, keyboard focus and no-horizontal-overflow checks pass;
+- combined Phase 1–3B regressions and repeatable five-addon upgrade pass.
+
+The verified first slice still must not implement or imply deposits, balance-due enforcement, shipment authorization, confirmed-order cancellation/refund/credit or an invented payment term.
 
 Open commercial decisions remain:
 - **P3B-01:** remaining-balance due point;
@@ -108,7 +118,7 @@ Open commercial decisions remain:
 - **P3B-03:** deposit amount/default/minimum;
 - **P3B-04:** post-approval/deposit edits/cancellation and deposit treatment.
 
-A green first-slice gate will be a verified Phase 3B milestone, not full Phase 3B closure.
+The policy-neutral milestone is verified, but full Phase 3B remains open until these policy gates are explicitly decided or explicitly excluded with accepted fail-closed behavior and the resulting commercial path is hosted-tested.
 
 ## Roadmap
 
@@ -120,20 +130,20 @@ A green first-slice gate will be a verified Phase 3B milestone, not full Phase 3
 6. Phase 2B preorder/balance/collection — complete.
 7. Phase 2C consumer retail refunds/size exchanges — complete.
 8. Phase 3A preorder production automation/workflow — complete.
-9. Phase 3B business-client enquiry/sample/order/deposit/shipment/balance — **active; safe slice first**.
+9. Phase 3B business-client enquiry/sample/order/deposit/shipment/balance — **active; policy-neutral safe slice verified, commercial policy gates open**.
 10. Public catalog/enquiry and operational reports.
 11. Integrated UAT, onboarding rehearsal and explicitly authorized deployment planning.
 
 ## Immediate next action
 
 1. Keep stacked branches/PRs unmerged until explicit authorization.
-2. Treat `ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc` as Phase 3A application authority; do not promote Phase 3B docs to application proof.
-3. Implement `fu_business` only inside the committed policy-neutral first-slice boundary.
-4. Prove Sales/BD scope, sample transition audit, draft-quotation gating and direct confirmation denial server-side.
-5. Add representative EN/AR/RTL desktop/narrow browser evidence.
-6. Run an exact-head combined Phase 1–3B-safe-slice hosted gate and repeatable five-addon upgrade.
-7. Record red/green chronology honestly and preserve tested application SHA separately from docs-only commits.
-8. Do not implement P3B-01 through P3B-04 by assumption.
+2. Treat `79149f901d03c92fcd5b0ea432637660a2d102cf` as the Phase 3B safe-slice application authority despite later docs-only commits.
+3. Preserve the verified enquiry/sample/draft-quotation behavior and role boundaries while Phase 3B remains active.
+4. Resolve P3B-01 through P3B-04 explicitly before enabling commercial confirmation, deposit/payment enforcement, shipment authorization or confirmed-order cancellation behavior.
+5. Once policies are accepted, implement only the resulting bounded commercial path using native Odoo sale/payment/stock truth and add direct bypass/idempotency/security regressions.
+6. Run a new exact-head combined Phase 1–3B hosted gate and repeatable five-addon upgrade for the policy-enabled application SHA before full Phase 3B closure.
+7. Keep documentation-only lineage separate from tested application authority.
+8. Do not infer or invent open commercial policies from the historical high-level workflow.
 9. No merge, deployment or real-data migration without explicit client authorization.
 
 ## Later explicit decisions
