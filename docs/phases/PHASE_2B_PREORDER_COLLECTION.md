@@ -1,14 +1,12 @@
 # Phase 2B — School-uniform preorder, balance and collection
 
-Status: **SERVER FOUNDATION AND RESERVATION/SECURITY BOUNDARY / HOSTED GATE PASS; NATIVE UI IMPLEMENTED; FINAL HOSTED UI GATE RED; PHASE INCOMPLETE, 2026-09-11.**
+Status: **COMPLETE — AUTHORITATIVE HOSTED PHASE 1 + PHASE 2A + PHASE 2B GATE PASS; REPEATABLE UPGRADE PASS; FINAL EVIDENCE UPLOADED; TEMPORARY DIAGNOSTIC WORKFLOW REMOVED, 2026-09-11.**
 
-The policy questions below are retained as historical planning context. Their accepted answers are authoritative in [Phase 2B policy decisions](../requirements/PHASE_2B_POLICY_DECISIONS.md). Current client direction explicitly authorizes continued remote development and hosted debugging of the existing branch, without merge.
-
-Authorization state: the recorded Phase 2B policy decisions close the bounded planning questions and authorize implementation. The current client instruction explicitly renews actual remote development and hosted validation. Production deployment, real data migration, bank integration, refund/exchange rules and merging remain outside this authorization.
+The policy questions below are retained as historical planning context. Their accepted answers are authoritative in [Phase 2B policy decisions](../requirements/PHASE_2B_POLICY_DECISIONS.md). Production deployment, real data migration, bank integration, refund/exchange rules and merging remain outside this authorization.
 
 ## Why this is a separate retail slice
 
-The accepted MVP includes school-uniform preorders, deposits/balances, partial collection and refunds/exchanges. The confirmed preorder workflow is mature enough to plan, but refund/exchange settlement and returned-stock rules remain materially unresolved.
+The accepted MVP includes school-uniform preorders, deposits/balances, partial collection and refunds/exchanges. The confirmed preorder workflow is mature enough to implement independently, while refund/exchange settlement and returned-stock rules remain materially unresolved.
 
 Phase 2B therefore targets:
 
@@ -51,11 +49,11 @@ Replace the current paper preorder/collection flow with an attributable Odoo-own
 9. hand production-demand information to the later/adjacent production workflow without inventing raw-material accounting;
 10. retain server-enforced role and location boundaries.
 
-## Proposed domain boundary
+## Domain boundary
 
-Prefer standard Odoo sale/order/payment/stock concepts where they fit, but do not force ordinary `pos.order` semantics onto a workflow that needs future pickup, deposits and staged collection if that creates misleading accounting or stock truth.
+Standard Odoo sale/order/payment/stock concepts remain authoritative. Phase 2B does not force ordinary `pos.order` semantics onto the staged preorder workflow and does not create a parallel operational ledger.
 
-The pinned Odoo Community 19 model inspection is recorded in `docs/architecture/PHASE_2B_PREORDER_MODEL.md`. Implementation must preserve:
+The pinned Odoo Community 19 model inspection is recorded in `docs/architecture/PHASE_2B_PREORDER_MODEL.md`. The implementation preserves:
 - one authoritative preorder identity;
 - immutable/attributable payment events;
 - explicit ordered, ready and collected quantities;
@@ -65,9 +63,9 @@ The pinned Odoo Community 19 model inspection is recorded in `docs/architecture/
 
 Do not introduce Supabase or another database as an operational mirror.
 
-## Intended state semantics
+## State semantics
 
-The native Sales/payment/stock model is selected in `docs/architecture/PHASE_2B_PREORDER_MODEL.md`; but staff must be able to distinguish at least these business conditions without conflating them:
+Staff can distinguish these business conditions without conflating them:
 
 - preorder accepted / awaiting production or readiness;
 - balance due;
@@ -122,50 +120,25 @@ May oversee store preorder/payment/collection records and resolve later manager-
 ### Inventory Staff / Production Manager
 Their existing scopes remain. `Ready for collection` requires Retail Store receipt; production mutation belongs to the bounded production workflow rather than giving Cashier broad stock authority.
 
-## Offline boundary — resolved; historical questions
+## Offline boundary — resolved
 
-Phase 2A proves durable **ordinary checkout** offline. That result must not be silently generalized to preorders or collection.
+Phase 2A proves durable **ordinary checkout** offline. That result is not generalized to preorders or collection.
 
-The accepted decision requires connectivity for all three actions below; these were evaluated separately:
+The accepted Phase 2B decisions require connectivity for:
 - creation of a new preorder;
 - recording an additional preorder payment;
 - collection/release of items from an existing preorder.
 
-Collection is higher risk than ordinary checkout because staff must know the whole-order balance is settled and the quantity is actually eligible/ready. If collection remains online-only, the UI must fail closed and explain why rather than relying on stale cached balance/readiness.
+The UI fails these operations closed during connectivity loss rather than relying on stale cached balance/readiness.
 
 ## Targeted policy gates — resolved
 
-All five answers are recorded in `docs/requirements/PHASE_2B_POLICY_DECISIONS.md`. The questions below document what was decided; they are not open gates.
-
-### P2B-01 — Offline preorder creation
-During an internet outage, should staff be allowed to create a **new preorder** and take an initial Cash/confirmed-InstaPay payment, or should preorder creation require the server?
-
-### P2B-02 — Offline additional payment / collection
-Treat these separately:
-- may staff record an additional payment against an existing preorder while offline?
-- may staff release/collect preorder items while offline?
-
-Recommended conservative default if the client has no operational need: allow ordinary Phase 2A stock checkout offline, but require server connectivity for existing-preorder payment/collection because current balance, readiness and prior collection state are server-authoritative.
-
-### P2B-03 — Deposit amount rule
-When the customer does not pay in full at preorder creation, what deposit rule applies?
-
-Need one accepted behavior, for example:
-- any staff-entered positive amount up to the total;
-- a configurable minimum percentage/amount;
-- another explicit rule.
-
-Do not invent a percentage.
-
-### P2B-04 — Stock reservation/allocation
-When stock becomes available for a customer preorder, when does it become reserved against that preorder?
-
-Possible business choices include reservation at preorder creation if stock exists, reservation when production/store receipt makes units available, manager/manual allocation, or no hard reservation until collection. This must be explicit because it controls whether the same piece may still be sold through ordinary POS.
-
-### P2B-05 — Partial readiness and collection
-If only some ordered lines/quantities are Ready for collection at the store, may the fully paid customer collect those ready quantities immediately while the rest remains outstanding?
-
-D-014 already requires the entire remaining **financial** balance first; this question concerns physical readiness only.
+All five answers are recorded in `docs/requirements/PHASE_2B_POLICY_DECISIONS.md`:
+- P2B-01: new preorder creation requires server connectivity;
+- P2B-02: additional payment and collection require server connectivity;
+- P2B-03: any positive payment up to the remaining balance is allowed; no invented percentage;
+- P2B-04: reservation occurs against Retail Store stock independently of preorder acceptance when allocation is performed;
+- P2B-05: a fully paid customer may collect ready subsets while the remainder stays outstanding.
 
 ## Explicitly outside Phase 2B
 
@@ -181,54 +154,58 @@ D-014 already requires the entire remaining **financial** balance first; this qu
 - legal/tax receipt finalization;
 - production deployment, hardware certification or real data migration.
 
-## Hosted validation plan
+## Hosted validation contract
 
-Implementation validation must remain remote and exact-head on pinned Odoo Community 19.
-
-At minimum prove:
-- authorized Cashier creates one preorder with customer, pickup date and multiple size-specific lines;
+The phase was validated remotely and exact-head on pinned Odoo Community 19. The acceptance gate covers:
+- authorized Cashier preorder creation with customer, pickup date and size-specific lines;
 - full-payment and accepted-deposit positive paths;
-- remaining balance derives correctly from recorded payments;
-- collection is denied while any whole-order balance remains;
-- after full settlement, allowed partial collection records exact per-line quantities;
-- later collection completes the remaining quantities without duplicating earlier stock effects;
-- collection replay/idempotency cannot release stock twice;
-- Cash/confirmed-InstaPay evidence remains attributable;
-- unauthorized role/direct mutation attempts are denied server-side;
+- derived remaining balance;
+- collection denial while any whole-order balance remains;
+- allowed partial collection after full settlement;
+- later completion without duplicating stock effects;
+- collection replay/idempotency;
+- attributable Cash/confirmed-InstaPay evidence;
+- unauthorized role/direct mutation denial server-side;
 - EN + AR/RTL representative preorder/payment/collection UI;
-- Phase 1 and Phase 2A regressions remain green;
-- repeatable addon upgrade remains green.
-
-If any preorder/payment/collection action is approved for offline use, add dedicated durable reload/reconciliation/replay tests for that action. Do not infer Phase 2A offline safety automatically.
+- Phase 1 and Phase 2A regressions;
+- repeatable addon upgrade.
 
 ## Exit criteria
 
-Phase 2B can close only when:
-1. the five targeted policy gates affecting implemented behavior are resolved or explicitly deferred in a way that leaves a safe bounded implementation;
+Phase 2B closes only when:
+1. the five targeted policy gates affecting implemented behavior are resolved;
 2. preorder identity, payment history, balance and collection quantities are authoritative and attributable;
 3. D-014 is server-enforced, not merely a disabled button;
 4. partial collection preserves remaining uncollected quantities;
 5. stock release is exact-once and retry-safe;
 6. role boundaries are server-enforced;
-7. accepted offline behavior, if any, is explicitly tested;
+7. accepted offline behavior is explicitly bounded and tested;
 8. EN/AR RTL representative paths pass;
 9. Phase 1 + Phase 2A regressions and repeatable upgrades remain green;
 10. no refund/exchange or production-deployment policy is smuggled into the result.
 
-## Execution state
+**All Phase 2B exit criteria for the approved slice are satisfied.**
 
-**SERVER FOUNDATION AND RESERVATION/SECURITY BOUNDARY HOSTED GATE PASS; NATIVE UI IMPLEMENTED; FINAL HOSTED UI GATE RED; PHASE INCOMPLETE.**
+## Final execution state — 2026-09-11
 
-The full combined hosted gate at server authority `2816a8cbe1dce703ae0310b242d34ef92f0c6928` closes the direct-native-mutation and allocation/POS boundary issue: 51 tests and repeatable upgrade pass. That server result remains authoritative for those invariants and must not be confused with later red UI diagnostic heads.
+**COMPLETE.**
 
-### Hosted UI validation status — 2026-09-11
+The final UI blocker had two separate causes and fixes:
 
-The bounded native Odoo UI now exists: a read-only preorder workspace plus transient create, payment, readiness-allocation and collection wizards. Mutations continue to delegate to guarded server services. The UI includes the online-required guard and an Arabic translation catalog; broad custom frontend state or a second operational ledger was not introduced.
+1. `23e8b42032db3ce68fd8ef49eb11467cbd2720e2` (`test(preorder): wait for native header actions`) aligns browser synchronization with pinned Odoo 19's native form-header `type="action"` rendering. Tests wait on `.o_form_statusbar button[name="<resolved action id>"]` and independently assert the localized label, retaining keyboard-focus, online-guard and RTL coverage.
+2. `af64b858cf6f2be6a143bb19e836721abc216221` (`fix(preorder): bind Arabic UI translations`) adds valid Odoo `model`, `model_terms` and `code` occurrence metadata to `fu_preorder/i18n/ar.po`, allowing the runtime Arabic terms to be imported/bound rather than merely existing as unreferenced `msgstr` values.
 
-Hosted UI debugging established several important negative findings before the current checkpoint. The owner-context fixture defect was corrected at `db3764e426711cfb4b3c6b80e4d686ff07aa4d2e`. Arabic selection metadata and rendered `Partially collected` state were separately proven, and the collection dialog itself was proven to open; the dialog-footer query was synchronized at `a0941519c268964f0b16f5c2c1451af987b0d3f9`. Later collection-header rendering synchronization is at `434a4f5add4f6acebae31b57a7cd7721f3c353f5`.
+The authoritative final application/test SHA is **`af64b858cf6f2be6a143bb19e836721abc216221`**.
 
-The current pre-documentation diagnostic head is `09ac573b639b8d6a36fff15538b138e687313cdd`, run `34536257546`. Its native/core Arabic control comparisons are green for core stock/product UI, while the Phase 2B `payment-ar` and `collection-ar` method jobs are red. Payment-Arabic job `103068452209` fails before opening the payment dialog with the exact browser error `Record payment action missing`. The Arabic PO is loaded and the page is running under `ar_001`; together with the green core control jobs, this rules out a generic Arabic translation/RTL stack failure. Collection-Arabic job `103068452331` still needs one direct log read to record its exact current failure before changing that path.
+GitHub Actions run `34547236245`, job `103102402060`, workflow `Phase 2B preorder balance collection`: **SUCCESS**. GitHub records the exact head SHA as `af64b858...`. The job steps `Install addons and run Phase 1 plus Phase 2A plus Phase 2B tests`, `Prove repeatable addon upgrade`, `Summarize evidence`, and `Upload exact-head evidence` all completed successfully.
 
-Do not regress to the earlier translation/footer-race loop. The active blocker is Phase 2B native header method-action discovery/render synchronization. The next implementation/test change should inspect the actual rendered Odoo 19 action control, locate/wait for it by stable semantic/action identity, and keep localization as an independent assertion. Existing keyboard-focus and RTL evidence must remain; solving selector timing must not weaken accessibility or Arabic coverage.
+Final artifact:
+- `phase2b-preorder-af64b858cf6f2be6a143bb19e836721abc216221`;
+- ID `10179559978`;
+- digest `sha256:750edfe5938d5aa279f2eddfc16bd80504689e885b8ce32d9dd2ed94849bcb29`.
 
-Phase 2B can close only after the corrected isolated paths pass and the **authoritative combined Phase 1 + Phase 2A + Phase 2B suite plus repeatable addon upgrade** is green at one exact application SHA. The final acceptance artifact must preserve the required hosted UI screenshots/evidence. Temporary diagnostic workflow(s) should then be removed, and documentation must record the exact tested application SHA separately from later cleanup/documentation commits. No merge is authorized without explicit client approval.
+The temporary UI diagnostic workflow was removed afterward at cleanup commit **`80c41e68104e0a3274090acf190790eead1aaafc`**, whose direct parent is the green application SHA. That cleanup commit and later documentation commits are not newer application proof.
+
+Detailed red/green chronology is retained in `docs/validation/PHASE_2B_PREORDER_COLLECTION.md`.
+
+No deployment, real-data migration, refund/exchange behavior or merge occurred. No PR merge is authorized without explicit client approval.

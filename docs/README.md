@@ -23,11 +23,10 @@
 | [Phase 1 products/stock validation](validation/PHASE_1_PRODUCTS_STOCK.md) | Exact Phase 1 product, stock, security and bilingual native-Odoo hosted evidence, failures and limitations |
 | [Phase 2A retail checkout/offline contract](phases/PHASE_2A_RETAIL_CHECKOUT_OFFLINE.md) | Completed bounded ordinary retail checkout, Cash/confirmed-InstaPay and offline-reconciliation contract |
 | [Phase 2A retail checkout/offline validation](validation/PHASE_2A_RETAIL_CHECKOUT.md) | Final hosted Phase 2A evidence, retained red runs, authoritative green SHAs and limitations |
-| [Phase 2B preorder/balance/collection contract](phases/PHASE_2B_PREORDER_COLLECTION.md) | Active server implementation, inherited preorder rules and full exit gates |
+| [Phase 2B preorder/balance/collection contract](phases/PHASE_2B_PREORDER_COLLECTION.md) | Completed school-uniform preorder, balance, reservation/security and partial-collection slice |
 | [Phase 2B Odoo model analysis](architecture/PHASE_2B_PREORDER_MODEL.md) | Pinned-Odoo technical boundary for preorder identity, payments and collection |
-
 | [Phase 2B policy decisions](requirements/PHASE_2B_POLICY_DECISIONS.md) | Accepted connectivity, deposit, allocation and partial-readiness policy |
-| [Phase 2B validation](validation/PHASE_2B_PREORDER_COLLECTION.md) | Exact-head hosted failures, corrections, results and remaining gates |
+| [Phase 2B validation](validation/PHASE_2B_PREORDER_COLLECTION.md) | Final exact-head hosted evidence, retained red/green chronology, application authority and cleanup lineage |
 
 Read these documents from GitHub at the beginning of work. Add new documents here when needed, with a clear ownership boundary.
 
