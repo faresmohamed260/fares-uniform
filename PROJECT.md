@@ -13,11 +13,11 @@
 
 ## Current state — 2026-09-11
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / OPERATIONAL VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED GATES PASS. Phase 2A — Retail checkout/offline: COMPLETE / HOSTED GATES PASS. Phase 2B — Preorder/balance/collection: COMPLETE / AUTHORITATIVE COMBINED HOSTED GATE PASS. Phase 2C — Retail refunds/size exchanges: COMPLETE / AUTHORITATIVE COMBINED HOSTED GATE, REPEATABLE UPGRADE, EN/AR/RTL AND EXACT-HEAD EVIDENCE PASS.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / OPERATIONAL VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED GATES PASS. Phase 2A — Retail checkout/offline: COMPLETE / HOSTED GATES PASS. Phase 2B — Preorder/balance/collection: COMPLETE / AUTHORITATIVE COMBINED HOSTED GATE PASS. Phase 2C — Retail refunds/size exchanges: COMPLETE / AUTHORITATIVE COMBINED HOSTED GATE, REPEATABLE UPGRADE, EN/AR/RTL AND EXACT-HEAD EVIDENCE PASS. Phase 3A — Preorder production queue/workflow: ACTIVE / CONTRACT + PINNED-ODOO ARCHITECTURE BOUNDARY ESTABLISHED; APPLICATION IMPLEMENTATION/VALIDATION PENDING.**
 
-Current branch: `phase-2c/refunds-exchanges`.
+Current branch: `phase-3a/preorder-production-queue`, stacked from Phase 2C closure head `06ac7787392bbd63081fe22f23dcbbb603f1b398`.
 
-The authoritative Phase 2C **application/test** SHA is **`62369e62dd1e5d2505e089c6a5ede296a24bcb3b`**. Later commits on this branch are closure documentation only unless explicitly stated otherwise.
+The authoritative Phase 2C **application/test** SHA remains **`62369e62dd1e5d2505e089c6a5ede296a24bcb3b`**. Phase 3A does not inherit that green status; its own implementation SHA must pass the new combined hosted gate.
 
 Final Phase 2C hosted authority:
 - workflow: `Phase 2C retail returns`;
@@ -29,8 +29,6 @@ Final Phase 2C hosted authority:
 - artifact ID: **`10262414135`**;
 - artifact: `phase2c-returns-62369e62dd1e5d2505e089c6a5ede296a24bcb3b`;
 - digest: **`sha256:de110b0bd73593d7248f396acb1df35c80c5c711edac14b83773b54d86e1a475`**.
-
-Detailed evidence and corrected failure chronology are in `docs/validation/PHASE_2C_REFUNDS_EXCHANGES.md`.
 
 No merge, production deployment or real-data migration occurred.
 
@@ -118,7 +116,31 @@ Delivered Phase 2C behavior includes:
 - idempotent/exact-once execution;
 - representative English and Arabic/RTL browser paths, keyboard focus and desktop/narrow evidence.
 
-Phase 2C is therefore **closed for the accepted consumer-retail scope**.
+Phase 2C is **closed for the accepted consumer-retail scope**.
+
+## Active Phase 3A — preorder production queue/workflow
+
+Phase contract: `docs/phases/PHASE_3A_PREORDER_PRODUCTION.md`.
+
+Architecture boundary: `docs/architecture/PHASE_3A_PRODUCTION_MODEL.md`.
+
+Validation chronology: `docs/validation/PHASE_3A_PREORDER_PRODUCTION.md`.
+
+The bounded goal is to automate the already-confirmed school/preorder production trigger and factory workflow without introducing raw-material/WIP accounting or fake factory inventory.
+
+Confirmed Phase 3A rules:
+- unmet preorder demand is aggregated by exact product variant/size;
+- a production task is triggered by either an explicit configurable quantity threshold or the pickup-date lead-time boundary;
+- no numeric quantity-threshold default has been accepted, so the quantity trigger remains inactive until a positive value is configured;
+- lead time defaults to the accepted seven days and is configurable;
+- automatic task creation yields `queued`, not `in_production`;
+- Production Manager/Owner explicitly starts and finishes production tasks;
+- `Finished` remains workflow state only and creates no stock quant/move/location;
+- `Ready for collection` remains the Phase 2B Retail Store physical-stock/allocation condition;
+- Production Manager receives bounded production mutation/configuration only, not stock/accounting/refund/product-master authority;
+- Phase 3A will use a `fu_production` workflow addon rather than misuse native `mrp.production`, whose pinned semantics require component/finished locations and stock moves outside the accepted MVP boundary.
+
+B2B/business-client tracking remains a separate future Phase 3B slice because final-payment and partial-shipment rules are still intentionally unresolved.
 
 ## Roadmap
 
@@ -129,16 +151,22 @@ Phase 2C is therefore **closed for the accepted consumer-retail scope**.
 5. Phase 2A: ordinary retail checkout, Cash/confirmed-InstaPay and durable offline reconciliation — complete.
 6. Phase 2B: school-uniform preorder, balance, reservation and partial collection — complete.
 7. Phase 2C: consumer retail refunds and size exchanges — complete.
-8. Next bounded work: remaining production/business workflows, public catalog/contact/reporting surfaces, then integrated onboarding/UAT/deployment planning.
+8. Phase 3A: size-specific preorder production queue, threshold/deadline automation and factory workflow — **active**.
+9. Phase 3B: business-client enquiry/sample/order/deposit/shipment/balance workflow — later bounded contract after resolving its deferred payment/shipment policy.
+10. Public catalog/enquiry and operational reports.
+11. Integrated user acceptance, onboarding rehearsal and explicitly authorized deployment planning.
 
 ## Immediate next action
 
 1. Keep stacked branches/PRs unmerged until explicit authorization.
-2. Treat `62369e62dd1e5d2505e089c6a5ede296a24bcb3b` as the Phase 2C application authority even though the branch now contains later documentation-only commits.
-3. Before starting the next implementation phase, verify the live branch/target lineage and read the repository governance/docs again.
-4. Define the next bounded phase from the remaining accepted MVP scope rather than silently extending Phase 2C.
-5. Do not introduce deferred Phase 2C policy—mixed-method refund allocation, preorder cancellation/refund, cards/wallets, B2B return policy, bank API integration, repairs/warranty or legal/tax finalization—without an explicit future contract/decision.
-6. No merge, deployment or real-data migration without explicit client authorization.
+2. Treat `62369e62dd1e5d2505e089c6a5ede296a24bcb3b` as Phase 2C application authority; do not treat Phase 3A documentation commits as newer application proof.
+3. Implement the bounded `fu_production` addon from the committed Phase 3A contract/architecture, preserving Odoo stock and Phase 2B readiness as operational truth.
+4. Add server-side Production Manager/Owner authorization, trigger configuration, source-linked production tasks, idempotent demand evaluation and explicit queued/start/finish transitions.
+5. Add a native Odoo production workspace with representative EN/AR/RTL browser evidence.
+6. Add exact-head hosted CI covering all Phase 1–3A tests and repeatable upgrades on pinned Odoo Community 19.
+7. Record every red/green run honestly and keep the final tested Phase 3A application SHA distinct from later documentation-only closure commits.
+8. Do not introduce B2B final-payment/partial-shipment behavior, raw/WIP inventory, preorder cancellation/refund, automatic notifications, deployment or real-data migration in Phase 3A.
+9. No merge, deployment or real-data migration without explicit client authorization.
 
 ## Later explicit decisions
 
@@ -146,7 +174,7 @@ Resolve only when their affected phase starts:
 - mixed-method retail refund allocation if required;
 - uncollected-preorder cancellation/refund;
 - missing/delayed/ambiguous InstaPay confirmation policy outside already-confirmed positive paths;
-- production threshold defaults/configuration semantics beyond the accepted seven-day default where needed;
+- production quantity-threshold numeric default if the client wants one; Phase 3A must not invent it;
 - business final-payment/partial-shipment rules;
 - B2B return/credit policy;
 - tax/legal receipt identity and report formulas;
