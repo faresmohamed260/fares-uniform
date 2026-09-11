@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fu_production_task_list" model="ir.ui.view">
+        <field name="name">fu.production.task.list</field>
+        <field name="model">fu.production.task</field>
+        <field name="arch" type="xml">
+            <list string="Production Queue" decoration-info="state == 'queued'" decoration-warning="state == 'in_production'" decoration-success="state == 'finished'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="product_id"/>
+                <field name="quantity"/>
+                <field name="earliest_commitment_date"/>
+                <field name="trigger_reason" widget="badge"/>
+                <field name="state" widget="badge"/>
+                <field name="queued_by_id" optional="hide"/>
+                <field name="started_by_id" optional="hide"/>
+                <field name="finished_by_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="fu_production_task_form" model="ir.ui.view">
+        <field name="name">fu.production.task.form</field>
+        <field name="model">fu.production.task</field>
+        <field name="arch" type="xml">
+            <form string="Production Task" create="false" delete="false">
+                <header>
+                    <button name="action_start" type="object" string="Start Production" class="btn-primary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_production_manager" invisible="state != 'queued'"/>
+                    <button name="action_finish" type="object" string="Mark Finished" class="btn-primary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_production_manager" invisible="state != 'in_production'"/>
+                    <button name="action_cancel" type="object" string="Cancel Queued Task" class="btn-secondary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_production_manager" invisible="state != 'queued'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="queued,in_production,finished,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Production Task"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        Factory Finished is workflow status only. Ready for collection still requires physical Retail Store receipt and preorder allocation.
+                    </div>
+                    <group>
+                        <group string="Production Demand">
+                            <field name="product_id" readonly="1"/>
+                            <field name="quantity" readonly="1"/>
+                            <field name="earliest_commitment_date" readonly="1"/>
+                            <field name="trigger_reason" readonly="1"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                        </group>
+                        <group string="Workflow">
+                            <field name="queued_by_id" readonly="1"/>
+                            <field name="queued_at" readonly="1"/>
+                            <field name="started_by_id" readonly="1"/>
+                            <field name="started_at" readonly="1"/>
+                            <field name="finished_by_id" readonly="1"/>
+                            <field name="finished_at" readonly="1"/>
+                            <field name="cancel_reason" placeholder="Required before cancelling a queued task" readonly="state != 'queued'"/>
+                            <field name="cancelled_by_id" readonly="1" invisible="state != 'cancelled'"/>
+                            <field name="cancelled_at" readonly="1" invisible="state != 'cancelled'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Source Preorders">
+                            <field name="line_ids" readonly="1">
+                                <list create="false" edit="false" delete="false">
+                                    <field name="preorder_id"/>
+                                    <field name="preorder_line_id"/>
+                                    <field name="product_id"/>
+                                    <field name="quantity"/>
+                                    <field name="commitment_date"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="fu_production_task_search" model="ir.ui.view">
+        <field name="name">fu.production.task.search</field>
+        <field name="model">fu.production.task</field>
+        <field name="arch" type="xml">
+            <search string="Production Queue">
+                <field name="name"/>
+                <field name="product_id"/>
+                <filter name="queued" string="Queued" domain="[('state', '=', 'queued')]"/>
+                <filter name="in_production" string="In production" domain="[('state', '=', 'in_production')]"/>
+                <filter name="finished" string="Finished" domain="[('state', '=', 'finished')]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="quantity_trigger" string="Quantity trigger" domain="[('trigger_reason', 'in', ['quantity', 'quantity_deadline'])]"/>
+                <filter name="deadline_trigger" string="Deadline trigger" domain="[('trigger_reason', 'in', ['deadline', 'quantity_deadline'])]"/>
+                <group>
+                    <filter name="group_product" string="Product / size" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fu_production_tasks" model="ir.actions.act_window">
+        <field name="name">Production Queue</field>
+        <field name="res_model">fu.production.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="fu_production_task_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No production demand is queued</p>
+            <p>Tasks are created automatically from qualifying preorder demand.</p>
+        </field>
+    </record>
+
+    <record id="fu_production_config_list" model="ir.ui.view">
+        <field name="name">fu.production.config.list</field>
+        <field name="model">fu.production.config</field>
+        <field name="arch" type="xml">
+            <list string="Production Settings" create="true" delete="false">
+                <field name="company_id"/>
+                <field name="quantity_threshold"/>
+                <field name="lead_time_days"/>
+                <field name="last_configured_by_id"/>
+                <field name="last_configured_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="fu_production_config_form" model="ir.ui.view">
+        <field name="name">fu.production.config.form</field>
+        <field name="model">fu.production.config</field>
+        <field name="arch" type="xml">
+            <form string="Production Settings" delete="false">
+                <header>
+                    <button name="action_evaluate_demand" type="object" string="Evaluate Demand Now" class="btn-primary" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_production_manager"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1>Production Triggers</h1></div>
+                    <div class="alert alert-info" role="alert">
+                        Quantity trigger is inactive at zero. Pickup deadline triggering remains active using the configured lead time.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" options="{'no_create': True}"/>
+                            <field name="quantity_threshold"/>
+                            <field name="lead_time_days"/>
+                        </group>
+                        <group string="Audit">
+                            <field name="last_configured_by_id" readonly="1"/>
+                            <field name="last_configured_at" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_production_config" model="ir.actions.act_window">
+        <field name="name">Production Settings</field>
+        <field name="res_model">fu.production.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('company_id', 'in', allowed_company_ids)]</field>
+        <field name="context">{'default_company_id': allowed_company_ids and allowed_company_ids[0] or False}</field>
+    </record>
+
+    <menuitem id="menu_fu_production" name="Production" parent="fu_core.menu_fu_root" action="action_fu_production_tasks" sequence="50" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_production_manager"/>
+    <menuitem id="menu_fu_production_settings" name="Production Settings" parent="menu_fu_production" action="action_fu_production_config" sequence="90" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_production_manager"/>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_fu_production_task" model="ir.sequence">
+            <field name="name">Fares Production Task</field>
+            <field name="code">fu.production.task</field>
+            <field name="prefix">FUP-</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="ir_cron_fu_production_evaluate" model="ir.cron">
+            <field name="name">Fares Uniform: Evaluate preorder production demand</field>
+            <field name="model_id" ref="model_fu_production_task"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_evaluate_demand()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>
