@@ -93,7 +93,7 @@ class FuBusinessQuotationWizard(models.TransientModel):
         view = self.env.ref("fu_business.fu_business_sale_order_form")
         return {
             "type": "ir.actions.act_window",
-            "name": _("Business Quotation"),
+            "name": self.env._("Business Quotation"),
             "res_model": "sale.order",
             "res_id": order.id,
             "view_mode": "form",

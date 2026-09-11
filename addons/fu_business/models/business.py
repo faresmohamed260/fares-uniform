@@ -274,7 +274,7 @@ class CrmLead(models.Model):
         view = self.env.ref("fu_business.fu_business_sale_order_form")
         return {
             "type": "ir.actions.act_window",
-            "name": _("Business Quotation"),
+            "name": self.env._("Business Quotation"),
             "res_model": "sale.order",
             "res_id": order.id,
             "view_mode": "form",
@@ -346,7 +346,7 @@ class SaleOrder(models.Model):
         view = self.env.ref("fu_business.fu_business_quotation_wizard_form")
         return {
             "type": "ir.actions.act_window",
-            "name": _("Draft Quotation Details"),
+            "name": self.env._("Draft Quotation Details"),
             "res_model": "fu.business.quotation.wizard",
             "view_mode": "form",
             "views": [(view.id, "form")],

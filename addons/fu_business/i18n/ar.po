@@ -161,6 +161,11 @@ msgid "Save Draft"
 msgstr "حفظ المسودة"
 
 #. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: fu_business
 #: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard__quotation_id
 msgid "Business quotation"
 msgstr "عرض سعر الشركة"

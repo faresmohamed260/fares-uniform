@@ -88,7 +88,6 @@ class TestFaresBusinessBilingualUI(HttpCase):
     def _show_lead(self, arabic=False):
         self._set_language(arabic)
         action = self._lead_action()
-        expected_start = "بدء تجهيز العينة" if arabic else "Start Sample"
         expected_design = "متطلبات التصميم" if arabic else "Design requirements"
         expected_gate = (
             "يظل تأكيد الطلب التجاري" if arabic else "Commercial confirmation, payment, shipment and cancellation remain policy-gated"
@@ -130,10 +129,12 @@ class TestFaresBusinessBilingualUI(HttpCase):
         self._set_language(arabic)
         action = self._quotation_action()
         expected_edit = "تعديل تفاصيل المسودة" if arabic else "Edit Draft Details"
+        expected_title = "تفاصيل عرض السعر المبدئي" if arabic else "Draft Quotation Details"
         expected_warning = (
             "تفاصيل مرشحة فقط" if arabic else "Candidate details only. Saving does not confirm the order"
         )
         expected_save = "حفظ المسودة" if arabic else "Save Draft"
+        expected_cancel = "إلغاء" if arabic else "Cancel"
         code = f"""
             (async () => {{
                 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -145,14 +146,18 @@ class TestFaresBusinessBilingualUI(HttpCase):
                     }}
                     throw new Error('Timed out waiting for ' + selector);
                 }};
-                const form = await waitFor('.o_form_view');
+                await waitFor('.o_form_view');
                 const edit = await waitFor('button[name="action_fu_open_draft_editor"]');
                 if (!edit.innerText.includes({expected_edit!r})) throw new Error('Localized draft-editor action missing');
                 edit.click();
                 const dialog = await waitFor('.o_dialog');
+                const title = dialog.querySelector('.modal-title');
+                if (!title || !title.innerText.includes({expected_title!r})) throw new Error('Localized draft-editor title missing');
                 if (!dialog.innerText.includes({expected_warning!r})) throw new Error('Draft-editor policy warning missing');
                 const save = await waitFor('.o_dialog button[name="action_save_draft"]');
                 if (!save.innerText.includes({expected_save!r})) throw new Error('Localized Save Draft action missing');
+                const cancel = [...dialog.querySelectorAll('button')].find(button => button.innerText.includes({expected_cancel!r}));
+                if (!cancel) throw new Error('Localized Cancel action missing');
                 save.focus();
                 if (document.activeElement !== save) throw new Error('Save Draft action cannot receive keyboard focus');
                 if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 2) throw new Error('Draft editor has horizontal viewport overflow');
