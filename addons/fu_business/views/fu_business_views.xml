@@ -27,7 +27,7 @@
                 <field name="fu_sample_state"/>
                 <filter name="sample_approved" string="Sample Approved" domain="[('fu_sample_state', '=', 'approved')]"/>
                 <filter name="sample_revision" string="Revision Requested" domain="[('fu_sample_state', '=', 'revision')]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'user_id'}"/>
                     <filter name="group_sample" string="Sample Status" context="{'group_by': 'fu_sample_state'}"/>
                 </group>
