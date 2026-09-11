@@ -323,7 +323,11 @@ class TestFaresBusinessBilingualUI(HttpCase):
             if arabic
             else "Release is allowed only when the whole business-order balance is paid"
         )
-        expected_scope = "نطاق المخزون" if arabic else "Stock scope"
+        expected_audit = (
+            "منفذ تسليم شحنة الشركة"
+            if arabic
+            else "Business shipment released by"
+        )
         code = f"""
             (async () => {{
                 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -339,7 +343,9 @@ class TestFaresBusinessBilingualUI(HttpCase):
                 const release = await waitFor('button[name="fu_release_business_delivery"]');
                 if (!release.innerText.includes({expected_release!r})) throw new Error('Localized complete-shipment action missing');
                 if (!form.innerText.includes({expected_warning!r})) throw new Error('Shipment policy warning missing');
-                if (!form.innerText.includes({expected_scope!r})) throw new Error('Localized stock scope missing');
+                await waitFor('.o_field_widget[name="location_id"]');
+                await waitFor('.o_field_widget[name="location_dest_id"]');
+                if (!form.innerText.includes({expected_audit!r})) throw new Error('Localized shipment audit context missing');
                 release.focus();
                 if (document.activeElement !== release) throw new Error('Complete-shipment action cannot receive keyboard focus');
                 if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 2) throw new Error('Business delivery has horizontal viewport overflow');

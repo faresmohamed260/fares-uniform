@@ -430,6 +430,8 @@ class TestFaresBusinessWorkflow(TransactionCase):
         self.assertTrue(order.currency_id.is_zero(order.fu_business_balance_due))
         with self.assertRaisesRegex(ValidationError, "physically available"), self.env.cr.savepoint():
             picking.with_user(self.inventory).fu_release_business_delivery()
+        picking.invalidate_recordset()
+        picking.move_ids.invalidate_recordset()
         self._seed_store(2, "P3B-SHIP-STOCK-REST")
         picking.with_user(self.inventory).fu_release_business_delivery()
         picking.invalidate_recordset()
