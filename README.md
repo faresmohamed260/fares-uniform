@@ -1,5 +1,16 @@
-# Fares Uniform ERP
+# Fares Uniform
 
-This repository is governed by `AGENTS.md`, `PROJECT.md`, and the documents under `docs/`.
+ERP system for the client's father's small clothing factory.
 
-Current implementation work is performed phase-by-phase on dedicated branches with hosted CI evidence retained for each verified application SHA.
+**Status:** requirements discovery; application implementation has not started.
+
+## Start here
+
+- [Agent and development instructions](AGENTS.md)
+- [Project status and handoff](PROJECT.md)
+- [Documentation index](docs/README.md)
+- [Discovery and requirements](docs/requirements/DISCOVERY.md)
+- [Decision log](docs/DECISIONS.md)
+- [Phase 0: discovery contract](docs/phases/PHASE_0_DISCOVERY.md)
+
+All project work is remote. This public repository is the persistent source of truth for code and documentation. Vercel is the initial deployment target; Supabase and Cloudflare are available. No application or infrastructure has been provisioned by this documentation change.
