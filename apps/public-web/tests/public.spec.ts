@@ -63,10 +63,37 @@ test("catalog detail and keyboard focus work", async ({ page }) => {
 test("enquiry form returns a fixture reference", async ({ page }) => {
   await page.goto("/?lang=en#enquiry");
   await page.getByLabel("Your name").fill("CI Visitor");
+  await page.getByLabel("Organization").fill("CI School");
+  await page.getByLabel("Sector / use case").fill("Education");
   await page.getByLabel("Email").fill("ci@example.test");
   await page.getByLabel("What are you looking for?").fill("A coordinated school program.");
   await page.getByRole("button", { name: "Send enquiry" }).click();
   await expect(page.getByRole("status")).toContainText("FUQ-CI-0001");
+});
+
+test("fixture enquiry proxy enforces the Odoo public schema", async ({ request }) => {
+  const valid = {
+    idempotency_key: "ci-contract-1",
+    contact_name: "CI Visitor",
+    organization_name: "CI School",
+    phone: "",
+    email: "ci@example.test",
+    sector: "Education",
+    message: "A coordinated school program.",
+    source_product_slug: "school-polo",
+    language: "en",
+  };
+
+  const accepted = await request.post("/api/enquiries", { data: valid });
+  expect(accepted.status()).toBe(201);
+  expect(await accepted.json()).toEqual({ status: "accepted", reference: "FUQ-CI-0001" });
+
+  const { sector: _sector, ...withoutSector } = valid;
+  const missingSector = await request.post("/api/enquiries", { data: withoutSector });
+  expect(missingSector.status()).toBe(400);
+
+  const unsupported = await request.post("/api/enquiries", { data: { ...valid, source_url: "https://example.invalid" } });
+  expect(unsupported.status()).toBe(400);
 });
 
 test("reduced motion disables ambient animation", async ({ page }) => {
