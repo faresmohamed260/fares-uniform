@@ -22,7 +22,7 @@ registry.category("web_tour.tours").add("fu_retail_returns_entry_online", {
                 }
             },
         },
-    ],
+    ].flat(),
 });
 
 registry.category("web_tour.tours").add("fu_retail_returns_entry_offline", {
@@ -45,5 +45,5 @@ registry.category("web_tour.tours").add("fu_retail_returns_entry_offline", {
             },
         },
         Offline.setOnlineMode(),
-    ],
+    ].flat(),
 });
