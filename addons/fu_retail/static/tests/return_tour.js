@@ -8,7 +8,13 @@ registry.category("web_tour.tours").add("fu_retail_returns_entry_online", {
     steps: () => [
         Chrome.startPoS(),
         Dialog.confirm(),
-        ...ProductScreen.clickControlButton("Returns / Exchanges"),
+        ...ProductScreen.clickControlButtonMore(),
+        {
+            content: "Open controlled Returns / Exchanges workspace",
+            trigger: ProductScreen.controlButtonTrigger("Returns / Exchanges"),
+            run: "click",
+            expectUnloadPage: true,
+        },
         {
             trigger: ".o_list_view",
             content: "Controlled Returns & Exchanges workspace opens instead of native POS refund flow",
@@ -38,9 +44,12 @@ registry.category("web_tour.tours").add("fu_retail_returns_entry_offline", {
                 if (document.querySelector(".o_list_view") || document.querySelector(".ticket-screen")) {
                     throw new Error("Offline POS return entry escaped into a server or native refund workflow");
                 }
-                const actions = document.querySelector(".control-buttons-modal");
-                if (!actions) {
-                    throw new Error("Offline return entry unexpectedly closed the POS action dialog");
+                if (!window.location.pathname.startsWith("/pos/ui/")) {
+                    throw new Error("Offline POS return entry navigated away from POS");
+                }
+                const body = document.body.textContent || "";
+                if (!body.includes("Returns and exchanges require an online connection.")) {
+                    throw new Error("Offline POS return entry did not show the required online-only warning");
                 }
             },
         },
