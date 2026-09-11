@@ -1,0 +1,87 @@
+# Translation of Fares Uniform Operational Reporting to Arabic.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo 19.0\n"
+"Language: ar\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: fu_reporting
+msgid "Operational Reports"
+msgstr "التقارير التشغيلية"
+
+#. module: fu_reporting
+msgid "Refresh reports"
+msgstr "تحديث التقارير"
+
+#. module: fu_reporting
+msgid "Report context"
+msgstr "سياق التقرير"
+
+#. module: fu_reporting
+msgid "Daily report date"
+msgstr "تاريخ التقرير اليومي"
+
+#. module: fu_reporting
+msgid "Report timezone"
+msgstr "المنطقة الزمنية للتقرير"
+
+#. module: fu_reporting
+msgid "Operational data as of"
+msgstr "البيانات التشغيلية حتى"
+
+#. module: fu_reporting
+msgid "Offline sync disclosure:"
+msgstr "تنبيه مزامنة العمل دون اتصال:"
+
+#. module: fu_reporting
+msgid "Server totals exclude offline POS transactions that have not synchronized yet; they become reportable after server reconciliation."
+msgstr "تستبعد إجماليات الخادم معاملات نقطة البيع غير المتصلة التي لم تتم مزامنتها بعد؛ وتظهر في التقارير بعد تسويتها على الخادم."
+
+#. module: fu_reporting
+msgid "Daily retail sales"
+msgstr "مبيعات التجزئة اليومية"
+
+#. module: fu_reporting
+msgid "Payment movement"
+msgstr "حركة المدفوعات"
+
+#. module: fu_reporting
+msgid "Cash"
+msgstr "نقدي"
+
+#. module: fu_reporting
+msgid "InstaPay"
+msgstr "إنستاباي"
+
+#. module: fu_reporting
+msgid "Low Stock"
+msgstr "المخزون المنخفض"
+
+#. module: fu_reporting
+msgid "Upcoming / Overdue Orders"
+msgstr "الطلبات القادمة / المتأخرة"
+
+#. module: fu_reporting
+msgid "Customer Balances"
+msgstr "أرصدة العملاء"
+
+#. module: fu_reporting
+msgid "Upcoming"
+msgstr "قادم"
+
+#. module: fu_reporting
+msgid "Overdue"
+msgstr "متأخر"
+
+#. module: fu_reporting
+msgid "Low-stock Warning Rules"
+msgstr "قواعد تنبيه المخزون المنخفض"
+
+#. module: fu_reporting
+msgid "Low-stock Warning Rule"
+msgstr "قاعدة تنبيه المخزون المنخفض"
+
+#. module: fu_reporting
+msgid "Reports"
+msgstr "التقارير"

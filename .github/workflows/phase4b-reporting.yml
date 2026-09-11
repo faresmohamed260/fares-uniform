@@ -1,0 +1,157 @@
+name: Phase 4B operational reporting
+
+on:
+  push:
+    branches: ["phase-4b/operational-reporting"]
+    paths:
+      - "addons/**"
+      - ".github/workflows/phase4b-reporting.yml"
+      - "apps/public-web/**"
+  pull_request:
+    paths:
+      - "addons/**"
+      - ".github/workflows/phase4b-reporting.yml"
+      - "apps/public-web/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase4b-reporting-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  odoo-reporting:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: phase4b-only
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      PGPASSWORD: phase4b-only
+      ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+      CHROME_BIN: /usr/bin/google-chrome
+    steps:
+      - name: Checkout Fares exact head
+        uses: actions/checkout@v4
+        with: { path: fares, ref: "${{ github.sha }}" }
+      - name: Verify Fares exact head
+        working-directory: fares
+        run: test "$(git rev-parse HEAD)" = "${{ github.sha }}"
+      - name: Checkout pinned Odoo Community 19
+        uses: actions/checkout@v4
+        with:
+          repository: odoo/odoo
+          ref: "${{ env.ODOO_SHA }}"
+          path: odoo
+          fetch-depth: 1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Set up Node for rtlcss
+        uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Install Odoo dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev
+          npm install --global rtlcss@4.3.0
+          python -m pip install --upgrade pip
+          pip install -r odoo/requirements.txt
+          pip install websocket-client
+      - name: Install addons and run Phase 1 through Phase 4B tests
+        run: |
+          mkdir -p fares/evidence/odoo/screenshots
+          python odoo/odoo-bin --addons-path="fares/addons,odoo/addons" -d fares_phase4b -i fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting --test-enable --test-tags=/fu_core,/fu_retail,/fu_preorder,/fu_production,/fu_business,/fu_public_api,/fu_reporting --screenshots=fares/evidence/odoo/screenshots --stop-after-init --db_host=127.0.0.1 --db_port=5432 --db_user=odoo --db_password=phase4b-only --log-level=test 2>&1 | tee fares/evidence/odoo/install-test.log
+          grep -Eq "0 failed, 0 error\(s\)" fares/evidence/odoo/install-test.log
+      - name: Prove repeatable seven-addon upgrade
+        run: |
+          python odoo/odoo-bin --addons-path="fares/addons,odoo/addons" -d fares_phase4b -u fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting --stop-after-init --db_host=127.0.0.1 --db_port=5432 --db_user=odoo --db_password=phase4b-only --log-level=info 2>&1 | tee fares/evidence/odoo/upgrade.log
+          grep -q "Modules loaded" fares/evidence/odoo/upgrade.log
+      - name: Summarize Odoo evidence
+        if: always()
+        run: |
+          {
+            echo "fares_sha=${{ github.sha }}"
+            echo "odoo_sha=${ODOO_SHA}"
+            python --version
+            google-chrome --version || true
+            rtlcss --version || true
+            echo
+            echo "screenshots:"
+            find fares/evidence/odoo/screenshots -type f -printf '%P\n' 2>/dev/null | sort || true
+            echo
+            echo "test summary:"
+            grep -E "tests? in|failed|error\\(s\\)|TestFaresReporting|fu_reporting" fares/evidence/odoo/install-test.log 2>/dev/null | tail -n 240 || true
+          } | tee fares/evidence/odoo/runtime.txt
+      - name: Upload exact-head Odoo evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4b-odoo-${{ github.sha }}
+          path: fares/evidence/odoo
+          if-no-files-found: error
+          retention-days: 7
+
+  public-web-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FU_PUBLIC_PROVIDER: fixture
+    defaults:
+      run:
+        working-directory: apps/public-web
+    steps:
+      - name: Checkout Fares exact head
+        uses: actions/checkout@v4
+        with: { ref: "${{ github.sha }}" }
+      - name: Verify Fares exact head
+        run: test "$(git -C ../.. rev-parse HEAD)" = "${{ github.sha }}"
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/public-web/package-lock.json
+      - name: Install locked web dependencies
+        run: npm ci
+      - name: Typecheck public web
+        run: npm run typecheck
+      - name: Build public web
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run public browser gate
+        run: npm run test:e2e
+      - name: Summarize web evidence
+        if: always()
+        run: |
+          mkdir -p evidence/web
+          {
+            echo "fares_sha=${{ github.sha }}"
+            node --version
+            npm --version
+            npx next --version
+            npx playwright --version
+            echo "provider=${FU_PUBLIC_PROVIDER}"
+          } | tee evidence/web/runtime.txt
+      - name: Upload exact-head web evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4b-web-${{ github.sha }}
+          path: |
+            apps/public-web/evidence/web
+            apps/public-web/playwright-report
+            apps/public-web/test-results
+          if-no-files-found: error
+          retention-days: 7

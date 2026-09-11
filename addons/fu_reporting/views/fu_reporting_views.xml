@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fu_reporting_dashboard_form" model="ir.ui.view">
+        <field name="name">fu.reporting.dashboard.form</field>
+        <field name="model">fu.reporting.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Operational Reports" create="false" delete="false">
+                <header>
+                    <button name="action_refresh" type="object" string="Refresh reports" class="btn-primary" data-hotkey="r"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Operational Reports</h1>
+                    </div>
+                    <field name="allowed_location_ids" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <group string="Report context">
+                        <group>
+                            <field name="report_date"/>
+                            <field name="location_id" options="{'no_create': True, 'no_quick_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="timezone_name"/>
+                            <field name="as_of"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Offline sync disclosure:</strong>
+                        <field name="sync_notice" nolabel="1" readonly="1"/>
+                    </div>
+                    <group string="Daily retail sales">
+                        <group>
+                            <field name="sales_gross"/>
+                            <field name="sales_refunds"/>
+                            <field name="sales_net"/>
+                        </group>
+                        <group string="Operational list counts">
+                            <field name="low_stock_count"/>
+                            <field name="upcoming_count"/>
+                            <field name="overdue_count"/>
+                            <field name="balance_count"/>
+                        </group>
+                    </group>
+                    <group string="Payment movement">
+                        <group string="Cash">
+                            <field name="cash_inflow"/>
+                            <field name="cash_outflow"/>
+                            <field name="cash_net"/>
+                        </group>
+                        <group string="InstaPay">
+                            <field name="instapay_inflow"/>
+                            <field name="instapay_outflow"/>
+                            <field name="instapay_net"/>
+                        </group>
+                    </group>
+                    <group string="Payment configuration warnings" invisible="other_payment_count == 0">
+                        <field name="other_payment_count"/>
+                        <field name="other_payment_net"/>
+                    </group>
+                    <notebook>
+                        <page string="Low Stock" name="low_stock">
+                            <field name="low_stock_line_ids" nolabel="1" readonly="1">
+                                <list create="false" edit="false" delete="false">
+                                    <field name="location_id"/>
+                                    <field name="product_id"/>
+                                    <field name="available_quantity"/>
+                                    <field name="minimum_available_qty"/>
+                                    <field name="uom_name"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Upcoming / Overdue Orders" name="deadlines">
+                            <field name="deadline_line_ids" nolabel="1" readonly="1">
+                                <list create="false" edit="false" delete="false" decoration-danger="bucket == 'overdue'" decoration-warning="bucket == 'upcoming'">
+                                    <field name="bucket" widget="badge"/>
+                                    <field name="kind" widget="badge"/>
+                                    <field name="order_ref"/>
+                                    <field name="customer_name"/>
+                                    <field name="deadline"/>
+                                    <field name="balance_due"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Customer Balances" name="balances">
+                            <field name="balance_line_ids" nolabel="1" readonly="1">
+                                <list create="false" edit="false" delete="false">
+                                    <field name="kind" widget="badge"/>
+                                    <field name="customer_name"/>
+                                    <field name="order_ref"/>
+                                    <field name="deadline" optional="show"/>
+                                    <field name="balance_due"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_operational_reports" model="ir.actions.server">
+        <field name="name">Operational Reports</field>
+        <field name="model_id" ref="model_fu_reporting_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_dashboard()</field>
+    </record>
+
+    <record id="fu_reporting_stock_rule_list" model="ir.ui.view">
+        <field name="name">fu.reporting.stock.rule.list</field>
+        <field name="model">fu.reporting.stock.rule</field>
+        <field name="arch" type="xml">
+            <list string="Low-stock Warning Rules">
+                <field name="active" widget="boolean_toggle"/>
+                <field name="location_id"/>
+                <field name="product_id"/>
+                <field name="minimum_available_qty"/>
+                <field name="changed_by_id" optional="hide"/>
+                <field name="changed_at" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="fu_reporting_stock_rule_form" model="ir.ui.view">
+        <field name="name">fu.reporting.stock.rule.form</field>
+        <field name="model">fu.reporting.stock.rule</field>
+        <field name="arch" type="xml">
+            <form string="Low-stock Warning Rule">
+                <sheet>
+                    <div class="oe_title"><h1>Low-stock Warning Rule</h1></div>
+                    <div class="alert alert-info" role="alert">
+                        A product appears as low stock when native available quantity is at or below this threshold. No rule means no warning.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="location_id" options="{'no_create': True, 'no_quick_create': True}"/>
+                            <field name="product_id" options="{'no_create': True, 'no_quick_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="minimum_available_qty"/>
+                            <field name="active"/>
+                            <field name="changed_by_id" readonly="1"/>
+                            <field name="changed_at" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_reporting_stock_rules" model="ir.actions.act_window">
+        <field name="name">Low-stock Warning Rules</field>
+        <field name="res_model">fu.reporting.stock.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('company_id', '=', allowed_company_ids[0])]</field>
+    </record>
+
+    <menuitem id="menu_fu_reports" name="Reports" parent="fu_core.menu_fu_root" action="action_fu_operational_reports" sequence="70" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager"/>
+    <menuitem id="menu_fu_reporting_stock_rules" name="Low-stock Warning Rules" parent="fu_core.menu_fu_root" action="action_fu_reporting_stock_rules" sequence="71" groups="fu_core.group_fu_owner_admin"/>
+</odoo>
