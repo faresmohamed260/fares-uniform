@@ -12,134 +12,200 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #. module: fu_preorder
+#: model:ir.actions.act_window,name:fu_preorder.action_fu_preorders
+#: model:ir.ui.menu,name:fu_preorder.menu_fu_preorders_root
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_list
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_search
 msgid "Preorders"
 msgstr "الطلبات المسبقة"
 
 #. module: fu_preorder
+#: model:ir.ui.menu,name:fu_preorder.menu_fu_preorders
 msgid "Preorder List"
 msgstr "قائمة الطلبات المسبقة"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_payment_wizard__preorder_id
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_allocation_wizard__preorder_id
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_collection_wizard__preorder_id
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_list
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Preorder"
 msgstr "الطلب المسبق"
 
 #. module: fu_preorder
+#: model:ir.actions.act_window,name:fu_preorder.action_fu_preorder_create_wizard
+#: model:ir.ui.menu,name:fu_preorder.menu_fu_preorder_new
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_create_wizard_form
 msgid "New Preorder"
 msgstr "طلب مسبق جديد"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_create_wizard_form
 msgid "Create Preorder"
 msgstr "إنشاء الطلب المسبق"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_create_wizard__partner_id
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_list
 msgid "Customer"
 msgstr "العميل"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_create_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Customer & Promise"
 msgstr "العميل وموعد الاستلام"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_create_wizard__commitment_date
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_list
 msgid "Promised Pickup"
 msgstr "موعد الاستلام الموعود"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_create_wizard__store_location_id
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_allocation_wizard__store_location_id
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_list
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_search
 msgid "Collection Store"
 msgstr "متجر الاستلام"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_create_wizard_form
 msgid "Collection"
 msgstr "الاستلام"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_create_wizard__line_ids
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_allocation_wizard__line_ids
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_collection_wizard__line_ids
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_create_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_allocation_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Items"
 msgstr "الأصناف"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_create_line__product_id
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_allocation_line__product_id
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_collection_line__product_id
 msgid "Product"
 msgstr "المنتج"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_create_line__quantity
 msgid "Quantity"
 msgstr "الكمية"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_create_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_payment_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_allocation_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_collection_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Online connection required."
 msgstr "يلزم اتصال بالإنترنت."
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_create_wizard_form
 msgid "Preorder creation uses live server checks."
 msgstr "إنشاء الطلب المسبق يعتمد على تحقق مباشر من الخادم."
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_payment_wizard_form
 msgid "Payment uses the current server balance and authorization."
 msgstr "تسجيل الدفعة يعتمد على الرصيد والصلاحيات الحالية من الخادم."
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_allocation_wizard_form
 msgid "Readiness allocation uses live Retail Store availability."
 msgstr "تخصيص الجاهزية يعتمد على المخزون المتاح حاليًا في متجر التجزئة."
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_collection_wizard_form
 msgid "Collection uses live balance, readiness and prior-collection checks."
 msgstr "الاستلام يعتمد على تحقق مباشر من الرصيد والجاهزية وعمليات الاستلام السابقة."
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Preorder actions use live server checks."
 msgstr "إجراءات الطلب المسبق تعتمد على تحقق مباشر من الخادم."
 
 #. module: fu_preorder
+#: code:addons/fu_preorder/static/src/online_guard.js:0
 msgid "Online — preorder actions use live server checks."
 msgstr "متصل — إجراءات الطلب المسبق تستخدم تحققًا مباشرًا من الخادم."
 
 #. module: fu_preorder
+#: code:addons/fu_preorder/static/src/online_guard.js:0
 msgid "Offline — preorder actions are disabled until connection returns."
 msgstr "غير متصل — إجراءات الطلب المسبق معطلة حتى عودة الاتصال."
 
 #. module: fu_preorder
+#: model:ir.actions.act_window,name:fu_preorder.action_fu_preorder_payment_wizard
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_payment_wizard_form
 msgid "Record Preorder Payment"
 msgstr "تسجيل دفعة الطلب المسبق"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_payment_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Record Payment"
 msgstr "تسجيل دفعة"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_payment_wizard_form
 msgid "Payment"
 msgstr "الدفع"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Payment Summary"
 msgstr "ملخص الدفع"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Payment History"
 msgstr "سجل المدفوعات"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_payment_wizard__journal_key
 msgid "Payment Method"
 msgstr "طريقة الدفع"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_list
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Payment State"
 msgstr "حالة الدفع"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_payment_wizard__payment_uuid
 msgid "Payment Reference"
 msgstr "مرجع الدفعة"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_payment_wizard__amount
 msgid "Amount"
 msgstr "المبلغ"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_list
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Total"
 msgstr "الإجمالي"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Paid"
 msgstr "المدفوع"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_payment_wizard__balance_due
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_collection_wizard__balance_due
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_list
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Balance Due"
 msgstr "الرصيد المستحق"
 
@@ -169,26 +235,33 @@ msgid "Bank"
 msgstr "بنك"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_payment_wizard__manual_confirmed
 msgid "I confirm the bank notification was observed"
 msgstr "أؤكد أنه تمت مشاهدة إشعار البنك"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Method"
 msgstr "الطريقة"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Manual Confirmation"
 msgstr "تأكيد يدوي"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Recorded By"
 msgstr "سجلها"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Fulfillment"
 msgstr "التجهيز والاستلام"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_list
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Collection State"
 msgstr "حالة الاستلام"
 
@@ -218,54 +291,78 @@ msgid "Fully collected"
 msgstr "تم الاستلام بالكامل"
 
 #. module: fu_preorder
+#: model:ir.actions.act_window,name:fu_preorder.action_fu_preorder_allocation_wizard
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_allocation_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Allocate Ready Stock"
 msgstr "تخصيص المخزون الجاهز"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_collection_wizard_form
 msgid "Ready Items"
 msgstr "الأصناف الجاهزة"
 
 #. module: fu_preorder
+#: model:ir.actions.act_window,name:fu_preorder.action_fu_preorder_collection_wizard
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_collection_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Record Collection"
 msgstr "تسجيل الاستلام"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_collection_wizard__collection_uuid
 msgid "Collection Reference"
 msgstr "مرجع الاستلام"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_collection_wizard_form
 msgid "The whole preorder balance must be paid before collection."
 msgstr "يجب سداد كامل رصيد الطلب المسبق قبل أي استلام."
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_allocation_line__ordered_qty
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_collection_line__ordered_qty
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Ordered"
 msgstr "المطلوب"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_allocation_line__ready_qty
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_collection_line__ready_qty
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Ready"
 msgstr "الجاهز"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_allocation_line__collected_qty
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_collection_line__collected_qty
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Collected"
 msgstr "المستلم"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_collection_line__remaining_qty
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Remaining"
 msgstr "المتبقي"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_allocation_line__unallocated_qty
 msgid "Unallocated"
 msgstr "غير المخصص"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_allocation_line__available_stock_qty
 msgid "Store Free Stock"
 msgstr "المخزون الحر بالمتجر"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_allocation_line__quantity
 msgid "Allocate Quantity"
 msgstr "كمية التخصيص"
 
 #. module: fu_preorder
+#: model:ir.model.fields,field_description:fu_preorder.field_fu_preorder_collection_line__quantity
 msgid "Collect Quantity"
 msgstr "كمية الاستلام"
 
@@ -282,9 +379,11 @@ msgid "Fully Collected"
 msgstr "تم الاستلام بالكامل"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "No preorders in your assigned Retail Store"
 msgstr "لا توجد طلبات مسبقة في متجر التجزئة المخصص لك"
 
 #. module: fu_preorder
+#: model_terms:ir.ui.view,arch_db:fu_preorder.fu_preorder_form
 msgid "Use New Preorder while online to create the first school-uniform preorder."
 msgstr "استخدم طلب مسبق جديد أثناء الاتصال لإنشاء أول طلب مسبق للزي المدرسي."
