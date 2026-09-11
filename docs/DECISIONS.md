@@ -196,7 +196,6 @@ Transaction-critical flows must remain immediate and usable without the 3D inter
 
 The current visual baselines are historical technical evidence only. Phase 0B visual approval remains open until a new spatial concept is explicitly accepted. See `docs/ui/SPATIAL_CONCEPT_BRIEF.md`.
 
-
 ## D-033 — Modern practical operational ERP visual direction
 Status: Accepted by client, 2026-09-07; supersedes D-032 for dense operational ERP surfaces.
 
@@ -212,3 +211,16 @@ Status: Accepted policies recorded 2026-09-09; explicit development continuation
 [Phase 2B policy decisions](requirements/PHASE_2B_POLICY_DECISIONS.md) closes P2B-01 through P2B-05: preorder creation, additional payments and collection require connectivity; any positive payment up to the remaining balance is allowed; stock is allocated only when physically available at the Retail Store; ready subsets may be collected after the whole balance is settled.
 
 The client explicitly instructed continued development on the existing Phase 2B branch using repository docs and exact-head hosted CI. This authorizes the narrow evidence-supported fixture/compatibility corrections and continued validation. It does not authorize a merge or production deployment. Current evidence belongs in `docs/validation/PHASE_2B_PREORDER_COLLECTION.md`.
+
+## D-035 — Phase 2C consumer-retail return/exchange closure authority
+Status: Evidence-backed project state, 2026-09-11; accepted P2C policy remains unchanged.
+
+Phase 2C closes for the accepted consumer-retail scope at application/test SHA **`62369e62dd1e5d2505e089c6a5ede296a24bcb3b`**. GitHub Actions workflow `Phase 2C retail returns`, run **`34596450064`**, job **`103253225096`**, passed the combined Phase 1 through Phase 2C hosted gate with **82/82 tests, 0 failures and 0 errors**, then passed the repeatable `fu_core,fu_retail,fu_preorder` upgrade on the same database and application SHA.
+
+The exact-head evidence artifact is ID **`10262414135`**, name `phase2c-returns-62369e62dd1e5d2505e089c6a5ede296a24bcb3b`, digest **`sha256:de110b0bd73593d7248f396acb1df35c80c5c711edac14b83773b54d86e1a475`**. Representative English and Arabic/RTL desktop/narrow browser evidence, keyboard focus, controlled POS online navigation and offline fail-closed behavior passed and are retained in the artifact.
+
+Treat `62369e62...` as the Phase 2C **application authority**. Later closure-documentation commits on `phase-2c/refunds-exchanges` do not become newer application proof merely by being branch HEAD.
+
+The completed design preserves the accepted P2C-01 through P2C-07 policy and native Odoo ownership: original sale/payment history remains immutable, refunds/exchanges are source-linked, cumulative quantity is bounded, Cash/confirmed-InstaPay settlement is attributable, mixed-method allocation fails closed, returned stock is quarantined until explicit inspection disposition, size exchanges preserve both native legs and exact difference settlement, and request/approval/execution fail closed offline. Routine staff use the controlled Fares Returns & Exchanges path; direct native refund/negative-line/sync mutation remains denied server-side outside an approved request.
+
+This decision does not authorize mixed-method refund allocation, preorder cancellation/refund, cards/wallets, B2B return policy, automatic bank integration, legal/tax finalization, merge, production deployment or real-data migration. Those remain later bounded decisions.
