@@ -335,8 +335,8 @@ class TestFaresProduction(TransactionCase):
         source = order.order_line.filtered(lambda line: line.product_id == self.products[0])
         self.assertEqual(self._tasks(order).quantity, 2.0)
 
-        with self.env.cr.savepoint():
-            with self.assertRaisesRegex(ValidationError, "coverage cannot exceed"):
+        with self.assertRaisesRegex(ValidationError, "coverage cannot exceed"):
+            with self.env.cr.savepoint():
                 self.env["fu.production.task"].sudo().create(
                     {
                         "company_id": self.env.company.id,
