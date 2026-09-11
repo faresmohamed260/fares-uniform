@@ -1,6 +1,6 @@
 # Phase 2C — Retail refunds and size exchanges
 
-Status: **IMPLEMENTATION ACTIVE; CLIENT POLICY CLOSED; PINNED ODOO MODEL BOUNDARY COMPLETE; EGYPT CONSUMER-POLICY BASELINE RECORDED.**
+Status: **IMPLEMENTATION ACTIVE; REFUND FOUNDATION VERIFIED; NATIVE SIZE EXCHANGE + CONTROLLED RETURNS WORKSPACE IMPLEMENTED ON NEWER COMMITS; CURRENT HEAD HOSTED GATE RED.**
 
 Branch: `phase-2c/refunds-exchanges`.
 
@@ -76,6 +76,38 @@ Implementation direction:
 5. preserve links among original sale, refund, payment settlement and stock movement;
 6. keep replay/idempotency guards around every Fares-owned approval/execution boundary;
 7. route uninspected returned stock to the accepted non-sellable `Returns / Inspection` location before any later explicit move to sellable Retail Store stock.
+
+## Implementation evidence and current validation state
+
+Validation chronology is authoritative in `docs/validation/PHASE_2C_REFUNDS_EXCHANGES.md`.
+
+### Verified refund foundation
+
+The last authoritative green Phase 2C application checkpoint is **`d0a6745d3b4d19891fb7dcf034a3ffe0d903a5d1`** (`feat(refunds): add approved return foundation`). Run **`34588161993`**, job **`103227058235`**, is green and proves the combined Phase 1 through Phase 2C test gate, repeatable `fu_core,fu_retail,fu_preorder` upgrade and exact-head evidence upload for that SHA.
+
+The verified refund foundation includes source-linked return requests, server-side role/store authorization, accepted 14/30-day eligibility rules, Cash/confirmed-InstaPay same-method settlement rules, mixed-payment fail-closed behavior, native refund lineage, direct-native-refund bypass protection, returned-stock quarantine, inspection/release controls and exact-once execution.
+
+### Newer native size exchange
+
+Commit **`f90066e2c883bfb5570b1803136fca6b1174922d`** (`feat(refunds): add native size exchange execution`) adds:
+- native return of the source variant plus a positive replacement-variant line;
+- replacement constrained to another storable variant of the same product template/UoM;
+- live Retail Store stock availability checks;
+- native POS onchange/pricelist/fiscal-position/tax pricing instead of hand-coded replacement pricing;
+- exact positive/negative/zero difference settlement;
+- Cash/confirmed-InstaPay settlement rules inherited from the accepted policy;
+- protected replacement-order linkage and idempotent execution;
+- tests for same-price, more-expensive, cheaper, mixed-payment rejection, same-template enforcement and replay safety.
+
+This is implemented but does not automatically inherit the green status of its parent checkpoint.
+
+### Newer controlled returns workspace
+
+Commit **`2f1df8801581ec9b622d3774d415bd0cecbe0c28`** (`feat(refunds): add controlled returns workspace`) adds the operational workspace and UI assets around the guarded model, including backend Return / Exchange views/actions, inspection/audit context, online guard behavior, Arabic strings and a POS controlled-return entry override intended to replace the unrestricted staff native Refund entry path while leaving server authorization as the actual security boundary.
+
+Its hosted exact-head validation is currently **RED**: run **`34602380257`**, job **`103242147501`**. The checkout/setup/dependency steps succeeded; **`Install addons and run Phase 1 through Phase 2C tests` failed**. Repeatable upgrade was skipped because of that failure, while summary/evidence upload completed. The useful runtime failure text was not exposed by the connector during the handoff session; it must be retrieved once and diagnosed rather than guessed or repeatedly polled.
+
+Accordingly, Phase 2C remains active. No current-head repeatable-upgrade pass, EN/AR/RTL browser pass or visual-review pass is claimed.
 
 ## Functional scope
 
@@ -184,7 +216,13 @@ Before implementation starts — **complete**:
 - external research retained separately in `docs/requirements/PHASE_2C_POLICY_RESEARCH.md`;
 - existing role design remains sufficient; implementation may add model ACLs/rules without changing the delegated role responsibilities.
 
+Current implementation handoff — **recorded**:
+- refund foundation green checkpoint, newer exchange/workspace SHAs and current red workflow are recorded in `docs/validation/PHASE_2C_REFUNDS_EXCHANGES.md`;
+- current failure is intentionally left as a failure to diagnose, not reclassified as a pass.
+
 Before phase closure:
+- resolve the current exact-head failure and rerun the complete hosted gate;
+- pass repeatable upgrade and representative EN/AR/RTL browser/rendered review;
 - record exact tested application SHA, workflow run/job, artifact/digest and representative UI evidence;
 - distinguish tested application SHA from later cleanup/docs commits;
 - remove temporary diagnostic workflows;
