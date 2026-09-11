@@ -335,23 +335,24 @@ class TestFaresProduction(TransactionCase):
         source = order.order_line.filtered(lambda line: line.product_id == self.products[0])
         self.assertEqual(self._tasks(order).quantity, 2.0)
 
-        with self.assertRaisesRegex(ValidationError, "coverage cannot exceed"):
-            self.env["fu.production.task"].sudo().create(
-                {
-                    "company_id": self.env.company.id,
-                    "product_id": self.products[0].id,
-                    "earliest_commitment_date": order.commitment_date,
-                    "trigger_reason": "quantity",
-                    "queued_by_id": self.env.user.id,
-                    "queued_at": fields.Datetime.now(),
-                    "line_ids": [
-                        Command.create(
-                            {
-                                "preorder_line_id": source.id,
-                                "quantity": 1,
-                            }
-                        )
-                    ],
-                }
-            )
+        with self.env.cr.savepoint():
+            with self.assertRaisesRegex(ValidationError, "coverage cannot exceed"):
+                self.env["fu.production.task"].sudo().create(
+                    {
+                        "company_id": self.env.company.id,
+                        "product_id": self.products[0].id,
+                        "earliest_commitment_date": order.commitment_date,
+                        "trigger_reason": "quantity",
+                        "queued_by_id": self.env.user.id,
+                        "queued_at": fields.Datetime.now(),
+                        "line_ids": [
+                            Command.create(
+                                {
+                                    "preorder_line_id": source.id,
+                                    "quantity": 1,
+                                }
+                            )
+                        ],
+                    }
+                )
         self.assertEqual(len(self._tasks(order)), 1)
