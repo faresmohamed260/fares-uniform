@@ -27,9 +27,10 @@
 | [Phase 2B Odoo model analysis](architecture/PHASE_2B_PREORDER_MODEL.md) | Pinned-Odoo technical boundary for preorder identity, payments and collection |
 | [Phase 2B policy decisions](requirements/PHASE_2B_POLICY_DECISIONS.md) | Accepted connectivity, deposit, allocation and partial-readiness policy |
 | [Phase 2B validation](validation/PHASE_2B_PREORDER_COLLECTION.md) | Final exact-head hosted evidence, retained red/green chronology, application authority and cleanup lineage |
-| [Phase 2C refunds/exchanges contract](phases/PHASE_2C_REFUNDS_EXCHANGES.md) | Active refund/size-exchange phase contract, statutory baseline, client policy gates and validation/exit requirements |
-| [Phase 2C pinned refund/return model](architecture/PHASE_2C_REFUND_RETURN_MODEL.md) | Exact pinned-Odoo POS refund, stock-return, exchange and ownership boundary |
-| [Phase 2C policy research](requirements/PHASE_2C_POLICY_RESEARCH.md) | Current Egypt CPA consumer-retail constraints and developer-recommended operational defaults; not final legal certification |
+| [Phase 2C refunds/exchanges contract](phases/PHASE_2C_REFUNDS_EXCHANGES.md) | Active implementation contract for consumer retail refunds/size exchanges, security, stock inspection and validation |
+| [Phase 2C policy research](requirements/PHASE_2C_POLICY_RESEARCH.md) | Egypt CPA return/exchange research baseline and implementation constraints; not final legal certification |
+| [Phase 2C policy decisions](requirements/PHASE_2C_POLICY_DECISIONS.md) | Client-accepted P2C-01 through P2C-07 rules for source sale, eligibility, settlement, exchange, inspection, preorder exclusion and connectivity |
+| [Phase 2C Odoo refund/return model](architecture/PHASE_2C_REFUND_RETURN_MODEL.md) | Exact pinned-Odoo POS refund, stock-return and exchange ownership boundary |
 
 Read these documents from GitHub at the beginning of work. Add new documents here when needed, with a clear ownership boundary.
 
