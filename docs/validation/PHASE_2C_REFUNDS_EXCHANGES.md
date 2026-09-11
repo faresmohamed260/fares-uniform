@@ -1,107 +1,136 @@
 # Phase 2C validation — retail refunds and size exchanges
 
-Status: **IMPLEMENTATION ACTIVE. REFUND FOUNDATION HAS A VERIFIED GREEN CHECKPOINT; NATIVE SIZE-EXCHANGE EXECUTION AND THE CONTROLLED RETURNS WORKSPACE ARE IMPLEMENTED ON NEWER COMMITS, BUT THE CURRENT HEAD HOSTED GATE IS RED AND MUST NOT BE DESCRIBED AS VERIFIED.**
+Status: **COMPLETE / AUTHORITATIVE HOSTED GATE PASS.**
 
 Branch: `phase-2c/refunds-exchanges`.
 
 Pinned Odoo Community commit: `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
-This document owns Phase 2C hosted validation chronology and the distinction between implemented, hosted-tested, visually reviewed and phase-complete states. The phase contract remains `docs/phases/PHASE_2C_REFUNDS_EXCHANGES.md`.
+This document owns Phase 2C hosted validation chronology and the distinction between implemented, hosted-tested, visually reviewed and documentation-only states. The phase contract is `docs/phases/PHASE_2C_REFUNDS_EXCHANGES.md`.
 
-## Authoritative chronology
+## Final application authority
 
-### Verified refund-foundation checkpoint
-
-Application SHA: **`d0a6745d3b4d19891fb7dcf034a3ffe0d903a5d1`** (`feat(refunds): add approved return foundation`).
+Authoritative tested application SHA: **`62369e62dd1e5d2505e089c6a5ede296a24bcb3b`** (`test(refunds): cover exchange stock and InstaPay evidence`).
 
 GitHub Actions:
-- workflow: `Phase 2C retail returns`;
-- run: **`34588161993`**;
-- job: **`103227058235`**;
-- conclusion: **SUCCESS**.
+- workflow: **`Phase 2C retail returns`**;
+- run: **`34596450064`**;
+- job: **`103253225096`** (`returns-foundation`);
+- conclusion: **SUCCESS**;
+- run attempt: `1`;
+- exact workflow head: `62369e62dd1e5d2505e089c6a5ede296a24bcb3b`.
 
-Evidence established at this exact SHA:
-- combined Phase 1 through Phase 2C Odoo tests passed;
-- the bounded refund foundation passed its server/security/stock/payment tests;
-- repeatable `fu_core,fu_retail,fu_preorder` upgrade passed;
-- exact-head evidence upload passed.
+Final exact-head artifact:
+- artifact ID: **`10262414135`**;
+- name: **`phase2c-returns-62369e62dd1e5d2505e089c6a5ede296a24bcb3b`**;
+- digest: **`sha256:de110b0bd73593d7248f396acb1df35c80c5c711edac14b83773b54d86e1a475`**;
+- created: `2026-09-11T12:01:38Z`;
+- retained evidence includes `install-and-tests.log`, `upgrade.log`, `summary.md`, browser logs and rendered screenshots.
 
-This is the latest Phase 2C SHA that may currently be called an authoritative green application checkpoint.
+The application SHA above is the Phase 2C runtime authority. Later documentation-only commits do not replace it and must not be described as separately tested application heads.
 
-### Native size-exchange implementation
+## Final hosted gate result
 
-Implementation SHA: **`f90066e2c883bfb5570b1803136fca6b1174922d`** (`feat(refunds): add native size exchange execution`).
-
-This commit extends the return request workflow with native Odoo size-exchange execution and tests. Implemented behavior includes:
-- an exchange order linked to the source POS transaction;
-- return of the original positive sale line through the native refund lineage;
-- a positive replacement-variant POS line;
-- replacement limited to another storable variant of the same product template and unit of measure;
-- live Retail Store replacement-stock availability checks;
-- native POS onchange/pricelist/fiscal-position/tax pricing for the replacement line rather than a hand-coded `list_price` shortcut;
-- exact positive, negative or zero exchange-difference settlement;
-- Cash settlement for Cash source sales and confirmed InstaPay evidence for supported InstaPay settlement;
-- mixed-method source payments remaining fail-closed;
-- quarantine of the returned original variant in `Returns / Inspection`;
-- exact-once/idempotent exchange execution and protected native linkage.
-
-Representative server tests in `addons/fu_retail/tests/test_exchanges.py` cover equal-price, more-expensive and cheaper exchanges, mixed-payment rejection, same-template variant enforcement and replay safety.
-
-This commit is newer implementation than the green refund-foundation checkpoint. It must not inherit `d0a6745d...` validation by implication.
-
-### Controlled returns workspace
-
-Current application HEAD before this documentation update: **`2f1df8801581ec9b622d3774d415bd0cecbe0c28`** (`feat(refunds): add controlled returns workspace`).
-
-The commit adds the operational surface around the guarded server workflow, including:
-- native backend Return / Exchange list/form/search/menu workspace;
-- request submission, Manager/Owner approval, execution and rejection actions;
-- source sale, policy, settlement, returned-item, inspection, audit and native-record context;
-- replacement-size handling and inspection actions;
-- online-required backend guard assets;
-- a POS return entry override so the Fares-controlled path can replace the unrestricted native Refund entry point while server-side bypass protection remains authoritative;
-- Arabic translations for the new return/exchange surface;
-- additional UI/tour assets registered in `fu_retail`.
-
-Implementation presence is not proof of runtime correctness or visual completion.
-
-## Current red exact-head gate
-
-GitHub Actions run **`34602380257`**, job **`103242147501`**, validates application HEAD `2f1df8801581ec9b622d3774d415bd0cecbe0c28` and concludes **FAILURE**.
-
-Known step state:
+The exact-head hosted run passed every required workflow step:
 - Checkout Fares exact head — success;
 - Checkout pinned Odoo Community 19 — success;
-- Set up Python — success;
-- Install Odoo dependencies — success;
-- **Install addons and run Phase 1 through Phase 2C tests — failure**;
-- Prove repeatable addon upgrade — **skipped because the test/install step failed**;
+- Python/dependency setup — success;
+- **Install addons and run Phase 1 through Phase 2C tests — success**;
+- **Prove repeatable addon upgrade — success**;
 - Summarize evidence — success;
 - Upload exact-head evidence — success.
 
-The GitHub connector did not expose the useful runtime failure text from job `103242147501` during the handoff session. Do not guess the root cause and do not repeatedly refetch the same unavailable log. The next implementation session should perform one targeted retrieval of the failing test/log evidence, then change tactics if the helper remains incomplete.
+The retained Odoo result is:
 
-Because the current exact-head gate is red:
-- `2f1df880...` is **implemented but not verified**;
-- `f90066e2...` is **implemented but must not be assumed green merely because its parent checkpoint was green**;
-- `d0a6745d...` remains the latest authoritative green Phase 2C checkpoint;
-- Phase 2C is not complete;
-- no repeatable-upgrade success, browser/UI success or visual approval may be claimed for the current HEAD.
+`0 failed, 0 error(s) of 82 tests when loading database 'fares_phase2c'`
 
-## Remaining authoritative gates
+The same database then completed a repeatable `-u fu_core,fu_retail,fu_preorder` upgrade successfully on the same Fares application SHA and the same pinned Odoo SHA.
 
-Before Phase 2C can close:
-1. retrieve/identify the exact `2f1df880...` hosted failure once and fix the underlying code/test issue rather than weakening assertions;
-2. run the combined Phase 1 + Phase 2A + Phase 2B + Phase 2C test gate successfully on the new exact application SHA;
-3. prove repeatable `fu_core,fu_retail,fu_preorder` upgrade on that same application SHA;
-4. prove representative refund and size-exchange workflow behavior, including positive/negative/zero difference and inspection disposition;
-5. verify that the unrestricted native POS Refund route is not offered as a competing staff workflow while direct native mutation remains rejected server-side;
-6. pass representative English and Arabic/RTL browser paths, online/offline fail-closed behavior, keyboard focus/accessibility checks and rendered review;
-7. retain screenshots/evidence and pin the final workflow run, job, artifact ID/name and digest;
-8. distinguish the final tested application SHA from any later diagnostic cleanup or documentation-only SHA;
-9. remove any temporary diagnostic workflow before closure;
-10. do not merge, deploy or migrate real data without explicit client authorization.
+No temporary diagnostic workflow remains in the Phase 2C closure path.
 
-## Non-negotiable validation boundaries
+## Business/security scenarios proved
 
-Do not reopen the accepted P2C-01 through P2C-07 policy unless the client changes it or authoritative evidence contradicts it. Do not build a second refund/payment/stock ledger. Do not add a generic reverse transfer on top of a native delivered POS refund. Do not weaken role, store-scope, quantity, settlement, inspection, idempotency or connectivity assertions merely to make CI green.
+Hosted tests at the final application SHA prove the accepted P2C-01 through P2C-07 policy without weakening assertions:
+
+- Cashier can prepare/request a return or exchange, while Manager/Owner approval remains required for approval/execution boundaries;
+- Store Manager scope is enforced server-side and an unscoped manager is denied;
+- 14-day no-reason and 30-day defective-item eligibility paths are enforced;
+- genuinely made-to-special-specification goods are excluded only from the no-reason path under the accepted exception boundary;
+- original POS sale/payment history remains immutable and reversal records remain source-linked;
+- direct native `pos.order._refund()`, native `refund()` and unauthorized negative/refunded-line mutation are rejected outside an approved Fares request;
+- UI/native-sync bypass payloads for refund/negative lines are rejected server-side;
+- full Cash refund uses native Odoo refund lineage, same-method settlement and exactly one native return stock effect;
+- partial Cash refund is native/source-linked and cumulative refund quantity cannot exceed the outstanding source quantity;
+- repeated execution is idempotent and does not duplicate payment or stock effects;
+- InstaPay refund requires positive manually confirmed outbound evidence/reference and records the attributable confirmation;
+- mixed-method source payments fail closed rather than inventing an allocation rule;
+- returned garments land in `Returns / Inspection` and remain outside sellable stock until disposition;
+- explicit sellable acceptance moves the returned quantity back to Retail Store exactly once;
+- explicit non-sellable disposition remains quarantined and is idempotent;
+- equal-price size exchange creates native return + replacement lineage with zero settlement movement;
+- more-expensive Cash exchange collects the exact positive difference;
+- cheaper Cash exchange refunds the exact negative difference;
+- cheaper InstaPay exchange rejects missing manual evidence and accepts/records confirmed outbound evidence;
+- replacement is limited to another storable variant of the same product template/UoM;
+- replacement stock shortage is rejected before execution;
+- mixed-payment exchange remains fail-closed;
+- exchange replay cannot duplicate replacement, payment or stock effects.
+
+## Controlled operator surface
+
+Phase 2C uses a bounded **Returns & Exchanges** workspace instead of exposing native POS Refund as a competing routine staff workflow.
+
+Hosted proof covers:
+- backend list/form/search/menu registration;
+- source transaction, operation, eligibility, reason, settlement, returned-item, inspection, audit and native-record context;
+- editable draft source/line selection;
+- live exchange-difference preview;
+- POS `Returns / Exchanges` entry replacing the routine native Refund control;
+- server-side direct-mutation denial remaining authoritative even if a client attempts to bypass the UI.
+
+The final POS tour proves the online staff path leaves the standalone POS shell only after pending-order synchronization succeeds and opens the controlled backend workspace. The offline tour proves the action remains in POS, does not expose the native Ticket/Refund path, and shows `Returns and exchanges require an online connection.`
+
+## Browser, RTL, keyboard and rendered evidence
+
+Representative hosted Chrome paths passed for English and Arabic/RTL, including online/offline disable/recover behavior and keyboard focus on the primary return action.
+
+Final retained return-workspace screenshots include:
+- `returns_exchange_en_desktop_20260911_120044_841200_test_returns_exchange_english_online_guard.png`;
+- `returns_exchange_en_narrow_reduced_20260911_120044_967812_test_returns_exchange_english_online_guard.png`;
+- `returns_exchange_ar_desktop_20260911_120042_674460_test_returns_exchange_arabic_rtl_online_guard.png`;
+- `returns_exchange_ar_narrow_reduced_20260911_120042_800596_test_returns_exchange_arabic_rtl_online_guard.png`.
+
+Rendered review confirms the controlled return form remains usable at desktop and narrow widths and the Arabic path renders RTL. The retained Chrome logs show the tours/browser assertions succeeding; the visible `ERROR` lines are headless-runner D-Bus/GCM environment noise, not application JavaScript/test failures.
+
+## Corrected failure chronology
+
+The prior handoff incorrectly associated job `103242147501` with run `34602380257`. GitHub identifies that job under **run `34592940939`**, which is the red hosted run for application SHA `2f1df8801581ec9b622d3774d415bd0cecbe0c28`.
+
+The useful retained artifact from that run showed the two new POS tours failed before exercising business behavior because Odoo tour helpers returning arrays had been inserted as single steps. Commit **`8c657d6f6b836d543007647c834429727986d972`** (`fix(refunds): flatten POS return tour steps`) corrected the tour composition.
+
+Run **`34595185551`**, job **`103249180876`**, then reached the real navigation behavior and exposed two separate assumptions:
+- backend `action.doAction(...)` cannot mount the ordinary backend list inside the standalone POS shell;
+- the Odoo control-buttons popup closes on bubbled button click, so the offline test must not require that popup to remain open.
+
+Commit **`4353c6c206b63697a3c2054bf976dc2fa01cfe28`** (`fix(refunds): redirect POS returns to backend workspace`) changed the online flow to synchronize pending POS orders and then navigate to `/odoo/action-fu_retail.action_fu_retail_return_requests`, matching pinned Odoo's standalone-POS-to-backend behavior. Commit **`e2a984ec6b473dfcd001de4569a1ccda4fb4fd61`** updated the tours to prove unload/navigation online and fail-closed retention offline.
+
+Final closure coverage was then strengthened without relaxing policy through:
+- **`543e613c1eef11c1384ac7579a7763c120c29171`** — partial/cumulative over-refund and non-sellable inspection tests;
+- **`62369e62dd1e5d2505e089c6a5ede296a24bcb3b`** — replacement-stock shortage and InstaPay exchange-difference evidence tests.
+
+The final exact-head run is green, so the older red runs remain historical diagnostic evidence only.
+
+## Closure boundaries
+
+Phase 2C is closed for the accepted consumer-retail scope. Closure does **not** authorize or imply:
+- mixed-method automated refund allocation;
+- uncollected-preorder cancellation/refund;
+- cards/wallets;
+- automatic InstaPay/bank API integration;
+- B2B contract returns/credit policy;
+- chargebacks, repairs, warranty workflows or production-material returns;
+- final legal/tax certification;
+- merge of stacked branches;
+- production deployment or real-data migration.
+
+No merge, deployment or production migration occurred during Phase 2C validation.
