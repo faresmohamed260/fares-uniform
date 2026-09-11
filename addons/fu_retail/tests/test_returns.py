@@ -269,6 +269,34 @@ class TestRetailReturns(CommonPosTest):
         self.assertEqual(refund.picking_ids.ids, refund_picking_ids)
         self.assertEqual(request.quarantine_picking_id.id, quarantine_id)
 
+    def test_partial_refund_and_cumulative_over_refund_are_native_and_bounded(self):
+        order = self._cash_sale(qty=2)
+        original_payment_ids = order.payment_ids.ids
+        source_line = order.lines.filtered(lambda line: line.qty > 0).ensure_one()
+
+        request = self._request(order, qty=1)
+        request.action_submit()
+        request.with_user(self.manager).action_approve()
+        refund = request.with_user(self.manager).action_execute()
+        refund.ensure_one()
+
+        self.assertAlmostEqual(refund.amount_total, -10.0, places=2)
+        self.assertAlmostEqual(refund.payment_ids.ensure_one().amount, -10.0, places=2)
+        self.assertEqual(refund.refunded_order_id, order)
+        self.assertEqual(source_line.refunded_qty, 1)
+        self.assertEqual(order.payment_ids.ids, original_payment_ids)
+        self.assertEqual(
+            self.env["stock.quant"].sudo()._get_available_quantity(
+                self.product, self._inspection_location()
+            ),
+            1,
+        )
+
+        excessive = self._request(order, qty=2)
+        with self.assertRaisesRegex(ValidationError, "outstanding source quantity"):
+            excessive.action_submit()
+        self.assertEqual(source_line.refunded_qty, 1)
+
     def test_instapay_refund_requires_positive_outbound_evidence(self):
         missing = self._request(self._instapay_sale())
         missing.action_submit()
@@ -318,3 +346,28 @@ class TestRetailReturns(CommonPosTest):
 
         line.with_user(self.inventory).action_accept_sellable()
         self.assertEqual(line.acceptance_picking_id.id, acceptance_id)
+
+    def test_inspection_non_sellable_stays_quarantined_and_is_idempotent(self):
+        request = self._request(self._cash_sale())
+        request.action_submit()
+        request.with_user(self.manager).action_approve()
+        request.with_user(self.manager).action_execute()
+        line = request.line_ids.ensure_one()
+        inspection = self._inspection_location()
+
+        line.with_user(self.inventory).action_mark_non_sellable()
+        self.assertEqual(line.inspection_state, "non_sellable")
+        self.assertEqual(line.inspected_by_id, self.inventory)
+        self.assertFalse(line.acceptance_picking_id)
+        self.assertEqual(
+            self.env["stock.quant"].sudo()._get_available_quantity(self.product, inspection),
+            1,
+        )
+        self.assertEqual(
+            self.env["stock.quant"].sudo()._get_available_quantity(self.product, self.store),
+            9,
+        )
+
+        line.with_user(self.inventory).action_mark_non_sellable()
+        self.assertEqual(line.inspection_state, "non_sellable")
+        self.assertFalse(line.acceptance_picking_id)
