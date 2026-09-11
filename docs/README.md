@@ -32,9 +32,9 @@
 | [Phase 2C policy research](requirements/PHASE_2C_POLICY_RESEARCH.md) | Egypt CPA return/exchange research baseline and implementation constraints; not final legal certification |
 | [Phase 2C policy decisions](requirements/PHASE_2C_POLICY_DECISIONS.md) | Client-accepted P2C-01 through P2C-07 rules for source sale, eligibility, settlement, exchange, inspection, preorder exclusion and connectivity |
 | [Phase 2C Odoo refund/return model](architecture/PHASE_2C_REFUND_RETURN_MODEL.md) | Exact pinned-Odoo POS refund, stock-return and exchange ownership boundary |
-| [Phase 3A preorder production contract](phases/PHASE_3A_PREORDER_PRODUCTION.md) | Active size-specific preorder production queue, threshold/deadline triggers, production states, permissions and exit gates |
+| [Phase 3A preorder production contract](phases/PHASE_3A_PREORDER_PRODUCTION.md) | Completed size-specific preorder production queue, threshold/deadline triggers, production states, permissions and closure authority |
 | [Phase 3A production model](architecture/PHASE_3A_PRODUCTION_MODEL.md) | Pinned-Odoo MRP assessment and bounded Fares production-workflow ownership model |
-| [Phase 3A validation](validation/PHASE_3A_PREORDER_PRODUCTION.md) | Exact-hosted Phase 3A application/test/upgrade/UI evidence chronology and final authority when established |
+| [Phase 3A validation](validation/PHASE_3A_PREORDER_PRODUCTION.md) | Final exact-head Phase 1–3A hosted gate, 93-test result, repeatable four-addon upgrade, EN/AR/RTL evidence, artifact authority and retained red-run chronology |
 
 Read these documents from GitHub at the beginning of work. Add new documents here when needed, with a clear ownership boundary.
 
