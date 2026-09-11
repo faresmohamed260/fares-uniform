@@ -34,11 +34,11 @@
 | [Phase 2C Odoo refund/return model](architecture/PHASE_2C_REFUND_RETURN_MODEL.md) | Exact pinned-Odoo POS refund, stock-return and exchange ownership boundary |
 | [Phase 3A preorder production contract](phases/PHASE_3A_PREORDER_PRODUCTION.md) | Completed size-specific preorder production queue, threshold/deadline triggers, production states and permissions |
 | [Phase 3A production model](architecture/PHASE_3A_PRODUCTION_MODEL.md) | Pinned-Odoo MRP assessment and bounded Fares production-workflow ownership model |
-| [Phase 3A validation](validation/PHASE_3A_PREORDER_PRODUCTION.md) | Final exact-head Phase 1–3A hosted gate, 93-test result, repeatable five-dimensional production evidence and application authority |
-| [Phase 3B business-client contract](phases/PHASE_3B_BUSINESS_CLIENT_ORDERS.md) | Active business-client enquiry/sample/order/deposit/shipment/balance phase; policy-neutral first slice authorized while commercial execution remains gated |
+| [Phase 3A validation](validation/PHASE_3A_PREORDER_PRODUCTION.md) | Final exact-head Phase 1–3A hosted gate, 93-test result, repeatable production evidence and application authority |
+| [Phase 3B business-client contract](phases/PHASE_3B_BUSINESS_CLIENT_ORDERS.md) | Active business-client phase; policy-neutral enquiry/sample/draft-quotation milestone verified while commercial execution remains gated |
 | [Phase 3B business-order model](architecture/PHASE_3B_BUSINESS_ORDER_MODEL.md) | Pinned-Odoo CRM/Sales/stock ownership analysis and policy-neutral Fares extension boundary |
 | [Phase 3B commercial policy ledger](requirements/PHASE_3B_POLICY_DECISIONS.md) | Open P3B-01 through P3B-04 decisions for balance timing, partial shipments, deposit rule and post-approval change/cancellation |
-| [Phase 3B validation](validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md) | Exact-hosted safe-slice chronology, future commercial validation and final Phase 3B authority |
+| [Phase 3B validation](validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md) | Verified 104-test safe-slice authority, red/green chronology, five-addon upgrade, EN/AR/RTL evidence and future commercial validation requirements |
 
 Read these documents from GitHub at the beginning of work. Add new documents here when needed, with a clear ownership boundary.
 
