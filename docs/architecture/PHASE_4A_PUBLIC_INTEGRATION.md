@@ -1,253 +1,166 @@
 # Phase 4A architecture — public catalog and enquiry boundary
 
-Status: **ACTIVE IMPLEMENTATION ARCHITECTURE.**
+Status: **FINAL / VERIFIED.**
 
 Branch: `phase-4a/public-catalog-enquiry`.
 
 Pinned Odoo Community SHA: `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
+Authoritative tested application SHA: `76eb20a5c267e0fa8c8d5ce2bf065ffcd332e497`.
+
 ## 1. Ownership
 
-Phase 4A preserves the hybrid ownership selected in the foundation architecture.
-
 ### Odoo owns
-- the operational `product.template` record;
-- explicit Fares publication metadata attached to that product template;
-- immutable public enquiry intake records;
-- server-side publication and enquiry validation;
+- operational `product.template` truth;
+- Fares public-publication metadata;
+- immutable/append-only public enquiry intake records;
+- publication/enquiry validation;
 - the allowlisted public catalog serializer;
-- the narrow public HTTP endpoints.
+- narrow `/fu/public/*` HTTP endpoints.
 
 ### Next.js owns
-- public routing and localized presentation;
+- public localized routing/presentation;
 - server-side calls to the narrow Odoo endpoints;
-- public contact-route configuration;
-- browser form interaction, accessibility and motion;
-- public SEO/metadata generated from already-public catalog DTOs.
+- same-origin image/enquiry proxies;
+- browser form interaction/accessibility/motion;
+- public metadata derived only from already-public DTOs.
 
-### The browser does not own
-- Odoo credentials;
+### Browser never owns
+- Odoo staff credentials;
 - arbitrary Odoo RPC;
-- direct database connectivity;
+- direct database access;
 - operational product records;
-- price, stock, payment, balance or customer-private data.
+- price, stock, payment, balance, customer/staff-private or internal ERP data.
 
-## 2. `fu_public_api` model boundary
+## 2. Odoo publication boundary
 
-### `product.template` extension
+`fu_public_api` extends `product.template` with Fares-owned publication metadata. Publication is opt-in and Owner/Admin-controlled. Ordinary operational products remain private until explicitly published.
 
-Fares-owned fields:
-- `fu_public_published` — Boolean, default false;
-- `fu_public_slug` — stable public slug, unique when set;
-- `fu_public_name_en` — required for publication;
-- `fu_public_name_ar` — optional Arabic public title;
-- `fu_public_summary_en` — required for publication;
-- `fu_public_summary_ar` — optional Arabic public summary;
-- `fu_public_sector` — bounded public-facing sector/use-case text, not an operational category replacement;
-- `fu_public_sequence` — display ordering only.
+The addon validates stable public slug/content and denies unrelated-role mutation. Existing Odoo image data remains the image source; Phase 4A does not create a second operational product/media ledger.
 
-Existing Odoo product image data remains the image source. Phase 4A does not duplicate binary media into a second persistence system.
+## 3. Exact catalog DTO
 
-Publication controls are Owner/Admin-only. The API never auto-publishes an operational product.
-
-Publication validation:
-- published record requires a non-empty slug;
-- published record requires English public name and summary;
-- slug is normalized to lowercase ASCII URL-safe tokens by the controlled workflow or rejected;
-- duplicate slug is denied;
-- publication metadata cannot be mutated by unrelated roles through direct ORM/API writes.
-
-### `fu.public.enquiry`
-
-Fields:
-- `idempotency_key` — required unique retry identity;
-- `contact_name`;
-- `organization_name`;
-- `email`;
-- `phone`;
-- `sector`;
-- `message`;
-- `language` (`en` / `ar`);
-- `source_product_id` — optional Many2one to a currently published product template;
-- `submitted_at`;
-- `company_id` — company receiving the enquiry.
-
-The intake record is append-only in Phase 4A. Sales/BD and Owner/Admin may read it for follow-up. Public users receive only the response identifier generated for their own submission; there is no public enquiry-list or enquiry-detail endpoint.
-
-No automatic CRM conversion is implemented in this phase. Qualification/handoff can be added later as an explicit staff action without changing the public intake contract.
-
-## 3. Exact public DTO
-
-Catalog list/detail responses expose only:
+Every public list/detail item is validated as exactly:
 
 ```text
-slug
-name
-summary
-sector
-image_url | null
+slug: string
+name: string
+summary: string
+sector: string
+image_url: string | null
 ```
 
-`name` and `summary` are localized by the requested language before serialization. The public DTO deliberately omits:
-- database IDs;
-- internal SKU/barcode;
+There are no extra properties. This is an allowlist serializer, not a filtered generic `read()`.
+
+Forbidden/publicly absent classes include:
+- database/operational IDs;
+- SKU/barcode;
 - publication-control fields;
-- price/currency;
-- standard cost;
-- on-hand/forecast/reserved stock;
-- stock locations;
-- customer/supplier links;
-- taxes/accounting fields;
-- sales/purchase metadata;
-- staff/user/company-security fields;
-- operational notes.
+- price/currency/cost;
+- on-hand/forecast/reserved quantities;
+- stock state/locations;
+- customer/supplier/payment/balance data;
+- accounting/tax internals;
+- staff/users/security/internal notes.
 
-This is an allowlist serializer, not a filtered `read()` result.
+## 4. Public HTTP routes
 
-## 4. HTTP contract
+Fares-owned routes:
+- `GET /fu/public/catalog?lang=en|ar`;
+- `GET /fu/public/catalog/<slug>?lang=en|ar`;
+- `GET /fu/public/catalog/<slug>/image`;
+- `POST /fu/public/enquiries`.
 
-All routes are Fares-owned controllers. They use ordinary HTTP JSON rather than exposing the deprecated/general Odoo RPC surface.
+Unpublished/missing catalog slugs fail closed and do not reveal private-record existence.
 
-### `GET /fu/public/catalog`
+## 5. Exact enquiry contract
 
-Query:
-- `lang=en|ar`, default `en`.
+Allowed request keys:
 
-Response `200`:
-
-```json
-{
-  "items": [
-    {
-      "slug": "school-polo",
-      "name": "School Polo",
-      "summary": "...",
-      "sector": "Schools",
-      "image_url": "/fu/public/catalog/school-polo/image"
-    }
-  ]
-}
+```text
+idempotency_key
+contact_name
+organization_name
+phone
+email
+sector
+message
+source_product_slug
+language
 ```
 
-Only published records are searched. Ordering is `fu_public_sequence`, then product id for deterministic output.
+Required:
+- `idempotency_key`;
+- `contact_name`;
+- `organization_name`;
+- `sector`;
+- `message`;
+- at least one of `phone` or `email`;
+- `language` exactly `en` or `ar`.
 
-### `GET /fu/public/catalog/<slug>`
+Current Next.js proxy maximum lengths mirror Odoo’s tested public contract:
+- idempotency key 120;
+- contact name 120;
+- organization name 160;
+- phone 60;
+- email 254;
+- sector 120;
+- message 4000;
+- source product slug 120.
 
-Query:
-- `lang=en|ar`, default `en`.
+Unknown top-level keys are rejected. In particular, `source_url` is **not** part of the accepted schema and is rejected.
 
-Returns the same single DTO. Missing/unpublished slug returns `404` with a generic error and does not distinguish private-record existence.
+Successful intake:
+- normalizes/validates input;
+- uses retry-safe identity per company;
+- exact replay returns the existing accepted result;
+- same retry key with changed normalized data fails closed;
+- optional product source resolves only through the public slug boundary;
+- creates no sale order, payment, stock operation or automatic CRM/business-order confirmation;
+- returns only an accepted status/reference, not private submitted data.
 
-### `GET /fu/public/catalog/<slug>/image`
+## 6. Next.js provider boundary
 
-Returns the existing product-template image only when the slug resolves to a published record with image data. Missing/unpublished/no-image returns `404`. MIME type is detected from decoded bytes using Odoo utilities. The route never exposes the underlying record id.
+Production provider:
+- `apps/public-web/lib/public-data.ts` requires `ODOO_BASE_URL` outside fixture mode;
+- requests `lang=en|ar` explicitly;
+- rejects catalog responses containing any key outside the exact five-field DTO;
+- rewrites public images through same-origin `/api/catalog-image/<slug>` rather than exposing a general Odoo data bridge.
 
-### `POST /fu/public/enquiries`
+CI fixture provider:
+- enabled explicitly with `FU_PUBLIC_PROVIDER=fixture`;
+- contains only exact five-field public catalog fixtures;
+- does not silently activate when `ODOO_BASE_URL` is missing;
+- enquiry fixture path runs the same request validation before returning a synthetic accepted response.
 
-Content type: `application/json`.
+The fixture is a deterministic rendering/test provider, not an alternate production schema.
 
-Request:
+## 7. Integration defect and durable rule
 
-```json
-{
-  "idempotency_key": "opaque-client-generated-key",
-  "contact_name": "...",
-  "organization_name": "...",
-  "email": "...",
-  "phone": "...",
-  "sector": "...",
-  "message": "...",
-  "language": "en",
-  "source_product_slug": "optional-public-slug"
-}
-```
+An earlier web implementation passed fixture browser checks while sending unsupported `source_url` and omitting required `sector`. Manual integration review found the mismatch before Phase 4A closure.
 
-Rules:
-- `idempotency_key`, contact name, organization, sector and message required;
-- at least one of email or phone required;
-- accepted language only `en`/`ar`;
-- source slug, when supplied, must currently be published;
-- all values are scalar strings only;
-- server trims whitespace and applies maximum lengths;
-- unknown top-level keys are rejected rather than ignored;
-- idempotent replay with identical normalized data returns the existing enquiry response;
-- replay of the same key with different normalized data returns conflict;
-- successful submission creates no `sale.order`, payment, stock move/picking or automatic confirmed CRM/business order.
+Commit `76eb20a5c267e0fa8c8d5ce2bf065ffcd332e497` corrected it and added route regressions for:
+- valid exact Odoo enquiry schema;
+- required sector;
+- rejection of unknown `source_url`.
 
-Response `201` for first creation or `200` for exact retry:
+**Durable rule:** fixture/mock providers must never bypass or replace production contract validation. Contract validation must run before a fixture response whenever possible.
 
-```json
-{
-  "status": "accepted",
-  "reference": "ENQ-..."
-}
-```
+## 8. Frontend structure and UX
 
-The public response does not echo private contact/message data.
+`apps/public-web` is the production-oriented public surface; `prototype/review-ui` remains historical design reference only.
 
-## 5. Controller security
+Phase 4A verified:
+- English LTR and Arabic RTL;
+- desktop and narrow/mobile layouts;
+- keyboard focus/navigation;
+- reduced-motion usability;
+- no document-level horizontal overflow;
+- catalog/detail/enquiry flows;
+- no public price/stock wording or internal ERP navigation/control leakage.
 
-Pinned Odoo 19 supports HTTP routes with `save_session=False` and `request.make_json_response`. Phase 4A uses those mechanics.
+## 9. Security and deployment boundary
 
-Catalog routes:
-- `auth='public'`;
-- `readonly=True` where supported by the route;
-- `save_session=False`;
-- GET only.
+Anonymous endpoints are intentionally narrower than staff APIs. Controlled `sudo()` may exist only inside a validated service boundary; anonymous callers never receive a model/environment bridge.
 
-Enquiry route:
-- `auth='public'`;
-- POST only;
-- `csrf=False` because the endpoint is server-to-server/public API JSON rather than an Odoo browser form session;
-- `save_session=False`;
-- explicit model/service validation before controlled `sudo()` creation.
-
-The controlled `sudo()` boundary is intentionally narrow: anonymous callers never receive an environment/model bridge and can create only normalized `fu.public.enquiry` values approved by the service method.
-
-## 6. Next.js application boundary
-
-Create `apps/public-web` as the production-oriented public surface. Do not turn `prototype/review-ui` into production architecture; it remains Phase 0B visual reference/evidence.
-
-Routes:
-- `/en` and `/ar` — landing / large-client proposition;
-- `/en/catalog`, `/ar/catalog`;
-- `/en/catalog/[slug]`, `/ar/catalog/[slug]`;
-- `/en/enquire`, `/ar/enquire`;
-- `/api/enquiries` — same-origin browser form handler that forwards only the public enquiry schema to Odoo.
-
-Data provider:
-- `FU_PUBLIC_API_BASE_URL` selects the Odoo public API origin server-side;
-- no credential is sent to the browser;
-- direct Odoo URLs are not embedded in browser components;
-- CI may use `FU_PUBLIC_FIXTURE_MODE=1` with a typed no-price/no-stock fixture implementing the exact DTO;
-- fixture mode is explicit; absence of both a base URL and fixture mode must fail closed rather than silently showing synthetic production content.
-
-Contact routes:
-- `FU_PUBLIC_PHONE` and `FU_PUBLIC_WHATSAPP_URL` are optional public configuration;
-- corresponding actions render only when configured;
-- no phone number is invented or committed.
-
-## 7. Public frontend structure
-
-Use Server Components for catalog data and metadata by default. Client Components are reserved for interactions requiring browser state: navigation/menu behavior, catalog detail motion where applicable, and enquiry form submission state.
-
-Use `next/image` for renderable public images. Preserve accessible semantic HTML when images are absent.
-
-No cart, checkout, price, stock badge or availability language is part of the public component vocabulary.
-
-The Phase 0B public concept remains a visual reference for:
-- emerald brand system;
-- spring/shared-layout motion;
-- premium large-client hero treatment;
-- product-card/detail continuity;
-- richer public motion than internal ERP.
-
-Synthetic names, prices and review-only explanatory copy from the prototype are not production content.
-
-## 8. Validation implications
-
-Odoo tests must exercise model-level bypasses and HTTP routes independently.
-
-Web tests must verify both source/data contract and rendered behavior. Browser assertions alone are insufficient for the no-leak rule; typed public fixtures and server provider tests must contain no price/stock properties at all.
-
-CI must retain exact-head Odoo logs, web build/type logs and representative EN/AR screenshots.
+Phase 4A closure does not claim production bot/rate-limit protection, final CDN/media provider, production domain/secrets, deployment, or real-data migration. Those require explicit later authorization/evidence.
