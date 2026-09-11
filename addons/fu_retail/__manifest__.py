@@ -1,13 +1,14 @@
 {
     "name": "Fares Uniform Retail",
-    "summary": "Retail checkout, payment confirmation and offline compatibility for Fares Uniform",
-    "version": "19.0.1.0.0",
+    "summary": "Retail checkout, returns, payment confirmation and offline compatibility for Fares Uniform",
+    "version": "19.0.1.1.0",
     "category": "Sales/Point of Sale",
     "author": "Fares Uniform",
     "license": "LGPL-3",
     "depends": ["fu_core", "point_of_sale"],
     "data": [
         "security/fu_retail_security.xml",
+        "security/ir.model.access.csv",
         "views/pos_payment_method_views.xml",
     ],
     "assets": {

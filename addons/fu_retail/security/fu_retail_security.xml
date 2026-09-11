@@ -11,4 +11,32 @@
             <field name="implied_ids" eval="[(4, ref('point_of_sale.group_pos_user'))]"/>
         </record>
     </data>
+
+    <data noupdate="1">
+        <record id="rule_fu_retail_return_request_scoped" model="ir.rule">
+            <field name="name">Fares returns: assigned store only</field>
+            <field name="model_id" ref="model_fu_retail_return_request"/>
+            <field name="domain_force">[('store_location_id', 'in', user.fu_stock_location_ids.ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_cashier')), (4, ref('fu_core.group_fu_store_manager')), (4, ref('fu_core.group_fu_inventory_staff'))]"/>
+        </record>
+        <record id="rule_fu_retail_return_request_owner_all" model="ir.rule">
+            <field name="name">Fares returns: owner all stores</field>
+            <field name="model_id" ref="model_fu_retail_return_request"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_owner_admin'))]"/>
+        </record>
+
+        <record id="rule_fu_retail_return_line_scoped" model="ir.rule">
+            <field name="name">Fares return lines: assigned store only</field>
+            <field name="model_id" ref="model_fu_retail_return_line"/>
+            <field name="domain_force">[('request_id.store_location_id', 'in', user.fu_stock_location_ids.ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_cashier')), (4, ref('fu_core.group_fu_store_manager')), (4, ref('fu_core.group_fu_inventory_staff'))]"/>
+        </record>
+        <record id="rule_fu_retail_return_line_owner_all" model="ir.rule">
+            <field name="name">Fares return lines: owner all stores</field>
+            <field name="model_id" ref="model_fu_retail_return_line"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_owner_admin'))]"/>
+        </record>
+    </data>
 </odoo>
