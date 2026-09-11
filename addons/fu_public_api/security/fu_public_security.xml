@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="rule_fu_public_enquiry_owner" model="ir.rule">
+            <field name="name">Fares public enquiries: owner companies</field>
+            <field name="model_id" ref="model_fu_public_enquiry"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_owner_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_fu_public_enquiry_sales" model="ir.rule">
+            <field name="name">Fares public enquiries: sales companies</field>
+            <field name="model_id" ref="model_fu_public_enquiry"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('fu_core.group_fu_sales_bd'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+    </data>
+</odoo>
