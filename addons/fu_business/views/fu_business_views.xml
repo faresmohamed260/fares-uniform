@@ -198,6 +198,14 @@
         </field>
     </record>
 
+    <record id="action_fu_business_quotation_editor" model="ir.actions.act_window">
+        <field name="name">Draft Quotation Details</field>
+        <field name="res_model">fu.business.quotation.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="fu_business_quotation_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
     <record id="action_fu_business_quotations" model="ir.actions.act_window">
         <field name="name">Business Quotations</field>
         <field name="res_model">sale.order</field>

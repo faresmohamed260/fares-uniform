@@ -135,6 +135,7 @@ msgstr "تعديل تفاصيل المسودة"
 
 #. module: fu_business
 #: code:addons/fu_business/models/business.py:0
+#: model:ir.actions.act_window,name:fu_business.action_fu_business_quotation_editor
 #: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
 msgid "Draft Quotation Details"
 msgstr "تفاصيل عرض السعر المبدئي"

@@ -134,3 +134,16 @@ class FuBusinessQuotationWizardLine(models.TransientModel):
         for line in self:
             if line.product_id:
                 line.unit_price = line.product_id.lst_price
+
+
+class SaleOrder(models.Model):
+    _inherit = "sale.order"
+
+    def action_fu_open_draft_editor(self):
+        self.ensure_one()
+        self._fu_assert_draft_editor_access()
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "fu_business.action_fu_business_quotation_editor"
+        )
+        action["context"] = {"default_quotation_id": self.id}
+        return action
