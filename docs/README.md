@@ -40,7 +40,10 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 4A public catalog/enquiry contract](phases/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | **Completed** public catalog, enquiry and public-web scope |
 | [Phase 4A public integration architecture](architecture/PHASE_4A_PUBLIC_INTEGRATION.md) | Final Odoo/Next.js boundary, DTO and enquiry schemas |
 | [Phase 4A validation](validation/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Final exact-head server/web evidence, chronology and authority |
+| [Phase 4B operational reporting contract](phases/PHASE_4B_OPERATIONAL_REPORTING.md) | Active report definitions, filters, roles, timezone/currency/deposit/refund semantics |
+| [Phase 4B reporting architecture](architecture/PHASE_4B_REPORTING_MODEL.md) | Live Odoo source models, reporting service and low-stock threshold boundary |
+| [Phase 4B validation](validation/PHASE_4B_OPERATIONAL_REPORTING.md) | Exact-head formula/security/browser/upgrade evidence contract |
 
 Current completed product milestone: **Phase 4A**. Authoritative application SHA: `76eb20a5c267e0fa8c8d5ce2bf065ffcd332e497`.
 
-Next bounded product work: **Phase 4B operational reporting**. No Phase 4B execution contract exists yet; derive it from accepted requirements before implementation.
+Current active product work: **Phase 4B operational reporting** on `phase-4b/operational-reporting`. Contract, architecture and validation definitions exist; implementation must follow them and preserve the completed Phase 4A boundary.
