@@ -89,7 +89,7 @@ class TestFaresProductionBilingualUI(HttpCase):
         self._set_language(arabic)
         action = self._task_action()
         expected_start = "بدء الإنتاج" if arabic else "Start Production"
-        expected_demand = "طلب الإنتاج" if arabic else "Production Demand"
+        expected_quantity = "كمية الإنتاج" if arabic else "Production quantity"
         code = f"""
             (async () => {{
                 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -104,7 +104,7 @@ class TestFaresProductionBilingualUI(HttpCase):
                 const form = await waitFor('.o_form_view');
                 const start = await waitFor('button[name="action_start"]');
                 if (!start.innerText.includes({expected_start!r})) throw new Error('Localized Start Production action missing');
-                if (!form.innerText.includes({expected_demand!r})) throw new Error('Localized production demand context missing');
+                if (!form.innerText.includes({expected_quantity!r})) throw new Error('Localized production quantity label missing');
                 start.focus();
                 if (document.activeElement !== start) throw new Error('Production action cannot receive keyboard focus');
                 {"if (getComputedStyle(form).direction !== 'rtl') throw new Error('Arabic production form is not rendered RTL');" if arabic else ""}
