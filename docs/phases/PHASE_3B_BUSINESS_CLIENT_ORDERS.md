@@ -1,12 +1,12 @@
 # Phase 3B — Business-client enquiry, sample, order, shipment and balance tracking
 
-Status: **ACTIVE — POLICY-NEUTRAL ENQUIRY/SAMPLE SLICE VERIFIED; COMMERCIAL EXECUTION REMAINS GATED BY P3B-01 THROUGH P3B-04.**
+Status: **ACTIVE — EXPANDED POLICY-NEUTRAL ENQUIRY/SAMPLE/DRAFT-DETAIL SLICE VERIFIED; COMMERCIAL EXECUTION REMAINS GATED BY P3B-01 THROUGH P3B-04.**
 
 Branch: `phase-3b/business-client-orders`.
 
 Starting lineage: Phase 3A closure head `f7ceb2690ad87efa186e553e081d2ff1721660d0`.
 
-Verified policy-neutral application authority: **`79149f901d03c92fcd5b0ea432637660a2d102cf`**, workflow `Phase 3B business clients`, run `34608365252`, job `103292327204`.
+Verified expanded policy-neutral application authority: **`70e8c4d781106d894ded5a506c05b8c789ca9e05`**, workflow `Phase 3B business clients`, run `34617949241`, job `103324461450`.
 
 No merge, deployment or real-data migration is authorized by this milestone.
 
@@ -23,7 +23,7 @@ The accepted MVP includes business-client tracking after production automation. 
 
 The repository deliberately deferred final-payment timing, partial-shipment behavior, deposit amount/default and change/cancellation rules to this phase. Those choices affect stock release, customer balance and financial authorization, so they remain explicit policy gates rather than guessed defaults.
 
-The user's instruction to continue development authorized a **policy-neutral first slice** covering enquiry/design/sample workflow and preparation of a native-linked draft quotation. That slice is now hosted-tested and verified. It does not select any commercial policy outcome. Business-order confirmation, payment/deposit, shipment and cancellation remain server-blocked until the relevant policies are accepted.
+The user's instruction to continue development authorized policy-neutral work covering enquiry/design/sample workflow and preparation of a native-linked draft quotation. That boundary now also includes controlled candidate item, quantity, unit-price, customer-reference and promised-delivery details on the native draft quotation. The expanded slice is hosted-tested and verified. It does not select any commercial policy outcome. Business-order confirmation, payment/deposit, shipment and cancellation remain server-blocked until the relevant policies are accepted.
 
 ## Confirmed inherited rules
 
@@ -58,9 +58,9 @@ Replace paper/manual large-client follow-up with an attributable Odoo-owned work
 11. remain compatible with later operational reports/public enquiry handoff;
 12. preserve every Phase 1–3A invariant and repeatable upgrades.
 
-## Verified policy-neutral first slice
+## Verified expanded policy-neutral slice
 
-The hosted-tested first slice delivers:
+The hosted-tested slice delivers:
 
 - a dedicated Fares business-client enquiry workspace based on native `crm.lead`;
 - company/contact, design and meeting/enquiry context without creating a parallel CRM ledger;
@@ -68,14 +68,19 @@ The hosted-tested first slice delivers:
 - controlled, attributable sample state transitions;
 - Sales/BD own/assigned-record scope plus Owner/Admin authority;
 - bounded Sales/BD enquiry phone/email handling that does not silently write the linked `res.partner`;
-- creation of a native **draft** quotation linked through `sale.order.opportunity_id` only after sample approval;
+- creation of one native **draft** quotation linked through `sale.order.opportunity_id` only after sample approval;
 - retry-safe draft-quotation creation;
 - protection against relinking an ordinary quotation into the business path;
+- a guarded transient draft editor for candidate product, quantity, unit price, customer reference and promised delivery date;
+- native `sale.order` / `sale.order.line` remain the commercial draft truth; no duplicate Fares order-line ledger is introduced;
+- Sales/BD native quotation/line ACLs remain read-only outside the guarded editor;
+- repeated draft-detail save replaces candidate lines rather than duplicating them;
 - server-side fail-closed confirmation guard for Fares business quotations/orders while P3B-01 through P3B-04 remain unresolved;
-- bilingual EN/AR/RTL operational UI with keyboard and desktop/narrow evidence;
-- full Phase 1–3B-safe-slice regression and repeatable five-addon upgrade proof.
+- no draft editor or sample action creates payment, stock, picking, shipment-authorization or confirmation effects;
+- bilingual EN/AR/RTL operational UI including localized draft-editor title/actions, keyboard checks and desktop/narrow evidence;
+- full Phase 1–3B policy-neutral regression and repeatable five-addon upgrade proof.
 
-The first slice creates **no** Phase 3B deposit/payment, balance-due enforcement, shipment authorization, confirmed-order cancellation/refund/credit or invented payment term.
+The verified slice creates **no** Phase 3B deposit/payment, balance-due enforcement, shipment authorization, confirmed-order cancellation/refund/credit or invented payment term.
 
 Exact evidence is owned by `docs/validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md`.
 
@@ -111,15 +116,17 @@ Phase 3B must not silently reuse school-preorder production semantics for all B2
 
 ### Sales / Business Development
 
-Verified first-slice authority:
+Verified policy-neutral authority:
 - create/update assigned business enquiries;
 - record design/meeting notes;
 - progress sample workflow through controlled actions;
 - prepare a native-linked draft quotation after sample approval;
+- prepare candidate product/quantity/unit-price, customer-reference and promised-delivery details through the guarded draft editor;
 - view the minimum linked quotation state required for follow-up.
 
 Must not gain by Phase 3B role alone:
 - broad contact-record mutation merely because an enquiry references a customer;
+- broad native `sale.order` / `sale.order.line` mutation outside the guarded editor;
 - direct stock mutation/shipment validation;
 - Cash/InstaPay verification or posting;
 - business-order confirmation while policy gates are open;
@@ -130,11 +137,11 @@ Must not gain by Phase 3B role alone:
 
 ### Owner / Administrator
 
-May perform the bounded first-slice workflow and view all business enquiries. Later exceptional commercial authority still follows accepted policies rather than bypassing them silently.
+May perform the bounded policy-neutral workflow and view all business enquiries. Later exceptional commercial authority still follows accepted policies rather than bypassing them silently.
 
 ### Other roles
 
-Cashier, Inventory Staff and Production Manager receive no business enquiry/sample mutation merely from existing roles.
+Cashier, Inventory Staff and Production Manager receive no business enquiry/sample/draft-editor mutation merely from existing roles.
 
 ## Connectivity/offline boundary
 
@@ -174,9 +181,9 @@ Need explicit edit/cancellation/deposit-treatment rules. Until resolved, no conf
 - public online purchasing;
 - production deployment or real-data migration.
 
-## Hosted validation contract — first slice
+## Hosted validation contract — policy-neutral slice
 
-The policy-neutral first-slice gate is **satisfied** at application SHA `79149f901d03c92fcd5b0ea432637660a2d102cf`.
+The expanded policy-neutral gate is **satisfied** at application SHA `70e8c4d781106d894ded5a506c05b8c789ca9e05`.
 
 The exact-head gate proved:
 - Sales/BD can create/progress allowed assigned enquiry/design/sample records;
@@ -186,23 +193,24 @@ The exact-head gate proved:
 - sample approval is attributable and separate from order/payment/shipment state;
 - draft quotation is denied before approval and linked natively after approval;
 - repeated draft-quotation action is retry-safe;
+- candidate draft details can be prepared through the guarded editor without granting broad sale-order mutation;
+- draft-editor repeated save is replacement-safe and has no payment/picking/confirmation effects;
 - ordinary quotation relinking into a business opportunity is denied outside the guarded path;
 - Fares business quotation/order `action_confirm()` fails closed while commercial policy gates remain open;
-- no first-slice action creates payment, stock or picking effects;
 - ordinary non-business sale behavior remains unaffected;
-- EN/AR/RTL representative business UI, keyboard focus, desktop/narrow rendering pass;
+- EN/AR/RTL representative business/editor UI, localized Arabic title/actions, keyboard focus and desktop/narrow rendering pass;
 - all Phase 1–3A regressions remain green;
 - repeatable upgrade succeeds for `fu_core,fu_retail,fu_preorder,fu_production,fu_business` on the same exact application SHA.
 
 ## Exit criteria
 
-### First-slice verification milestone — COMPLETE
+### Expanded policy-neutral verification milestone — COMPLETE
 
-Application/test authority: **`79149f901d03c92fcd5b0ea432637660a2d102cf`**.
+Application/test authority: **`70e8c4d781106d894ded5a506c05b8c789ca9e05`**.
 
-Run `34608365252`, job `103292327204`: **104 tests, 0 failures, 0 errors**, successful repeatable five-addon upgrade, retained English and Arabic/RTL desktop/narrow evidence.
+Run `34617949241`, job `103324461450`: **108 tests, 0 failures, 0 errors**, successful repeatable five-addon upgrade, retained English and Arabic/RTL desktop/narrow enquiry and draft-editor evidence.
 
-Artifact: `10267231815`, `phase3b-business-79149f901d03c92fcd5b0ea432637660a2d102cf`, digest `sha256:be5e61300fd525ca192948ea5cb91874a0942f54fd53dcd4d2195cf68e8d7aae`.
+Artifact: `10271630267`, `phase3b-business-70e8c4d781106d894ded5a506c05b8c789ca9e05`, digest `sha256:a466f88680fa7faf39c52cd63a9d60cda122ad966bf9ea9f9290fa4a0d2b9444`.
 
 This milestone does **not** close Phase 3B.
 
