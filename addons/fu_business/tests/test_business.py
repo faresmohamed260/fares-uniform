@@ -1,4 +1,6 @@
-from odoo import Command
+from datetime import timedelta
+
+from odoo import Command, fields
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
@@ -15,6 +17,14 @@ class TestFaresBusinessWorkflow(TransactionCase):
                 "name": "Phase 3B Synthetic Business Client",
                 "company_type": "company",
                 "email": "buyer@example.invalid",
+            }
+        )
+        cls.product = cls.env["product.product"].create(
+            {
+                "name": "Phase 3B Candidate Uniform",
+                "is_storable": True,
+                "lst_price": 250.0,
+                "taxes_id": [Command.clear()],
             }
         )
         cls.sales = cls._make_user("sales", cls.env.ref("fu_core.group_fu_sales_bd"))
@@ -53,6 +63,14 @@ class TestFaresBusinessWorkflow(TransactionCase):
                 "fu_design_requirements": "Embroidered staff uniform sample",
             }
         )
+
+    def _approved_order(self, suffix):
+        lead = self._lead(suffix)
+        lead.action_fu_prepare_sample()
+        lead.action_fu_mark_sample_sent()
+        lead.action_fu_approve_sample()
+        order_id = lead.action_fu_create_business_quotation()["res_id"]
+        return lead, self.env["sale.order"].browse(order_id)
 
     def test_sales_can_create_assigned_business_enquiry_without_broadening_other_roles(self):
         lead = self._lead()
@@ -150,6 +168,111 @@ class TestFaresBusinessWorkflow(TransactionCase):
         )
         self.assertEqual(self.env["stock.picking"].sudo().search_count([]), picking_count)
         self.assertEqual(self.env["account.payment"].sudo().search_count([]), payment_count)
+
+    def test_assigned_sales_can_edit_candidate_draft_without_commercial_side_effects(self):
+        _lead, order = self._approved_order("draft-editor")
+        commitment = fields.Datetime.now() + timedelta(days=21)
+        picking_count = self.env["stock.picking"].sudo().search_count([])
+        payment_count = self.env["account.payment"].sudo().search_count([])
+
+        action = order.with_user(self.sales).action_fu_open_draft_editor()
+        self.assertEqual(action["res_model"], "fu.business.quotation.wizard")
+
+        wizard = self.env["fu.business.quotation.wizard"].with_user(self.sales).create(
+            {
+                "quotation_id": order.id,
+                "client_order_ref": "CLIENT-PO-001",
+                "commitment_date": commitment,
+                "line_ids": [
+                    Command.create(
+                        {
+                            "product_id": self.product.id,
+                            "quantity": 3,
+                            "unit_price": 180.0,
+                        }
+                    )
+                ],
+            }
+        )
+        wizard.action_save_draft()
+        order = order.sudo()
+        order.invalidate_recordset()
+        self.assertEqual(order.client_order_ref, "CLIENT-PO-001")
+        self.assertEqual(order.commitment_date, commitment)
+        self.assertEqual(len(order.order_line), 1)
+        self.assertEqual(order.order_line.product_id, self.product)
+        self.assertEqual(order.order_line.product_uom_qty, 3)
+        self.assertEqual(order.order_line.price_unit, 180.0)
+        self.assertEqual(order.state, "draft")
+
+        retry = self.env["fu.business.quotation.wizard"].with_user(self.sales).create(
+            {
+                "quotation_id": order.id,
+                "client_order_ref": "CLIENT-PO-001",
+                "commitment_date": commitment,
+                "line_ids": [
+                    Command.create(
+                        {
+                            "product_id": self.product.id,
+                            "quantity": 4,
+                            "unit_price": 180.0,
+                        }
+                    )
+                ],
+            }
+        )
+        retry.action_save_draft()
+        order.invalidate_recordset()
+        self.assertEqual(len(order.order_line), 1)
+        self.assertEqual(order.order_line.product_uom_qty, 4)
+        self.assertEqual(self.env["stock.picking"].sudo().search_count([]), picking_count)
+        self.assertEqual(self.env["account.payment"].sudo().search_count([]), payment_count)
+        with self.assertRaisesRegex(ValidationError, "confirmation remains blocked"):
+            order.action_confirm()
+
+    def test_draft_editor_scope_and_values_fail_closed(self):
+        _lead, order = self._approved_order("draft-editor-guard")
+
+        with self.assertRaises(AccessError):
+            order.with_user(self.sales_other).action_fu_open_draft_editor()
+        with self.assertRaises(AccessError):
+            self.env["fu.business.quotation.wizard"].with_user(self.cashier).create(
+                {"quotation_id": order.id}
+            )
+
+        zero_qty = self.env["fu.business.quotation.wizard"].with_user(self.sales).create(
+            {
+                "quotation_id": order.id,
+                "line_ids": [
+                    Command.create(
+                        {
+                            "product_id": self.product.id,
+                            "quantity": 0,
+                            "unit_price": 100.0,
+                        }
+                    )
+                ],
+            }
+        )
+        with self.assertRaisesRegex(ValidationError, "quantity must be greater than zero"):
+            zero_qty.action_save_draft()
+
+        negative_price = self.env["fu.business.quotation.wizard"].with_user(self.sales).create(
+            {
+                "quotation_id": order.id,
+                "line_ids": [
+                    Command.create(
+                        {
+                            "product_id": self.product.id,
+                            "quantity": 1,
+                            "unit_price": -1.0,
+                        }
+                    )
+                ],
+            }
+        )
+        with self.assertRaisesRegex(ValidationError, "cannot be negative"):
+            negative_price.action_save_draft()
 
     def test_business_confirmation_and_direct_state_escalation_fail_closed(self):
         lead = self._lead("guard")

@@ -108,6 +108,7 @@ msgstr "عروض أسعار الشركات"
 
 #. module: fu_business
 #: code:addons/fu_business/models/business.py:0
+#: code:addons/fu_business/models/quotation_wizard.py:0
 #: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
 msgid "Business Quotation"
 msgstr "عرض سعر شركة"
@@ -126,6 +127,68 @@ msgstr "الحالة"
 #: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
 msgid "Draft only. Confirmation, payment and shipment remain blocked until Phase 3B commercial policies are accepted."
 msgstr "مسودة فقط. يظل التأكيد والدفع والشحن محجوبًا حتى اعتماد السياسات التجارية للمرحلة 3B."
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+msgid "Edit Draft Details"
+msgstr "تعديل تفاصيل المسودة"
+
+#. module: fu_business
+#: code:addons/fu_business/models/business.py:0
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Draft Quotation Details"
+msgstr "تفاصيل عرض السعر المبدئي"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Candidate details only. Saving does not confirm the order, record payment, or authorize shipment."
+msgstr "تفاصيل مرشحة فقط. الحفظ لا يؤكد الطلب ولا يسجل دفعة ولا يصرح بالشحن."
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Commercial details"
+msgstr "التفاصيل التجارية"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard__line_ids
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Candidate items"
+msgstr "الأصناف المقترحة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Save Draft"
+msgstr "حفظ المسودة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard__quotation_id
+msgid "Business quotation"
+msgstr "عرض سعر الشركة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard__client_order_ref
+msgid "Customer Reference"
+msgstr "مرجع العميل"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard__commitment_date
+msgid "Delivery Date"
+msgstr "تاريخ التسليم"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard_line__product_id
+msgid "Product"
+msgstr "المنتج"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard_line__quantity
+msgid "Quantity"
+msgstr "الكمية"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard_line__unit_price
+msgid "Unit Price"
+msgstr "سعر الوحدة"
 
 #. module: fu_business
 #: model:ir.model.fields,field_description:fu_business.field_crm_lead__fu_business_client

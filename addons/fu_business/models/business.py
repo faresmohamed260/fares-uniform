@@ -316,6 +316,44 @@ class SaleOrder(models.Model):
             or bool(order.opportunity_id and order.opportunity_id.fu_business_client)
         )
 
+    def _fu_assert_business_operator(self):
+        if self.env.su or self.env.user.has_group(_OWNER_GROUP):
+            return
+        if not self.env.user.has_group(_SALES_GROUP):
+            raise AccessError(_("Your Fares role cannot manage business quotations."))
+
+    def _fu_assert_business_scope(self):
+        self._fu_assert_business_operator()
+        if self.env.su or self.env.user.has_group(_OWNER_GROUP):
+            return
+        if any(order.opportunity_id.user_id != self.env.user for order in self):
+            raise AccessError(_("Sales staff may manage only quotations for their assigned business enquiries."))
+
+    def _fu_assert_draft_editor_access(self):
+        self.ensure_one()
+        if not self._fu_business_records():
+            raise ValidationError(_("This action is only available for Fares business quotations."))
+        self._fu_assert_business_scope()
+        if self.state != "draft":
+            raise ValidationError(_("Only draft Fares business quotations may be edited here."))
+        if not self.opportunity_id or self.opportunity_id.fu_sample_state != "approved":
+            raise ValidationError(_("An approved sample is required before editing draft quotation details."))
+        return True
+
+    def action_fu_open_draft_editor(self):
+        self.ensure_one()
+        self._fu_assert_draft_editor_access()
+        view = self.env.ref("fu_business.fu_business_quotation_wizard_form")
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Draft Quotation Details"),
+            "res_model": "fu.business.quotation.wizard",
+            "view_mode": "form",
+            "views": [(view.id, "form")],
+            "target": "new",
+            "context": {"default_quotation_id": self.id},
+        }
+
     def write(self, vals):
         business = self._fu_business_records()
         incoming_opportunity = self.env["crm.lead"]

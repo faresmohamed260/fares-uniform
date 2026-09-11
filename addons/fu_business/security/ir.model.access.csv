@@ -5,3 +5,7 @@ access_fu_business_order_owner,Fares business quotation owner,sale.model_sale_or
 access_fu_business_order_sales,Fares business quotation sales,sale.model_sale_order,fu_core.group_fu_sales_bd,1,0,0,0
 access_fu_business_order_line_owner,Fares business quotation line owner,sale.model_sale_order_line,fu_core.group_fu_owner_admin,1,0,0,0
 access_fu_business_order_line_sales,Fares business quotation line sales,sale.model_sale_order_line,fu_core.group_fu_sales_bd,1,0,0,0
+access_fu_business_quotation_wizard_owner,Fares business draft editor owner,model_fu_business_quotation_wizard,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_business_quotation_wizard_sales,Fares business draft editor sales,model_fu_business_quotation_wizard,fu_core.group_fu_sales_bd,1,1,1,1
+access_fu_business_quotation_wizard_line_owner,Fares business draft editor line owner,model_fu_business_quotation_wizard_line,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_business_quotation_wizard_line_sales,Fares business draft editor line sales,model_fu_business_quotation_wizard_line,fu_core.group_fu_sales_bd,1,1,1,1
