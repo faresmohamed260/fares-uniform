@@ -1,219 +1,197 @@
 # Phase 3B — Business-client enquiry, sample, order, shipment and balance tracking
 
-Status: **ACTIVE — EXPANDED POLICY-NEUTRAL ENQUIRY/SAMPLE/DRAFT-DETAIL SLICE VERIFIED; COMMERCIAL EXECUTION REMAINS GATED BY P3B-01 THROUGH P3B-04.**
+Status: **COMPLETE — ACCEPTED COMMERCIAL POLICY IMPLEMENTED AND HOSTED-VERIFIED.**
 
 Branch: `phase-3b/business-client-orders`.
 
 Starting lineage: Phase 3A closure head `f7ceb2690ad87efa186e553e081d2ff1721660d0`.
 
-Verified expanded policy-neutral application authority: **`70e8c4d781106d894ded5a506c05b8c789ca9e05`**, workflow `Phase 3B business clients`, run `34617949241`, job `103324461450`.
+Authoritative Phase 3B application/test SHA: **`d6efa76a99c0732423b354d2d9f787f6ccbdebec`**.
 
-No merge, deployment or real-data migration is authorized by this milestone.
+Workflow `Phase 3B business clients`, run `34634425338`, job `103378750321`: **118 tests, 0 failures, 0 errors**, successful repeatable five-addon upgrade, and retained EN/AR/RTL evidence.
 
-## Why this is the next bounded phase
+No merge, deployment or real-data migration is authorized by Phase 3B closure.
 
-The accepted MVP includes business-client tracking after production automation. Current large-client practice is known at a high level:
+## Phase goal
 
-1. client contacts the business;
-2. a meeting gathers design/details;
-3. the factory prepares and sends samples;
-4. approved samples lead to a deposit;
-5. production proceeds against a delivery date;
-6. goods are shipped and the remaining payment is collected.
+Replace paper/manual large-client follow-up with an attributable Odoo-owned workflow covering:
 
-The repository deliberately deferred final-payment timing, partial-shipment behavior, deposit amount/default and change/cancellation rules to this phase. Those choices affect stock release, customer balance and financial authorization, so they remain explicit policy gates rather than guessed defaults.
+1. business enquiry and customer/contact context;
+2. meeting/design requirements;
+3. sample preparation, sent, revision, approval and rejection;
+4. one authoritative native commercial order after sample approval;
+5. candidate/agreed item variants, quantities, prices, customer reference and delivery date;
+6. negotiated deposit and later balance payments;
+7. commercial confirmation only after a positive posted deposit;
+8. balance state derived from authoritative posted payments;
+9. one complete customer shipment only after full settlement and full physical availability;
+10. actor/time attribution and bounded role permissions;
+11. English/Arabic/RTL operational UI;
+12. compatibility with all completed Phase 1–3A behavior and repeatable upgrades.
 
-The user's instruction to continue development authorized policy-neutral work covering enquiry/design/sample workflow and preparation of a native-linked draft quotation. That boundary now also includes controlled candidate item, quantity, unit-price, customer-reference and promised-delivery details on the native draft quotation. The expanded slice is hosted-tested and verified. It does not select any commercial policy outcome. Business-order confirmation, payment/deposit, shipment and cancellation remain server-blocked until the relevant policies are accepted.
+## Confirmed business rules
 
-## Confirmed inherited rules
+The accepted policy ledger is `docs/requirements/PHASE_3B_POLICY_DECISIONS.md`.
 
-- Business clients include schools, restaurants, cafes, hotels, hospitals and other organizations.
-- Some business clients buy available stock; not every business order is made-to-order.
-- Sales/Business Development owns enquiry/contact, draft quotation/contract, sample progress and business-order tracking.
-- Large-client workflow uses a **deposit after sample approval**; D-005 must not be interpreted as mandatory full prepayment.
-- Exact deposit percentage is not fixed and must not be invented.
-- A delivery date is tracked.
-- Cash and InstaPay are currently supported payment methods; cards/wallets remain future work.
-- InstaPay continues to mean positive manual confirmation from the bank notification, not bank API automation.
-- Odoo-native sale, payment and stock records remain operational truth; do not create a second order/payment/shipment ledger.
-- Finished stock is tracked only at Retail Store/Storage custody. Factory `Finished` remains workflow-only.
-- Public catalog never exposes price or stock.
-- English/Arabic/RTL, named accounts, server-side authorization and attributable history remain mandatory.
-- Owner/Admin retains broad authority; Sales/BD receives only bounded business-workflow permissions and does not gain stock/payment-verification/contact-admin/role-admin authority by implication.
+### P3B-01 — Remaining balance
 
-## Full Phase 3B goal
+**Accepted:** the entire remaining balance must be fully paid before goods leave Fares custody.
 
-Replace paper/manual large-client follow-up with an attributable Odoo-owned workflow that can eventually:
+The implementation derives this from live authoritative posted business payments. A deposit alone never authorizes shipment unless it happens to settle the full order.
 
-1. capture business enquiry and customer/contact identity;
-2. record meeting/design requirements and notes;
-3. track samples through preparation/sent/approval/rejection/revision;
-4. convert an approved commercial agreement into one authoritative native business sale/order identity;
-5. record agreed item variants, quantities and authorized commercial terms;
-6. record deposit events without rewriting posted payment history;
-7. track agreed delivery date and remaining customer balance;
-8. track shipment through native Odoo stock records rather than custom shipment ledgers;
-9. expose sample/commercial, payment and shipment state as separate dimensions;
-10. preserve actor/time attribution and bounded role permissions;
-11. remain compatible with later operational reports/public enquiry handoff;
-12. preserve every Phase 1–3A invariant and repeatable upgrades.
+### P3B-02 — Partial shipment
 
-## Verified expanded policy-neutral slice
+**Accepted:** partial customer shipment/backorder release is not allowed in the MVP.
 
-The hosted-tested slice delivers:
+The controlled business shipment action requires the whole customer delivery to be released together. This does not prohibit unrelated ordinary Odoo deliveries or internal transfers.
 
-- a dedicated Fares business-client enquiry workspace based on native `crm.lead`;
-- company/contact, design and meeting/enquiry context without creating a parallel CRM ledger;
-- sample states `not_started`, `preparing`, `sent`, `revision`, `approved`, `rejected`;
-- controlled, attributable sample state transitions;
-- Sales/BD own/assigned-record scope plus Owner/Admin authority;
-- bounded Sales/BD enquiry phone/email handling that does not silently write the linked `res.partner`;
-- creation of one native **draft** quotation linked through `sale.order.opportunity_id` only after sample approval;
-- retry-safe draft-quotation creation;
-- protection against relinking an ordinary quotation into the business path;
-- a guarded transient draft editor for candidate product, quantity, unit price, customer reference and promised delivery date;
-- native `sale.order` / `sale.order.line` remain the commercial draft truth; no duplicate Fares order-line ledger is introduced;
-- Sales/BD native quotation/line ACLs remain read-only outside the guarded editor;
-- repeated draft-detail save replaces candidate lines rather than duplicating them;
-- server-side fail-closed confirmation guard for Fares business quotations/orders while P3B-01 through P3B-04 remain unresolved;
-- no draft editor or sample action creates payment, stock, picking, shipment-authorization or confirmation effects;
-- bilingual EN/AR/RTL operational UI including localized draft-editor title/actions, keyboard checks and desktop/narrow evidence;
-- full Phase 1–3B policy-neutral regression and repeatable five-addon upgrade proof.
+### P3B-03 — Deposit
 
-The verified slice creates **no** Phase 3B deposit/payment, balance-due enforcement, shipment authorization, confirmed-order cancellation/refund/credit or invented payment term.
+**Accepted:** the deposit is a freely negotiated positive amount per business order. There is no hardcoded/default/minimum percentage or amount beyond being greater than zero and not exceeding the order total.
 
-Exact evidence is owned by `docs/validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md`.
+Payment recording is retry-safe, overpayment fails closed, and configured InstaPay journals require positive staff confirmation that the bank notification was observed.
+
+### P3B-04 — Post-payment change/cancellation
+
+**Accepted:** before payment, assigned Sales/BD may revise the draft through the guarded editor. After any posted business payment, commercial changes require Owner/Admin approval and actor/time attribution while the order remains draft. After confirmation, the Fares workflow does not permit commercial-line mutation.
+
+An unpaid draft may be cancelled. Once money has been recorded, cancellation is blocked rather than inventing deposit forfeiture, refund or credit treatment. B2B refund/credit policy remains later work.
 
 ## Domain ownership
 
-Pinned-Odoo assessment is authoritative in `docs/architecture/PHASE_3B_BUSINESS_ORDER_MODEL.md`.
+Pinned-Odoo assessment remains authoritative in `docs/architecture/PHASE_3B_BUSINESS_ORDER_MODEL.md`.
 
-Reuse:
-- `crm.lead` for enquiry/company/contact/meeting/notes;
-- `res.partner` for customer identity;
-- `sale.order` / `sale.order.line` for draft and later agreed commercial order identity;
-- native accounting/payment records for later deposits/balances;
-- native `stock.picking` / `stock.move` for later physical shipment.
+Native ownership:
+- `crm.lead` — enquiry/company/contact/meeting/design context;
+- `res.partner` — customer identity;
+- `sale.order` / `sale.order.line` — commercial draft/order identity and amounts;
+- `account.payment` and native accounting records — payment truth;
+- `stock.picking` / `stock.move` — physical customer delivery truth.
 
-Fares-owned code adds only missing workflow metadata, authorization and guarded transitions. It must not duplicate order totals, payment history, delivered quantities or stock custody as independent truth fields.
+Fares code adds only the missing workflow metadata, guarded transitions, audit fields and authorization. It does not create a parallel order, payment, delivered-quantity or stock-custody ledger.
 
-## State separation
+## Delivered workflow
 
-Commercial/sample progress, payment state and physical shipment state remain separate dimensions. Do not collapse them into one misleading status.
+### Enquiry and sample
 
-At minimum staff must distinguish:
-- enquiry/design discussion;
-- sample preparing/sent/revision/approved/rejected;
-- commercial quotation/order draft/agreed;
-- deposit/balance state when later enabled;
-- delivery deadline state;
-- shipment state derived from native stock operations when later enabled;
-- settlement state derived from authoritative payments when later enabled.
+- dedicated Fares business-client workspace on native CRM;
+- assigned Sales/BD scope plus Owner/Admin authority;
+- design and meeting/enquiry details;
+- sample states `not_started`, `preparing`, `sent`, `revision`, `approved`, `rejected`;
+- controlled sample transitions and actor/time audit;
+- bounded enquiry phone/email handling without silently granting broad linked `res.partner` mutation;
+- no commercial side effect merely from sample approval.
 
-Phase 3B must not silently reuse school-preorder production semantics for all B2B orders because some business clients buy available stock.
+### Commercial draft/order
+
+- one native draft quotation/order linked through `sale.order.opportunity_id` after approved sample;
+- retry-safe creation and protection against relinking an ordinary quotation into the business path;
+- guarded transient editor for product, quantity, unit price, customer reference and promised delivery date;
+- Sales/BD does not receive broad native sale-order/sale-line write ACLs;
+- repeated draft saves replace candidate lines rather than duplicating them;
+- positive posted deposit required before controlled business confirmation;
+- confirmation actor/time attribution;
+- ordinary non-business sale confirmation remains unaffected.
+
+### Payment
+
+- bounded Cash and positively confirmed InstaPay business-payment recording for authorized payment roles;
+- native posted payment/accounting records remain financial truth;
+- stable business payment reference supports retry-safe replay;
+- overpayment and zero/negative payments fail closed;
+- live paid amount and balance are derived from authoritative business payments;
+- posted business payments cannot be silently rewritten/cancelled through the Fares path.
+
+### Shipment
+
+- native customer picking/moves remain shipment truth;
+- controlled `Release Complete Shipment` action is restricted to accepted stock roles/Owner and assigned location scope;
+- outstanding balance blocks release;
+- partial/multi-delivery release blocks;
+- all ordered quantities must be physically available in the single customer delivery;
+- direct native validation cannot bypass the protected Fares business-delivery path;
+- release actor/time is attributable;
+- Sales/BD cannot release physical stock.
 
 ## Role boundary
 
 ### Sales / Business Development
 
-Verified policy-neutral authority:
+May:
 - create/update assigned business enquiries;
 - record design/meeting notes;
-- progress sample workflow through controlled actions;
-- prepare a native-linked draft quotation after sample approval;
-- prepare candidate product/quantity/unit-price, customer-reference and promised-delivery details through the guarded draft editor;
-- view the minimum linked quotation state required for follow-up.
+- progress samples through controlled actions;
+- prepare the native-linked commercial draft after sample approval;
+- edit candidate commercial terms before payment;
+- confirm the business order after a valid posted deposit exists.
 
-Must not gain by Phase 3B role alone:
-- broad contact-record mutation merely because an enquiry references a customer;
-- broad native `sale.order` / `sale.order.line` mutation outside the guarded editor;
-- direct stock mutation/shipment validation;
-- Cash/InstaPay verification or posting;
-- business-order confirmation while policy gates are open;
+Must not gain by role alone:
+- broad contact administration;
+- broad native sale-order/sale-line mutation outside guarded actions;
+- payment posting/verification;
+- stock mutation/shipment validation;
+- post-payment commercial changes;
 - posted-payment rewrite/cancellation;
-- product-master mutation;
 - refund/credit approval;
-- user/role administration.
+- product-master or user/role administration.
+
+### Cashier / Store Manager
+
+May record bounded Cash or positively confirmed InstaPay business payments. This does not grant authority to rewrite commercial terms or accounting generally.
+
+### Inventory Staff / Store Manager
+
+May execute the controlled complete customer shipment only when full-balance, whole-delivery and assigned-location checks pass.
 
 ### Owner / Administrator
 
-May perform the bounded policy-neutral workflow and view all business enquiries. Later exceptional commercial authority still follows accepted policies rather than bypassing them silently.
+Retains broad Fares authority and is the approving role for post-payment draft commercial changes in this MVP. Owner rules on shared native models remain non-restrictive so adding the Owner group never removes authority already held through another role.
 
-### Other roles
+## Connectivity boundary
 
-Cashier, Inventory Staff and Production Manager receive no business enquiry/sample/draft-editor mutation merely from existing roles.
+The business-client workflow is online-only. No Phase 3B offline mutation requirement was accepted. This does not alter Phase 2A mandatory offline ordinary POS checkout.
 
-## Connectivity/offline boundary
+## Bilingual/UI boundary
 
-No business-client workflow has an accepted offline requirement. Phase 3B mutations are online-only and fail closed when the server is unavailable. This does not alter mandatory ordinary POS offline behavior from Phase 2A.
+The operational interface uses maintained native Odoo components and the approved modern practical ERP direction. EN/AR/RTL, keyboard focus, desktop and narrow rendering are covered by hosted browser tests. Final evidence includes enquiry, draft-editor, payment and delivery surfaces.
 
-## Commercial policy gates
+## Validation and exit evidence
 
-The authoritative open-policy ledger is `docs/requirements/PHASE_3B_POLICY_DECISIONS.md`.
+Exact evidence is owned by `docs/validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md`.
 
-### P3B-01 — Remaining-balance due point — OPEN
+Final application/test authority: **`d6efa76a99c0732423b354d2d9f787f6ccbdebec`**.
 
-Need an explicit rule for when remaining balance becomes mandatory. Until resolved, no shipment/balance enforcement is implemented.
+Hosted proof:
+- workflow `Phase 3B business clients`;
+- run `34634425338`;
+- job `103378750321`;
+- **118 tests, 0 failures, 0 errors**;
+- successful repeatable upgrade of `fu_core,fu_retail,fu_preorder,fu_production,fu_business`;
+- artifact ID `10277960160`;
+- artifact name `phase3b-business-d6efa76a99c0732423b354d2d9f787f6ccbdebec`;
+- digest `sha256:109ce8fd952f8389caafaf727a75dd3a7b0aed033d1fd5cccb5c661f862281da`.
 
-### P3B-02 — Partial shipments — OPEN
+The final red-to-green fixture correction is intentionally documented: `fu.stock.movement.request` operation `opening` sets an absolute inventory count. The final shipment test therefore seeds count `3`, not `1 + 2`, before proving a three-unit order may be released. No application shipment guard was weakened.
 
-Need an explicit rule for whether partial shipment is allowed and how it interacts with payment. Until resolved, no Fares business shipment authorization is implemented.
+## Explicit exclusions after closure
 
-### P3B-03 — Deposit rule — OPEN
-
-Need an explicit negotiated/default/minimum rule. No amount or percentage is currently accepted. Until resolved, no Phase 3B deposit routine is implemented.
-
-### P3B-04 — Change/cancellation after approval/deposit — OPEN
-
-Need explicit edit/cancellation/deposit-treatment rules. Until resolved, no confirmed-order cancellation/refund/credit behavior is implemented.
-
-## Explicit exclusions until separately authorized
-
-- B2B refund/credit-note policy;
-- automated legal/electronic contracts/signatures;
-- credit limits/scoring or invented automated payment terms;
-- legal/tax finalization beyond selected Odoo mechanics;
+Phase 3B does not define or authorize:
+- B2B refund, credit-note, deposit-forfeiture or deposit-refund policy;
+- post-confirmation commercial amendment workflow;
+- partial customer shipments/backorders;
+- customer credit limits, credit scoring, due-date credit terms or pay-after-delivery;
+- automated legal/electronic signatures;
+- legal/tax finalization beyond the selected Odoo mechanics;
 - automated bank integration;
 - cards/wallets;
-- raw/WIP inventory;
+- raw-material/WIP inventory;
 - procurement planning;
 - automated customer messaging;
 - public online purchasing;
 - production deployment or real-data migration.
 
-## Hosted validation contract — policy-neutral slice
+These remain later bounded work.
 
-The expanded policy-neutral gate is **satisfied** at application SHA `70e8c4d781106d894ded5a506c05b8c789ca9e05`.
+## Closure rule
 
-The exact-head gate proved:
-- Sales/BD can create/progress allowed assigned enquiry/design/sample records;
-- unauthorized roles cannot mutate protected business workflow through ORM/API;
-- direct protected sample-state/audit writes are denied;
-- Sales/BD lead contact details do not silently mutate linked partner records;
-- sample approval is attributable and separate from order/payment/shipment state;
-- draft quotation is denied before approval and linked natively after approval;
-- repeated draft-quotation action is retry-safe;
-- candidate draft details can be prepared through the guarded editor without granting broad sale-order mutation;
-- draft-editor repeated save is replacement-safe and has no payment/picking/confirmation effects;
-- ordinary quotation relinking into a business opportunity is denied outside the guarded path;
-- Fares business quotation/order `action_confirm()` fails closed while commercial policy gates remain open;
-- ordinary non-business sale behavior remains unaffected;
-- EN/AR/RTL representative business/editor UI, localized Arabic title/actions, keyboard focus and desktop/narrow rendering pass;
-- all Phase 1–3A regressions remain green;
-- repeatable upgrade succeeds for `fu_core,fu_retail,fu_preorder,fu_production,fu_business` on the same exact application SHA.
-
-## Exit criteria
-
-### Expanded policy-neutral verification milestone — COMPLETE
-
-Application/test authority: **`70e8c4d781106d894ded5a506c05b8c789ca9e05`**.
-
-Run `34617949241`, job `103324461450`: **108 tests, 0 failures, 0 errors**, successful repeatable five-addon upgrade, retained English and Arabic/RTL desktop/narrow enquiry and draft-editor evidence.
-
-Artifact: `10271630267`, `phase3b-business-70e8c4d781106d894ded5a506c05b8c789ca9e05`, digest `sha256:a466f88680fa7faf39c52cd63a9d60cda122ad966bf9ea9f9290fa4a0d2b9444`.
-
-This milestone does **not** close Phase 3B.
-
-### Full Phase 3B closure — OPEN
-
-Phase 3B closes only when P3B-01 through P3B-04 are explicitly decided or explicitly excluded with an agreed fail-closed behavior, all accepted commercial/payment/shipment rules are server-enforced, role boundaries and EN/AR/RTL are proven, prior regressions remain green, and repeatable upgrades pass on the exact later application SHA.
+Phase 3B is complete for the accepted MVP business-client scope. Later documentation-only commits do not supersede application authority `d6efa76a...`. Any future change to payment, cancellation, amendment or partial-shipment policy requires a new explicit decision and an equal-or-stronger exact-head hosted gate.
