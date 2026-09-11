@@ -101,7 +101,7 @@ jobs:
         uses: actions/checkout@v4
         with: { ref: "${{ github.sha }}" }
       - name: Verify Fares exact head
-        run: test "$(git rev-parse ../.. HEAD)" = "${{ github.sha }}"
+        run: test "$(git -C ../.. rev-parse HEAD)" = "${{ github.sha }}"
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
