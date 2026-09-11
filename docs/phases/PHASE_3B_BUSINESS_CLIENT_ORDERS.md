@@ -1,14 +1,14 @@
 # Phase 3B — Business-client enquiry, sample, order, shipment and balance tracking
 
-Status: **ACTIVE — POLICY-NEUTRAL ENQUIRY/SAMPLE SLICE AUTHORIZED; COMMERCIAL EXECUTION REMAINS GATED BY P3B-01 THROUGH P3B-04.**
+Status: **ACTIVE — POLICY-NEUTRAL ENQUIRY/SAMPLE SLICE VERIFIED; COMMERCIAL EXECUTION REMAINS GATED BY P3B-01 THROUGH P3B-04.**
 
 Branch: `phase-3b/business-client-orders`.
 
 Starting lineage: Phase 3A closure head `f7ceb2690ad87efa186e553e081d2ff1721660d0`.
 
-Inherited application authority: Phase 3A application/test SHA `ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc`, run `34601274874`, job `103268897396`.
+Verified policy-neutral application authority: **`79149f901d03c92fcd5b0ea432637660a2d102cf`**, workflow `Phase 3B business clients`, run `34608365252`, job `103292327204`.
 
-No merge, deployment or real-data migration is authorized by starting this phase.
+No merge, deployment or real-data migration is authorized by this milestone.
 
 ## Why this is the next bounded phase
 
@@ -23,7 +23,7 @@ The accepted MVP includes business-client tracking after production automation. 
 
 The repository deliberately deferred final-payment timing, partial-shipment behavior, deposit amount/default and change/cancellation rules to this phase. Those choices affect stock release, customer balance and financial authorization, so they remain explicit policy gates rather than guessed defaults.
 
-The user's instruction to continue development authorizes a **policy-neutral first slice** covering enquiry/design/sample workflow and preparation of a native-linked draft quotation. It does not select any commercial policy outcome. Business-order confirmation, payment/deposit, shipment and cancellation remain server-blocked until the relevant policies are accepted.
+The user's instruction to continue development authorized a **policy-neutral first slice** covering enquiry/design/sample workflow and preparation of a native-linked draft quotation. That slice is now hosted-tested and verified. It does not select any commercial policy outcome. Business-order confirmation, payment/deposit, shipment and cancellation remain server-blocked until the relevant policies are accepted.
 
 ## Confirmed inherited rules
 
@@ -39,7 +39,7 @@ The user's instruction to continue development authorizes a **policy-neutral fir
 - Finished stock is tracked only at Retail Store/Storage custody. Factory `Finished` remains workflow-only.
 - Public catalog never exposes price or stock.
 - English/Arabic/RTL, named accounts, server-side authorization and attributable history remain mandatory.
-- Owner/Admin retains broad authority; Sales/BD receives only bounded business-workflow permissions and does not gain stock/payment-verification/role-admin authority by implication.
+- Owner/Admin retains broad authority; Sales/BD receives only bounded business-workflow permissions and does not gain stock/payment-verification/contact-admin/role-admin authority by implication.
 
 ## Full Phase 3B goal
 
@@ -58,21 +58,26 @@ Replace paper/manual large-client follow-up with an attributable Odoo-owned work
 11. remain compatible with later operational reports/public enquiry handoff;
 12. preserve every Phase 1–3A invariant and repeatable upgrades.
 
-## Policy-neutral first-slice scope
+## Verified policy-neutral first slice
 
-Application implementation may proceed now only for:
+The hosted-tested first slice delivers:
 
 - a dedicated Fares business-client enquiry workspace based on native `crm.lead`;
-- customer/contact and design/meeting requirements;
+- company/contact, design and meeting/enquiry context without creating a parallel CRM ledger;
 - sample states `not_started`, `preparing`, `sent`, `revision`, `approved`, `rejected`;
 - controlled, attributable sample state transitions;
 - Sales/BD own/assigned-record scope plus Owner/Admin authority;
+- bounded Sales/BD enquiry phone/email handling that does not silently write the linked `res.partner`;
 - creation of a native **draft** quotation linked through `sale.order.opportunity_id` only after sample approval;
 - retry-safe draft-quotation creation;
+- protection against relinking an ordinary quotation into the business path;
 - server-side fail-closed confirmation guard for Fares business quotations/orders while P3B-01 through P3B-04 remain unresolved;
-- bilingual EN/AR/RTL operational UI and exact-head hosted regression/upgrade evidence.
+- bilingual EN/AR/RTL operational UI with keyboard and desktop/narrow evidence;
+- full Phase 1–3B-safe-slice regression and repeatable five-addon upgrade proof.
 
-The first slice must create **no** Phase 3B deposit/payment, balance-due enforcement, shipment authorization, confirmed-order cancellation/refund/credit or invented payment term.
+The first slice creates **no** Phase 3B deposit/payment, balance-due enforcement, shipment authorization, confirmed-order cancellation/refund/credit or invented payment term.
+
+Exact evidence is owned by `docs/validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md`.
 
 ## Domain ownership
 
@@ -106,7 +111,7 @@ Phase 3B must not silently reuse school-preorder production semantics for all B2
 
 ### Sales / Business Development
 
-First slice may:
+Verified first-slice authority:
 - create/update assigned business enquiries;
 - record design/meeting notes;
 - progress sample workflow through controlled actions;
@@ -114,6 +119,7 @@ First slice may:
 - view the minimum linked quotation state required for follow-up.
 
 Must not gain by Phase 3B role alone:
+- broad contact-record mutation merely because an enquiry references a customer;
 - direct stock mutation/shipment validation;
 - Cash/InstaPay verification or posting;
 - business-order confirmation while policy gates are open;
@@ -170,14 +176,17 @@ Need explicit edit/cancellation/deposit-treatment rules. Until resolved, no conf
 
 ## Hosted validation contract — first slice
 
-The exact-head first-slice gate must prove at least:
+The policy-neutral first-slice gate is **satisfied** at application SHA `79149f901d03c92fcd5b0ea432637660a2d102cf`.
 
+The exact-head gate proved:
 - Sales/BD can create/progress allowed assigned enquiry/design/sample records;
 - unauthorized roles cannot mutate protected business workflow through ORM/API;
 - direct protected sample-state/audit writes are denied;
+- Sales/BD lead contact details do not silently mutate linked partner records;
 - sample approval is attributable and separate from order/payment/shipment state;
 - draft quotation is denied before approval and linked natively after approval;
 - repeated draft-quotation action is retry-safe;
+- ordinary quotation relinking into a business opportunity is denied outside the guarded path;
 - Fares business quotation/order `action_confirm()` fails closed while commercial policy gates remain open;
 - no first-slice action creates payment, stock or picking effects;
 - ordinary non-business sale behavior remains unaffected;
@@ -187,10 +196,16 @@ The exact-head first-slice gate must prove at least:
 
 ## Exit criteria
 
-### First-slice verification milestone
+### First-slice verification milestone — COMPLETE
 
-The policy-neutral slice may be called verified only after the hosted gate above passes at an exact application SHA with retained UI/evidence artifact. That milestone does **not** close Phase 3B.
+Application/test authority: **`79149f901d03c92fcd5b0ea432637660a2d102cf`**.
 
-### Full Phase 3B closure
+Run `34608365252`, job `103292327204`: **104 tests, 0 failures, 0 errors**, successful repeatable five-addon upgrade, retained English and Arabic/RTL desktop/narrow evidence.
 
-Phase 3B closes only when P3B-01 through P3B-04 are explicitly decided or explicitly excluded with an agreed fail-closed behavior, all accepted commercial/payment/shipment rules are server-enforced, role boundaries and EN/AR/RTL are proven, prior regressions remain green, and repeatable upgrades pass on the exact application SHA.
+Artifact: `10267231815`, `phase3b-business-79149f901d03c92fcd5b0ea432637660a2d102cf`, digest `sha256:be5e61300fd525ca192948ea5cb91874a0942f54fd53dcd4d2195cf68e8d7aae`.
+
+This milestone does **not** close Phase 3B.
+
+### Full Phase 3B closure — OPEN
+
+Phase 3B closes only when P3B-01 through P3B-04 are explicitly decided or explicitly excluded with an agreed fail-closed behavior, all accepted commercial/payment/shipment rules are server-enforced, role boundaries and EN/AR/RTL are proven, prior regressions remain green, and repeatable upgrades pass on the exact later application SHA.
