@@ -224,3 +224,18 @@ Treat `62369e62...` as the Phase 2C **application authority**. Later closure-doc
 The completed design preserves the accepted P2C-01 through P2C-07 policy and native Odoo ownership: original sale/payment history remains immutable, refunds/exchanges are source-linked, cumulative quantity is bounded, Cash/confirmed-InstaPay settlement is attributable, mixed-method allocation fails closed, returned stock is quarantined until explicit inspection disposition, size exchanges preserve both native legs and exact difference settlement, and request/approval/execution fail closed offline. Routine staff use the controlled Fares Returns & Exchanges path; direct native refund/negative-line/sync mutation remains denied server-side outside an approved request.
 
 This decision does not authorize mixed-method refund allocation, preorder cancellation/refund, cards/wallets, B2B return policy, automatic bank integration, legal/tax finalization, merge, production deployment or real-data migration. Those remain later bounded decisions.
+
+## D-036 — Phase 3A preorder-production closure authority
+Status: Evidence-backed project state, 2026-09-11; inherited production/business policy remains unchanged.
+
+Phase 3A closes for the accepted bounded preorder-production scope at application/test SHA **`ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc`**. GitHub Actions workflow `Phase 3A preorder production`, run **`34601274874`**, job **`103268897396`**, passed the combined Phase 1 through Phase 3A hosted gate with **93 tests, 0 failures and 0 errors**, then passed the repeatable `fu_core,fu_retail,fu_preorder,fu_production` upgrade on the same database and exact application SHA.
+
+The exact-head evidence artifact is ID **`10264163466`**, name `phase3a-production-ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc`, digest **`sha256:0e94e65beaa25c92c27337c200186dd765c2a5f1c1ee9b5735130a0fc60770d5`**. Representative English and Arabic/RTL desktop/narrow production views, keyboard focus and reduced-motion layout evidence passed and were manually reviewed. Production browser logs ended with successful test markers and no application JavaScript/test exception; only expected headless Chrome environment noise was present.
+
+Treat `ff12c22e...` as the Phase 3A **application authority**. Later closure-documentation commits on `phase-3a/preorder-production-queue` do not become newer application proof merely by being branch HEAD.
+
+The completed design preserves D-006, D-008 and D-029: production demand is grouped by exact variant/size; a positive configured quantity threshold or the configurable seven-day deadline boundary creates queued production work; Production Manager/Owner explicitly starts and finishes tasks; cumulative non-cancelled source coverage is bounded and retry-safe; factory `Finished` remains workflow-only; and `Ready for collection` still requires physical Retail Store stock/allocation under Phase 2B.
+
+Native Odoo `mrp.production` is deliberately not the Phase 3A authority because the accepted MVP excludes raw-material/WIP and factory-finished inventory accounting while pinned native MRP owns component/finished stock moves and locations. Odoo stock records remain the sole finished-stock custody truth.
+
+This decision does not authorize a positive default quantity threshold, raw/WIP inventory, Bills of Materials, automatic Retail Store receipt, preorder cancellation/refund, B2B final-payment/partial-shipment behavior, customer notification automation, merge, deployment or real-data migration. Those remain later bounded decisions.
