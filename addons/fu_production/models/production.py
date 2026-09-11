@@ -244,7 +244,7 @@ class FuProductionTask(models.Model):
         if self.env.su:
             return super().write(vals)
         self._fu_assert_operator()
-        if set(vals) <= {"cancel_reason"} and all(task.state == "queued" for task in self):
+        if vals and set(vals) <= {"cancel_reason"} and all(task.state == "queued" for task in self):
             return super().write(vals)
         raise AccessError(_("Production task fields are controlled by the production workflow."))
 
@@ -471,6 +471,12 @@ class FuProductionTaskLine(models.Model):
         store=True,
         readonly=True,
     )
+    preorder_reference = fields.Char(
+        related="preorder_line_id.order_id.name",
+        string="Preorder reference",
+        store=True,
+        readonly=True,
+    )
     product_id = fields.Many2one(
         "product.product",
         related="preorder_line_id.product_id",
@@ -501,10 +507,33 @@ class FuProductionTaskLine(models.Model):
             source = line.preorder_line_id
             if not source.order_id.fu_is_preorder:
                 raise ValidationError(_("Production task lines must reference a Fares preorder."))
+            if source.order_id.company_id != line.task_id.company_id:
+                raise ValidationError(_("Production task and preorder must belong to the same company."))
             if source.product_id != line.task_id.product_id:
                 raise ValidationError(_("Production task and preorder line must use the same product variant."))
             if source.product_uom_id.compare(line.quantity, source.product_uom_qty) > 0:
                 raise ValidationError(_("Production task source quantity cannot exceed the preorder line quantity."))
+
+            other_coverage = sum(
+                self.sudo().search(
+                    [
+                        ("preorder_line_id", "=", source.id),
+                        ("id", "!=", line.id),
+                        ("task_id.state", "!=", "cancelled"),
+                    ]
+                ).mapped("quantity")
+            )
+            available_for_production = max(
+                source.product_uom_qty - source.fu_ready_qty - source.fu_collected_qty,
+                0.0,
+            )
+            if source.product_uom_id.compare(
+                other_coverage + line.quantity,
+                available_for_production,
+            ) > 0:
+                raise ValidationError(
+                    _("Production task coverage cannot exceed the preorder line's uncovered production demand.")
+                )
 
     @api.model_create_multi
     def create(self, vals_list):
