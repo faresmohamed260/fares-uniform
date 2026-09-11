@@ -1,227 +1,171 @@
 # Phase 3A — Preorder production queue and workflow
 
-Status: **ACTIVE — EXECUTION CONTRACT ESTABLISHED; IMPLEMENTATION NOT YET VERIFIED.**
+Status: **COMPLETE — AUTHORITATIVE PHASE 1–3A HOSTED GATE PASS; REPEATABLE UPGRADE PASS; EN/AR/RTL EVIDENCE REVIEWED, 2026-09-11.**
 
 Branch: `phase-3a/preorder-production-queue`.
 
 Starting documentation lineage: Phase 2C closure head `06ac7787392bbd63081fe22f23dcbbb603f1b398`.
 
-Inherited application authority: Phase 2C application/test SHA `62369e62dd1e5d2505e089c6a5ede296a24bcb3b`, run `34596450064`, job `103253225096`.
+Authoritative Phase 3A **application/test** SHA: `ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc`.
 
-No merge, deployment or real-data migration is authorized by starting this phase.
+No merge, deployment or real-data migration was authorized or performed.
 
-## Why this is the next bounded phase
+## Why this was a separate production slice
 
-The accepted MVP delivery order places production automation and business-order tracking after the completed retail phases. The two areas are deliberately split here so unresolved B2B final-payment and partial-shipment policy is not invented inside production work.
+The accepted MVP places production automation and business-client order tracking after the completed retail phases. Phase 3A covers the confirmed school/preorder production workflow only, so unresolved B2B final-payment and partial-shipment policy is not invented inside production work.
 
-Phase 3A therefore covers the confirmed school/preorder production workflow only. Business-client order tracking will receive a separate Phase 3B contract.
+Business-client order tracking remains a separate Phase 3B contract.
 
-## Inherited confirmed rules
+## Confirmed rules preserved
 
-The following are already accepted and must not be re-asked unless contradictory implementation evidence appears:
-
-- School/client designs are distinct products when units are not interchangeable.
-- Size is represented by the product variant; production demand must remain separated by variant/size.
-- Preorders are used when requested school-uniform stock is unavailable.
-- Every preorder records a promised pickup date.
-- Demand enters production when enough orders accumulate **or** when pickup is close.
-- The quantity threshold is configurable, but no numeric starting default has been accepted. Do not invent one.
-- The pickup lead-time trigger is configurable; the accepted initial default is seven days.
-- Automatic triggering creates a production task; it must not pretend physical production already started.
-- Production Manager/staff explicitly mark **In production** when work actually begins.
-- **Finished** means factory completion and is a workflow state, not a tracked factory stock location.
-- **Ready for collection** means goods have physically reached the Retail Store. Existing Phase 2B store-stock allocation/readiness remains authoritative for this state.
-- Raw materials, trims and work-in-progress stock accounting are outside the initial inventory boundary.
-- Odoo stock records remain inventory truth; production workflow must not create a second finished-stock ledger.
-- Production Manager is the bounded operational role for queue/start/completion/configuration. Owner/Admin retains full authority.
-- Cashier, Inventory Staff and Sales/BD do not gain production mutation merely because they can view related preorder/product context.
+- School/client designs remain distinct products when units are not interchangeable.
+- Size is represented by product variant; production demand remains separated by exact variant/size.
+- Preorders are the source demand for unavailable school-uniform stock.
+- Every preorder has a promised pickup date.
+- Demand enters the production queue when enough orders accumulate **or** pickup is close.
+- Quantity threshold is configurable; no positive default was accepted, so `0` means the quantity trigger is inactive.
+- Pickup lead-time trigger is configurable and defaults to the accepted **seven days**.
+- Automatic triggering creates a **queued** production task; it does not claim work already started.
+- Production Manager/Owner explicitly mark **In production** when work begins and **Finished** at factory completion.
+- Factory `Finished` is workflow state only, not inventory custody.
+- `Ready for collection` still means goods have physically reached the Retail Store and been allocated through the Phase 2B stock/readiness path.
+- Raw materials, trims and WIP stock accounting remain outside the initial inventory boundary.
+- Odoo stock moves/quants remain finished-stock truth; production workflow does not create a competing ledger.
+- Cashier, Inventory Staff and Sales/BD do not gain production mutation merely through related product/preorder visibility.
 - English/Arabic/RTL and the approved practical operational ERP direction continue to apply.
 
-## Goal
+## Delivered behavior
 
-Replace the factory's manual receipt-sorting trigger with an attributable, retry-safe production queue that:
+The `fu_production` addon provides a bounded production workflow and audit layer linked to authoritative preorder/product/stock records.
 
-1. derives unmet preorder demand from authoritative preorder lines;
-2. aggregates demand separately by product variant/size;
-3. triggers a queued production task when either the configured quantity threshold is reached or the configured pickup lead-time boundary is reached;
-4. keeps the quantity trigger disabled until an explicit positive threshold is configured rather than guessing a default;
-5. uses the accepted seven-day lead-time default until an authorized user changes it;
-6. creates each production allocation exactly once under retries/concurrent evaluation;
-7. records which preorder lines/quantities each production task covers;
-8. lets Production Manager/Owner explicitly move a task from `queued` to `in_production` to `finished`;
-9. preserves factory `finished` as workflow evidence only—no automatic factory stock quant or finished-stock location;
-10. leaves physical Retail Store receipt/allocation to existing native stock flows and Phase 2B readiness semantics;
-11. provides a practical bilingual production queue with overdue/near-deadline context and audit fields;
-12. preserves all Phase 1–2C behavior and repeatable upgrades.
+It delivers:
 
-## Domain and ownership boundary
+1. unmet production demand derived from authoritative preorder lines;
+2. exact product-variant/size aggregation;
+3. quantity-threshold triggering only after an explicit positive threshold is configured;
+4. seven-day default deadline triggering with configurable lead time;
+5. source-linked task lines recording the preorder quantities covered by each task;
+6. exclusion of quantities already Ready for collection, collected, or already covered by non-cancelled production work;
+7. transaction locking and cumulative-coverage guards preventing duplicate/over-covered demand;
+8. explicit `queued -> in_production -> finished` workflow with actor/timestamp attribution;
+9. queued cancellation with a required reason and later demand re-evaluation without cancelling/refunding the preorder;
+10. Production Manager/Owner-only mutation and configuration boundaries enforced server-side;
+11. no production stock move, quant or factory-finished location created by workflow completion;
+12. bilingual native-Odoo production queue/settings UI with desktop/narrow, keyboard-focus and Arabic/RTL proof.
 
-### Production task ownership
+## Ownership boundary
 
-Add a bounded Fares production workflow model rather than forcing native Odoo Manufacturing Orders into a scope that intentionally excludes component/WIP accounting and factory-finished inventory.
+### Why Phase 3A does not use native `mrp.production` as its authority
 
-A production task is workflow/audit metadata, not an inventory ledger. Odoo stock moves/quants remain the only finished-stock custody truth.
+Pinned Odoo Community `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` shows that native manufacturing orders own component/finished stock locations and raw/finished stock moves. Confirmed/done manufacturing semantics are therefore coupled to material reservation and stock posting.
 
-Each task represents one product variant and a snapshot of currently uncovered qualifying preorder demand. Task-line records attribute quantities back to source preorder lines.
+That conflicts with the accepted Fares MVP boundary where raw/WIP accounting is excluded and factory `Finished` is not inventory custody.
 
-### Why native `mrp.production` is not the Phase 3A authority
+Phase 3A therefore uses a bounded Fares production workflow model for demand/task state while retaining Odoo stock records as the only finished-stock custody truth. The detailed assessment is in `docs/architecture/PHASE_3A_PRODUCTION_MODEL.md`.
 
-Pinned Odoo Community `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` shows `mrp.production` requires component and finished-product locations and owns raw/finished stock moves; its confirmed/done states explicitly reserve materials and post finished stock. That conflicts with the accepted MVP boundary where raw/WIP accounting is excluded and factory `Finished` is not inventory custody.
+## Demand and trigger semantics
 
-The exact technical analysis is recorded in `docs/architecture/PHASE_3A_PRODUCTION_MODEL.md`.
+For each preorder line, production demand is the ordered quantity that is not already collected, not already physically ready/allocated at the Retail Store, and not already covered by a non-cancelled production task.
 
-## Demand calculation
-
-For each preorder line, production demand is based on ordered quantity that is not already physically ready/allocated at the Retail Store and not already collected, minus quantity already covered by active/completed production task lines.
-
-The implementation must never create production demand for:
-- non-preorder sale lines;
-- display/note lines;
-- non-storable/non-sale products;
-- quantities already ready at the Retail Store;
-- quantities already collected;
-- quantities already covered by production tasks that are not cancelled.
-
-Demand is aggregated by exact `product.product` variant, preserving size-specific identity.
-
-## Trigger semantics
+Demand is ignored for non-preorder lines, display/note lines, and non-storable/non-sale products. It is aggregated by exact `product.product` variant.
 
 A variant qualifies when uncovered demand is positive and either:
 
-1. **Quantity trigger:** a positive configured threshold exists and aggregate uncovered quantity for that exact variant is at least the threshold; or
-2. **Deadline trigger:** at least one uncovered source quantity has a promised pickup date on or before `today + configured lead days`.
+- **Quantity trigger:** configured threshold is positive and aggregate uncovered quantity reaches it; or
+- **Deadline trigger:** at least one uncovered source line has pickup date on or before evaluation time plus configured lead days.
 
-Configuration rules:
-- `lead_time_days` defaults to **7**;
-- `quantity_threshold` has **no invented default**; unset/zero means the quantity trigger is inactive while the deadline trigger remains active;
-- only Owner/Admin or Production Manager may change production trigger settings;
-- changes are attributable and server-authorized.
+Configuration remains:
 
-## Task creation and replay semantics
+- `quantity_threshold = 0` by default — no guessed positive threshold;
+- `lead_time_days = 7` by default;
+- only Owner/Admin or Production Manager may change production configuration.
 
-- Evaluation must be callable explicitly and by a scheduled action.
-- Preorder creation may request an evaluation, but failure/retry must not duplicate task coverage.
-- Each created task snapshots qualifying uncovered quantities at the time of creation.
-- Later uncovered demand is evaluated independently; it may produce a later task rather than silently rewriting an already-started task.
-- A source preorder line may be split across multiple production tasks over time, but cumulative non-cancelled task quantity must never exceed its then-current uncovered production demand.
-- Evaluation and task creation must use server-side locking/idempotency appropriate to prevent duplicate coverage under concurrent calls.
+## Replay, coverage and state invariants
 
-## Task state semantics
-
-Allowed business states:
-
-- `queued` — automatically created demand; physical work has not been claimed to start;
-- `in_production` — explicitly started by Production Manager/Owner;
-- `finished` — explicitly marked complete at the factory; still not Retail Store stock;
-- `cancelled` — administrative workflow cancellation only before/under separately validated conditions; cancellation does not refund/cancel the preorder and must leave an audit trail.
-
-`Ready for collection` is **not** a production-task state. It remains the preorder/store-custody condition proven by Phase 2B after physical stock reaches the Retail Store and is allocated.
+- Repeated evaluation cannot duplicate already-covered source quantity.
+- A source preorder line may be covered across multiple tasks over time, but cumulative non-cancelled task quantity cannot exceed currently eligible uncovered demand.
+- Cancelled queued work releases its coverage for later evaluation while preserving its audit record.
+- A queued task means only that demand has been scheduled.
+- `In production` must be explicitly started by an authorized production operator.
+- `Finished` must be explicitly recorded from `In production` and remains workflow-only.
+- `Ready for collection` is never inferred from production task completion.
 
 ## Role boundary
 
 ### Production Manager
+
 May:
-- view the production queue and source-demand context needed for production;
-- run/re-run queue evaluation;
+- view production queue/source-demand context;
+- run queue evaluation;
 - start queued tasks;
 - mark in-production tasks finished;
-- change bounded threshold/lead-time settings;
-- view task audit history.
+- cancel queued tasks under the bounded workflow;
+- change quantity/lead-time settings;
+- view task audit information.
 
-Cannot:
-- mutate preorder payment history;
+Cannot by Phase 3A authority alone:
+- mutate preorder payments;
 - collect/refund customer money;
-- allocate or release Retail Store stock unless separately holding an authorized stock role;
+- allocate/release Retail Store stock;
 - alter product master data;
 - assign Fares roles;
-- convert factory `Finished` into stock by direct quant/move mutation.
+- turn factory `Finished` into inventory by direct stock mutation.
 
 ### Owner / Administrator
-May perform the same Phase 3A actions and administer exceptional task correction with attributable records.
 
-### Other roles
-Cashier, Store Manager, Inventory Staff and Sales/BD may receive only the minimum read context already authorized by their existing workflows. They do not receive production task mutation unless they also hold Production Manager/Owner authority.
+May perform the same Phase 3A operations under owner authority.
 
-## UI direction
+Other roles do not receive production mutation unless they separately hold Production Manager/Owner authority.
 
-Use native Odoo list/form/search patterns and maintained controls. The production workspace should make the following visible without decorative complexity:
-
-- task reference and state;
-- exact product/variant/size context;
-- total production quantity;
-- earliest promised pickup date;
-- trigger reason (`quantity`, `deadline`, or both where applicable);
-- queued/start/finished actor and timestamps;
-- source preorder lines/quantities;
-- current production configuration;
-- clear distinction between factory `Finished` and Retail Store `Ready for collection`.
-
-Representative English and Arabic/RTL desktop/narrow paths, keyboard focus and reduced-motion-safe operational behavior remain required.
-
-## Explicit exclusions
+## Explicit exclusions retained
 
 Phase 3A does not add:
 
 - raw-material, trims or WIP inventory accounting;
 - Bills of Materials or native Manufacturing Order stock posting;
-- machine/workcenter scheduling;
-- worker time tracking;
+- workcenter/machine scheduling or worker-time tracking;
 - factory-finished stock custody/location;
 - automatic Retail Store receipt from a production task;
 - preorder cancellation/refund policy;
 - automatic customer notifications;
 - B2B/customer-contract production orders;
 - business-client partial shipment/final-payment rules;
-- procurement planning;
-- advanced analytics;
+- procurement planning or advanced analytics;
 - deployment or real-data migration.
 
-## Hosted validation contract
+## Hosted validation and final authority
 
-The exact-head hosted gate must prove at least:
+The authoritative application SHA is **`ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc`**.
 
-- quantity-trigger task creation after an explicit threshold is configured;
-- no quantity-trigger task before threshold configuration or below threshold;
-- seven-day default deadline trigger;
-- configurable lead-time behavior;
-- aggregation remains separate per exact product variant/size;
-- already-ready/collected quantity is excluded from production demand;
-- repeated and concurrent evaluation does not duplicate task coverage;
-- source attribution quantities cannot exceed uncovered preorder demand;
-- queued task does not claim physical production start;
-- Production Manager/Owner can start and finish tasks;
-- unauthorized roles/direct ORM/API mutation are denied server-side;
-- finishing a task creates no stock quant/move and no factory inventory location;
-- Retail Store readiness still requires the existing Phase 2B physical-stock allocation path;
-- EN/AR/RTL production UI and keyboard focus;
-- Phase 1 + Phase 2A + Phase 2B + Phase 2C regressions remain green;
-- repeatable upgrade succeeds for all installed Fares addons on the same exact application SHA.
+GitHub Actions workflow `Phase 3A preorder production`, run **`34601274874`**, job **`103268897396`**: **SUCCESS**.
 
-## Documentation outputs
+The exact-head combined Phase 1 through Phase 3A gate passed **93 tests with 0 failures and 0 errors**. The same database and SHA then passed the repeatable upgrade for `fu_core,fu_retail,fu_preorder,fu_production`.
 
-Before implementation — **this contract plus architecture analysis**:
-- `docs/phases/PHASE_3A_PREORDER_PRODUCTION.md`;
-- `docs/architecture/PHASE_3A_PRODUCTION_MODEL.md`;
-- `docs/validation/PHASE_3A_PREORDER_PRODUCTION.md` initialized for exact-hosted chronology.
+Final artifact:
 
-Before closure:
-- exact tested application SHA, workflow run/job and evidence artifact/digest;
-- failure chronology retained honestly;
-- rendered EN/AR/RTL evidence reviewed;
-- `PROJECT.md`, `docs/README.md` and durable decisions updated;
-- tested application SHA kept distinct from later docs-only cleanup/closure commits.
+- ID **`10264163466`**;
+- name `phase3a-production-ff12c22e82b3e191f8b0d0b6f2badd1ddf9763bc`;
+- digest **`sha256:0e94e65beaa25c92c27337c200186dd765c2a5f1c1ee9b5735130a0fc60770d5`**.
+
+Representative English and Arabic/RTL desktop/narrow production screenshots were manually reviewed. The browser paths passed keyboard focus and RTL checks and ended in `test successful`; no application JavaScript/test exception was observed. Headless Chrome emitted only expected CI environment noise such as D-Bus/UPower/GCM messages.
+
+Detailed red/green chronology and screenshot names are retained in `docs/validation/PHASE_3A_PREORDER_PRODUCTION.md`.
 
 ## Exit criteria
 
-Phase 3A closes only when:
+Phase 3A closes because:
 
-1. confirmed size-specific and deadline/threshold production rules are represented without inventing a quantity default;
-2. production task coverage is source-linked, bounded and retry-safe;
-3. queued/start/finished states are attributable and server-authorized;
+1. size-specific threshold/deadline production rules are represented without inventing a quantity default;
+2. task coverage is source-linked, bounded and retry-safe;
+3. queued/start/finished state changes are attributable and server-authorized;
 4. factory completion does not create unapproved stock custody/accounting;
 5. existing Retail Store readiness/allocation remains authoritative;
-6. Production Manager permissions are server-enforced and other roles cannot bypass them;
+6. Production Manager permissions are server-enforced;
 7. representative EN/AR/RTL operational UI passes;
-8. all Phase 1–2C regressions remain green;
-9. repeatable addon upgrade passes at the exact application SHA;
-10. B2B, raw/WIP, preorder-cancellation, customer-notification and deployment policy are not smuggled into this slice.
+8. all Phase 1–2C regressions remain green in the combined gate;
+9. repeatable four-addon upgrade passes at the exact application SHA;
+10. B2B, raw/WIP, preorder-cancellation, customer-notification and deployment policy remain outside this slice.
+
+**All Phase 3A exit criteria for the approved bounded scope are satisfied.**
+
+Later documentation-only closure commits on this branch must remain distinguishable from the tested application SHA above.
