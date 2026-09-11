@@ -13,7 +13,9 @@
 
 ## Current state — 2026-09-11
 
-**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2A — Retail checkout/offline: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2B — Preorder/balance/collection: COMPLETE / AUTHORITATIVE COMBINED HOSTED GATE, REPEATABLE UPGRADE AND EXACT-HEAD EVIDENCE PASS. Next roadmap slice: refund/exchange policy and execution planning.**
+**Phase 0 — Discovery: COMPLETE. Phase 0A — Hosted Odoo proof: TECHNICAL PASS. Phase 0B — Foundation architecture/UX: COMPLETE / VISUAL DIRECTION APPROVED. Phase 1 — Products/stock/access: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2A — Retail checkout/offline: COMPLETE / HOSTED TECHNICAL GATES PASS. Phase 2B — Preorder/balance/collection: COMPLETE / AUTHORITATIVE COMBINED HOSTED GATE, REPEATABLE UPGRADE AND EXACT-HEAD EVIDENCE PASS. Phase 2C — Refunds/exchanges: PLANNING ACTIVE; BUSINESS POLICY GATES OPEN; IMPLEMENTATION NOT STARTED.**
+
+Active branch: `phase-2c/refunds-exchanges`, stacked from verified Phase 2B closure `5f341fb4aa5eacb12191dd41afa43c02000abcd4`.
 
 The accepted MVP boundary covers finished stock, bilingual offline POS, preorders/production tracking, large-client workflow, public catalog/contact routes and operational reports. Advanced analytics remains future work.
 
@@ -33,57 +35,33 @@ The authoritative tested Phase 1 implementation is `eb7b4aaf7f180b15d9f5e593f84f
 
 ## Phase 2A closure
 
-Phase 2A is complete on `phase-2a/retail-checkout-offline` under `docs/phases/PHASE_2A_RETAIL_CHECKOUT_OFFLINE.md`. It deliberately covers only ordinary finished-stock checkout, Cash, positively manually confirmed InstaPay and durable offline reconciliation. Preorders, balance collection, refunds/exchanges and unresolved payment policies remain later retail work.
+Phase 2A is complete on `phase-2a/retail-checkout-offline` under `docs/phases/PHASE_2A_RETAIL_CHECKOUT_OFFLINE.md`. It deliberately covers only ordinary finished-stock checkout, Cash, positively manually confirmed InstaPay and durable offline reconciliation.
 
-The authoritative application/test implementation is `d8e5ffbac2dddcdc6776a708e079ab7b24f38497`. Normal run `34298578791` and diagnostic run `34298578820` are green. The diagnostic run passed all eight isolated slices, including offline Cash, confirmed InstaPay, Arabic/RTL, revoked-cashier Review retention and retained Phase 1 regression. The application artifact is ID `10084165232`, digest `sha256:2569cdd306a5f3802fcdde6f37137dfc54183f58ebbd22b046fbc2152439dddd`.
-
-Phase 2A validates:
-- native Odoo POS/Owl ordinary checkout using Phase 1 finished-stock variants;
-- Cash and positive manual bank-notification confirmation for InstaPay, with no bank API claim;
-- production-owned Odoo 19 offline restore compatibility behavior;
-- durable paid sale across offline browser reload;
-- native Odoo UUID identity across retry/replay;
-- visible Pending sync, Syncing, Synced, Review required and Retryable failure states;
-- EN + Arabic/RTL receipt-state behavior;
-- server-side current-role revalidation on synchronization;
-- revoked-role semantic rejection retained locally for Review required;
-- transient online-start transport failure retained as Retryable failure;
-- same-UUID lost-ack replay without duplicate order, payment or stock effects;
-- exactly one done stock picking and one executed stock move at the sold quantity;
-- repeatable `fu_core + fu_retail` upgrade;
-- retained Phase 1 regressions.
-
-Native Odoo `pos.order`, `pos.payment`, products and stock records remain authoritative. Fares does not own a second offline sales ledger or synchronization queue.
-
-The production restore shim is isolated in `addons/fu_retail/static/src/offline_restore_patch.js`, pinned to Odoo Community `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`. Its source documents the upstream offline-startup defect and retirement rule: remove the patch only after an adopted upstream revision no longer drops the already-read local record map and the hosted offline-reload regression passes without the patch.
-
-Temporary failure-signature instrumentation was removed at `6113edcf8d7f27c69e85f4061e0dc6d31b09cc46`; run `34300005169` remained green. The temporary standalone Phase 2A diagnostic workflow was then retired at `538b65ea581e67b40d396a0a60960c9b94382921`.
-
-Final authoritative closeout validation head: `dcdfd827a740ecff4a0f3be99077ed820694607b`. GitHub Actions run `34356830980`, job `102483531903`: **SUCCESS**, including combined `/fu_core,/fu_retail` tests, repeatable upgrade and evidence upload. Artifact `phase2a-retail-dcdfd827a740ecff4a0f3be99077ed820694607b` is ID `10106267198`, digest `sha256:753732d04f42ecc74f65e89eb755a3994147b96640d1c227fde435d56fe54dea`.
-
-Documentation commits after `dcdf...` are closure/planning-only and must not be mistaken for newer tested application code. Detailed history, including retained red diagnostic runs, is in `docs/validation/PHASE_2A_RETAIL_CHECKOUT.md`.
+The authoritative application/test implementation is `d8e5ffbac2dddcdc6776a708e079ab7b24f38497`. Normal run `34298578791` and diagnostic run `34298578820` are green. Final closeout validation head `dcdfd827a740ecff4a0f3be99077ed820694607b`, run `34356830980`, job `102483531903`, is successful with combined `/fu_core,/fu_retail` tests, repeatable upgrade and evidence upload. Detailed evidence is in `docs/validation/PHASE_2A_RETAIL_CHECKOUT.md`.
 
 The stacked Phase 2A pull request is PR #4, **open and draft**, from `phase-2a/retail-checkout-offline` onto `phase-1/products-stock-access`. Do not merge without explicit client authorization.
 
 ## Phase 2B closure
 
-Phase 2B follows `docs/phases/PHASE_2B_PREORDER_COLLECTION.md`. The five policy gates are closed by `docs/requirements/PHASE_2B_POLICY_DECISIONS.md`: all preorder operations require connectivity; any positive payment up to the remaining balance is allowed; reservation occurs against Retail Store stock independently of preorder acceptance; ready subsets may be collected after the whole balance is settled.
-
-The `fu_preorder` implementation uses native Sales Orders, payments and stock transfers. The bounded native operational UI is a read-only preorder workspace plus create/payment/readiness-allocation/collection transient wizards, with online-only guards and Arabic/RTL coverage. Native Odoo records remain authoritative.
-
-Historical server/security authority `2816a8cbe1dce703ae0310b242d34ef92f0c6928`, run `34428218381`, job `102717890627`, passed 51 tests with zero failures/errors plus repeatable `fu_core + fu_retail + fu_preorder` upgrade. That result closed the direct-native-mutation and reservation-versus-ordinary-POS boundary.
-
-The final UI debugging identified two independent issues:
-- `23e8b42032db3ce68fd8ef49eb11467cbd2720e2` synchronizes browser tests with pinned Odoo 19 native form-header action rendering using the resolved action ID while keeping localized-label assertions separate;
-- `af64b858cf6f2be6a143bb19e836721abc216221` adds valid Odoo PO occurrence metadata so the preorder Arabic UI terms are actually imported/bound at runtime.
+Phase 2B is complete under `docs/phases/PHASE_2B_PREORDER_COLLECTION.md` and `docs/validation/PHASE_2B_PREORDER_COLLECTION.md`.
 
 The authoritative final Phase 2B application/test SHA is **`af64b858cf6f2be6a143bb19e836721abc216221`**. GitHub Actions run `34547236245`, job `103102402060`, workflow `Phase 2B preorder balance collection`, is **SUCCESS**. The combined Phase 1 + Phase 2A + Phase 2B test step, repeatable addon upgrade, evidence summary and exact-head evidence upload all completed successfully.
 
 Final artifact `phase2b-preorder-af64b858cf6f2be6a143bb19e836721abc216221` is ID `10179559978`, digest `sha256:750edfe5938d5aa279f2eddfc16bd80504689e885b8ce32d9dd2ed94849bcb29`.
 
-The temporary Phase 2B UI diagnostic workflow was removed at cleanup commit **`80c41e68104e0a3274090acf190790eead1aaafc`**, directly on top of the green application SHA. Cleanup and later documentation commits are not newer application proof.
+The temporary Phase 2B UI diagnostic workflow was removed at cleanup commit `80c41e68104e0a3274090acf190790eead1aaafc`. Phase 2B documentation closure is `5f341fb4aa5eacb12191dd41afa43c02000abcd4`. These cleanup/docs commits are not newer application proof.
 
-Phase 2B is **complete**. Detailed retained red/green history is in `docs/validation/PHASE_2B_PREORDER_COLLECTION.md`. No merge, production deployment or real-data migration occurred.
+No merge, production deployment or real-data migration occurred.
+
+## Phase 2C planning — refunds and size exchanges
+
+The active Phase 2C contract is `docs/phases/PHASE_2C_REFUNDS_EXCHANGES.md`.
+
+Discovery and MVP scope already confirm that refunds and size exchanges are allowed, while detailed eligibility, payment treatment and returned-stock behavior were intentionally deferred to this retail phase. Existing role design already places refund/exchange approval with Store Manager/Owner and limits Cashier to requesting/routine execution rather than approval.
+
+Odoo 19 provides native order-linked POS refund records and native customer-return stock mechanisms. The preferred architecture is therefore to preserve original transactions and use linked reversal/return records rather than editing completed sales or maintaining a parallel ledger. The exact pinned Odoo commit still requires source-level boundary inspection before implementation.
+
+Phase 2C implementation is blocked only by business-policy gates that the repository explicitly forbids the developer from inventing: source/proof requirement, eligibility window/item condition, Cash/InstaPay refund treatment, exchange price differences, returned-stock disposition, uncollected-preorder cancellation scope, and offline/online behavior. The phase contract records developer recommendations for each gate.
 
 One retail store, one storage location and one checkout per store remain confirmed. Numeric product/transaction volumes remain unavailable and must not be invented. Launch date and service budget remain deployment-time decisions.
 
@@ -95,25 +73,25 @@ One retail store, one storage location and one checkout per store remain confirm
 4. Phase 1: products, finished-stock movements, access controls, opening inventory and bilingual native internal UI — complete; hosted technical gates pass.
 5. Phase 2A: ordinary retail stock checkout, Cash/confirmed-InstaPay recording and durable offline reconciliation — complete; hosted technical gates pass.
 6. Phase 2B: school-uniform preorder, deposit/balance and partial collection — complete; authoritative combined hosted gate, repeatable upgrade and exact-head evidence pass at `af64b858cf6f2be6a143bb19e836721abc216221`.
-7. Next retail slice: refund/exchange policy and execution, including eligibility, approval authority, settlement/reversal behavior and returned-stock treatment.
+7. Phase 2C: refund/exchange policy and execution — planning active; policy gates open; implementation not started.
 8. Production/business workflows, public catalog/reports, then integrated onboarding/UAT/deployment in bounded contracts.
 
 ## Immediate next action
 
 1. Keep existing stacked PRs unmerged until explicit authorization.
-2. Preserve Phase 2B application authority `af64b858cf6f2be6a143bb19e836721abc216221`, cleanup `80c41e68104e0a3274090acf190790eead1aaafc`, and later documentation commits as distinct lineage states.
-3. Do not reopen the resolved Phase 2B header-selector or Arabic PO-binding bugs without contradictory hosted evidence.
-4. Start the next roadmap slice by defining the refund/exchange phase contract and resolving only the business policies that materially affect its implementation: eligibility/window, approval authority, refund/payment reversal rules, size-exchange price differences, and when returned items re-enter sellable stock.
-5. Keep native Odoo/Owl and Odoo records authoritative; do not introduce a parallel sales/payment/stock ledger.
-6. No merge, deployment or real-data migration without explicit client authorization.
+2. Use `docs/phases/PHASE_2C_REFUNDS_EXCHANGES.md` as the active contract.
+3. Resolve P2C-01 through P2C-07 as one bounded client policy round; record accepted answers before implementation.
+4. Inspect the exact pinned Odoo `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` POS refund/order-line and customer-return stock behavior after policy scope is fixed, then record the selected model boundary.
+5. Implement refunds/exchanges as linked reversal/return operations; do not rewrite original orders/payments or create a parallel ledger.
+6. Preserve server-enforced Store Manager approval, store scope, idempotency, EN/AR/RTL and prior-phase regressions.
+7. No merge, deployment or real-data migration without explicit client authorization.
 
-Do not reopen product-design separation, factory-finished custody, size-system variability, sequential item codes, full-balance-before-partial-collection or the operational visual direction unless the client changes those decisions.
+Do not reopen product-design separation, factory-finished custody, size-system variability, sequential item codes, full-balance-before-partial-collection, Phase 2A offline-sale semantics or the resolved Phase 2B selector/Arabic-binding bugs unless the client or contradictory hosted evidence changes them.
 
 ## Later explicit decisions
 
 Resolve only when their affected phase starts:
-- refund/exchange eligibility and returned-stock/payment treatment — **now the next roadmap slice and therefore ready for a dedicated phase contract**;
-- missing/delayed/ambiguous InstaPay confirmation policy outside the already-confirmed positive path;
+- missing/delayed/ambiguous InstaPay confirmation policy outside the already-confirmed positive path, except where Phase 2C refund settlement directly requires a bounded answer;
 - production threshold defaults/configuration semantics beyond the accepted seven-day default where needed;
 - business final-payment/partial-shipment rules;
 - tax/legal receipt identity and report formulas;
