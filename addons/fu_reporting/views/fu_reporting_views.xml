@@ -9,7 +9,9 @@
                     <button name="action_refresh" type="object" string="Refresh reports" class="btn-primary" data-hotkey="r"/>
                 </header>
                 <sheet>
-                    <separator string="Operational Reports"/>
+                    <div class="oe_title">
+                        <h1><span>Operational Reports</span></h1>
+                    </div>
                     <field name="allowed_location_ids" invisible="1"/>
                     <field name="currency_id" invisible="1"/>
                     <separator string="Report context"/>
