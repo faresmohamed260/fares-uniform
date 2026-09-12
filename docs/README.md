@@ -43,19 +43,21 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 4B operational reporting contract](phases/PHASE_4B_OPERATIONAL_REPORTING.md) | Completed operational-reporting definitions and security boundaries |
 | [Phase 4B reporting architecture](architecture/PHASE_4B_REPORTING_MODEL.md) | Reporting source/service/config boundary |
 | [Phase 4B validation](validation/PHASE_4B_OPERATIONAL_REPORTING.md) | Final reporting authority and manual evidence |
-| [Phase 5 integrated UAT/onboarding contract](phases/PHASE_5_INTEGRATED_UAT_ONBOARDING.md) | **Completed / verified** joined release acceptance and exit criteria |
-| [Phase 5 validation](validation/PHASE_5_INTEGRATED_UAT.md) | Exact-head UAT evidence, scenario matrix, artifacts, manual review and defect register |
+| [Phase 5 integrated UAT/onboarding contract](phases/PHASE_5_INTEGRATED_UAT_ONBOARDING.md) | Completed/verified joined release acceptance and exit criteria |
+| [Phase 5 validation](validation/PHASE_5_INTEGRATED_UAT.md) | Exact-head UAT evidence, scenario matrix, artifacts, manual review and Phase 5 defect register |
+| [Phase 5A Arabic launch-quality polish](phases/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Completed/verified closure of the remaining Arabic launch-quality finding |
+| [Phase 5A validation](validation/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Exact-head 149-test/public/manual evidence and P2-001 closure |
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result plus operator/client inputs still required |
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Provider-neutral launch go/no-go checklist and rollback baseline |
 
-Current completed product milestone: **Phase 5 integrated UAT/onboarding — COMPLETE / VERIFIED**.
+Current completed product milestone: **Phase 5A Arabic launch-quality polish — COMPLETE / VERIFIED**.
 
-Authoritative Phase 5 application/UAT SHA: `5d23e56e72122014a7f886ee7f4ec24d3153c78a`. Exact-head run `34698087230` passed **148 Odoo/UAT tests with 0 failures / 0 errors**, the repeatable seven-production-addon upgrade, public typecheck/build and **8/8 Playwright tests**.
+Authoritative Phase 5A application/test SHA: `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`. Exact-head run `34700625051` passed **149 Odoo/UAT tests with 0 failures / 0 errors**, the repeatable seven-production-addon upgrade, public typecheck/build and **8/8 Playwright tests**.
 
-Odoo/UAT artifact `10298859526` has digest `sha256:510f57a2f1b8c6cfc9b6627c086240b1e03a069112c8780c0cc51bb78f28c0c5`; web artifact `10298634549` has digest `sha256:cabf625930954e29dfd413cbfc24c5c5c4cf95713c15cd754bc3e64b0f44dc5f`.
+Odoo/UAT artifact `10300402418` has digest `sha256:650fd702f12d0e042ec1761401b7a039778a973ab797d2c77f01d76c5eede701`; web artifact `10300486494` has digest `sha256:9658f4e094bd65292634d30f99e8020c5a1ce278644c30c0c7077b95722ff104`.
 
-Manual representative EN/AR/RTL/narrow evidence review passed release usability, public isolation and reporting disclosure. One documented P2 launch-quality finding remains: selected internal Arabic field/help labels still render in English. There are no open P0/P1 UAT defects.
+Fresh successful-run Arabic/RTL/narrow manual evidence review passed. `P2-001` is resolved; open release-candidate P0/P1/P2 counts are **0 / 0 / 0**. The earlier `f5e2f03b...` candidate remains red/non-authoritative because of test sequencing, not an application-localization failure.
 
-Later documentation-only closure commits do not supersede authority `5d23e56e72122014a7f886ee7f4ec24d3153c78a`.
+Later documentation-only closure commits do not supersede authority `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.
 
-Production deployment remains **NO-GO** pending explicit production-specific choices/proofs in `operations/DEPLOYMENT_READINESS.md`; Phase 5 does not authorize merge, deployment, live resource mutation or real-data migration.
+Production deployment remains **NO-GO** pending explicit production-specific choices/proofs in `operations/DEPLOYMENT_READINESS.md`; Phase 5A does not authorize merge, deployment, live resource mutation or real-data migration.

@@ -12,30 +12,33 @@
 
 ## Current state — 2026-09-12
 
-**Phase 0 Discovery: COMPLETE. Phase 0A Hosted Odoo proof: PASS. Phase 0B Foundation architecture/UX: COMPLETE. Phase 1 Products/stock/access: COMPLETE. Phase 2A Retail checkout/offline: COMPLETE. Phase 2B Preorder/balance/collection: COMPLETE. Phase 2C Retail refunds/size exchanges: COMPLETE. Phase 3A Preorder production: COMPLETE. Phase 3B Business-client workflow: COMPLETE. Phase 4A Public catalog/enquiry: COMPLETE / VERIFIED. Phase 4B Operational reporting: COMPLETE / VERIFIED. Phase 5 Integrated UAT/onboarding: COMPLETE / VERIFIED.**
+**Phase 0 Discovery: COMPLETE. Phase 0A Hosted Odoo proof: PASS. Phase 0B Foundation architecture/UX: COMPLETE. Phase 1 Products/stock/access: COMPLETE. Phase 2A Retail checkout/offline: COMPLETE. Phase 2B Preorder/balance/collection: COMPLETE. Phase 2C Retail refunds/size exchanges: COMPLETE. Phase 3A Preorder production: COMPLETE. Phase 3B Business-client workflow: COMPLETE. Phase 4A Public catalog/enquiry: COMPLETE / VERIFIED. Phase 4B Operational reporting: COMPLETE / VERIFIED. Phase 5 Integrated UAT/onboarding: COMPLETE / VERIFIED. Phase 5A Arabic launch-quality polish: COMPLETE / VERIFIED.**
 
-Current branch: `phase-5/integrated-uat-onboarding`.
+Current branch: `phase-5a/arabic-launch-polish`.
 
-**Authoritative Phase 5 application/UAT SHA: `5d23e56e72122014a7f886ee7f4ec24d3153c78a`.** Later documentation-only commits do not supersede this tested authority.
+**Authoritative Phase 5A application/test SHA: `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.** Later documentation-only commits do not supersede this tested authority.
 
-Final Phase 5 hosted authority:
-- workflow: `Phase 5 integrated UAT`, run `34698087230`;
-- Odoo/UAT job `103564935283` — success;
-- combined result: **148 tests, 0 failures, 0 errors**;
+Final Phase 5A hosted authority:
+- workflow `Phase 5A Arabic polish`, run `34700625051`;
+- Odoo/UAT job `103571619120` — success;
+- combined result: **149 tests, 0 failures, 0 errors**;
 - repeatable upgrade of `fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting` — success;
-- Odoo/UAT artifact `10298859526`, digest `sha256:510f57a2f1b8c6cfc9b6627c086240b1e03a069112c8780c0cc51bb78f28c0c5`;
-- public-web job `103564935388` — success;
-- public typecheck/build — success;
+- Odoo/UAT artifact `10300402418`, digest `sha256:650fd702f12d0e042ec1761401b7a039778a973ab797d2c77f01d76c5eede701`;
+- public-web job `103571619062` — success;
+- public `npm ci`, typecheck and production build — success;
 - public Playwright — **8/8 passed**;
-- web artifact `10298634549`, digest `sha256:cabf625930954e29dfd413cbfc24c5c5c4cf95713c15cd754bc3e64b0f44dc5f`;
-- manual representative EN/AR/RTL/narrow evidence review — release-usable/pass, with one documented P2 partial-internal-Arabic-label localization finding;
-- open P0/P1 UAT defects — **0**.
+- web artifact `10300486494`, digest `sha256:9658f4e094bd65292634d30f99e8020c5a1ce278644c30c0c7077b95722ff104`;
+- fresh manual Arabic/RTL/narrow evidence review — pass;
+- `P2-001` — **RESOLVED / CLOSED**;
+- open release-candidate P0/P1/P2 defects — **0 / 0 / 0**.
+
+The earlier candidate `f5e2f03b92fc54aa433ba3ad3753bd68fb885030` / run `34699969872` is permanently red and non-authoritative because its new test attempted focus while the action was deliberately disabled offline. The final SHA changes only that test sequence and leaves the localization implementation intact.
 
 No merge, production deployment, real-data migration, live domain/DNS change, secret/resource mutation or paid-resource creation occurred.
 
 ## Product and architecture direction
 
-Odoo Community remains private operational truth. Fares addons preserve native product/POS/CRM/sale/payment/stock ownership. Public browser code receives only the frozen allowlisted public projection/enquiry contract; Phase 5 did not broaden the anonymous surface.
+Odoo Community remains private operational truth. Fares addons preserve native product/POS/CRM/sale/payment/stock ownership. Public browser code receives only the frozen allowlisted public projection/enquiry contract; Phase 5A did not broaden the anonymous surface.
 
 Confirmed product/stock rules remain:
 - school/client-specific designs are distinct stocked products when units are not interchangeable;
@@ -57,18 +60,15 @@ Confirmed product/stock rules remain:
 - Phase 4A public catalog/enquiry — application `76eb20a5c267e0fa8c8d5ce2bf065ffcd332e497`; 132 Odoo tests + repeatable six-addon upgrade + 8/8 public Playwright.
 - Phase 4B operational reporting — application `29b2589e7e71271071f97c9de57dfb97b49b100d`; 144 Odoo tests + repeatable seven-addon upgrade + 8/8 public Playwright + manual reporting review.
 - Phase 5 integrated UAT/onboarding — application/UAT `5d23e56e72122014a7f886ee7f4ec24d3153c78a`; 148 tests + repeatable seven-production-addon upgrade + 8/8 public Playwright + integrated/manual release evidence.
+- Phase 5A Arabic launch-quality polish — application/test `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`; 149 tests + repeatable seven-production-addon upgrade + 8/8 public Playwright + fresh Arabic/RTL manual evidence; P2-001 closed.
 
 Detailed contracts/evidence remain in `docs/phases/`, `docs/validation/` and `docs/operations/`; this file is the current handoff, not a replacement for those records.
 
-## Phase 5 release-readiness conclusion
+## Release-readiness conclusion
 
-The nine accepted MVP release scenarios are proven together on the authoritative Phase 5 SHA: product/stock custody, retail/offline, preorder/production/collection, controlled returns/exchanges, B2B lifecycle, public catalog/enquiry, reporting and role/security boundaries.
+The accepted MVP release scenarios remain proven together, and Phase 5A closes the final known release-candidate localization finding without changing workflow/security/public contracts. The test-only `fu_uat` addon remains evidence infrastructure only and is not part of the seven-production-addon upgrade authority.
 
-The test-only `fu_uat` addon is evidence infrastructure only and is not part of the seven-production-addon upgrade authority.
-
-Synthetic onboarding was rehearsed and documented. The system supports configurable company/location/user/product/payment/preorder/public/reporting setup without encoding real business-specific values into source.
-
-One non-blocking finding remains: `P2-001`, selected English field/help labels on otherwise usable RTL internal Arabic forms. It is launch-quality polish, not a data/security/workflow blocker.
+Application release-candidate defect counts are P0 **0**, P1 **0**, P2 **0**. This is not the same as production deployment readiness.
 
 ## Roadmap
 
@@ -83,14 +83,15 @@ One non-blocking finding remains: `P2-001`, selected English field/help labels o
 9. Phase 3B business-client workflow — complete.
 10. Phase 4A public catalog/enquiry — complete / verified.
 11. Phase 4B operational reporting — complete / verified.
-12. Phase 5 integrated UAT/onboarding/deployment-readiness planning — **complete / verified**.
-13. Resolve production-specific deployment inputs, optional P2 launch polish, then stage/deploy only under explicit authorization.
+12. Phase 5 integrated UAT/onboarding — complete / verified.
+13. Phase 5A Arabic launch-quality polish — **complete / verified**.
+14. Resolve production-specific deployment inputs, prove staging/restore/device/operations readiness, then stage/deploy only under explicit authorization.
 
 ## Immediate next action
 
-Production deployment is currently **NO-GO**, not because of an application P0/P1, but because deployment-specific choices/proofs remain unresolved. Start from `docs/operations/DEPLOYMENT_READINESS.md` and resolve hosting/persistence, database+filestore restore proof, environment/secrets ownership, real store device/browser/scanner/printer compatibility, named staff/training, real opening-data/cutover responsibility, monitoring ownership, budget and launch timing.
+Production deployment is **NO-GO** because production-specific choices/proofs remain unresolved, not because of an open application P0/P1/P2. Start from `docs/operations/DEPLOYMENT_READINESS.md` and resolve hosting/persistence, PostgreSQL + filestore backup/restore and RPO/RTO, staging and secret ownership, Vercel production/domain/DNS, real store browser/scanner/printer compatibility, named staff/training, opening-data/cutover ownership, monitoring, budget and launch timing.
 
-Do not create production resources, mutate DNS/domains/secrets, migrate real data, merge or deploy without explicit authorization.
+Do not invent those choices. Do not create production resources, mutate DNS/domains/secrets, migrate real data, merge or deploy without explicit authorization.
 
 ## Later explicit business-policy decisions
 

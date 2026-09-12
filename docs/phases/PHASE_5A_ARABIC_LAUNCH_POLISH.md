@@ -1,6 +1,6 @@
 # Phase 5A — Arabic launch-quality polish
 
-Status: **ACTIVE / AUTHORIZED, 2026-09-12.**
+Status: **COMPLETE / VERIFIED, 2026-09-12.**
 
 Branch: `phase-5a/arabic-launch-polish`.
 
@@ -10,62 +10,76 @@ Inherited authoritative Phase 5 application/UAT SHA: `5d23e56e72122014a7f886ee7f
 
 Pinned Odoo Community SHA: `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
-Authorization: after Phase 5 closure the client instructed the developer to keep going. The next bounded repository-defined work is the documented `P2-001` launch-quality localization debt. This does **not** authorize production deployment, merge, live resources, DNS, secrets or real-data migration.
+**Authoritative Phase 5A application/test SHA: `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.** Later documentation-only commits do not supersede this tested authority.
 
-## Goal
+Authorization: after Phase 5 closure the client instructed the developer to keep going. The bounded work was the documented `P2-001` launch-quality localization debt. This did **not** authorize production deployment, merge, live resources, DNS, secrets or real-data migration.
 
-Close `P2-001` by making representative internal Arabic operational forms fully localized for the Fares-owned labels/help/state text exposed by the Phase 5 manual evidence review, while preserving every accepted workflow, role/security boundary, public API allowlist, offline rule and production-addon ownership contract.
+## Goal and result
 
-## Evidence basis
+Phase 5A closed `P2-001` by localizing the Fares-owned Arabic labels/help/state/connectivity text exposed by the Phase 5 manual review while preserving every accepted workflow, role/security boundary, public API allowlist, offline rule and production-addon ownership contract.
 
-Phase 5 manual review found no P0/P1 defects, but retained Arabic captures showed selected English text on otherwise usable RTL screens, including:
-- preorder online-connectivity messaging and wizard cancellation text;
-- returns/exchanges field labels/state/help such as Source Order, Store Location, Operation, Eligibility Path and Reason, plus mixed English in the connectivity banner;
-- production-task metadata labels such as Trigger Reason, Queued by / Queued at / Started by and related Fares-owned field text.
+Result: **PASS / P2-001 CLOSED.** Open release-candidate P0: **0**. P1: **0**. P2: **0**.
 
-The exact set to fix must be derived from the live source and rendered Arabic evidence, not guessed from chat memory.
+## Implemented scope
 
-## In scope
+The exact application lineage at `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`:
+- supplements `fu_preorder`, `fu_retail` and `fu_production` Arabic translations using Odoo 19 `i18n_extra` loading rather than hardcoded browser-only Arabic;
+- localizes the Fares preorder/return online-guard heading and state messaging;
+- localizes the preorder cancel action and the affected return/production labels/help/state text;
+- strengthens Arabic browser contracts so the known English fragments fail the suite if they regress;
+- adds a narrow Phase 5A UAT browser assertion for preorder connectivity/cancel/reconnect/focus/RTL;
+- keeps `fu_uat` test-only and keeps the seven production addons as upgrade authority;
+- changes no business policy, role/ACL boundary, public DTO/enquiry schema, deployment configuration or live resource.
 
-1. Audit the affected `fu_preorder`, `fu_retail` and `fu_production` Arabic catalogs against their current model/view/JavaScript strings.
-2. Add/fix only missing or incorrectly classified Arabic translations needed for the affected Fares-owned UI.
-3. Use Odoo 19 translation metadata correctly (`odoo-javascript` / `odoo-python` where the source type requires it) rather than hardcoding Arabic into browser-only logic.
-4. Where an inherited generic control is rendered from a Fares view and is not reliably translated, give the Fares view an explicit translatable label rather than changing Odoo core.
-5. Strengthen Arabic browser assertions so the representative screens fail if the known English fragments return.
-6. Keep the test-only `fu_uat` addon test-only and preserve the exact seven production-addon upgrade authority.
+## Exact-head closure authority
 
-## Explicitly out of scope
+GitHub Actions workflow `Phase 5A Arabic polish`, run **`34700625051`**, tested exact Fares SHA `cc2656d7529cfd4af396ddd0af6444a0f6600dc8` against pinned Odoo `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
-- changing business workflows, payment policy, production semantics or permissions;
-- widening the anonymous/public API or public DTO/enquiry schemas;
-- redesigning the operational UI;
-- changing Odoo core or vendoring a fork;
-- production deployment/staging resource creation, domains, DNS, secrets or real data;
-- translating unrelated Odoo standard screens exhaustively;
-- resolving deferred cards/wallets, bank API, B2B refund/credit, preorder cancellation/refund, raw/WIP inventory, advanced analytics or accounting policy.
+Odoo/UAT job **`103571619120` — SUCCESS**:
+- seven production addons plus test-only `fu_uat` installed together;
+- combined inherited + Phase 5A result: **149 tests, 0 failures, 0 errors**;
+- `fu_uat`: **9 tests**; the new `TestFaresPhase5AArabicLaunchPolish.test_preorder_connectivity_and_cancel_are_fully_arabic` completed successfully;
+- repeatable upgrade of production addons `fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting`: **SUCCESS** on the same database/SHA; final upgrade log reached `Modules loaded.`;
+- Odoo/UAT artifact ID **`10300402418`**, name `phase5a-odoo-uat-cc2656d7529cfd4af396ddd0af6444a0f6600dc8`, digest **`sha256:650fd702f12d0e042ec1761401b7a039778a973ab797d2c77f01d76c5eede701`**.
 
-## Validation contract
+Public-web job **`103571619062` — SUCCESS**:
+- exact-head checkout: success;
+- `npm ci`: success;
+- typecheck: success;
+- production build: success;
+- Playwright: **8/8 passed** in 6.3s;
+- web artifact ID **`10300486494`**, name `phase5a-web-cc2656d7529cfd4af396ddd0af6444a0f6600dc8`, digest **`sha256:9658f4e094bd65292634d30f99e8020c5a1ce278644c30c0c7077b95722ff104`**.
 
-The exact candidate SHA must run remotely against the pinned Odoo Community SHA and retain evidence.
+Runtime evidence records Python 3.12.14, Chrome 152.0.7977.82 and rtlcss 4.3.0 for Odoo evidence; Node 22.23.2, Next.js 16.3.4 and Playwright 1.63.0 for the public fixture-provider gate. These are evidence, not production-version commitments.
 
-Minimum gate:
-1. clean install of seven production addons plus `fu_uat` evidence harness;
-2. all inherited Phase 1–5 Odoo/UAT tests remain green: **148 or newer, 0 failures, 0 errors**;
-3. repeatable upgrade of the **seven production addons** on the same database;
-4. public web `npm ci`, typecheck, production build and **8/8 or newer** Playwright regression;
-5. strengthened Arabic browser assertions for the affected internal screens;
-6. representative Arabic desktop/narrow/reduced-motion screenshots retained;
-7. manual review confirms the P2 English fragments are gone without RTL/narrow regressions;
-8. no new P0/P1 and no security/public/offline regression.
+## Manual green-run evidence review
 
-## Exit criteria
+Fresh evidence from the successful run was downloaded only for inspection. Representative captures manually reviewed include:
+- `phase5a_preorder_ar_desktop_20260912_150136_826868_test_preorder_connectivity_and_cancel_are_fully_arabic.png`;
+- `phase5a_preorder_ar_narrow_reduced_20260912_150136_936681_test_preorder_connectivity_and_cancel_are_fully_arabic.png`;
+- `returns_exchange_ar_narrow_reduced_20260912_145848_032261_test_returns_exchange_arabic_rtl_online_guard.png`;
+- `production_queue_ar_narrow_reduced_20260912_150102_693591_test_production_queue_arabic_rtl.png`;
+- `reporting_dashboard_ar_narrow_reduced_20260912_150124_159810_test_reporting_dashboard_arabic_rtl_visual_contract.png`;
+- public `public_ar_narrow.png`.
 
-Phase 5A is COMPLETE / VERIFIED only when:
-- `P2-001` is closed by exact-head hosted evidence;
-- the affected Arabic screens no longer expose the known Fares-owned English labels/help/connectivity text;
-- inherited 148+ Odoo/UAT and 8/8+ public browser gates remain green;
-- the seven production addons upgrade repeatably;
-- representative Arabic evidence is manually inspected;
-- `PROJECT.md`, `docs/README.md`, validation evidence and the decision log are updated;
-- later docs-only commits are explicitly not treated as newer application authority;
-- no deployment or real-data mutation occurred.
+Manual result: **PASS.** The preorder connectivity heading/state and cancel action are Arabic; return labels such as source sale/store location/operation/eligibility path/reason and state are Arabic; production trigger/queue/audit labels are Arabic; RTL and narrow/reduced-motion composition remains coherent; reporting remains localized and usable; and the public Arabic surface remains clean. English visible in the selected internal captures is synthetic fixture data such as `WH/Retail Store`, product/user values or identifiers, not the known Fares-owned UI labels covered by `P2-001`.
+
+## Red chronology retained
+
+Candidate `f5e2f03b92fc54aa433ba3ad3753bd68fb885030`, run `34699969872`, is permanently **RED / NON-AUTHORITATIVE**. Its public job passed, but its Odoo/UAT gate ended `1 failed, 0 error(s) of 149 tests` because the newly added test attempted to focus the preorder Create action while the test had intentionally put the browser offline and disabled that action. Required Arabic/forbidden-English assertions and offline fail-closed checks had already passed. The seven-addon repeatable upgrade was therefore not reached.
+
+`cc2656d7529cfd4af396ddd0af6444a0f6600dc8` changes only that test sequence: reconnect online, confirm the action re-enables, then assert keyboard focus and RTL. The localization implementation itself is unchanged from the first candidate.
+
+## Exit conclusion
+
+All Phase 5A exit criteria are satisfied:
+- `P2-001` closed by exact-head hosted evidence;
+- known Fares-owned English fragments are removed from the targeted Arabic screens;
+- inherited Odoo/UAT gate is green at 149 tests;
+- repeatable seven-production-addon upgrade is green;
+- public regression remains 8/8;
+- representative fresh Arabic evidence was manually inspected;
+- no new P0/P1/P2 release-candidate defect was found;
+- no merge, deployment, live-resource mutation or real-data migration occurred.
+
+Production remains **NO-GO**. The next boundary is production-specific readiness in `docs/operations/DEPLOYMENT_READINESS.md`: hosting/persistence, backup/restore/RPO/RTO, staging and secrets, Vercel/domain/DNS choices, real store hardware, named staff/training, opening-data/cutover ownership, monitoring, budget and launch timing require explicit operator/client decisions and separate deployment authorization.
