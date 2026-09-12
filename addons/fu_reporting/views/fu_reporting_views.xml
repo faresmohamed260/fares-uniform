@@ -9,14 +9,10 @@
                     <button name="action_refresh" type="object" string="Refresh reports" class="btn-primary" data-hotkey="r"/>
                 </header>
                 <sheet>
-                    <div class="oe_title">
-                        <h1><span>Operational Reports</span></h1>
-                    </div>
                     <field name="allowed_location_ids" invisible="1"/>
                     <field name="currency_id" invisible="1"/>
-                    <separator string="Report context"/>
-                    <group>
-                        <group>
+                    <group string="Operational Reports">
+                        <group string="Report context">
                             <field name="report_date"/>
                             <field name="location_id" options="{'no_create': True, 'no_quick_create': True}"/>
                         </group>
@@ -29,38 +25,32 @@
                         <label for="sync_notice" string="Offline sync disclosure:" class="fw-bold"/>
                         <field name="sync_notice" nolabel="1" readonly="1"/>
                     </div>
-                    <separator string="Daily retail sales"/>
-                    <group>
+                    <group string="Daily retail sales">
                         <group>
                             <field name="sales_gross"/>
                             <field name="sales_refunds"/>
                             <field name="sales_net"/>
                         </group>
-                        <group>
-                            <separator string="Operational list counts"/>
+                        <group string="Operational list counts">
                             <field name="low_stock_count"/>
                             <field name="upcoming_count"/>
                             <field name="overdue_count"/>
                             <field name="balance_count"/>
                         </group>
                     </group>
-                    <separator string="Payment movement"/>
-                    <group>
-                        <group>
-                            <separator string="Cash"/>
+                    <group string="Payment movement">
+                        <group string="Cash">
                             <field name="cash_inflow"/>
                             <field name="cash_outflow"/>
                             <field name="cash_net"/>
                         </group>
-                        <group>
-                            <separator string="InstaPay"/>
+                        <group string="InstaPay">
                             <field name="instapay_inflow"/>
                             <field name="instapay_outflow"/>
                             <field name="instapay_net"/>
                         </group>
                     </group>
-                    <separator string="Payment configuration warnings" invisible="other_payment_count == 0"/>
-                    <group invisible="other_payment_count == 0">
+                    <group string="Payment configuration warnings" invisible="other_payment_count == 0">
                         <field name="other_payment_count"/>
                         <field name="other_payment_net"/>
                     </group>

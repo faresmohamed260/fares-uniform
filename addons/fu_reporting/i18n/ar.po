@@ -43,8 +43,16 @@ msgid "Daily retail sales"
 msgstr "مبيعات التجزئة اليومية"
 
 #. module: fu_reporting
+msgid "Operational list counts"
+msgstr "أعداد القوائم التشغيلية"
+
+#. module: fu_reporting
 msgid "Payment movement"
 msgstr "حركة المدفوعات"
+
+#. module: fu_reporting
+msgid "Payment configuration warnings"
+msgstr "تحذيرات إعدادات الدفع"
 
 #. module: fu_reporting
 msgid "Cash"
