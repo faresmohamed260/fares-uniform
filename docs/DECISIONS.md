@@ -239,3 +239,18 @@ The completed design preserves D-006, D-008 and D-029: production demand is grou
 Native Odoo `mrp.production` is deliberately not the Phase 3A authority because the accepted MVP excludes raw-material/WIP and factory-finished inventory accounting while pinned native MRP owns component/finished stock moves and locations. Odoo stock records remain the sole finished-stock custody truth.
 
 This decision does not authorize a positive default quantity threshold, raw/WIP inventory, Bills of Materials, automatic Retail Store receipt, preorder cancellation/refund, B2B final-payment/partial-shipment behavior, customer notification automation, merge, deployment or real-data migration. Those remain later bounded decisions.
+
+## D-037 — Phase 4B operational-reporting closure authority
+Status: Evidence-backed project state, 2026-09-12; inherited reporting/public/security policy remains unchanged.
+
+Phase 4B closes for the accepted operational-reporting scope at application/test SHA **`29b2589e7e71271071f97c9de57dfb97b49b100d`**. GitHub Actions workflow `Phase 4B operational reporting`, run **`34696367320`**, Odoo job **`103560475350`**, passed the combined Phase 1 through Phase 4B hosted gate with **144 tests, 0 failures and 0 errors**, then passed the repeatable `fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting` upgrade on the same database and exact application SHA.
+
+The same-SHA public-web job **`103560475255`** passed typecheck, production build and **8/8 Playwright tests**, preserving the Phase 4A anonymous/public boundary. The final Odoo artifact is ID **`10299505013`**, name `phase4b-odoo-29b2589e7e71271071f97c9de57dfb97b49b100d`, digest **`sha256:428d0f0211a229bd85d35df8444295c2658fb397ce0c910af7302765d4eb543d`**. The web artifact is ID **`10298334239`**, name `phase4b-web-29b2589e7e71271071f97c9de57dfb97b49b100d`, digest **`sha256:2683575631b5efa75c8db33e3f76f91a64412563d4083f85f491012b8415b13d`**.
+
+Manual inspection of the retained English desktop/narrow and Arabic RTL desktop/narrow reporting captures passed. The full Arabic offline-sync disclosure body and label are localized; the title/breadcrumb is localized with no `fu.reporting.dashboard,<id>` leakage; RTL is genuine; report sections/refresh/timezone/as-of remain usable; narrow/reduced-motion evidence is sound; and the passing browser contract proves keyboard focus plus no document-level horizontal overflow.
+
+The red chronology remains authoritative evidence of the quality gate: candidate `89378db5b0fa5b9624a96a34b9648de2d9e2f86a` was automated-green but manually rejected; candidate `c25c03dad84ecc113cf2dd0299dfb27cba89b41e` intentionally failed the strengthened Arabic disclosure assertion; the final fix uses Odoo 19 Python-translation metadata (`#. odoo-python`) and environment translation rather than weakening the assertion or hardcoding browser-only Arabic.
+
+Treat `29b2589e7e71271071f97c9de57dfb97b49b100d` as the Phase 4B **application authority**. All later Phase 4B closure-documentation commits, including this decision-log commit, are documentation lineage only and do not become newer application proof merely by being branch HEAD.
+
+This decision does not authorize merge, production deployment, domain/secret/resource mutation, real-data migration, advanced analytics/BI, report exports/scheduled delivery, cards/wallets, bank API integration, or any deferred B2B/refund/accounting policy. Integrated UAT/onboarding rehearsal and any deployment planning remain separate, explicitly authorized work.
