@@ -5,6 +5,7 @@ let scheduled = false;
 
 function applyPreorderConnectivityState() {
     scheduled = false;
+    const title = _t("Online connection required.");
     const message = preorderOnline
         ? _t("Online — preorder actions use live server checks.")
         : _t("Offline — preorder actions are disabled until connection returns.");
@@ -13,6 +14,10 @@ function applyPreorderConnectivityState() {
         banner.dataset.fuOnlineState = preorderOnline ? "online" : "offline";
         banner.classList.toggle("alert-info", preorderOnline);
         banner.classList.toggle("alert-danger", !preorderOnline);
+        const heading = banner.querySelector("strong");
+        if (heading && heading.textContent !== title) {
+            heading.textContent = title;
+        }
         const state = banner.querySelector(".fu-online-state");
         if (state && state.textContent !== message) {
             state.textContent = message;

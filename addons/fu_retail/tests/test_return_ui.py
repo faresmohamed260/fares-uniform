@@ -56,6 +56,43 @@ class TestFaresReturnBilingualUI(HttpCase):
         action = self._new_return_action()
         expected_submit = "إرسال الطلب" if arabic else "Submit Request"
         expected_items = "الأصناف المرتجعة" if arabic else "Returned Items"
+        arabic_assertions = """
+                const requiredArabic = [
+                    "يتطلب اتصالًا بالإنترنت.",
+                    "متصل — تستخدم المرتجعات والاستبدالات صلاحيات الخادم المباشرة.",
+                    "عملية البيع الأصلية",
+                    "موقع المتجر",
+                    "العملية",
+                    "مسار الأهلية",
+                    "السبب",
+                    "مسودة",
+                ];
+                for (const text of requiredArabic) {
+                    if (!form.innerText.includes(text)) throw new Error('Missing Arabic return text: ' + text);
+                }
+                const forbiddenEnglish = [
+                    "Online connection required.",
+                    "Source Order",
+                    "Store Location",
+                    "Operation",
+                    "Eligibility Path",
+                    "Reason",
+                    "Draft",
+                ];
+                for (const text of forbiddenEnglish) {
+                    if (form.innerText.includes(text)) throw new Error('English return fragment leaked into Arabic UI: ' + text);
+                }
+        """ if arabic else ""
+        rtl_assertion = (
+            "if (getComputedStyle(form).direction !== 'rtl') throw new Error('Arabic return form is not rendered RTL');"
+            if arabic
+            else ""
+        )
+        offline_assertion = (
+            "if (!banner.innerText.includes('غير متصل — تم تعطيل المرتجعات والاستبدالات حتى عودة الاتصال.')) throw new Error('Arabic offline return message missing');"
+            if arabic
+            else ""
+        )
         code = f"""
             (async () => {{
                 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -73,15 +110,19 @@ class TestFaresReturnBilingualUI(HttpCase):
                 if (!form.innerText.includes({expected_items!r})) throw new Error('Localized returned-items context missing');
                 const banner = form.querySelector('.fu-return-online-required-banner');
                 if (!banner) throw new Error('Return online-required banner missing');
+                window.dispatchEvent(new Event('online'));
+                await sleep(100);
+                {arabic_assertions}
                 window.dispatchEvent(new Event('offline'));
                 await sleep(100);
                 if (!submit.disabled || banner.dataset.fuOnlineState !== 'offline') throw new Error('Return workflow did not fail closed offline');
+                {offline_assertion}
                 window.dispatchEvent(new Event('online'));
                 await sleep(100);
                 if (submit.disabled || banner.dataset.fuOnlineState !== 'online') throw new Error('Return workflow did not recover online');
                 submit.focus();
                 if (document.activeElement !== submit) throw new Error('Return action cannot receive keyboard focus');
-                {"if (getComputedStyle(form).direction !== 'rtl') throw new Error('Arabic return form is not rendered RTL');" if arabic else ""}
+                {rtl_assertion}
                 console.log('test successful');
             }})();
         """

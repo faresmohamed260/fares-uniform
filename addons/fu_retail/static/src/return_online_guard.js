@@ -5,6 +5,7 @@ let scheduled = false;
 
 function applyReturnConnectivityState() {
     scheduled = false;
+    const title = _t("Online connection required.");
     const message = returnsOnline
         ? _t("Online — returns and exchanges use live server authorization.")
         : _t("Offline — returns and exchanges are disabled until connection returns.");
@@ -13,6 +14,10 @@ function applyReturnConnectivityState() {
         banner.dataset.fuOnlineState = returnsOnline ? "online" : "offline";
         banner.classList.toggle("alert-info", returnsOnline);
         banner.classList.toggle("alert-danger", !returnsOnline);
+        const heading = banner.querySelector("strong");
+        if (heading && heading.textContent !== title) {
+            heading.textContent = title;
+        }
         const state = banner.querySelector(".fu-return-online-state");
         if (state && state.textContent !== message) {
             state.textContent = message;

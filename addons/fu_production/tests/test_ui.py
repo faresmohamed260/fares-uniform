@@ -90,6 +90,31 @@ class TestFaresProductionBilingualUI(HttpCase):
         action = self._task_action()
         expected_start = "بدء الإنتاج" if arabic else "Start Production"
         expected_quantity = "كمية الإنتاج" if arabic else "Production quantity"
+        arabic_assertions = """
+                const requiredArabic = [
+                    "سبب المحفز",
+                    "أدرجها في القائمة",
+                    "وقت الإدراج",
+                    "بدأها",
+                ];
+                for (const text of requiredArabic) {
+                    if (!form.innerText.includes(text)) throw new Error('Missing Arabic production text: ' + text);
+                }
+                const forbiddenEnglish = [
+                    "Trigger Reason",
+                    "Queued by",
+                    "Queued at",
+                    "Started by",
+                ];
+                for (const text of forbiddenEnglish) {
+                    if (form.innerText.includes(text)) throw new Error('English production fragment leaked into Arabic UI: ' + text);
+                }
+        """ if arabic else ""
+        rtl_assertion = (
+            "if (getComputedStyle(form).direction !== 'rtl') throw new Error('Arabic production form is not rendered RTL');"
+            if arabic
+            else ""
+        )
         code = f"""
             (async () => {{
                 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -105,9 +130,10 @@ class TestFaresProductionBilingualUI(HttpCase):
                 const start = await waitFor('button[name="action_start"]');
                 if (!start.innerText.includes({expected_start!r})) throw new Error('Localized Start Production action missing');
                 if (!form.innerText.includes({expected_quantity!r})) throw new Error('Localized production quantity label missing');
+                {arabic_assertions}
                 start.focus();
                 if (document.activeElement !== start) throw new Error('Production action cannot receive keyboard focus');
-                {"if (getComputedStyle(form).direction !== 'rtl') throw new Error('Arabic production form is not rendered RTL');" if arabic else ""}
+                {rtl_assertion}
                 console.log('test successful');
             }})();
         """
