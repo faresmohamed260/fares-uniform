@@ -2,10 +2,18 @@ from odoo import _, api, Command, fields, models
 from odoo.exceptions import AccessError
 
 
+_SYNC_NOTICE = (
+    "Server totals exclude offline POS transactions that have not synchronized yet; "
+    "they become reportable after server reconciliation."
+)
+
+
 class FuReportingDashboard(models.TransientModel):
     _name = "fu.reporting.dashboard"
     _description = "Fares operational reporting dashboard"
+    _rec_name = "report_title"
 
+    report_title = fields.Char(compute="_compute_report_title", readonly=True)
     company_id = fields.Many2one("res.company", default=lambda self: self.env.company, readonly=True)
     currency_id = fields.Many2one(related="company_id.currency_id", readonly=True)
     allowed_location_ids = fields.Many2many("stock.location", compute="_compute_allowed_locations")
@@ -18,7 +26,11 @@ class FuReportingDashboard(models.TransientModel):
     report_date = fields.Date(string="Daily report date", required=True)
     timezone_name = fields.Char(string="Report timezone", readonly=True)
     as_of = fields.Datetime(string="Operational data as of", readonly=True)
-    sync_notice = fields.Char(string="Offline synchronization note", readonly=True)
+    sync_notice = fields.Char(
+        string="Offline synchronization note",
+        compute="_compute_sync_notice",
+        readonly=True,
+    )
 
     sales_gross = fields.Monetary(string="Gross retail sales", currency_field="currency_id", readonly=True)
     sales_refunds = fields.Monetary(string="Retail refunds", currency_field="currency_id", readonly=True)
@@ -41,6 +53,16 @@ class FuReportingDashboard(models.TransientModel):
     low_stock_line_ids = fields.One2many("fu.reporting.low.stock.line", "dashboard_id", readonly=True)
     deadline_line_ids = fields.One2many("fu.reporting.deadline.line", "dashboard_id", readonly=True)
     balance_line_ids = fields.One2many("fu.reporting.balance.line", "dashboard_id", readonly=True)
+
+    @api.depends_context("lang")
+    def _compute_report_title(self):
+        for dashboard in self:
+            dashboard.report_title = _("Operational Reports")
+
+    @api.depends_context("lang")
+    def _compute_sync_notice(self):
+        for dashboard in self:
+            dashboard.sync_notice = _(_SYNC_NOTICE)
 
     @api.depends_context("uid", "allowed_company_ids")
     def _compute_allowed_locations(self):
@@ -106,7 +128,6 @@ class FuReportingDashboard(models.TransientModel):
         values = {
             "timezone_name": snapshot["meta"]["timezone"],
             "as_of": fields.Datetime.to_datetime(snapshot["meta"]["as_of"]),
-            "sync_notice": snapshot["meta"]["sync_notice"],
             "sales_gross": snapshot["sales"]["gross"],
             "sales_refunds": snapshot["sales"]["refunds"],
             "sales_net": snapshot["sales"]["net"],
