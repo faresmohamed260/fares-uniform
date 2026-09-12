@@ -1,0 +1,130 @@
+services:
+  db:
+    image: postgres:16.12-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_superuser_password
+      FARES_DB_NAME: ${ODOO_DB_NAME:-fares}
+      FARES_DB_USER: ${ODOO_DB_USER:-fares_app}
+      FARES_DB_PASSWORD_FILE: /run/secrets/odoo_db_password
+    secrets:
+      - postgres_superuser_password
+      - odoo_db_password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./postgres/init/10-fares.sh:/docker-entrypoint-initdb.d/10-fares.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [backend]
+
+  odoo:
+    image: fares-uniform-odoo:${FARES_SHA:?FARES_SHA is required}
+    build:
+      context: ..
+      dockerfile: deploy/odoo/Dockerfile
+      args:
+        ODOO_SHA: ${ODOO_SHA:-1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf}
+        FARES_SHA: ${FARES_SHA:?FARES_SHA is required}
+    restart: unless-stopped
+    init: true
+    environment:
+      ODOO_DB_HOST: db
+      ODOO_DB_PORT: "5432"
+      ODOO_DB_NAME: ${ODOO_DB_NAME:-fares}
+      ODOO_DB_USER: ${ODOO_DB_USER:-fares_app}
+      ODOO_DB_PASSWORD_FILE: /run/secrets/odoo_db_password
+      ODOO_ADMIN_PASSWD_FILE: /run/secrets/odoo_admin_passwd
+      ODOO_WORKERS: ${ODOO_WORKERS:-2}
+      ODOO_MAX_CRON_THREADS: ${ODOO_MAX_CRON_THREADS:-1}
+      ODOO_DB_MAXCONN: ${ODOO_DB_MAXCONN:-32}
+      ODOO_LIMIT_MEMORY_SOFT: ${ODOO_LIMIT_MEMORY_SOFT:-1073741824}
+      ODOO_LIMIT_MEMORY_HARD: ${ODOO_LIMIT_MEMORY_HARD:-1342177280}
+      ODOO_LIMIT_TIME_CPU: ${ODOO_LIMIT_TIME_CPU:-120}
+      ODOO_LIMIT_TIME_REAL: ${ODOO_LIMIT_TIME_REAL:-240}
+      ODOO_LIMIT_TIME_REAL_CRON: ${ODOO_LIMIT_TIME_REAL_CRON:-600}
+      ODOO_LOG_LEVEL: ${ODOO_LOG_LEVEL:-info}
+    secrets:
+      - odoo_db_password
+      - odoo_admin_passwd
+    volumes:
+      - odoo-data:/var/lib/odoo
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8069/web/login >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    networks: [backend]
+
+  proxy:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    depends_on:
+      odoo:
+        condition: service_healthy
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+      - "${HTTPS_PORT:-8443}:443"
+    volumes:
+      - ./nginx/odoo.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${TLS_CERT_FILE:?TLS_CERT_FILE is required}:/etc/nginx/tls/fullchain.pem:ro
+      - ${TLS_KEY_FILE:?TLS_KEY_FILE is required}:/etc/nginx/tls/privkey.pem:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --no-check-certificate -O /dev/null https://127.0.0.1/web/login"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks: [backend]
+
+  ops:
+    image: fares-uniform-ops:${FARES_SHA:?FARES_SHA is required}
+    profiles: ["ops"]
+    build:
+      context: ..
+      dockerfile: deploy/ops/Dockerfile
+    environment:
+      ODOO_DB_HOST: db
+      ODOO_DB_PORT: "5432"
+      ODOO_DB_NAME: ${ODOO_DB_NAME:-fares}
+      ODOO_DB_USER: ${ODOO_DB_USER:-fares_app}
+      ODOO_DB_PASSWORD_FILE: /run/secrets/odoo_db_password
+      ODOO_DATA_DIR: /var/lib/odoo
+      BACKUP_ROOT: /backups
+      FARES_SHA: ${FARES_SHA:?FARES_SHA is required}
+      ODOO_SHA: ${ODOO_SHA:-1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf}
+      EXPECTED_FARES_SHA: ${FARES_SHA:?FARES_SHA is required}
+      EXPECTED_ODOO_SHA: ${ODOO_SHA:-1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf}
+    secrets:
+      - odoo_db_password
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ${BACKUP_BIND_DIR:-./.runtime/backups}:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [backend, egress]
+
+secrets:
+  postgres_superuser_password:
+    file: ${POSTGRES_SUPERUSER_PASSWORD_FILE:?POSTGRES_SUPERUSER_PASSWORD_FILE is required}
+  odoo_db_password:
+    file: ${ODOO_DB_PASSWORD_FILE:?ODOO_DB_PASSWORD_FILE is required}
+  odoo_admin_passwd:
+    file: ${ODOO_ADMIN_PASSWD_FILE:?ODOO_ADMIN_PASSWD_FILE is required}
+
+volumes:
+  db-data:
+  odoo-data:
+
+networks:
+  backend:
+    internal: true
+  egress:
