@@ -2,12 +2,6 @@ from odoo import _, api, Command, fields, models
 from odoo.exceptions import AccessError
 
 
-_SYNC_NOTICE = (
-    "Server totals exclude offline POS transactions that have not synchronized yet; "
-    "they become reportable after server reconciliation."
-)
-
-
 class FuReportingDashboard(models.TransientModel):
     _name = "fu.reporting.dashboard"
     _description = "Fares operational reporting dashboard"
@@ -62,7 +56,9 @@ class FuReportingDashboard(models.TransientModel):
     @api.depends_context("lang")
     def _compute_sync_notice(self):
         for dashboard in self:
-            dashboard.sync_notice = _(_SYNC_NOTICE)
+            dashboard.sync_notice = _(
+                "Server totals exclude offline POS transactions that have not synchronized yet; they become reportable after server reconciliation."
+            )
 
     @api.depends_context("uid", "allowed_company_ids")
     def _compute_allowed_locations(self):
