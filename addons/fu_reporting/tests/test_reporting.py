@@ -64,6 +64,18 @@ class TestFaresReporting(CommonPosTest):
         if not cls.cash_method or not cls.instapay_method:
             raise AssertionError("Phase 4B payment journals require native inbound methods")
 
+        cls.pos_instapay_method = cls.env["pos.payment.method"].create(
+            {
+                "name": "Phase 4B POS InstaPay",
+                "journal_id": cls.company_data["default_journal_bank"].id,
+                "receivable_account_id": cls.company_data["default_account_receivable"].id,
+                "fu_confirmation_mode": "bank_notification",
+            }
+        )
+        cls.pos_config_usd.write(
+            {"payment_method_ids": [Command.link(cls.pos_instapay_method.id)]}
+        )
+
         cls.manager = cls._make_user(
             "manager", cls.env.ref("fu_core.group_fu_store_manager"), [cls.store]
         )
@@ -317,9 +329,6 @@ class TestFaresReporting(CommonPosTest):
             expected_other,
         )
 
-        self.bank_payment_method.write(
-            {"name": "Phase 4B POS InstaPay", "fu_confirmation_mode": "bank_notification"}
-        )
         instapay_order, _refund = self.create_backend_pos_order(
             {"line_data": [{"product_id": self.product.id, "qty": 1}]}
         )
@@ -327,7 +336,7 @@ class TestFaresReporting(CommonPosTest):
             {
                 "pos_order_id": instapay_order.id,
                 "amount": instapay_order.amount_total,
-                "payment_method_id": self.bank_payment_method.id,
+                "payment_method_id": self.pos_instapay_method.id,
                 "name": "Phase 4B inbound InstaPay",
                 "fu_manual_confirmed": True,
             }
@@ -468,12 +477,8 @@ class TestFaresReporting(CommonPosTest):
         )
         self.assertTrue(rule.active)
 
-        inspection = self.env["stock.location"].sudo().search(
-            [
-                ("company_id", "=", self.env.company.id),
-                ("fu_location_role", "=", "returns_inspection"),
-            ],
-            limit=1,
+        inspection = self.env["stock.location"]._fu_get_or_create_returns_inspection_location(
+            self.pos_config_usd.picking_type_id.warehouse_id
         )
         self.assertTrue(inspection)
         with self.assertRaisesRegex(ValidationError, "Store or Storage"):
@@ -724,7 +729,7 @@ class TestFaresReporting(CommonPosTest):
             roleless,
             self.env.ref("base.public_user"),
         ):
-            with self.subTest(user=user.login):
+            with self.subTest(user_id=user.id):
                 with self.assertRaises(AccessError):
                     self.env["fu.reporting.service"].with_user(user).fu_get_snapshot()
         with self.assertRaises(ValidationError):
