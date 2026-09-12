@@ -13,6 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #. module: fu_reporting
+#. odoo-python
 #: code:addons/fu_reporting/models/dashboard.py:0
 #: model:ir.actions.server,name:fu_reporting.action_fu_operational_reports
 #: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
@@ -56,6 +57,8 @@ msgid "Offline sync disclosure:"
 msgstr "تنبيه مزامنة العمل دون اتصال:"
 
 #. module: fu_reporting
+#. odoo-python
+#: code:addons/fu_reporting/models/dashboard.py:0
 #: code:addons/fu_reporting/models/reporting.py:0
 msgid "Server totals exclude offline POS transactions that have not synchronized yet; they become reportable after server reconciliation."
 msgstr "تستبعد إجماليات الخادم معاملات نقطة البيع غير المتصلة التي لم تتم مزامنتها بعد؛ وتظهر في التقارير بعد تسويتها على الخادم."
@@ -284,36 +287,43 @@ msgid "Reports"
 msgstr "التقارير"
 
 #. module: fu_reporting
+#. odoo-python
 #: code:addons/fu_reporting/models/reporting.py:0
 msgid "Only Owner / Administrator may manage low-stock warning rules."
 msgstr "يمكن للمالك / المسؤول فقط إدارة قواعد تنبيه المخزون المنخفض."
 
 #. module: fu_reporting
+#. odoo-python
 #: code:addons/fu_reporting/models/reporting.py:0
 msgid "Your Fares role cannot access operational reports."
 msgstr "دورك في فارس لا يسمح بالوصول إلى التقارير التشغيلية."
 
 #. module: fu_reporting
+#. odoo-python
 #: code:addons/fu_reporting/models/reporting.py:0
 msgid "That report location is outside your authorized scope."
 msgstr "موقع التقرير هذا خارج نطاق صلاحياتك."
 
 #. module: fu_reporting
+#. odoo-python
 #: code:addons/fu_reporting/models/reporting.py:0
 msgid "A valid report location is required."
 msgstr "يلزم تحديد موقع تقرير صالح."
 
 #. module: fu_reporting
+#. odoo-python
 #: code:addons/fu_reporting/models/reporting.py:0
 msgid "Report pagination values must be integers."
 msgstr "يجب أن تكون قيم ترقيم صفحات التقرير أعدادًا صحيحة."
 
 #. module: fu_reporting
+#. odoo-python
 #: code:addons/fu_reporting/models/reporting.py:0
 msgid "Report page size must be 1–100 and offset cannot be negative."
 msgstr "يجب أن يكون حجم صفحة التقرير من 1 إلى 100 ولا يمكن أن تكون الإزاحة سالبة."
 
 #. module: fu_reporting
+#. odoo-python
 #: code:addons/fu_reporting/models/dashboard.py:0
 msgid "Report result fields are system managed; refresh the dashboard instead."
 msgstr "حقول نتائج التقرير يديرها النظام؛ استخدم تحديث لوحة التقارير بدلًا من تعديلها مباشرة."
