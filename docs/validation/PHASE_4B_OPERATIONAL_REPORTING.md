@@ -83,7 +83,7 @@ It was **not promoted** because required manual screenshot inspection found two 
 
 ### Strengthened-contract red candidate
 
-Application candidate `c25c03dad84ecc113cf2dd0299dfb27cba89b41e`, after localization/title polish `d37500f61e3b23b0b71d5d65f3487540f903fd705`, was intentionally held to the strengthened Arabic disclosure contract.
+Application candidate `c25c03dad84ecc113cf2dd0299dfb27cba89b41e`, after localization/title polish `d37500f61e3b23b0b71f78ec3376f85a49c57f45`, was intentionally held to the strengthened Arabic disclosure contract.
 
 Exact-head workflow run `34693847763`:
 - Odoo job `103553817598` — **FAILURE** during `Install addons and run Phase 1 through Phase 4B tests`;
