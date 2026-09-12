@@ -85,7 +85,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
-    networks: [backend]
+    networks: [backend, edge]
 
   ops:
     image: fares-uniform-ops:${FARES_SHA:?FARES_SHA is required}
@@ -130,4 +130,5 @@ volumes:
 networks:
   backend:
     internal: true
+  edge:
   egress:
