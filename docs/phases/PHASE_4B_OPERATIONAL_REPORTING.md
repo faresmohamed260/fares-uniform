@@ -1,6 +1,6 @@
 # Phase 4B — operational reporting
 
-Status: **ACTIVE / AUTHORIZED, 2026-09-12. CONTRACT DEFINED BEFORE IMPLEMENTATION.**
+Status: **IMPLEMENTED / FINAL VALIDATION BLOCKED, 2026-09-12.**
 
 Branch: `phase-4b/operational-reporting`.
 
@@ -9,6 +9,26 @@ Starting Phase 4A documentation lineage: `93e371b663b4013604e78b3ec6d952d3c6eca6
 Inherited Phase 4A application authority: `76eb20a5c267e0fa8c8d5ce2bf065ffcd332e497`.
 
 Pinned Odoo Community SHA: `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
+
+## Current implementation / validation checkpoint
+
+The Phase 4B implementation, formula/security hardening and bilingual dashboard are present on this branch, but **no Phase 4B application SHA is authoritative yet**.
+
+Validation chronology relevant to the current handoff:
+- initial implementation `7b0848b1d9f4d0ba070d87008551f70307b4e106` exposed test-company location-fixture and visible-heading issues;
+- follow-up hardening through `670d610ae768fc3b71d5d65f3487540f903fd705` corrected test location initialization, forced the transient dashboard to the current company, tightened current-company low-stock scoping and repaired visible Odoo headings;
+- candidate `89378db5b0fa5b9624a96a34b9648de2d9e2f86a` passed run `34687529585` with **144 tests, 0 failures, 0 errors**, the repeatable seven-addon upgrade and the same-SHA public-web gate, but manual screenshot review rejected it because the Arabic offline-sync disclosure body still rendered in English and the transient breadcrumb/title exposed `fu.reporting.dashboard,<id>`;
+- `d37500f61e3b23b0b71f78ec3376f85a49c57f45` added localization/title polish, and `c25c03dad84ecc113cf2dd0299dfb27cba89b41e` strengthened the browser contract to require the full Arabic disclosure body;
+- exact-head run `34693847763` on `c25c03dad84ecc113cf2dd0299dfb27cba89b41e` keeps the public-web regression green but fails the Odoo gate at `TestFaresReportingBilingualUI.test_reporting_dashboard_arabic_rtl_visual_contract`: **`Localized offline synchronization body missing`**. The Odoo database reached **144 tests with 1 failure and 0 errors**. The repeatable seven-addon upgrade was skipped because the test step failed.
+
+Retained exact-head evidence for the current red candidate:
+- Odoo job `103553817598` — failure;
+- Odoo artifact `10297943331`, `phase4b-odoo-c25c03dad84ecc113cf2dd0299dfb27cba89b41e`, digest `sha256:730ad8d9e45a14fe90c40da742c5e90ff4e7a3e2514cd2125ce1a2151ab1f442`;
+- public-web job `103553817709` — success;
+- public web: typecheck/build green and **8/8 Playwright tests passed**;
+- web artifact `10297457260`, `phase4b-web-c25c03dad84ecc113cf2dd0299dfb27cba89b41e`, digest `sha256:4cc54cce46c7a7f7275a0d0e03f30d3861df96ba34060ee27175b79d46fcd9be`.
+
+Remaining work before closure is deliberately narrow: diagnose why the dynamic sync-notice body is still English in the Arabic browser session, apply an evidence-backed forward fix, rerun the complete exact-head seven-addon test + upgrade and same-SHA public-web gate, manually inspect final English/Arabic desktop/narrow screenshots, then record the final application authority and closure decision. Do not add a Phase 4B closure decision while the exact-head Odoo gate remains red.
 
 ## Goal
 
@@ -259,15 +279,17 @@ Internal reporting remains native Odoo/Owl under D-033:
 
 ## Implementation plan
 
-1. Add internal `fu_reporting` depending on existing operational addons, not on the public API.
-2. Add low-stock warning-rule configuration with Owner/Admin mutation only.
-3. Add a server reporting service that owns formulas/scope and returns allowlisted structured data.
-4. Add an Odoo-native operational dashboard/presentation layer driven by that service.
-5. Add direct formula/security/timezone/location regressions.
-6. Add EN/AR/RTL browser evidence and accessibility/overflow checks.
-7. Add an exact-head Phase 4B hosted workflow covering all inherited addons plus `fu_reporting` and preserving the Phase 4A public-web gate.
-8. Prove repeatable seven-addon upgrade.
-9. Inspect retained logs/screenshots/artifacts before promoting an application SHA.
+Implementation items 1–7 are present on the branch. Items 8–9 remain the final blocker because the strengthened Arabic visual contract is currently red.
+
+1. Add internal `fu_reporting` depending on existing operational addons, not on the public API. — **implemented**.
+2. Add low-stock warning-rule configuration with Owner/Admin mutation only. — **implemented and regression-tested**.
+3. Add a server reporting service that owns formulas/scope and returns allowlisted structured data. — **implemented and regression-tested**.
+4. Add an Odoo-native operational dashboard/presentation layer driven by that service. — **implemented; final Arabic notice rendering still under validation**.
+5. Add direct formula/security/timezone/location regressions. — **implemented**.
+6. Add EN/AR/RTL browser evidence and accessibility/overflow checks. — **implemented; strengthened Arabic body assertion currently exposes the remaining defect**.
+7. Add an exact-head Phase 4B hosted workflow covering all inherited addons plus `fu_reporting` and preserving the Phase 4A public-web gate. — **implemented**.
+8. Prove repeatable seven-addon upgrade. — passed on `89378db5…`, but must be rerun on the eventual exact final application SHA after the current Arabic failure is fixed.
+9. Inspect retained logs/screenshots/artifacts before promoting an application SHA. — manual inspection is what rejected `89378db5…`; final inspection remains required after the next green run.
 
 ## Exit criteria
 
@@ -281,9 +303,10 @@ Phase 4B is complete only when:
 7. Owner/Admin versus Store Manager scope is enforced server-side and other roles are denied;
 8. current-company and location boundaries are regression-tested;
 9. timezone/day-boundary behavior is tested;
-10. offline-unsynced POS exclusion is truthfully disclosed;
-11. EN/AR/RTL dashboard evidence passes keyboard/reduced-motion/overflow checks;
+10. offline-unsynced POS exclusion is truthfully disclosed **and the full disclosure body is localized in Arabic evidence**;
+11. EN/AR/RTL dashboard evidence passes keyboard/reduced-motion/overflow checks and final manual screenshot review shows localized title/breadcrumb with no internal `fu.reporting.dashboard,<id>` leakage;
 12. inherited Phase 1–4A tests remain green on the exact application SHA;
-13. repeatable `fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting` upgrade succeeds;
-14. retained evidence is inspected rather than relying only on green status;
-15. no merge, production deployment or real-data migration occurs without explicit authorization.
+13. repeatable `fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting` upgrade succeeds on that same SHA;
+14. same-SHA public-web typecheck/build/Playwright regression remains green;
+15. retained evidence is inspected rather than relying only on green status;
+16. no merge, production deployment or real-data migration occurs without explicit authorization.

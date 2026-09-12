@@ -11,7 +11,7 @@
 
 ## Current state — 2026-09-12
 
-**Phase 0 Discovery: COMPLETE. Phase 0A Hosted Odoo proof: PASS. Phase 0B Foundation architecture/UX: COMPLETE. Phase 1 Products/stock/access: COMPLETE. Phase 2A Retail checkout/offline: COMPLETE. Phase 2B Preorder/balance/collection: COMPLETE. Phase 2C Retail refunds/size exchanges: COMPLETE. Phase 3A Preorder production: COMPLETE. Phase 3B Business-client workflow: COMPLETE. Phase 4A Public catalog/enquiry: COMPLETE / VERIFIED. Phase 4B Operational reporting: ACTIVE / CONTRACT DEFINED.**
+**Phase 0 Discovery: COMPLETE. Phase 0A Hosted Odoo proof: PASS. Phase 0B Foundation architecture/UX: COMPLETE. Phase 1 Products/stock/access: COMPLETE. Phase 2A Retail checkout/offline: COMPLETE. Phase 2B Preorder/balance/collection: COMPLETE. Phase 2C Retail refunds/size exchanges: COMPLETE. Phase 3A Preorder production: COMPLETE. Phase 3B Business-client workflow: COMPLETE. Phase 4A Public catalog/enquiry: COMPLETE / VERIFIED. Phase 4B Operational reporting: IMPLEMENTED / FINAL VALIDATION BLOCKED.**
 
 Current branch: `phase-4b/operational-reporting`.
 
@@ -90,7 +90,17 @@ Role boundary:
 - Store Manager: assigned-store operational reporting only, no B2B financial visibility;
 - Cashier, Inventory Staff, Production Manager and Sales/BD: no new report access in this slice.
 
-No Phase 4B application SHA is authoritative until exact-head hosted formula/security/browser/public-regression/upgrade evidence passes and retained artifacts are inspected.
+Implementation/formula/security hardening is substantially complete. The strongest earlier candidate, `89378db5b0fa5b9624a96a34b9648de2d9e2f86a`, passed **144 Odoo tests with 0 failures/0 errors**, repeatable seven-addon upgrade and same-SHA public-web validation in run `34687529585`; manual screenshot review correctly blocked promotion because the Arabic offline-sync disclosure body was still English and the transient breadcrumb exposed `fu.reporting.dashboard,<id>`.
+
+The current candidate before this documentation checkpoint is `c25c03dad84ecc113cf2dd0299dfb27cba89b41e`, following localization/title polish `d37500f61e3b23b0b71f78ec3376f85a49c57f45` and a strengthened browser assertion. Exact-head run `34693847763` proves the remaining blocker precisely:
+- Odoo job `103553817598`: **failure** — 144 tests, **1 failure, 0 errors**;
+- exact failure: `TestFaresReportingBilingualUI.test_reporting_dashboard_arabic_rtl_visual_contract` -> **`Localized offline synchronization body missing`**;
+- repeatable seven-addon upgrade: skipped because the Odoo test step failed;
+- Odoo artifact `10297943331`, digest `sha256:730ad8d9e45a14fe90c40da742c5e90ff4e7a3e2514cd2125ce1a2151ab1f442`;
+- public-web job `103553817709`: **success**, including typecheck/build and **8/8 Playwright tests**;
+- web artifact `10297457260`, digest `sha256:4cc54cce46c7a7f7275a0d0e03f30d3861df96ba34060ee27175b79d46fcd9be`.
+
+**No Phase 4B application SHA is authoritative yet.** Do not mark Phase 4B complete or append its closure decision while the exact-head Odoo gate is red.
 
 ## Roadmap
 
@@ -104,18 +114,20 @@ No Phase 4B application SHA is authoritative until exact-head hosted formula/sec
 8. Phase 3A preorder production — complete.
 9. Phase 3B business-client workflow — complete.
 10. Phase 4A public catalog/enquiry — complete.
-11. Phase 4B operational reporting — **active**.
+11. Phase 4B operational reporting — **implemented; final exact-head validation blocked on Arabic sync-notice body localization**.
 12. Integrated UAT, onboarding rehearsal and explicitly authorized deployment planning.
 
 ## Immediate next action
 
 1. Keep stacked branches/PRs unmerged until explicit authorization.
-2. Implement `fu_reporting` from the Phase 4B contract without changing Phase 4A's public contract.
-3. Add low-stock warning configuration and the server reporting service before UI composition.
-4. Add direct formula/security/timezone/location regressions, then EN/AR/RTL native Odoo browser evidence.
-5. Add an exact-head Phase 4B hosted gate covering all seven addons and the inherited Phase 4A public-web tests.
-6. Prove repeatable seven-addon upgrade, inspect retained logs/screenshots/artifacts, and preserve the exact tested application SHA separately from later docs-only closure commits.
-7. Do not merge, deploy, mutate domains/secrets/production resources or migrate real data without explicit authorization.
+2. Start from the repository's live `phase-4b/operational-reporting` HEAD; do not assume this documentation commit is an application authority.
+3. Diagnose why the dynamic `sync_notice` body is still English in the Arabic browser session. Preserve the strengthened Arabic assertion and do not weaken security/formula tests to make the gate pass.
+4. Apply the narrowest evidence-backed forward fix.
+5. Run the full exact-head Phase 4B workflow and require the combined seven-addon Odoo suite to pass with zero failures/errors, then prove the repeatable seven-addon upgrade on the same database/SHA.
+6. Require the same-SHA public-web typecheck/build/8-test Playwright gate to remain green.
+7. Download and manually inspect final English desktop/narrow and Arabic RTL desktop/narrow dashboard screenshots. Confirm the full Arabic offline-sync body, localized title/breadcrumb with no `fu.reporting.dashboard,<id>` leakage, true RTL, localized refresh/sections, keyboard focus and no horizontal overflow.
+8. Only after that evidence is green, promote the exact tested application SHA, mark Phase 4B COMPLETE/VERIFIED, update validation/project/index, and append the next closure decision after re-reading live `docs/DECISIONS.md`. Later docs-only commits must not supersede the application authority.
+9. Do not merge, deploy, mutate domains/secrets/production resources or migrate real data without explicit authorization.
 
 ## Later explicit decisions
 

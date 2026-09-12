@@ -40,10 +40,12 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 4A public catalog/enquiry contract](phases/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | **Completed** public catalog, enquiry and public-web scope |
 | [Phase 4A public integration architecture](architecture/PHASE_4A_PUBLIC_INTEGRATION.md) | Final Odoo/Next.js boundary, DTO and enquiry schemas |
 | [Phase 4A validation](validation/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Final exact-head server/web evidence, chronology and authority |
-| [Phase 4B operational reporting contract](phases/PHASE_4B_OPERATIONAL_REPORTING.md) | Active report definitions, filters, roles, timezone/currency/deposit/refund semantics |
+| [Phase 4B operational reporting contract](phases/PHASE_4B_OPERATIONAL_REPORTING.md) | Implemented report definitions plus the current final-validation blocker and closure checklist |
 | [Phase 4B reporting architecture](architecture/PHASE_4B_REPORTING_MODEL.md) | Live Odoo source models, reporting service and low-stock threshold boundary |
-| [Phase 4B validation](validation/PHASE_4B_OPERATIONAL_REPORTING.md) | Exact-head formula/security/browser/upgrade evidence contract |
+| [Phase 4B validation](validation/PHASE_4B_OPERATIONAL_REPORTING.md) | Current exact-head chronology, red/green evidence, Arabic localization blocker and final gate requirements |
 
 Current completed product milestone: **Phase 4A**. Authoritative application SHA: `76eb20a5c267e0fa8c8d5ce2bf065ffcd332e497`.
 
-Current active product work: **Phase 4B operational reporting** on `phase-4b/operational-reporting`. Contract, architecture and validation definitions exist; implementation must follow them and preserve the completed Phase 4A boundary.
+Current active product work: **Phase 4B operational reporting** on `phase-4b/operational-reporting`. The implementation and hardening are substantially complete, but final validation is blocked: candidate `c25c03dad84ecc113cf2dd0299dfb27cba89b41e` fails the strengthened Arabic dashboard browser contract because the dynamic offline-sync disclosure body is not localized. Exact-head run `34693847763` reports 144 Odoo tests with 1 failure / 0 errors; its repeatable seven-addon upgrade was skipped. The same-SHA public-web job remains green with 8/8 Playwright tests. No Phase 4B application SHA is authoritative yet.
+
+Next work is to fix that language-context/rendering defect without weakening the assertion, rerun the complete exact-head Odoo + upgrade + public-web gate, manually inspect all four final EN/AR desktop/narrow screenshots, and only then record Phase 4B closure authority. No merge or production deployment is authorized.
