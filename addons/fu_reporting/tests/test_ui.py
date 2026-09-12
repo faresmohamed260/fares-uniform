@@ -44,6 +44,11 @@ class TestFaresReportingBilingualUI(HttpCase):
             if arabic
             else "Offline sync disclosure"
         )
+        expected_sync_body = (
+            "تستبعد إجماليات الخادم معاملات نقطة البيع غير المتصلة التي لم تتم مزامنتها بعد؛ وتظهر في التقارير بعد تسويتها على الخادم."
+            if arabic
+            else "Server totals exclude offline POS transactions that have not synchronized yet; they become reportable after server reconciliation."
+        )
         expected_refresh = "تحديث التقارير" if arabic else "Refresh reports"
         code = f"""
             (async () => {{
@@ -60,6 +65,7 @@ class TestFaresReportingBilingualUI(HttpCase):
                 if (!form.innerText.includes({expected_title!r})) throw new Error('Localized reporting title missing');
                 if (!form.innerText.includes({expected_sales!r})) throw new Error('Localized daily-sales section missing');
                 if (!form.innerText.includes({expected_sync!r})) throw new Error('Offline synchronization disclosure missing');
+                if (!form.innerText.includes({expected_sync_body!r})) throw new Error('Localized offline synchronization body missing');
                 if (!form.innerText.includes('UTC')) throw new Error('Explicit report timezone missing');
                 const refresh = await waitFor('button[name="action_refresh"]');
                 if (!refresh.innerText.includes({expected_refresh!r})) throw new Error('Localized refresh action missing');
