@@ -47,17 +47,19 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 5 validation](validation/PHASE_5_INTEGRATED_UAT.md) | Exact-head UAT evidence, scenario matrix, artifacts, manual review and Phase 5 defect register |
 | [Phase 5A Arabic launch-quality polish](phases/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Completed/verified closure of the remaining Arabic launch-quality finding |
 | [Phase 5A validation](validation/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Exact-head 149-test/public/manual evidence and P2-001 closure |
+| [Phase 6 deployment-readiness contract](phases/PHASE_6_DEPLOYMENT_READINESS.md) | Active bounded deployment packaging, persistence and restore-proof scope |
+| [Phase 6 deployment architecture](architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md) | Provider comparison, recommended topology, persistence/security/backup model and unresolved operator choices |
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result plus operator/client inputs still required |
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Provider-neutral launch go/no-go checklist and rollback baseline |
 
 Current completed product milestone: **Phase 5A Arabic launch-quality polish — COMPLETE / VERIFIED**.
 
-Authoritative Phase 5A application/test SHA: `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`. Exact-head run `34700625051` passed **149 Odoo/UAT tests with 0 failures / 0 errors**, the repeatable seven-production-addon upgrade, public typecheck/build and **8/8 Playwright tests**.
+Current active milestone: **Phase 6 deployment architecture and readiness proof — ACTIVE / AUTHORIZED** on branch `phase-6/deployment-readiness`.
+
+Authoritative application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`. Exact-head run `34700625051` passed **149 Odoo/UAT tests with 0 failures / 0 errors**, the repeatable seven-production-addon upgrade, public typecheck/build and **8/8 Playwright tests**.
 
 Odoo/UAT artifact `10300402418` has digest `sha256:650fd702f12d0e042ec1761401b7a039778a973ab797d2c77f01d76c5eede701`; web artifact `10300486494` has digest `sha256:9658f4e094bd65292634d30f99e8020c5a1ce278644c30c0c7077b95722ff104`.
 
-Fresh successful-run Arabic/RTL/narrow manual evidence review passed. `P2-001` is resolved; open release-candidate P0/P1/P2 counts are **0 / 0 / 0**. The earlier `f5e2f03b...` candidate remains red/non-authoritative because of test sequencing, not an application-localization failure.
+Phase 6 is allowed to add provider-neutral deployment/configuration/backup/restore tooling and prove it in hosted CI with synthetic data. The current architecture document recommends an initial single EU VPS for Odoo + PostgreSQL + persistent filestore with off-host S3-compatible backups, while retaining Vercel for the public Next.js surface. Dated provider research currently favors Hetzner Cloud on cost/value, but **no provider/resource is selected or authorized**.
 
-Later documentation-only closure commits do not supersede authority `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.
-
-Production deployment remains **NO-GO** pending explicit production-specific choices/proofs in `operations/DEPLOYMENT_READINESS.md`; Phase 5A does not authorize merge, deployment, live resource mutation or real-data migration.
+Production deployment remains **NO-GO**. Paid staging/production resources, domains/DNS/TLS, secrets, real device acceptance, real staff/data cutover, monitoring ownership, production backup retention/RPO/RTO, budget and launch timing still require explicit client/operator decisions and separate live-deployment authorization.
