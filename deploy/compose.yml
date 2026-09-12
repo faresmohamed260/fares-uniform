@@ -81,7 +81,7 @@ services:
       - ${TLS_CERT_FILE:?TLS_CERT_FILE is required}:/etc/nginx/tls/fullchain.pem:ro
       - ${TLS_KEY_FILE:?TLS_KEY_FILE is required}:/etc/nginx/tls/privkey.pem:ro
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --no-check-certificate -O /dev/null https://127.0.0.1/web/login"]
+      test: ["CMD-SHELL", "wget -q --no-check-certificate -O /dev/null https://127.0.0.1/_healthz"]
       interval: 10s
       timeout: 5s
       retries: 20
