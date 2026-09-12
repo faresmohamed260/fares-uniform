@@ -56,8 +56,11 @@ class TestFaresPhase5AArabicLaunchPolish(HttpCase):
                 await sleep(100);
                 if (!create.disabled || banner.dataset.fuOnlineState !== 'offline') throw new Error('Preorder workflow did not fail closed offline');
                 if (!banner.innerText.includes('غير متصل — إجراءات الطلب المسبق معطلة حتى عودة الاتصال.')) throw new Error('Arabic preorder offline message missing');
+                window.dispatchEvent(new Event('online'));
+                await sleep(100);
+                if (create.disabled || banner.dataset.fuOnlineState !== 'online') throw new Error('Preorder workflow did not recover online');
                 create.focus();
-                if (document.activeElement !== create) throw new Error('Preorder create action cannot receive keyboard focus');
+                if (document.activeElement !== create) throw new Error('Preorder create action cannot receive keyboard focus after reconnect');
                 const form = dialog.querySelector('.o_form_view');
                 if (!form || getComputedStyle(form).direction !== 'rtl') throw new Error('Arabic preorder dialog is not rendered RTL');
                 console.log('test successful');
