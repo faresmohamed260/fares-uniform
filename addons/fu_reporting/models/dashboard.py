@@ -56,7 +56,7 @@ class FuReportingDashboard(models.TransientModel):
     @api.depends_context("lang")
     def _compute_sync_notice(self):
         for dashboard in self:
-            dashboard.sync_notice = _(
+            dashboard.sync_notice = dashboard.env._(
                 "Server totals exclude offline POS transactions that have not synchronized yet; they become reportable after server reconciliation."
             )
 
