@@ -1,6 +1,6 @@
 # Deployment readiness — planning checklist
 
-Status: **APPLICATION/UAT READY; PHASE 6 READINESS PROOF ACTIVE; PRODUCTION DEPLOYMENT NO-GO PENDING PRODUCTION-SPECIFIC DECISIONS.**
+Status: **APPLICATION/UAT READY; PHASE 6 READINESS PROOF ACTIVE; FIRST IMPLEMENTATION CANDIDATE RED; PRODUCTION DEPLOYMENT NO-GO PENDING PRODUCTION-SPECIFIC DECISIONS.**
 
 Authoritative application/test SHA: Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.
 
@@ -18,14 +18,24 @@ Phase 5 proved integrated MVP release-readiness. Phase 5A closed the remaining d
 ### Phase 6 repository/CI proof
 - [x] Phase 6 contract defines a no-live-resource boundary.
 - [x] Provider comparison/topology recommendation documented without selecting a provider.
-- [ ] Reproducible provider-neutral Odoo deployment package committed.
-- [ ] Production-safe Odoo/proxy configuration templates committed with no embedded secrets.
-- [ ] Database and Odoo filestore persistence separated from application image/container lifecycle.
-- [ ] Backup tooling creates one manifest-bound PostgreSQL + filestore backup set.
-- [ ] Restore tooling validates manifest/checksums and fails closed on incomplete/mismatched sets.
+- [x] Reproducible provider-neutral Odoo deployment package committed.
+- [x] Production-safe Odoo/proxy configuration templates committed with no embedded secrets.
+- [x] Database and Odoo filestore persistence separated from application image/container lifecycle in the committed Compose package.
+- [x] Backup tooling committed to create one manifest-bound PostgreSQL + filestore backup set.
+- [x] Restore/verification tooling committed to validate manifest/checksums and fail closed on incomplete/mismatched sets.
+- [ ] PostgreSQL application-role/database initialization succeeds in hosted CI with file-backed secret delivery.
 - [ ] Hosted CI proves backup and clean-target restore with synthetic database facts and stored-file recovery.
 - [ ] Hosted CI proves persistence across application-container replacement.
-- [ ] Phase 6 exact-head validation evidence recorded.
+- [ ] Hosted CI proves edge/database security boundaries.
+- [ ] Phase 6 exact-head validation evidence is green and recorded.
+
+Current RED candidate: `1892455616d7cd59e4706006b794d35df7f8f170`, workflow run `34707428136`, job `103589908228`.
+
+The run passed exact-source verification, Compose rendering and deployment/ops image builds, then failed at **Initialize database and production addons**. The PostgreSQL init log reports `Database password file is not readable` from `deploy/postgres/init/10-fares.sh` while consuming `/run/secrets/odoo_db_password`. All later security/persistence/backup/restore checks were skipped.
+
+Artifact `10302037411` (`phase6-deployment-1892455616d7cd59e4706006b794d35df7f8f170`) has digest `sha256:22092c659bd7d7ef83ff6d7cff7a83badb57fc7dc71071d9e431881f8e3dfe92`.
+
+This is a Phase 6 deployment secret-access/permissions defect, not a new application defect. The inherited application authority remains Phase 5A `cc2656d...`. See `../validation/PHASE_6_DEPLOYMENT_READINESS.md`.
 
 ### Odoo persistence — production/operator decisions
 - [ ] Production Odoo hosting/provider explicitly selected.
@@ -121,12 +131,12 @@ Provider-native VM backup/snapshot is secondary. Application-aware database+file
 ## Next actions allowed now
 
 Without further live-resource authorization, continue with:
-1. provider-neutral deployment/container package;
-2. Odoo/proxy config templates;
-3. database + filestore persistence boundaries;
-4. backup-set/manifest/checksum tooling;
-5. restore tooling;
-6. hosted synthetic backup/restore and persistence CI;
-7. exact evidence documentation.
+1. fix the PostgreSQL init secret-access boundary around `/run/secrets/odoo_db_password` without exposing credentials;
+2. rerun the exact-head Phase 6 hosted workflow;
+3. prove edge/database security boundaries;
+4. prove database + filestore persistence across Odoo container replacement;
+5. prove manifest/checksum backup-set creation and incomplete-set rejection;
+6. prove clean-target restore and recovered stored-file/database facts;
+7. record exact green evidence.
 
 Do **not** create paid staging/production resources, domains, DNS records, certificates, provider secrets, real staff/customer/order/inventory data or production integrations until separately authorized.

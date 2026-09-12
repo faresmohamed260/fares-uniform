@@ -49,16 +49,21 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 5A validation](validation/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Exact-head 149-test/public/manual evidence and P2-001 closure |
 | [Phase 6 deployment-readiness contract](phases/PHASE_6_DEPLOYMENT_READINESS.md) | Active bounded deployment packaging, persistence and restore-proof scope |
 | [Phase 6 deployment architecture](architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md) | Provider comparison, recommended topology, persistence/security/backup model and unresolved operator choices |
+| [Phase 6 validation](validation/PHASE_6_DEPLOYMENT_READINESS.md) | Exact RED/green hosted deployment-package evidence, artifact authority and continuation boundary |
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result plus operator/client inputs still required |
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Provider-neutral launch go/no-go checklist and rollback baseline |
 
 Current completed product milestone: **Phase 5A Arabic launch-quality polish — COMPLETE / VERIFIED**.
 
-Current active milestone: **Phase 6 deployment architecture and readiness proof — ACTIVE / AUTHORIZED** on branch `phase-6/deployment-readiness`.
+Current active milestone: **Phase 6 deployment architecture and readiness proof — ACTIVE / AUTHORIZED; first implementation candidate RED / NOT VERIFIED** on branch `phase-6/deployment-readiness`.
 
 Authoritative application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`. Exact-head run `34700625051` passed **149 Odoo/UAT tests with 0 failures / 0 errors**, the repeatable seven-production-addon upgrade, public typecheck/build and **8/8 Playwright tests**.
 
 Odoo/UAT artifact `10300402418` has digest `sha256:650fd702f12d0e042ec1761401b7a039778a973ab797d2c77f01d76c5eede701`; web artifact `10300486494` has digest `sha256:9658f4e094bd65292634d30f99e8020c5a1ce278644c30c0c7077b95722ff104`.
+
+Phase 6 implementation candidate `1892455616d7cd59e4706006b794d35df7f8f170` added the provider-neutral deployment/restore package. Workflow run `34707428136`, job `103589908228`, is RED: source authority, Compose rendering and image builds passed, but PostgreSQL initialization stopped in `deploy/postgres/init/10-fares.sh` because `/run/secrets/odoo_db_password` was not readable. Later security/persistence/backup/restore checks were skipped. Artifact `10302037411` has digest `sha256:22092c659bd7d7ef83ff6d7cff7a83badb57fc7dc71071d9e431881f8e3dfe92`.
+
+The current correction target is the Compose/PostgreSQL secret-access boundary. Preserve exact Odoo SHA `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` and the Phase 5A application source while making the init hook able to consume the DB password without exposing it in source, rendered Compose output or logs.
 
 Phase 6 is allowed to add provider-neutral deployment/configuration/backup/restore tooling and prove it in hosted CI with synthetic data. The current architecture document recommends an initial single EU VPS for Odoo + PostgreSQL + persistent filestore with off-host S3-compatible backups, while retaining Vercel for the public Next.js surface. Dated provider research currently favors Hetzner Cloud on cost/value, but **no provider/resource is selected or authorized**.
 

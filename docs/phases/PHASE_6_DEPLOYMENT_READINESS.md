@@ -1,6 +1,6 @@
 # Phase 6 — Deployment architecture and readiness proof
 
-Status: **ACTIVE / AUTHORIZED, 2026-09-12.**
+Status: **ACTIVE / AUTHORIZED, 2026-09-12. First implementation candidate RED / NOT VERIFIED.**
 
 Branch: `phase-6/deployment-readiness`.
 
@@ -87,6 +87,30 @@ The deployment package must follow Odoo 19 production guidance:
 - no broad Odoo or database credential reaches the public browser;
 - the existing Fares public allowlist/API boundary remains unchanged.
 
+## Current implementation candidate and hosted evidence
+
+Implementation candidate `1892455616d7cd59e4706006b794d35df7f8f170` adds the provider-neutral deployment package, Compose topology, PostgreSQL/Odoo/nginx configuration, backup/restore tooling, synthetic recovery fixtures and workflow `Phase 6 deployment readiness`.
+
+Hosted run `34707428136`, job `103589908228`, is **RED / NON-AUTHORITATIVE**.
+
+Successful pre-failure steps:
+- exact-head checkout and source-authority verification;
+- verification that `addons` and `apps/public-web` have no diff from inherited Phase 5A authority `cc2656d...`;
+- exact pinned Odoo SHA `1a13ceea...` recorded;
+- synthetic secret/TLS preparation;
+- Compose render validation without secret leakage;
+- exact Odoo and operations image builds.
+
+The run fails at **Initialize database and production addons**. The uploaded PostgreSQL log shows `deploy/postgres/init/10-fares.sh` exiting with `Database password file is not readable` while reading `/run/secrets/odoo_db_password`.
+
+The later edge/database security, recovery fixture, container-replacement persistence, backup-set creation, incomplete-set rejection, clean restore and restored-file/database verification steps were all skipped and are **not proven**.
+
+Artifact `10302037411`, `phase6-deployment-1892455616d7cd59e4706006b794d35df7f8f170`, digest `sha256:22092c659bd7d7ef83ff6d7cff7a83badb57fc7dc71071d9e431881f8e3dfe92`, preserves the RED evidence.
+
+This failure is classified as a Phase 6 deployment secret-access/permissions defect. It is not evidence of an application regression. The earlier Odoo-source-drift hypothesis is superseded by the artifact: the deployment Dockerfile and source-authority evidence already pin exact Odoo SHA `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
+
+See `docs/validation/PHASE_6_DEPLOYMENT_READINESS.md` for the detailed evidence and continuation contract.
+
 ## Validation contract
 
 Before Phase 6 repository/CI work can be called verified:
@@ -101,14 +125,27 @@ Before Phase 6 repository/CI work can be called verified:
 9. the inherited 149-test application/UAT gate and 8/8 public regression remain authoritative or are rerun if Phase 6 changes application/runtime behavior affecting them;
 10. no paid/live resource or real data is used.
 
+The first candidate proves only item 1 through image-build/source-authority scope. Items 2–8 remain unproven because database initialization failed before those steps could execute.
+
 ## Documentation outputs
 
 - this phase contract;
 - `docs/architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md`;
 - deployment/backup/restore operational runbook once implementation exists;
-- Phase 6 validation evidence document once hosted proof is green;
+- `docs/validation/PHASE_6_DEPLOYMENT_READINESS.md` for RED/green hosted evidence;
 - updated `PROJECT.md`, `docs/README.md` and `docs/operations/DEPLOYMENT_READINESS.md`;
 - a durable decision-log entry only when an actual provider/topology/RPO/RTO choice is accepted or when Phase 6 closes.
+
+## Immediate continuation
+
+The next implementation change must stay narrow:
+1. verify the current remote branch/HEAD before writing;
+2. correct the PostgreSQL init access to `/run/secrets/odoo_db_password` while keeping the password out of source, Compose-rendered evidence and logs;
+3. preserve the exact Odoo pin and inherited application source unless new evidence requires a runtime/application change;
+4. rerun the workflow on the exact corrected HEAD;
+5. only claim the later security/persistence/backup/restore gates if they actually execute and pass.
+
+Do not work around the failure by embedding plaintext credentials in Compose environment output, broadening database privileges, disabling the init/security checks or creating live infrastructure.
 
 ## Exit criteria
 
