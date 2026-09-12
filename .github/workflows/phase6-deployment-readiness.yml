@@ -59,9 +59,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p deploy/.secrets deploy/.runtime/tls deploy/.runtime/backups evidence
-          printf '%s\n' 'phase6-postgres-superuser-synthetic-2026' > deploy/.secrets/postgres_superuser_password
-          printf '%s\n' 'phase6-odoo-db-synthetic-2026' > deploy/.secrets/odoo_db_password
-          printf '%s\n' 'phase6-odoo-master-synthetic-2026' > deploy/.secrets/odoo_admin_passwd
+          openssl rand -hex 32 | sudo tee deploy/.secrets/postgres_superuser_password >/dev/null
+          openssl rand -hex 32 | sudo tee deploy/.secrets/odoo_db_password >/dev/null
+          openssl rand -hex 32 | sudo tee deploy/.secrets/odoo_admin_passwd >/dev/null
           sudo chown root:root deploy/.secrets/postgres_superuser_password
           sudo chmod 0400 deploy/.secrets/postgres_superuser_password
           sudo chown root:10001 deploy/.secrets/odoo_db_password deploy/.secrets/odoo_admin_passwd
@@ -98,8 +98,9 @@ jobs:
         run: |
           set -euo pipefail
           docker compose --env-file deploy/.env -f deploy/compose.yml config > evidence/compose-rendered.yml
-          ! grep -q 'phase6-odoo-db-synthetic-2026' evidence/compose-rendered.yml
-          ! grep -q 'phase6-odoo-master-synthetic-2026' evidence/compose-rendered.yml
+          ! grep -Fq "$(sudo cat deploy/.secrets/postgres_superuser_password)" evidence/compose-rendered.yml
+          ! grep -Fq "$(sudo cat deploy/.secrets/odoo_db_password)" evidence/compose-rendered.yml
+          ! grep -Fq "$(sudo cat deploy/.secrets/odoo_admin_passwd)" evidence/compose-rendered.yml
 
       - name: Build exact database, Odoo and operations images
         run: |
@@ -170,7 +171,7 @@ jobs:
           set -euo pipefail
           DC=(docker compose --env-file deploy/.env -f deploy/compose.yml)
           cat deploy/ci/seed_restore_fixture.py | "${DC[@]}" exec -T odoo \
-            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d "$ODOO_DB_NAME" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d "$ODOO_DB_NAME" --workers=0 \
             | tee evidence/seed-fixture.txt
           grep -q 'PHASE6_SEED_OK' evidence/seed-fixture.txt
 
@@ -180,7 +181,7 @@ jobs:
           DC=(docker compose --env-file deploy/.env -f deploy/compose.yml)
           "${DC[@]}" up -d --force-recreate --wait odoo proxy
           cat deploy/ci/verify_restore_fixture.py | "${DC[@]}" exec -T odoo \
-            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d "$ODOO_DB_NAME" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d "$ODOO_DB_NAME" --workers=0 \
             | tee evidence/container-replacement.txt
           grep -q 'PHASE6_RESTORE_OK' evidence/container-replacement.txt
 
@@ -234,7 +235,7 @@ jobs:
           set -euo pipefail
           DC=(docker compose --env-file deploy/.env -f deploy/compose.yml)
           cat deploy/ci/verify_restore_fixture.py | "${DC[@]}" exec -T odoo \
-            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d "$ODOO_DB_NAME" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d "$ODOO_DB_NAME" --workers=0 \
             | tee evidence/post-restore-fixture.txt
           grep -q 'PHASE6_RESTORE_OK' evidence/post-restore-fixture.txt
           curl -ksSf https://127.0.0.1:18443/web/login >/dev/null
