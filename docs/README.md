@@ -40,12 +40,16 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 4A public catalog/enquiry contract](phases/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | **Completed** public catalog, enquiry and public-web scope |
 | [Phase 4A public integration architecture](architecture/PHASE_4A_PUBLIC_INTEGRATION.md) | Final Odoo/Next.js boundary, DTO and enquiry schemas |
 | [Phase 4A validation](validation/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Final exact-head server/web evidence, chronology and authority |
-| [Phase 4B operational reporting contract](phases/PHASE_4B_OPERATIONAL_REPORTING.md) | Implemented report definitions plus the current final-validation blocker and closure checklist |
+| [Phase 4B operational reporting contract](phases/PHASE_4B_OPERATIONAL_REPORTING.md) | **Completed / verified** operational-reporting definitions, role/security boundaries and exit criteria |
 | [Phase 4B reporting architecture](architecture/PHASE_4B_REPORTING_MODEL.md) | Live Odoo source models, reporting service and low-stock threshold boundary |
-| [Phase 4B validation](validation/PHASE_4B_OPERATIONAL_REPORTING.md) | Current exact-head chronology, red/green evidence, Arabic localization blocker and final gate requirements |
+| [Phase 4B validation](validation/PHASE_4B_OPERATIONAL_REPORTING.md) | Final exact-head Odoo/web evidence, red-to-green chronology, artifacts and manual EN/AR dashboard review |
 
-Current completed product milestone: **Phase 4A**. Authoritative application SHA: `76eb20a5c267e0fa8c8d5ce2bf065ffcd332e497`.
+Current completed product milestone: **Phase 4B operational reporting — COMPLETE / VERIFIED**.
 
-Current active product work: **Phase 4B operational reporting** on `phase-4b/operational-reporting`. The implementation and hardening are substantially complete, but final validation is blocked: candidate `c25c03dad84ecc113cf2dd0299dfb27cba89b41e` fails the strengthened Arabic dashboard browser contract because the dynamic offline-sync disclosure body is not localized. Exact-head run `34693847763` reports 144 Odoo tests with 1 failure / 0 errors; its repeatable seven-addon upgrade was skipped. The same-SHA public-web job remains green with 8/8 Playwright tests. No Phase 4B application SHA is authoritative yet.
+Authoritative Phase 4B application/test SHA: `29b2589e7e71271071f97c9de57dfb97b49b100d`. Exact-head run `34696367320` passed the combined seven-addon Odoo suite with **144 tests, 0 failures, 0 errors**, the repeatable seven-addon upgrade, public-web typecheck/build and **8/8 Playwright tests**. Odoo artifact `10299505013` has digest `sha256:428d0f0211a229bd85d35df8444295c2658fb397ce0c910af7302765d4eb543d`; web artifact `10298334239` has digest `sha256:2683575631b5efa75c8db33e3f76f91a64412563d4083f85f491012b8415b13d`.
 
-Next work is to fix that language-context/rendering defect without weakening the assertion, rerun the complete exact-head Odoo + upgrade + public-web gate, manually inspect all four final EN/AR desktop/narrow screenshots, and only then record Phase 4B closure authority. No merge or production deployment is authorized.
+Manual review of the final English desktop/narrow and Arabic RTL desktop/narrow reporting captures passed. The full Arabic offline-sync disclosure is localized, the title/breadcrumb is localized without `fu.reporting.dashboard,<id>` leakage, RTL is correct, report timezone/as-of context remains visible, and the browser contract confirms keyboard focus plus no document-level horizontal overflow.
+
+Later documentation-only closure commits do not supersede application authority `29b2589e7e71271071f97c9de57dfb97b49b100d`.
+
+Next product-level work is integrated UAT/onboarding rehearsal and explicitly authorized deployment planning. No merge or production deployment is authorized by Phase 4B closure.
