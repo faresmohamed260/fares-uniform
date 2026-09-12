@@ -108,8 +108,8 @@ jobs:
           docker run --rm --entrypoint bash "fares-uniform-odoo:$GITHUB_SHA" -lc \
             'test "$ODOO_SHA" = "1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf" && test "$FARES_SHA" = "'"$GITHUB_SHA"'" && test ! -e /mnt/extra-addons/fu_uat && wkhtmltopdf --version && rtlcss --version' \
             | tee evidence/runtime-image.txt
-          docker run --rm --entrypoint bash "fares-uniform-postgres:$GITHUB_SHA" -lc \
-            'id -G postgres | tr " " "\n" | grep -qx 10001 && postgres --version' \
+          docker run --rm --entrypoint bash "fares-uniform-postgres:$GITHUB_SHA" -c \
+            'id -G postgres | tr " " "\n" | grep -qx 10001 && /usr/lib/postgresql/16/bin/postgres --version' \
             | tee -a evidence/runtime-image.txt
 
       - name: Verify file-backed secret access boundary
