@@ -10,6 +10,12 @@ SET_DIR="$1"
 : "${ODOO_DB_USER:=fares_app}"
 : "${ODOO_DB_PASSWORD_FILE:?ODOO_DB_PASSWORD_FILE is required}"
 : "${ODOO_DATA_DIR:=/var/lib/odoo}"
+: "${ODOO_RUNTIME_UID:=10001}"
+: "${ODOO_RUNTIME_GID:=10001}"
+
+[[ "$ODOO_RUNTIME_UID" =~ ^[0-9]+$ ]] || { echo "ODOO_RUNTIME_UID must be numeric" >&2; exit 64; }
+[[ "$ODOO_RUNTIME_GID" =~ ^[0-9]+$ ]] || { echo "ODOO_RUNTIME_GID must be numeric" >&2; exit 64; }
+[[ "$(id -u)" == "0" ]] || { echo "Restore must run as root to initialize Odoo volume ownership" >&2; exit 77; }
 
 /opt/fares/verify-backup.sh "$SET_DIR"
 
@@ -35,7 +41,12 @@ if [[ -e "$FILESTORE_DB" ]] && [[ -n "$(find "$FILESTORE_DB" -mindepth 1 -print 
   echo "Restore target filestore is not empty: $FILESTORE_DB" >&2
   exit 65
 fi
-mkdir -p "$FILESTORE_ROOT"
+
+# A newly-created named volume is mounted over the image's pre-owned data
+# directory. Initialize the volume root at the privileged ops boundary so the
+# production Odoo process can remain fixed at the non-root 10001:10001 identity.
+install -d -o "$ODOO_RUNTIME_UID" -g "$ODOO_RUNTIME_GID" -m 0750 "$ODOO_DATA_DIR"
+install -d -o "$ODOO_RUNTIME_UID" -g "$ODOO_RUNTIME_GID" -m 0750 "$FILESTORE_ROOT"
 rm -rf "$FILESTORE_DB"
 
 # The clean database bootstrap owns required extensions as postgres. Restore as
@@ -52,7 +63,21 @@ pg_restore \
   --exit-on-error \
   "$SET_DIR/database.dump"
 
-tar -C "$FILESTORE_ROOT" -xzf "$SET_DIR/filestore.tar.gz"
+# Restore archived numeric ownership across hosts. The fixed runtime UID/GID is
+# intentional so restored filestore paths remain writable by non-root Odoo.
+tar --numeric-owner --same-owner -C "$FILESTORE_ROOT" -xzf "$SET_DIR/filestore.tar.gz"
 [[ -d "$FILESTORE_DB" ]] || { echo "Restored filestore root is missing" >&2; exit 65; }
+[[ "$(stat -c '%u:%g' "$ODOO_DATA_DIR")" == "$ODOO_RUNTIME_UID:$ODOO_RUNTIME_GID" ]] || {
+  echo "Restored Odoo data root ownership is invalid" >&2
+  exit 65
+}
+[[ "$(stat -c '%u:%g' "$FILESTORE_ROOT")" == "$ODOO_RUNTIME_UID:$ODOO_RUNTIME_GID" ]] || {
+  echo "Restored filestore root ownership is invalid" >&2
+  exit 65
+}
+[[ "$(stat -c '%u:%g' "$FILESTORE_DB")" == "$ODOO_RUNTIME_UID:$ODOO_RUNTIME_GID" ]] || {
+  echo "Restored database filestore ownership is invalid" >&2
+  exit 65
+}
 
 printf 'Restored backup set %s into database %s\n' "$(jq -r '.backup_set' "$SET_DIR/manifest.json")" "$ODOO_DB_NAME"
