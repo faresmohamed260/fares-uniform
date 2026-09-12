@@ -1,95 +1,319 @@
-# Translation of Fares Uniform Operational Reporting to Arabic.
+# Translation of Fares Uniform Operational Reporting.
+# This file contains the translation of the following modules:
+# * fu_reporting
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo 19.0\n"
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
 "Language: ar\n"
+"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #. module: fu_reporting
+#: code:addons/fu_reporting/models/dashboard.py:0
+#: model:ir.actions.server,name:fu_reporting.action_fu_operational_reports
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Operational Reports"
 msgstr "التقارير التشغيلية"
 
 #. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Refresh reports"
 msgstr "تحديث التقارير"
 
 #. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Report context"
 msgstr "سياق التقرير"
 
 #. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__report_date
 msgid "Daily report date"
 msgstr "تاريخ التقرير اليومي"
 
 #. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__location_id
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_low_stock_line__location_id
+msgid "Location"
+msgstr "الموقع"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__timezone_name
 msgid "Report timezone"
 msgstr "المنطقة الزمنية للتقرير"
 
 #. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__as_of
 msgid "Operational data as of"
 msgstr "البيانات التشغيلية حتى"
 
 #. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Offline sync disclosure:"
 msgstr "تنبيه مزامنة العمل دون اتصال:"
 
 #. module: fu_reporting
+#: code:addons/fu_reporting/models/reporting.py:0
 msgid "Server totals exclude offline POS transactions that have not synchronized yet; they become reportable after server reconciliation."
 msgstr "تستبعد إجماليات الخادم معاملات نقطة البيع غير المتصلة التي لم تتم مزامنتها بعد؛ وتظهر في التقارير بعد تسويتها على الخادم."
 
 #. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Daily retail sales"
 msgstr "مبيعات التجزئة اليومية"
 
 #. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__sales_gross
+msgid "Gross retail sales"
+msgstr "إجمالي مبيعات التجزئة"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__sales_refunds
+msgid "Retail refunds"
+msgstr "مرتجعات التجزئة"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__sales_net
+msgid "Net retail sales"
+msgstr "صافي مبيعات التجزئة"
+
+#. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Operational list counts"
 msgstr "أعداد القوائم التشغيلية"
 
 #. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__low_stock_count
+msgid "Low-stock warnings"
+msgstr "تنبيهات المخزون المنخفض"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__upcoming_count
+msgid "Upcoming orders"
+msgstr "الطلبات القادمة"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__overdue_count
+msgid "Overdue orders"
+msgstr "الطلبات المتأخرة"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__balance_count
+msgid "Customers with balance rows"
+msgstr "صفوف العملاء ذوي الأرصدة"
+
+#. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Payment movement"
 msgstr "حركة المدفوعات"
 
 #. module: fu_reporting
-msgid "Payment configuration warnings"
-msgstr "تحذيرات إعدادات الدفع"
-
-#. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Cash"
 msgstr "نقدي"
 
 #. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__cash_inflow
+msgid "Cash inflow"
+msgstr "التدفق النقدي الداخل"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__cash_outflow
+msgid "Cash refunds / outflow"
+msgstr "المرتجعات / التدفق النقدي الخارج"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__cash_net
+msgid "Cash net"
+msgstr "صافي النقدي"
+
+#. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "InstaPay"
 msgstr "إنستاباي"
 
 #. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__instapay_inflow
+msgid "InstaPay inflow"
+msgstr "تدفق إنستاباي الداخل"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__instapay_outflow
+msgid "InstaPay refunds / outflow"
+msgstr "مرتجعات / تدفق إنستاباي الخارج"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__instapay_net
+msgid "InstaPay net"
+msgstr "صافي إنستاباي"
+
+#. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
+msgid "Payment configuration warnings"
+msgstr "تحذيرات إعدادات الدفع"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__other_payment_count
+msgid "Other / unclassified events"
+msgstr "أحداث دفع أخرى / غير مصنفة"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_dashboard__other_payment_net
+msgid "Other / unclassified net"
+msgstr "صافي الدفعات الأخرى / غير المصنفة"
+
+#. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Low Stock"
 msgstr "المخزون المنخفض"
 
 #. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Upcoming / Overdue Orders"
 msgstr "الطلبات القادمة / المتأخرة"
 
 #. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_dashboard_form
 msgid "Customer Balances"
 msgstr "أرصدة العملاء"
 
 #. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_low_stock_line__product_id
+msgid "Product"
+msgstr "المنتج"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_low_stock_line__available_quantity
+msgid "Available"
+msgstr "المتاح"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_low_stock_line__minimum_available_qty
+msgid "Warning threshold"
+msgstr "حد التحذير"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_low_stock_line__uom_name
+msgid "Unit"
+msgstr "الوحدة"
+
+#. module: fu_reporting
+#: model:ir.model.fields.selection,name:fu_reporting.selection__fu_reporting_deadline_line__bucket__upcoming
 msgid "Upcoming"
 msgstr "قادم"
 
 #. module: fu_reporting
+#: model:ir.model.fields.selection,name:fu_reporting.selection__fu_reporting_deadline_line__bucket__overdue
 msgid "Overdue"
 msgstr "متأخر"
 
 #. module: fu_reporting
+#: model:ir.model.fields.selection,name:fu_reporting.selection__fu_reporting_deadline_line__kind__preorder
+#: model:ir.model.fields.selection,name:fu_reporting.selection__fu_reporting_balance_line__kind__preorder
+msgid "Preorder"
+msgstr "طلب مسبق"
+
+#. module: fu_reporting
+#: model:ir.model.fields.selection,name:fu_reporting.selection__fu_reporting_deadline_line__kind__business
+#: model:ir.model.fields.selection,name:fu_reporting.selection__fu_reporting_balance_line__kind__business
+msgid "Business"
+msgstr "شركة"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_deadline_line__order_ref
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_balance_line__order_ref
+msgid "Order"
+msgstr "الطلب"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_deadline_line__customer_name
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_balance_line__customer_name
+msgid "Customer"
+msgstr "العميل"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_deadline_line__deadline
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_balance_line__deadline
+msgid "Pickup / delivery deadline"
+msgstr "موعد الاستلام / التسليم"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_deadline_line__balance_due
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_balance_line__balance_due
+msgid "Balance due"
+msgstr "الرصيد المستحق"
+
+#. module: fu_reporting
+#: model:ir.actions.act_window,name:fu_reporting.action_fu_reporting_stock_rules
+#: model:ir.ui.menu,name:fu_reporting.menu_fu_reporting_stock_rules
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_stock_rule_list
 msgid "Low-stock Warning Rules"
 msgstr "قواعد تنبيه المخزون المنخفض"
 
 #. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_stock_rule_form
 msgid "Low-stock Warning Rule"
 msgstr "قاعدة تنبيه المخزون المنخفض"
 
 #. module: fu_reporting
+#: model_terms:ir.ui.view,arch_db:fu_reporting.fu_reporting_stock_rule_form
+msgid "A product appears as low stock when native available quantity is at or below this threshold. No rule means no warning."
+msgstr "يظهر المنتج كمخزون منخفض عندما تكون الكمية الأصلية المتاحة مساوية لهذا الحد أو أقل منه. عدم وجود قاعدة يعني عدم وجود تنبيه."
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_stock_rule__minimum_available_qty
+msgid "Low-stock threshold"
+msgstr "حد المخزون المنخفض"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_stock_rule__changed_by_id
+msgid "Last changed by"
+msgstr "آخر تعديل بواسطة"
+
+#. module: fu_reporting
+#: model:ir.model.fields,field_description:fu_reporting.field_fu_reporting_stock_rule__changed_at
+msgid "Last changed at"
+msgstr "وقت آخر تعديل"
+
+#. module: fu_reporting
+#: model:ir.ui.menu,name:fu_reporting.menu_fu_reports
 msgid "Reports"
 msgstr "التقارير"
+
+#. module: fu_reporting
+#: code:addons/fu_reporting/models/reporting.py:0
+msgid "Only Owner / Administrator may manage low-stock warning rules."
+msgstr "يمكن للمالك / المسؤول فقط إدارة قواعد تنبيه المخزون المنخفض."
+
+#. module: fu_reporting
+#: code:addons/fu_reporting/models/reporting.py:0
+msgid "Your Fares role cannot access operational reports."
+msgstr "دورك في فارس لا يسمح بالوصول إلى التقارير التشغيلية."
+
+#. module: fu_reporting
+#: code:addons/fu_reporting/models/reporting.py:0
+msgid "That report location is outside your authorized scope."
+msgstr "موقع التقرير هذا خارج نطاق صلاحياتك."
+
+#. module: fu_reporting
+#: code:addons/fu_reporting/models/reporting.py:0
+msgid "A valid report location is required."
+msgstr "يلزم تحديد موقع تقرير صالح."
+
+#. module: fu_reporting
+#: code:addons/fu_reporting/models/reporting.py:0
+msgid "Report pagination values must be integers."
+msgstr "يجب أن تكون قيم ترقيم صفحات التقرير أعدادًا صحيحة."
+
+#. module: fu_reporting
+#: code:addons/fu_reporting/models/reporting.py:0
+msgid "Report page size must be 1–100 and offset cannot be negative."
+msgstr "يجب أن يكون حجم صفحة التقرير من 1 إلى 100 ولا يمكن أن تكون الإزاحة سالبة."
+
+#. module: fu_reporting
+#: code:addons/fu_reporting/models/dashboard.py:0
+msgid "Report result fields are system managed; refresh the dashboard instead."
+msgstr "حقول نتائج التقرير يديرها النظام؛ استخدم تحديث لوحة التقارير بدلًا من تعديلها مباشرة."
