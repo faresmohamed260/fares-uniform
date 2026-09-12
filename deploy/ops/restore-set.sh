@@ -38,6 +38,9 @@ fi
 mkdir -p "$FILESTORE_ROOT"
 rm -rf "$FILESTORE_DB"
 
+# The clean database bootstrap owns required extensions as postgres. Restore as
+# the least-privileged application role while skipping COMMENT ON EXTENSION
+# statements that require extension ownership but do not affect application data.
 pg_restore \
   --host="$ODOO_DB_HOST" \
   --port="$ODOO_DB_PORT" \
@@ -45,6 +48,7 @@ pg_restore \
   --dbname="$ODOO_DB_NAME" \
   --no-owner \
   --no-acl \
+  --no-comments \
   --exit-on-error \
   "$SET_DIR/database.dump"
 
