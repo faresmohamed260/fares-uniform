@@ -1,6 +1,9 @@
 services:
   db:
-    image: postgres:16.12-bookworm
+    image: fares-uniform-postgres:${FARES_SHA:?FARES_SHA is required}
+    build:
+      context: ..
+      dockerfile: deploy/postgres/Dockerfile
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres

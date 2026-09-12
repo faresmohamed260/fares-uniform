@@ -62,7 +62,10 @@ jobs:
           printf '%s\n' 'phase6-postgres-superuser-synthetic-2026' > deploy/.secrets/postgres_superuser_password
           printf '%s\n' 'phase6-odoo-db-synthetic-2026' > deploy/.secrets/odoo_db_password
           printf '%s\n' 'phase6-odoo-master-synthetic-2026' > deploy/.secrets/odoo_admin_passwd
-          chmod 600 deploy/.secrets/*
+          sudo chown root:root deploy/.secrets/postgres_superuser_password
+          sudo chmod 0400 deploy/.secrets/postgres_superuser_password
+          sudo chown root:10001 deploy/.secrets/odoo_db_password deploy/.secrets/odoo_admin_passwd
+          sudo chmod 0440 deploy/.secrets/odoo_db_password deploy/.secrets/odoo_admin_passwd
           openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
             -keyout deploy/.runtime/tls/privkey.pem \
             -out deploy/.runtime/tls/fullchain.pem \
@@ -98,13 +101,42 @@ jobs:
           ! grep -q 'phase6-odoo-db-synthetic-2026' evidence/compose-rendered.yml
           ! grep -q 'phase6-odoo-master-synthetic-2026' evidence/compose-rendered.yml
 
-      - name: Build exact Odoo and operations images
+      - name: Build exact database, Odoo and operations images
         run: |
           set -euo pipefail
-          docker compose --env-file deploy/.env -f deploy/compose.yml --profile ops build --pull odoo ops
+          docker compose --env-file deploy/.env -f deploy/compose.yml --profile ops build --pull db odoo ops
           docker run --rm --entrypoint bash "fares-uniform-odoo:$GITHUB_SHA" -lc \
             'test "$ODOO_SHA" = "1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf" && test "$FARES_SHA" = "'"$GITHUB_SHA"'" && test ! -e /mnt/extra-addons/fu_uat && wkhtmltopdf --version && rtlcss --version' \
             | tee evidence/runtime-image.txt
+          docker run --rm --entrypoint bash "fares-uniform-postgres:$GITHUB_SHA" -lc \
+            'id -G postgres | tr " " "\n" | grep -qx 10001 && postgres --version' \
+            | tee -a evidence/runtime-image.txt
+
+      - name: Verify file-backed secret access boundary
+        run: |
+          set -euo pipefail
+          DC=(docker compose --env-file deploy/.env -f deploy/compose.yml)
+          {
+            echo "host_postgres_superuser_secret=$(stat -c '%u:%g:%a' deploy/.secrets/postgres_superuser_password)"
+            echo "host_odoo_db_secret=$(stat -c '%u:%g:%a' deploy/.secrets/odoo_db_password)"
+            echo "host_odoo_admin_secret=$(stat -c '%u:%g:%a' deploy/.secrets/odoo_admin_passwd)"
+          } | tee evidence/secret-access.txt
+          test "$(stat -c '%u:%g:%a' deploy/.secrets/postgres_superuser_password)" = '0:0:400'
+          test "$(stat -c '%u:%g:%a' deploy/.secrets/odoo_db_password)" = '0:10001:440'
+          test "$(stat -c '%u:%g:%a' deploy/.secrets/odoo_admin_passwd)" = '0:10001:440'
+          "${DC[@]}" run --rm --no-deps --entrypoint bash db -lc '
+            test "$(stat -c "%u:%g:%a" /run/secrets/odoo_db_password)" = "0:10001:440"
+            gosu postgres bash -lc "test -r /run/secrets/odoo_db_password && id -G | tr \" \" \"\\n\" | grep -qx 10001"
+          '
+          "${DC[@]}" run --rm --no-deps --entrypoint bash odoo -lc '
+            test "$(id -u)" = "10001"
+            test "$(id -g)" = "10001"
+            test "$(stat -c "%u:%g:%a" /run/secrets/odoo_db_password)" = "0:10001:440"
+            test "$(stat -c "%u:%g:%a" /run/secrets/odoo_admin_passwd)" = "0:10001:440"
+            test -r /run/secrets/odoo_db_password
+            test -r /run/secrets/odoo_admin_passwd
+          '
+          echo 'file_backed_secret_access=PASS' | tee -a evidence/secret-access.txt
 
       - name: Initialize database and production addons
         run: |
@@ -217,7 +249,8 @@ jobs:
             docker compose version
             echo "fares_sha=$GITHUB_SHA"
             echo "odoo_sha=$ODOO_SHA"
-            echo "postgres_image=postgres:16.12-bookworm"
+            echo "postgres_base_image=postgres:16.12-bookworm"
+            echo "postgres_runtime_image=fares-uniform-postgres:$GITHUB_SHA"
             echo "nginx_image=nginx:1.28-alpine"
           } > evidence/runtime.txt
           docker compose --env-file deploy/.env -f deploy/compose.yml ps > evidence/final-ps.txt || true
