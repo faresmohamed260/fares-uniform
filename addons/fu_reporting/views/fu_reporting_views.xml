@@ -10,7 +10,7 @@
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <h1><label string="Operational Reports" class="o_form_label"/></h1>
+                        <h1><label for="report_date" string="Operational Reports"/></h1>
                     </div>
                     <field name="allowed_location_ids" invisible="1"/>
                     <field name="currency_id" invisible="1"/>
@@ -29,7 +29,7 @@
                         <field name="sync_notice" nolabel="1" readonly="1"/>
                     </div>
                     <div class="mt-3 mb-2">
-                        <h2 class="h5"><label string="Daily retail sales" class="o_form_label"/></h2>
+                        <h2 class="h5"><label for="sales_gross" string="Daily retail sales"/></h2>
                     </div>
                     <group>
                         <group>
