@@ -9,12 +9,11 @@
                     <button name="action_refresh" type="object" string="Refresh reports" class="btn-primary" data-hotkey="r"/>
                 </header>
                 <sheet>
-                    <div class="oe_title">
-                        <h1>Operational Reports</h1>
-                    </div>
+                    <separator string="Operational Reports"/>
                     <field name="allowed_location_ids" invisible="1"/>
                     <field name="currency_id" invisible="1"/>
-                    <group string="Report context">
+                    <separator string="Report context"/>
+                    <group>
                         <group>
                             <field name="report_date"/>
                             <field name="location_id" options="{'no_create': True, 'no_quick_create': True}"/>
@@ -25,35 +24,41 @@
                         </group>
                     </group>
                     <div class="alert alert-warning" role="alert">
-                        <strong>Offline sync disclosure:</strong>
+                        <label for="sync_notice" string="Offline sync disclosure:" class="fw-bold"/>
                         <field name="sync_notice" nolabel="1" readonly="1"/>
                     </div>
-                    <group string="Daily retail sales">
+                    <separator string="Daily retail sales"/>
+                    <group>
                         <group>
                             <field name="sales_gross"/>
                             <field name="sales_refunds"/>
                             <field name="sales_net"/>
                         </group>
-                        <group string="Operational list counts">
+                        <group>
+                            <separator string="Operational list counts"/>
                             <field name="low_stock_count"/>
                             <field name="upcoming_count"/>
                             <field name="overdue_count"/>
                             <field name="balance_count"/>
                         </group>
                     </group>
-                    <group string="Payment movement">
-                        <group string="Cash">
+                    <separator string="Payment movement"/>
+                    <group>
+                        <group>
+                            <separator string="Cash"/>
                             <field name="cash_inflow"/>
                             <field name="cash_outflow"/>
                             <field name="cash_net"/>
                         </group>
-                        <group string="InstaPay">
+                        <group>
+                            <separator string="InstaPay"/>
                             <field name="instapay_inflow"/>
                             <field name="instapay_outflow"/>
                             <field name="instapay_net"/>
                         </group>
                     </group>
-                    <group string="Payment configuration warnings" invisible="other_payment_count == 0">
+                    <separator string="Payment configuration warnings" invisible="other_payment_count == 0"/>
+                    <group invisible="other_payment_count == 0">
                         <field name="other_payment_count"/>
                         <field name="other_payment_net"/>
                     </group>
@@ -128,7 +133,7 @@
         <field name="arch" type="xml">
             <form string="Low-stock Warning Rule">
                 <sheet>
-                    <div class="oe_title"><h1>Low-stock Warning Rule</h1></div>
+                    <separator string="Low-stock Warning Rule"/>
                     <div class="alert alert-info" role="alert">
                         A product appears as low stock when native available quantity is at or below this threshold. No rule means no warning.
                     </div>
@@ -154,7 +159,6 @@
         <field name="name">Low-stock Warning Rules</field>
         <field name="res_model">fu.reporting.stock.rule</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('company_id', '=', allowed_company_ids[0])]</field>
     </record>
 
     <menuitem id="menu_fu_reports" name="Reports" parent="fu_core.menu_fu_root" action="action_fu_operational_reports" sequence="70" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager"/>

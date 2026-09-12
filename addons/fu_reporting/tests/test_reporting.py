@@ -12,6 +12,13 @@ class TestFaresReporting(CommonPosTest):
     def setUpClass(cls):
         super().setUpClass()
         cls.env.user.group_ids += cls.env.ref("fu_core.group_fu_owner_admin")
+        # CommonPosTest creates its company after module post-init hooks have run.
+        # Re-run the idempotent Phase 1 location initializer for this test company
+        # so the reporting fixture exercises the same Store/Storage contract as a
+        # real initialized Fares company.
+        cls.env["stock.location"].with_context(
+            allowed_company_ids=[cls.env.company.id]
+        )._fu_configure_initial_locations()
         cls.service = cls.env["fu.reporting.service"]
         cls.store = cls.env["stock.location"].search(
             [

@@ -58,6 +58,7 @@ class FuReportingDashboard(models.TransientModel):
     @api.model_create_multi
     def create(self, vals_list):
         self.env["fu.reporting.service"]._fu_access_role()
+        vals_list = [dict(vals, company_id=self.env.company.id) for vals in vals_list]
         dashboards = super().create(vals_list)
         for dashboard in dashboards:
             dashboard._fu_refresh()
