@@ -20,9 +20,6 @@ class FuReportingDashboard(models.TransientModel):
     as_of = fields.Datetime(string="Operational data as of", readonly=True)
     sync_notice = fields.Char(string="Offline synchronization note", readonly=True)
 
-    dashboard_title = fields.Char(compute="_compute_ui_labels", readonly=True)
-    daily_sales_title = fields.Char(compute="_compute_ui_labels", readonly=True)
-
     sales_gross = fields.Monetary(string="Gross retail sales", currency_field="currency_id", readonly=True)
     sales_refunds = fields.Monetary(string="Retail refunds", currency_field="currency_id", readonly=True)
     sales_net = fields.Monetary(string="Net retail sales", currency_field="currency_id", readonly=True)
@@ -44,12 +41,6 @@ class FuReportingDashboard(models.TransientModel):
     low_stock_line_ids = fields.One2many("fu.reporting.low.stock.line", "dashboard_id", readonly=True)
     deadline_line_ids = fields.One2many("fu.reporting.deadline.line", "dashboard_id", readonly=True)
     balance_line_ids = fields.One2many("fu.reporting.balance.line", "dashboard_id", readonly=True)
-
-    @api.depends_context("lang")
-    def _compute_ui_labels(self):
-        for dashboard in self:
-            dashboard.dashboard_title = dashboard.env._("Operational Reports")
-            dashboard.daily_sales_title = dashboard.env._("Daily retail sales")
 
     @api.depends_context("uid", "allowed_company_ids")
     def _compute_allowed_locations(self):
