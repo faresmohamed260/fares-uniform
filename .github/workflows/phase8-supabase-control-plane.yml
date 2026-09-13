@@ -17,14 +17,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  control-plane-smoke:
+  control-plane:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
       SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
       SUPABASE_API_BASE: https://api.supabase.com/v1
     steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
       - name: Verify GitHub secret is present
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -45,20 +51,18 @@ jobs:
           set -euo pipefail
           response="$(mktemp)"
           trap 'rm -f "$response"' EXIT
-
-          status="$(curl --silent --show-error \
-            --output "$response" \
-            --write-out '%{http_code}' \
+          status="$(curl --silent --show-error --output "$response" --write-out '%{http_code}' \
             --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
             "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}")"
-
           if [[ "$status" != "200" ]]; then
             echo "Supabase project lookup failed with HTTP ${status}." >&2
             exit 1
           fi
-
           jq -e --arg ref "$SUPABASE_PROJECT_REF" '
             select((.ref // .id) == $ref or .id == $ref) |
+            select(.name == "Fares Uniform") |
+            select(.region == "eu-central-1") |
+            select(.status == "ACTIVE_HEALTHY") |
             {id, name, region, status}
           ' "$response"
 
@@ -70,26 +74,95 @@ jobs:
           set -euo pipefail
           response="$(mktemp)"
           trap 'rm -f "$response"' EXIT
-
           query="SELECT current_database() AS database, current_user AS role, rolcreatedb, rolcreaterole, rolsuper FROM pg_roles WHERE rolname = current_user"
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:false}')"
-          status="$(curl --silent --show-error \
-            --request POST \
-            --output "$response" \
-            --write-out '%{http_code}' \
+          status="$(curl --silent --show-error --request POST --output "$response" --write-out '%{http_code}' \
             --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            --header 'Content-Type: application/json' \
-            --data "$payload" \
+            --header 'Content-Type: application/json' --data "$payload" \
             "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
-
           if [[ "$status" != "201" ]]; then
             echo "Supabase database query failed with HTTP ${status}." >&2
+            cat "$response" >&2
             exit 1
           fi
-
-          jq -e 'type == "array" and length == 1' "$response" >/dev/null
+          jq -e 'type == "array" and length == 1 and .[0].database == "postgres" and .[0].role == "postgres" and .[0].rolcreatedb == true and .[0].rolcreaterole == true and .[0].rolsuper == false' "$response" >/dev/null
           jq -c '.[0] | {database,role,rolcreatedb,rolcreaterole,rolsuper}' "$response"
-          echo "Supabase Management API write-context identity verified without mutation."
+
+      - name: Apply idempotent managed-database bootstrap
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          query="$(cat deploy/supabase/bootstrap.sql)"
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:false}')"
+          status="$(curl --silent --show-error --request POST --output "$response" --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            --header 'Content-Type: application/json' --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          if [[ "$status" != "201" ]]; then
+            echo "Supabase bootstrap failed with HTTP ${status}." >&2
+            cat "$response" >&2
+            exit 1
+          fi
+          echo "Managed Supabase bootstrap applied."
+
+      - name: Verify least-privilege bootstrap boundary
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS app_can_login,
+            (SELECT rolsuper FROM pg_roles WHERE rolname='fares_app') AS app_superuser,
+            (SELECT rolcreatedb FROM pg_roles WHERE rolname='fares_app') AS app_createdb,
+            (SELECT rolcreaterole FROM pg_roles WHERE rolname='fares_app') AS app_createrole,
+            has_database_privilege('fares_app', 'postgres', 'CONNECT') AS app_connect,
+            has_database_privilege('fares_app', 'postgres', 'TEMPORARY') AS app_temporary,
+            has_schema_privilege('fares_app', 'public', 'USAGE') AS app_schema_usage,
+            has_schema_privilege('fares_app', 'public', 'CREATE') AS app_schema_create,
+            NOT has_schema_privilege('PUBLIC', 'public', 'CREATE') AS public_schema_create_revoked,
+            to_regclass('public.fares_http_session') IS NOT NULL AS session_table_exists,
+            (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session') AS session_table_owner,
+            has_table_privilege('fares_app', 'public.fares_http_session', 'SELECT,INSERT,UPDATE,DELETE') AS session_app_dml,
+            NOT has_table_privilege('PUBLIC', 'public.fares_http_session', 'SELECT,INSERT,UPDATE,DELETE') AS session_public_dml_revoked,
+            EXISTS (SELECT 1 FROM pg_extension WHERE extname='unaccent') AS unaccent_present,
+            EXISTS (SELECT 1 FROM pg_extension WHERE extname='pg_trgm') AS pg_trgm_present;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl --silent --show-error --request POST --output "$response" --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            --header 'Content-Type: application/json' --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          if [[ "$status" != "201" ]]; then
+            echo "Supabase bootstrap verification failed with HTTP ${status}." >&2
+            cat "$response" >&2
+            exit 1
+          fi
+          jq -e 'type == "array" and length == 1
+            and .[0].app_can_login == false
+            and .[0].app_superuser == false
+            and .[0].app_createdb == false
+            and .[0].app_createrole == false
+            and .[0].app_connect == true
+            and .[0].app_temporary == true
+            and .[0].app_schema_usage == true
+            and .[0].app_schema_create == true
+            and .[0].public_schema_create_revoked == true
+            and .[0].session_table_exists == true
+            and .[0].session_table_owner == "postgres"
+            and .[0].session_app_dml == true
+            and .[0].session_public_dml_revoked == true
+            and .[0].unaccent_present == true
+            and .[0].pg_trgm_present == true' "$response" >/dev/null
+          jq -c '.[0]' "$response"
+          echo "Least-privilege Supabase bootstrap boundary verified."
 
       - name: Probe temporary CLI database role over session pooler
         env:
@@ -99,36 +172,25 @@ jobs:
           set -euo pipefail
           response="$(mktemp)"
           trap 'rm -f "$response"' EXIT
-
-          status="$(curl --silent --show-error \
-            --request POST \
-            --output "$response" \
-            --write-out '%{http_code}' \
+          status="$(curl --silent --show-error --request POST --output "$response" --write-out '%{http_code}' \
             --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            --header 'Content-Type: application/json' \
-            --data '{"read_only":false}' \
+            --header 'Content-Type: application/json' --data '{"read_only":false}' \
             "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/cli/login-role")"
-
           if [[ "$status" != "201" ]]; then
             echo "Supabase temporary login-role creation failed with HTTP ${status}." >&2
             exit 1
           fi
-
           role="$(jq -er '.role' "$response")"
           password="$(jq -er '.password' "$response")"
           ttl="$(jq -er '.ttl_seconds' "$response")"
           echo "::add-mask::$password"
           echo "Temporary CLI database role issued with TTL ${ttl}s."
-
-          command -v psql >/dev/null
           export PGPASSWORD="$password"
           pooler_user="${role}.${SUPABASE_PROJECT_REF}"
-
           result="$(psql \
             "host=${SUPABASE_POOLER_HOST} port=5432 dbname=postgres user=${pooler_user} sslmode=require connect_timeout=10" \
             -v ON_ERROR_STOP=1 -Atc \
             "SELECT current_database(), current_user, (SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user), (SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user), (SELECT rolsuper FROM pg_roles WHERE rolname=current_user);")"
-
           IFS='|' read -r database backend_role can_create_db can_create_role is_superuser <<<"$result"
           printf 'pooler_probe=database:%s role:%s createdb:%s createrole:%s superuser:%s\n' \
             "$database" "$backend_role" "$can_create_db" "$can_create_role" "$is_superuser"
