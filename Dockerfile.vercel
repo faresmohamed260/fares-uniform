@@ -87,11 +87,15 @@ COPY --chown=10001:10001 deploy/vercel/runtime_addons/fares_vercel_runtime /mnt/
 
 # HTTP and WebSocket services intentionally share one image. The runtime-mode
 # helper resolves Vercel's service-local binding signal at startup, while hosted
-# CI can still set ODOO_RUNTIME_MODE explicitly to exercise either mode.
+# CI can still set ODOO_RUNTIME_MODE explicitly to exercise either mode. Keep
+# connection validation in a separate side-effect-free helper so the exact
+# production rules can also be exercised by hosted deployment-contract CI.
 COPY --chown=10001:10001 deploy/vercel/runtime-mode.sh /usr/local/lib/fares-vercel-runtime-mode.sh
+COPY --chown=10001:10001 deploy/vercel/validation.sh /usr/local/lib/fares-vercel-validation.sh
 COPY --chown=10001:10001 deploy/vercel/entrypoint.sh /usr/local/bin/fares-vercel-odoo-entrypoint
 
-RUN chmod 0755 /usr/local/bin/fares-vercel-odoo-entrypoint /usr/local/lib/fares-vercel-runtime-mode.sh
+RUN chmod 0755 /usr/local/bin/fares-vercel-odoo-entrypoint /usr/local/lib/fares-vercel-runtime-mode.sh \
+    && chmod 0444 /usr/local/lib/fares-vercel-validation.sh
 
 ENV HOME=/tmp/odoo-home \
     ODOO_DATA_DIR=/tmp/odoo-data \
