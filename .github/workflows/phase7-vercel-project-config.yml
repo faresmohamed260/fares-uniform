@@ -123,3 +123,69 @@ jobs:
           path: evidence/
           if-no-files-found: error
           retention-days: 7
+
+  public-web-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FU_PUBLIC_PROVIDER: fixture
+    defaults:
+      run:
+        working-directory: apps/public-web
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify exact checkout
+        run: test "$(git -C ../.. rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/public-web/package-lock.json
+
+      - name: Install locked web dependencies
+        run: npm ci
+
+      - name: Typecheck public web
+        run: npm run typecheck
+
+      - name: Build public web
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run public browser gate
+        run: npm run test:e2e
+
+      - name: Record public web regression evidence
+        if: always()
+        run: |
+          mkdir -p evidence/phase7
+          {
+            echo "candidate_sha=$GITHUB_SHA"
+            echo "provider=$FU_PUBLIC_PROVIDER"
+            node --version
+            npm --version
+            npx next --version
+            npx playwright --version
+          } | tee evidence/phase7/runtime.txt
+
+      - name: Upload public web evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase7-public-web-${{ github.sha }}
+          path: |
+            apps/public-web/evidence/phase7
+            apps/public-web/playwright-report
+            apps/public-web/test-results
+          if-no-files-found: error
+          retention-days: 7
