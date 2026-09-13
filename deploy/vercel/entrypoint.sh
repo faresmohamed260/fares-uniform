@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+source /usr/local/lib/fares-vercel-runtime-mode.sh
+
 read_secret() {
   local value_var="$1"
   local file_var="$2"
@@ -39,19 +41,11 @@ require_identifier() {
 : "${ODOO_DATA_DIR:=/tmp/odoo-data}"
 : "${FARES_SESSION_STORE:=postgres}"
 
-# Vercel Services currently expose normal environment variables at project
-# scope, while service bindings are injected only into the calling service.
-# Keep one immutable image for both Odoo services: the websocket service owns
-# this otherwise-unused binding to the private HTTP service and therefore gets
-# a service-local runtime marker. Explicit ODOO_RUNTIME_MODE remains the
-# override for hosted CI and provider-neutral/local execution.
-if [[ -z "${ODOO_RUNTIME_MODE:-}" ]]; then
-  if [[ "${VERCEL:-}" == "1" && -n "${FARES_ODOO_HTTP_INTERNAL_URL:-}" ]]; then
-    ODOO_RUNTIME_MODE=websocket
-  else
-    ODOO_RUNTIME_MODE=http
-  fi
-fi
+# Vercel project environment variables are shared across services. The
+# websocket service instead receives FARES_ODOO_HTTP_INTERNAL_URL through its
+# service-local binding; the resolver maps that marker to websocket mode while
+# preserving explicit ODOO_RUNTIME_MODE overrides for CI/local operation.
+ODOO_RUNTIME_MODE="$(fares_resolve_odoo_runtime_mode)"
 
 require_identifier ODOO_DB_NAME
 require_identifier ODOO_DB_USER
