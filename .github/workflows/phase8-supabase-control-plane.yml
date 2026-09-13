@@ -62,7 +62,7 @@ jobs:
             {id, name, region, status}
           ' "$response"
 
-      - name: Verify Management API database query access and bootstrap identity
+      - name: Verify Management API write-context bootstrap identity
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         shell: bash
@@ -72,7 +72,7 @@ jobs:
           trap 'rm -f "$response"' EXIT
 
           query="SELECT current_database() AS database, current_user AS role, rolcreatedb, rolcreaterole, rolsuper FROM pg_roles WHERE rolname = current_user"
-          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:false}')"
           status="$(curl --silent --show-error \
             --request POST \
             --output "$response" \
@@ -89,7 +89,7 @@ jobs:
 
           jq -e 'type == "array" and length == 1' "$response" >/dev/null
           jq -c '.[0] | {database,role,rolcreatedb,rolcreaterole,rolsuper}' "$response"
-          echo "Supabase Management API database query access verified."
+          echo "Supabase Management API write-context identity verified without mutation."
 
       - name: Probe temporary CLI database role over session pooler
         env:
