@@ -37,8 +37,21 @@ require_identifier() {
 : "${ODOO_LIMIT_TIME_REAL_CRON:=600}"
 : "${ODOO_LOG_LEVEL:=info}"
 : "${ODOO_DATA_DIR:=/tmp/odoo-data}"
-: "${ODOO_RUNTIME_MODE:=http}"
 : "${FARES_SESSION_STORE:=postgres}"
+
+# Vercel Services currently expose normal environment variables at project
+# scope, while service bindings are injected only into the calling service.
+# Keep one immutable image for both Odoo services: the websocket service owns
+# this otherwise-unused binding to the private HTTP service and therefore gets
+# a service-local runtime marker. Explicit ODOO_RUNTIME_MODE remains the
+# override for hosted CI and provider-neutral/local execution.
+if [[ -z "${ODOO_RUNTIME_MODE:-}" ]]; then
+  if [[ "${VERCEL:-}" == "1" && -n "${FARES_ODOO_HTTP_INTERNAL_URL:-}" ]]; then
+    ODOO_RUNTIME_MODE=websocket
+  else
+    ODOO_RUNTIME_MODE=http
+  fi
+fi
 
 require_identifier ODOO_DB_NAME
 require_identifier ODOO_DB_USER
