@@ -24,6 +24,7 @@ env:
   PHASE7_NETWORK: fares-phase7-diagnostics
   PHASE7_DB_CONTAINER: fares-phase7-diagnostics-db
   PHASE7_INIT_CONTAINER: fares-phase7-diagnostics-init
+  PHASE7_UPGRADE_CONTAINER: fares-phase7-diagnostics-upgrade
 
 jobs:
   addon-init-diagnostics:
@@ -134,61 +135,101 @@ jobs:
             echo "session_app_grants=$APP_SESSION_GRANTS"
           } | tee evidence/database-boundary.txt
 
-      - name: Run production addon initialization and retain exact failure
-        id: init
+      - name: Run production addon install and upgrade and retain exact failure
+        id: addon_cycle
         run: |
           set -euo pipefail
           DB_PASSWORD="$(sudo cat deploy/.phase7-secrets/odoo_db_password)"
           ADMIN_PASSWD="$(cat deploy/.phase7-secrets/odoo_admin_passwd)"
 
-          docker create \
-            --name "$PHASE7_INIT_CONTAINER" \
-            --network "$PHASE7_NETWORK" \
-            -e ODOO_DB_HOST="$PHASE7_DB_CONTAINER" \
-            -e ODOO_DB_PORT=5432 \
-            -e ODOO_DB_NAME="$ODOO_DB_NAME" \
-            -e ODOO_DB_USER="$ODOO_DB_USER" \
-            -e ODOO_DB_PASSWORD="$DB_PASSWORD" \
-            -e ODOO_DB_SSLMODE=prefer \
-            -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" \
-            -e PORT=8069 \
-            -e ODOO_WORKERS=0 \
-            -e ODOO_MAX_CRON_THREADS=0 \
-            "fares-uniform-vercel:$GITHUB_SHA" \
-            --stop-after-init -i "$PRODUCTION_ADDONS"
+          create_odoo_container() {
+            local name="$1"
+            shift
+            docker create \
+              --name "$name" \
+              --network "$PHASE7_NETWORK" \
+              -e ODOO_DB_HOST="$PHASE7_DB_CONTAINER" \
+              -e ODOO_DB_PORT=5432 \
+              -e ODOO_DB_NAME="$ODOO_DB_NAME" \
+              -e ODOO_DB_USER="$ODOO_DB_USER" \
+              -e ODOO_DB_PASSWORD="$DB_PASSWORD" \
+              -e ODOO_DB_SSLMODE=prefer \
+              -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" \
+              -e PORT=8069 \
+              -e ODOO_WORKERS=0 \
+              -e ODOO_MAX_CRON_THREADS=0 \
+              "fares-uniform-vercel:$GITHUB_SHA" \
+              --stop-after-init "$@"
+          }
 
+          create_odoo_container "$PHASE7_INIT_CONTAINER" -i "$PRODUCTION_ADDONS"
           set +e
           docker start -a "$PHASE7_INIT_CONTAINER"
           INIT_RC=$?
           set -e
-          echo "$INIT_RC" | tee evidence/addon-init-exit-code.txt
-          docker logs "$PHASE7_INIT_CONTAINER" > evidence/addon-init.log 2>&1 || true
-          docker logs "$PHASE7_DB_CONTAINER" > evidence/postgres.log 2>&1 || true
-          echo "init_exit_code=$INIT_RC" >> "$GITHUB_OUTPUT"
+          docker logs "$PHASE7_INIT_CONTAINER" > evidence/addon-install.log 2>&1 || true
+          echo "$INIT_RC" | tee evidence/addon-install-exit-code.txt
 
-      - name: Upload exact init diagnostics
+          UPGRADE_RC=125
+          if [[ "$INIT_RC" == '0' ]]; then
+            create_odoo_container "$PHASE7_UPGRADE_CONTAINER" -u "$PRODUCTION_ADDONS"
+            set +e
+            docker start -a "$PHASE7_UPGRADE_CONTAINER"
+            UPGRADE_RC=$?
+            set -e
+            docker logs "$PHASE7_UPGRADE_CONTAINER" > evidence/addon-upgrade.log 2>&1 || true
+            echo "$UPGRADE_RC" | tee evidence/addon-upgrade-exit-code.txt
+          else
+            echo 'not-run-install-failed' > evidence/addon-upgrade.log
+            echo 'not-run' > evidence/addon-upgrade-exit-code.txt
+          fi
+
+          docker logs "$PHASE7_DB_CONTAINER" > evidence/postgres.log 2>&1 || true
+
+          if [[ "$INIT_RC" != '0' ]]; then
+            FAILED_PHASE=install
+            OVERALL_RC="$INIT_RC"
+          elif [[ "$UPGRADE_RC" != '0' ]]; then
+            FAILED_PHASE=upgrade
+            OVERALL_RC="$UPGRADE_RC"
+          else
+            FAILED_PHASE=none
+            OVERALL_RC=0
+          fi
+
+          {
+            echo "failed_phase=$FAILED_PHASE"
+            echo "install_exit_code=$INIT_RC"
+            echo "upgrade_exit_code=$UPGRADE_RC"
+            echo "overall_exit_code=$OVERALL_RC"
+          } | tee evidence/addon-cycle-result.txt
+          echo "failed_phase=$FAILED_PHASE" >> "$GITHUB_OUTPUT"
+          echo "overall_exit_code=$OVERALL_RC" >> "$GITHUB_OUTPUT"
+
+      - name: Upload exact addon-cycle diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase7-init-diagnostics-${{ github.sha }}
+          name: phase7-addon-cycle-diagnostics-${{ github.sha }}
           path: evidence/
           if-no-files-found: error
           retention-days: 14
 
-      - name: Reproduce init result
+      - name: Reproduce addon-cycle result
         if: always()
         run: |
           set -euo pipefail
-          RC="${{ steps.init.outputs.init_exit_code }}"
+          RC="${{ steps.addon_cycle.outputs.overall_exit_code }}"
+          PHASE="${{ steps.addon_cycle.outputs.failed_phase }}"
           test -n "$RC"
           if [[ "$RC" != '0' ]]; then
-            echo "Production addon initialization failed with exit code $RC; exact logs are in the diagnostic artifact." >&2
+            echo "Production addon $PHASE failed with exit code $RC; exact logs are in the diagnostic artifact." >&2
             exit "$RC"
           fi
 
       - name: Cleanup
         if: always()
         run: |
-          docker rm -f "$PHASE7_INIT_CONTAINER" "$PHASE7_DB_CONTAINER" >/dev/null 2>&1 || true
+          docker rm -f "$PHASE7_INIT_CONTAINER" "$PHASE7_UPGRADE_CONTAINER" "$PHASE7_DB_CONTAINER" >/dev/null 2>&1 || true
           docker network rm "$PHASE7_NETWORK" >/dev/null 2>&1 || true
           sudo rm -rf deploy/.phase7-secrets
