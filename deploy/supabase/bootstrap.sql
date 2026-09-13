@@ -5,9 +5,9 @@
 -- topology. Privileged bootstrap runs as the provider-managed postgres role;
 -- routine Odoo runtime uses the separate least-privileged fares_app role.
 --
--- No runtime password belongs in this file. fares_app remains NOLOGIN until a
--- later deployment workflow can generate a password and inject it directly
--- into the authorized Vercel project without exposing it in source or logs.
+-- No runtime password belongs in this file. fares_app is created NOLOGIN. A
+-- later deployment workflow may enable LOGIN only after it can generate a
+-- runtime password and inject it directly into the authorized Vercel project.
 
 DO $bootstrap$
 BEGIN
@@ -24,11 +24,11 @@ END
 $bootstrap$;
 
 -- Supabase's managed postgres role has CREATEROLE but is intentionally not a
--- true PostgreSQL superuser. It may reassert these routine-role attributes,
--- while SUPERUSER/REPLICATION drift is fail-closed by the verification below
--- because changing those attributes itself requires a true superuser.
+-- true PostgreSQL superuser. Reassert only attributes it is permitted to
+-- change. SUPERUSER/REPLICATION drift is checked independently and fails the
+-- hosted verification closed. LOGIN state is deliberately not reasserted here
+-- so an authorized runtime-activation workflow is not later undone.
 ALTER ROLE fares_app
-    NOLOGIN
     NOCREATEDB
     NOCREATEROLE
     NOINHERIT;
