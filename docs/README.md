@@ -52,15 +52,16 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 6 validation](validation/PHASE_6_DEPLOYMENT_READINESS.md) | Exact RED-to-green deployment-package evidence |
 | [Phase 7 Vercel adaptation](phases/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | Completed stateless Vercel/Odoo repository/CI contract |
 | [Phase 7 validation](validation/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | State/session/cron/WebSocket/project-map RED-to-green evidence |
-| [Phase 8 commercial staging readiness](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) | Active commercial-staging ownership, authorization, live-proof and GO/NO-GO contract |
+| [Phase 8 commercial staging readiness](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) | Commercial-staging ownership, live-proof and GO/NO-GO parent contract |
+| [Phase 8A free-tier staging execution](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md) | Client authorization, inspected provider state and free-tier execution blockers |
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result and operator/client inputs still required |
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Go/no-go checklist and remaining live-stage decisions |
 
 ## Current authority
 
-Completed milestones: **Phase 5A application/UAT/localization — COMPLETE / VERIFIED; Phase 6 provider-neutral deployment/readiness — COMPLETE / VERIFIED; Phase 7 Vercel stateless adaptation — COMPLETE / VERIFIED at repository/CI level.**
+Completed milestones: **Phase 5A application/UAT/localization — COMPLETE / VERIFIED; Phase 6 provider-neutral deployment/readiness — COMPLETE / VERIFIED; Phase 7 Vercel stateless adaptation — COMPLETE / VERIFIED at repository/CI level; Phase 8 repository planning — COMPLETE.**
 
-Active bounded stage: **Phase 8 commercial staging readiness — repository-planning contract active; live commercial staging NOT AUTHORIZED.**
+Active bounded stage: **Phase 8A free-tier staging execution — CLIENT AUTHORIZED / PROVIDER BLOCKED.**
 
 Current branch: `phase-8/commercial-staging-readiness`.
 
@@ -92,32 +93,30 @@ The accepted Vercel topology is source-controlled and hosted-tested:
 
 At runtime checkpoint `24850acc...`, state/session/recovery run `34769858562`, cron run `34769858603`, WebSocket run `34769858556` and project-config run `34769858553` all succeeded. Final implementation `01ce26d...` then passed final project mapping and public-web regression in run `34770228476`. The only change between those SHAs is the project-config CI workflow.
 
-Supabase is the preferred managed PostgreSQL target for a future authorized staging deployment. Odoo must use direct PostgreSQL or Supavisor **session mode**, never transaction mode; live connectivity requires TLS. No real Supabase/Vercel staging resource has been created by this work.
+## Phase 8 / Phase 8A result so far
 
-## Phase 8 result so far
+The Phase 8 parent contract defines the commercial staging ownership, provider proof, security and production separation gates.
 
-The active Phase 8 contract converts the remaining deployment-readiness blockers into explicit ownership, authorization, managed-provider proof and operations gates without creating live resources.
+The client then explicitly authorized creating new isolated Fares Uniform Vercel/Supabase staging resources using the existing RenderLab/SAGA account conventions, with a hard **free-tier-only** constraint.
 
-It defines:
+Live provider inspection found:
 
-- Vercel/Supabase commercial ownership and billing records;
-- direct/session-mode TLS database requirements and bootstrap/runtime role separation;
-- staging/production state and secret isolation;
-- secret ownership/injection/rotation records;
-- actual managed backup/destructive-restore rehearsal;
-- monitoring/log retention/alert ownership;
-- domain/DNS/TLS/internal-access requirements;
-- actual managed cron/WebSocket/state replacement proof;
-- public EN/AR staging smoke tests;
-- store device acceptance, staff/training and real-data cutover/reconciliation;
-- separate repository-planning, staging-authorization, live-staging and production GO/NO-GO gates.
+- Vercel team `faresmohamed260-6733's projects` is on Hobby; existing projects are `studio`, `saga` and `renderlab`; no Fares Uniform project exists.
+- Current Vercel terms restrict Hobby to personal/non-commercial use, so the commercial Fares Uniform staging workload was not deployed on Hobby.
+- Supabase organization `Fares Home Lab` is Free; active projects are `AI Studio` in `eu-west-1` and `S.A.G.A.` in `eu-central-1`.
+- A new Supabase project was quoted at **$0/month** and `eu-central-1` was selected to match S.A.G.A.
+- Creation of `Fares Uniform` was rejected because the user has reached Supabase's two-active-free-project limit.
+- No existing Vercel/Supabase project was mutated, paused, deleted or repurposed.
 
-No live Vercel/Supabase resource, secret, domain or real data is authorized by the Phase 8 repository-planning contract.
+No Fares Uniform live staging resource, secret, domain or real data exists yet.
 
 ## Current gate
 
-The codebase remains **technically ready for explicitly authorized commercial Vercel staging**, not production.
+The codebase remains technically ready for a compliant live staging proof, but **Phase 8A is provider-blocked rather than deployed**.
 
-Phase 8 repository planning does not itself authorize commercial staging. The next live boundary is explicit client approval of the commercial staging rehearsal plus concrete Vercel plan/project/billing ownership and Supabase project/region/billing ownership as defined by Phase 8 Gate B.
+To stay free:
 
-Production remains **NO-GO** until live staging proof plus store hardware, named staff/training, real-data cutover/reconciliation, monitoring, backup/RPO/RTO, domains/access and separate production authorization are complete.
+- Supabase requires the client to explicitly choose one existing free project to pause before a new isolated Fares Uniform project can be created.
+- Vercel Hobby is not a valid commercial-use target under current provider terms. A Vercel Pro upgrade would require separate spending authorization; otherwise the platform decision must change.
+
+Production remains **NO-GO** until compliant live staging proof plus store hardware, named staff/training, real-data cutover/reconciliation, monitoring, backup/RPO/RTO, domains/access and separate production authorization are complete.
