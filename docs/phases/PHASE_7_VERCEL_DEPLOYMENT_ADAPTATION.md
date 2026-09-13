@@ -1,10 +1,12 @@
 # Phase 7 — Vercel deployment adaptation
 
-Status: **ACTIVE / AUTHORIZED, 2026-09-13.**
+Status: **COMPLETE / VERIFIED — repository/CI scope, 2026-09-13.**
 
 Branch: `phase-7/vercel-deployment-adaptation`.
 
-Starting documentation lineage: `b14cc8320530ed91c807696d7d329a01811c445b`.
+Final Phase 7 repository/CI authority: `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`.
+
+Final runtime-regression checkpoint: `24850acc029e0e7bbef898d6598d0d8b3f7ce733`.
 
 Inherited authoritative business-application/test SHA: `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.
 
@@ -12,126 +14,154 @@ Inherited verified provider-neutral deployment-package SHA: `e337315684c62d69ad7
 
 Pinned Odoo Community SHA: `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
-Authorization: after Phase 6 closure the client explicitly instructed: **use Vercel, following the same deployment direction used for RenderLab and SAGA**. This selects Vercel as the deployment-platform direction and supersedes the earlier Phase 6 Hetzner/single-VPS recommendation. It authorizes repository design, compatibility implementation and hosted CI proof for a Vercel-native architecture. It does **not** authorize upgrading the Vercel plan, purchasing services, creating paid staging/production resources, adding production secrets, domains/DNS changes, real-data migration or production cutover.
+## Authorization and boundary
+
+After Phase 6 the client explicitly selected **Vercel**, following the same deployment direction used for RenderLab and SAGA. That decision supersedes the earlier Phase 6 single-VPS/Hetzner recommendation as the intended platform direction while preserving the verified Phase 6 provider-neutral package as a fallback/reference baseline.
+
+Phase 7 authorization covered repository design, compatibility implementation and hosted synthetic CI proof only. It did **not** authorize a Vercel plan upgrade, paid/live Fares project, real Supabase/PostgreSQL resource, production secrets, domain/DNS changes, real-data migration or production cutover.
 
 ## Goal
 
-Adapt the verified Fares Uniform runtime to Vercel's stateless service model without weakening Odoo correctness, security, offline checkout behavior, or recovery guarantees.
+Adapt the verified Fares Uniform runtime to Vercel's replaceable/stateless service model without weakening Odoo correctness, security, offline checkout behavior or recovery guarantees.
 
-The target follows the RenderLab/SAGA operating pattern: Vercel is the application/deployment control surface; durable state lives in managed backing services rather than in an application container's local filesystem.
+That goal is now met at repository/CI level.
 
-## Platform facts that constrain the design
+## Final source-controlled topology
 
-Current Vercel documentation supports container-runtime services and multi-service projects, but Vercel-hosted application compute must be treated as stateless. Docker Compose named volumes are not the deployment persistence model. Persistent databases/files therefore require managed backing services.
+`vercel.json` defines three services using Vercel's current `services` schema:
 
-Current Vercel capabilities relevant to this phase include:
-- container runtime services (`runtime: container`) inside Vercel Services;
-- private service routing/rewrites between services;
-- managed storage/database integrations through the Vercel Marketplace;
-- Cron Jobs, Workflows and Queues for trigger-driven background work;
-- WebSocket support with reconnect-safe client design required across function/container lifecycle boundaries.
+1. **`public_web`** — Vercel-native Next.js rooted at `apps/public-web/`.
+2. **`odoo_http`** — stateless Odoo container built from `Dockerfile.vercel`.
+3. **`odoo_websocket`** — stateless evented Odoo container built from the same image.
 
-Official references checked 2026-09-13:
-- https://vercel.com/docs/services
-- https://vercel.com/docs/functions/container-images
-- https://vercel.com/docs/marketplace-storage
-- https://vercel.com/docs/cron-jobs
-- https://vercel.com/docs/workflows
-- https://vercel.com/docs/queues
-- https://vercel.com/docs/functions/websockets
+Routing/bindings are deliberately narrow:
+- `public_web` receives `ODOO_BASE_URL` through a private service binding to `odoo_http`;
+- `/websocket` is the only public rewrite to `odoo_websocket`;
+- `/fares/internal/cron/run` is the only public rewrite to `odoo_http`, and the route itself requires the server-side cron bearer secret;
+- all other public traffic goes to `public_web`;
+- broad Odoo backoffice routes and direct `/fu/public/**` exposure are not published by `vercel.json`;
+- no inline project secrets are committed.
 
-## Odoo compatibility facts
+Vercel project environment variables are project-wide, so the HTTP/WebSocket distinction is not encoded as a project-wide `ODOO_RUNTIME_MODE`. Instead `odoo_websocket` receives the service-local binding marker `FARES_ODOO_HTTP_INTERNAL_URL`; `deploy/vercel/runtime-mode.sh` resolves WebSocket mode from that marker on Vercel while preserving explicit `ODOO_RUNTIME_MODE` overrides for CI/local proof.
 
-Pinned Odoo currently assumes local durable filesystem state in two important places:
-1. `ir.attachment` defaults to filestore-backed binary storage, although native Odoo also supports database-backed attachment storage through `ir_attachment.location = db`.
-2. HTTP sessions default to a filesystem session directory under Odoo's data directory.
+## Durable-state model
 
-Therefore the verified Phase 6 Compose image cannot simply be uploaded unchanged to Vercel and called production-safe. Phase 7 must remove or externalize every correctness-critical local-disk dependency first.
+Vercel application compute is treated as disposable. Correctness-critical truth is externalized to PostgreSQL:
 
-## Target architecture to prove
+- operational Odoo/Fares data remains in PostgreSQL;
+- Odoo attachment binary truth uses native database-backed storage (`ir_attachment.location = db`);
+- authenticated Odoo HTTP sessions use a shared PostgreSQL-backed server-side store;
+- normal runtime instances perform no privileged session-schema DDL;
+- built-in Odoo cron threads remain disabled;
+- required scheduled work is invoked through the authenticated external trigger;
+- evented/WebSocket state is reconnect-safe rather than instance-affine.
 
-1. **Public web:** existing Next.js `apps/public-web` remains Vercel-native and continues consuming only the narrow Fares public API.
-2. **Private Odoo HTTP runtime:** package pinned Odoo + the seven production addons as a Vercel container/Service candidate.
-3. **PostgreSQL:** use a managed external PostgreSQL service; Supabase is the preferred first candidate because it is already an accepted/available service family and mirrors the established project pattern. No database resource is created in this phase without separate live-resource authorization.
-4. **Attachments:** first proof uses Odoo's native database attachment storage (`ir_attachment.location = db`) so attachment truth survives stateless Odoo instance replacement without a mounted filestore. Any future external object-storage implementation must preserve the same `ir.attachment` security semantics and requires its own proof.
-5. **Sessions:** replace Odoo's local filesystem session store with a shared server-side persistence mechanism. Prefer PostgreSQL-backed sessions for the first proof to avoid adding another state service unless evidence shows that unsuitable. Session state must remain private and server-side.
-6. **Background scheduling:** built-in always-on cron assumptions must not be relied on. Map required scheduled work to a Vercel-triggered mechanism (Cron Jobs/Workflows/Queues) with server-side authentication, locking/idempotency and no duplicate business mutation.
-7. **Realtime/bus:** prove Odoo WebSocket/bus behavior with reconnect across runtime lifecycle boundaries; do not assume one container instance is permanent.
-8. **Recovery:** if attachment truth is fully database-backed, the Vercel-native recovery authority becomes PostgreSQL plus exact application/Odoo SHA metadata rather than the Phase 6 PostgreSQL+filestore pair. This simplification must be proven before the filestore requirement is retired for this topology.
+The proven Vercel-specific recovery authority is therefore database-backed application/attachment/session state plus exact Fares/Odoo/config authority. The Phase 6 PostgreSQL+filestore recovery package remains preserved for its filesystem-backed topology.
 
-## In scope
+## Managed PostgreSQL target
 
-- add Vercel deployment/service configuration needed for hosted compatibility proof;
-- add deployment/runtime adapters required for stateless operation;
-- use native Odoo database-backed attachment storage in synthetic proof;
-- implement and test a shared Odoo session store without altering business authorization semantics;
-- implement safe trigger-driven cron/background execution boundaries;
-- validate WebSocket/bus reconnect behavior relevant to POS/internal use;
-- prove app/container replacement while session, attachment and database truth survives;
-- prove backup/restore of the Vercel-target database-backed state using synthetic data;
-- preserve exact Odoo pinning and Phase 5A application behavior;
-- retain the Phase 6 provider-neutral deployment package as a valid historical/recovery baseline rather than deleting it.
+**Supabase is the preferred managed PostgreSQL target for an authorized commercial staging deployment** because it is already part of the project's development stack. Phase 7 did not create or mutate a real Supabase resource.
 
-## Explicitly out of scope
+Odoo must use PostgreSQL connectivity that preserves session semantics required by `LISTEN/NOTIFY`:
+- direct PostgreSQL connection or Supavisor **session mode** is acceptable;
+- Supavisor **transaction mode** is not suitable for Odoo bus/WebSocket behavior and must not be used;
+- live Odoo connectivity must use TLS (`sslmode=require` at minimum; stronger certificate verification may be used when the CA chain is available);
+- the project may retain an isolated `fares` database and least-privileged `fares_app` role rather than placing Odoo tables into Supabase's default managed schema.
 
-- Vercel Hobby-to-Pro upgrade or any paid-plan mutation;
-- creating Fares Uniform staging or production Vercel resources;
-- creating managed Supabase/Postgres/Blob/Redis resources for real use;
-- production environment variables or secrets;
-- custom domains, DNS, certificates or Cloudflare changes;
-- real customer, staff, stock, order, bank or payment data;
-- production cutover;
-- changing business workflows merely to fit Vercel;
-- replacing Odoo Community with a bespoke ERP backend;
-- weakening database role permissions, public API allowlists, offline fail-closed rules or existing server-side role enforcement.
+Exact real endpoint, region, billing ownership, database creation and backup policy remain live-stage decisions.
 
-## Commercial-plan boundary
+## Verified slices
 
-The currently connected Vercel team is on the Hobby plan. Fares Uniform is a commercial/business workload. Repository/CI work may proceed without changing that account, but a real business staging/production deployment must use an appropriate commercial Vercel plan and requires separate explicit authorization before any upgrade or billable resource creation.
+### Stateless state/session/recovery — GREEN
 
-## Current progress — 2026-09-13
+Initial GREEN proof:
+- SHA `52bd809facb2a701e7d61db777ff018fa2f8778b`;
+- workflow `Phase 7 Vercel adaptation`;
+- run `34754781691`;
+- job `103717216101`;
+- artifact `10316318863`;
+- digest `sha256:37bc11aff6d652b256e283a6ac9132c3ba11f023e4158da780d48ef4d9815191`.
 
-Phase 7 remains active, but two major stateless-runtime requirements are already exact-head green:
+Final runtime checkpoint re-proof:
+- SHA `24850acc029e0e7bbef898d6598d0d8b3f7ce733`;
+- run `34769858562`;
+- job `103757345079`;
+- artifact `10322245429`;
+- digest `sha256:00da92b64a39a567a3383e02b6c443b891946bb69e51a494fa678f239003f22f`.
 
-- **Durable state/session/recovery — GREEN.** SHA `52bd809facb2a701e7d61db777ff018fa2f8778b`; workflow `Phase 7 Vercel adaptation`, run `34754781691`, job `103717216101`; artifact `10316318863`, digest `sha256:37bc11aff6d652b256e283a6ac9132c3ba11f023e4158da780d48ef4d9815191`. Proven: no declared persistent Odoo volume, database-backed attachments, PostgreSQL-backed authenticated sessions, container-replacement continuity, least-privileged shared-session schema and database-only backup/recreate/restore continuity.
-- **External cron/background execution — GREEN.** SHA `8719a6f868813da1f7618200e7ad1036f2214b60`; workflow `Phase 7 Vercel cron trigger`, run `34755578761`, job `103719261532`; artifact `10317405872`, digest `sha256:5fe902b2788bb35c7220a12f6add36a6544ef072a00bb20aaf4709c3474ae60c`. Proven: built-in cron disabled, unauthenticated trigger rejection and exactly-once execution under concurrent authenticated external triggers using native Odoo cron locking.
+Proven: no durable Odoo volume, database-backed attachments, shared PostgreSQL sessions, complete runtime replacement continuity, least-privileged session-store access and database-only backup/clean-restore continuity.
 
-The current remaining runtime blocker is **Realtime/WebSocket continuity — RED**. Latest implementation HEAD before this documentation checkpoint is `fcb811f947aa74c0370fd82b83bc0e01e962f07b`. Workflow `Phase 7 Vercel websocket continuity`, run `34762496143`, job `103737654226` passes database setup, seven production addons plus Odoo `bus`, normal HTTP runtime and shared authenticated session, then fails while starting the evented WebSocket service. Artifact `10319751894`, digest `sha256:1a48d06872914fef024e68fdaa68d421218f67f6bb1f5bb2b2ca4dc439cbf8ff`.
+### External cron/background execution — GREEN
 
-A temporary diagnostic workflow at `.github/workflows/phase7-diagnose-websocket.yml` preserves the evented-startup RED evidence from commit `8c1f70bcf45f748f6baf4c7a16b7b2bf37690f32`, run `34762055023`, job `103736500596`, artifact `10319296739`, digest `sha256:ebf065dccd4ed92bd5704129c4074a2db4a5938b99a92ceb720952aaa527e308`. It must be inspected before making another runtime fix and removed only after the realtime issue is resolved.
+Initial GREEN proof:
+- SHA `8719a6f868813da1f7618200e7ad1036f2214b60`;
+- run `34755578761`;
+- job `103719261532`;
+- artifact `10317405872`;
+- digest `sha256:5fe902b2788bb35c7220a12f6add36a6544ef072a00bb20aaf4709c3474ae60c`.
 
-After WebSocket continuity becomes exact-head green, the remaining Phase 7 work is final current-Vercel service/project routing/security configuration plus any inherited regression gates affected by that platform configuration. Full RED/GREEN chronology belongs in `docs/validation/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md`.
+Final runtime checkpoint re-proof:
+- SHA `24850acc029e0e7bbef898d6598d0d8b3f7ce733`;
+- run `34769858603`;
+- job `103757345002`;
+- artifact `10321293325`;
+- digest `sha256:01593409ac06c49210bd6fa8b66de3de3cbdacca09f4e61727a5d67496bdc9bb`.
 
-## Validation contract
+Proven: built-in cron disabled, unauthenticated/invalid requests rejected and concurrent authenticated trigger attempts execute the due synthetic job exactly once using native Odoo locking semantics.
 
-Before the Vercel adaptation can be called technically ready:
-1. exact application/Odoo authority is recorded and unchanged unless an evidence-backed compatibility change is required;
-2. Vercel-target Odoo image/service starts without depending on a durable local volume;
-3. synthetic attachment binary survives complete Odoo runtime replacement and is readable through Odoo;
-4. authenticated user session survives runtime replacement and does not rely on local filesystem continuity;
-5. cron/background execution is trigger-driven, authenticated, idempotent and does not require an immortal process;
-6. required realtime/bus client behavior reconnects cleanly after runtime lifecycle interruption;
-7. seven production addons install/upgrade and inherited application tests remain green;
-8. public-web typecheck/build/Playwright remains green if configuration changes affect it;
-9. a database-only backup/restore rehearsal recovers application facts, attachment content and any shared-session schema that is intended to be recoverable;
-10. no paid/live resource or real business data is used for the repository/CI proof.
+### Realtime/WebSocket continuity — GREEN
 
-Items 2–5 and 9 are now proven by the hosted state/session and cron slices above. Item 6 is the active blocker. Items 7–8 must be rerun if later platform changes can affect their inherited authority. Item 10 remains a standing boundary.
+First GREEN proof:
+- SHA `ec7c2b7b6c7a67daeb5477a188e3acb081783075`;
+- run `34767531559`;
+- job `103751067780`;
+- artifact `10320313179`;
+- digest `sha256:9b974465b13e72fd75201600a14bcfb89172bffcc45f7cacecbf7a4b29e0d0aa`.
 
-If any assumption fails, retain the Phase 6 provider-neutral package and redesign the Vercel mapping based on evidence rather than weakening the gate.
+Final runtime checkpoint re-proof:
+- SHA `24850acc029e0e7bbef898d6598d0d8b3f7ce733`;
+- run `34769858556`;
+- job `103757344998`;
+- artifact `10321447830`;
+- digest `sha256:011fe859cde5e9f1bf6014fd629162054f70070a22fc4a9687638659d8d566d5`.
 
-## Documentation outputs
+Proven: authenticated first notification, complete evented-runtime destruction, publication while no evented runtime exists, fresh evented startup, reconnect using shared session/cursor state, replay of only the unseen second notification and no duplicate of the first.
 
-- this phase contract;
-- updated `docs/architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md` marking the VPS recommendation as superseded by the client-selected Vercel direction while retaining historical Phase 6 evidence;
-- updated `docs/operations/DEPLOYMENT_READINESS.md`;
-- `docs/validation/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md` with exact implementation evidence and RED/GREEN chronology;
-- `PROJECT.md`, `docs/README.md` and the durable decision log as their owned facts change.
+### Final Vercel project mapping and public regression — GREEN
 
-## Exit criteria
+Final SHA `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`.
 
-Phase 7 repository/CI scope is complete only when the stateless Vercel-target runtime assumptions above are exact-head green and documented. That result means **ready for an explicitly authorized Vercel commercial staging deployment**, not production GO.
+Workflow `Phase 7 Vercel project configuration`, run `34770228476` — **SUCCESS**.
 
-Current exit state: **NOT MET** because the evented WebSocket/reconnect continuity proof is RED and final Vercel service/project routing/security configuration is not yet proven.
+- `project-config-proof` job `103758364688` — live Vercel schema validation, exact service/routing exposure contract, service-local runtime-mode resolution and inherited application-authority diff all pass;
+- project artifact `10322011069`, digest `sha256:6062aefe56ce0fb8fd633033b48f075e9cfbfe67eefb6626c09e53b91da72845`;
+- `public-web-regression` job `103758364506` — locked install, typecheck, production build and Playwright browser gate pass;
+- public-web artifact `10321902044`, digest `sha256:d2ac4b47173c334f1a61a55040d3b8d1a3056216664688e04b23a3b3ec7e9045`.
 
-Production remains NO-GO until commercial-plan authorization, actual backing-service resources, secret/domain/access ownership, real store hardware acceptance, staff/data cutover, monitoring/backup policy and launch timing are separately resolved.
+The only change from runtime checkpoint `24850acc...` to final SHA `01ce26d...` is the project-config CI workflow itself; no runtime, mapping, addon or public-web source changed. The GREEN runtime checkpoint therefore remains applicable to the final implementation while `01ce26d...` supplies the exact-head final mapping/public regression evidence.
+
+Full RED/GREEN chronology, including the resolved WebSocket diagnostics and harness defects, is retained in `../validation/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md`.
+
+## Validation contract — result
+
+All repository/CI acceptance criteria are met:
+
+1. exact application/Odoo authority preserved — **PASS**;
+2. Vercel-target Odoo image has no durable local-volume dependency — **PASS**;
+3. database-backed attachment survives runtime replacement — **PASS**;
+4. authenticated shared session survives runtime replacement — **PASS**;
+5. scheduled work is external, authenticated and idempotent/exactly-once under the bounded proof — **PASS**;
+6. realtime reconnect/replay across runtime interruption — **PASS**;
+7. seven production addons install/upgrade on the adapted runtime — **PASS**;
+8. final public-web typecheck/build/browser regression — **PASS**;
+9. database-only backup/clean-restore recovers proven application/attachment/session state — **PASS**;
+10. final Vercel service topology is live-schema-valid and minimally exposed — **PASS**;
+11. no paid/live resource or real business data used — **PASS**.
+
+## Exit state
+
+**Phase 7 repository/CI scope: COMPLETE / VERIFIED.**
+
+The project is technically ready for an **explicitly authorized commercial Vercel staging deployment with managed PostgreSQL**. This is not production GO.
+
+Production remains **NO-GO** until commercial-plan authorization, actual Vercel/Supabase resources, secret/domain/access ownership, backup retention/RPO/RTO, monitoring, real store hardware acceptance, named staff/training, real-data cutover/reconciliation and launch timing are separately resolved and authorized.
