@@ -7,6 +7,10 @@ on:
     paths:
       - .github/workflows/phase8-supabase-control-plane.yml
       - deploy/supabase/**
+      - Dockerfile.vercel
+      - deploy/vercel/entrypoint.sh
+      - deploy/vercel/validation.sh
+      - deploy/vercel/runtime-mode.sh
   workflow_dispatch:
 
 permissions:
@@ -19,8 +23,9 @@ concurrency:
 jobs:
   control-plane:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 45
     env:
+      ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
       SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
       SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
       SUPABASE_API_BASE: https://api.supabase.com/v1
@@ -42,6 +47,48 @@ jobs:
             exit 64
           fi
           echo "SUPABASE_ACCESS_TOKEN is configured."
+
+      - name: Validate Vercel Supavisor username contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          bash -n deploy/vercel/validation.sh
+          bash -n deploy/vercel/entrypoint.sh
+          bash -n deploy/vercel/runtime-mode.sh
+          source deploy/vercel/validation.sh
+
+          ODOO_DB_NAME=postgres
+          fares_require_identifier ODOO_DB_NAME
+
+          for value in fares_app postgres _odoo9 Role_123 "fares_app.${SUPABASE_PROJECT_REF}" "postgres.${SUPABASE_PROJECT_REF}"; do
+            ODOO_DB_USER="$value"
+            fares_require_db_connection_user ODOO_DB_USER
+          done
+
+          reject_connection_user() {
+            local value="$1"
+            if (ODOO_DB_USER="$value"; fares_require_db_connection_user ODOO_DB_USER >/dev/null 2>&1); then
+              echo "Unsafe ODOO_DB_USER was accepted" >&2
+              exit 1
+            fi
+          }
+          reject_connection_user ''
+          reject_connection_user 'fares-app'
+          reject_connection_user 'fares_app.project.extra'
+          reject_connection_user 'fares_app;SELECT1'
+          reject_connection_user 'fares_app/project'
+          reject_connection_user $'fares_app\nproject'
+
+          if (ODOO_DB_NAME="postgres.${SUPABASE_PROJECT_REF}"; fares_require_identifier ODOO_DB_NAME >/dev/null 2>&1); then
+            echo 'Database-name validation unexpectedly accepted a pooler-style suffix.' >&2
+            exit 1
+          fi
+
+          grep -Fq 'source /usr/local/lib/fares-vercel-validation.sh' deploy/vercel/entrypoint.sh
+          grep -Fq 'fares_require_db_connection_user ODOO_DB_USER' deploy/vercel/entrypoint.sh
+          grep -Fq 'deploy/vercel/validation.sh /usr/local/lib/fares-vercel-validation.sh' Dockerfile.vercel
+          echo 'vercel_supavisor_username_contract=PASS'
 
       - name: Verify target project access
         env:
@@ -181,7 +228,31 @@ jobs:
           jq -c '.[0]' "$response"
           echo "Least-privilege Supabase bootstrap boundary verified."
 
-      - name: Probe temporary CLI database role over session pooler
+      - name: Build exact Vercel Odoo runtime image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build --pull \
+            -f Dockerfile.vercel \
+            --build-arg ODOO_SHA="$ODOO_SHA" \
+            --build-arg FARES_SHA="$GITHUB_SHA" \
+            -t "fares-uniform-vercel:$GITHUB_SHA" .
+
+          test "$(docker image inspect -f '{{json .Config.Volumes}}' "fares-uniform-vercel:$GITHUB_SHA")" = 'null'
+          docker run --rm --entrypoint bash "fares-uniform-vercel:$GITHUB_SHA" -lc '
+            test "$(id -u)" = "10001"
+            test "$(id -g)" = "10001"
+            test -r /usr/local/lib/fares-vercel-validation.sh
+            test -x /usr/local/bin/fares-vercel-odoo-entrypoint
+            source /usr/local/lib/fares-vercel-validation.sh
+            ODOO_DB_NAME=postgres
+            ODOO_DB_USER="fares_app.'"${SUPABASE_PROJECT_REF}"'"
+            fares_require_identifier ODOO_DB_NAME
+            fares_require_db_connection_user ODOO_DB_USER
+          '
+          echo 'runtime_image_validation_contract=PASS'
+
+      - name: Probe temporary CLI role and exact runtime image over Session Pooler
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         shell: bash
@@ -197,6 +268,7 @@ jobs:
             echo "Supabase temporary login-role creation failed with HTTP ${status}." >&2
             exit 1
           fi
+
           role="$(jq -er '.role' "$response")"
           password="$(jq -er '.password' "$response")"
           ttl="$(jq -er '.ttl_seconds' "$response")"
@@ -204,15 +276,37 @@ jobs:
           echo "Temporary CLI database role issued with TTL ${ttl}s."
           export PGPASSWORD="$password"
           pooler_user="${role}.${SUPABASE_PROJECT_REF}"
+
+          source deploy/vercel/validation.sh
+          ODOO_DB_USER="$pooler_user"
+          fares_require_db_connection_user ODOO_DB_USER
+
           result="$(psql \
             "host=${SUPABASE_POOLER_HOST} port=5432 dbname=postgres user=${pooler_user} sslmode=require connect_timeout=10" \
             -v ON_ERROR_STOP=1 -Atc \
             "SELECT current_database(), current_user, (SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user), (SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user), (SELECT rolsuper FROM pg_roles WHERE rolname=current_user);")"
           IFS='|' read -r database backend_role can_create_db can_create_role is_superuser <<<"$result"
-          printf 'pooler_probe=database:%s role:%s createdb:%s createrole:%s superuser:%s\n' \
-            "$database" "$backend_role" "$can_create_db" "$can_create_role" "$is_superuser"
           test "$database" = "postgres"
           test "$can_create_db" = "f"
           test "$can_create_role" = "f"
           test "$is_superuser" = "f"
-          echo "Session pooler connectivity verified with client sslmode=require."
+
+          export ODOO_DB_HOST="$SUPABASE_POOLER_HOST"
+          export ODOO_DB_PORT=5432
+          export ODOO_DB_NAME=postgres
+          export ODOO_DB_USER="$pooler_user"
+          export ODOO_DB_PASSWORD="$password"
+          export ODOO_DB_SSLMODE=require
+          export EXPECTED_BACKEND_ROLE="$role"
+
+          docker run --rm --entrypoint bash \
+            -e ODOO_DB_HOST -e ODOO_DB_PORT -e ODOO_DB_NAME -e ODOO_DB_USER \
+            -e ODOO_DB_PASSWORD -e ODOO_DB_SSLMODE -e EXPECTED_BACKEND_ROLE \
+            "fares-uniform-vercel:$GITHUB_SHA" -lc '
+              set -euo pipefail
+              source /usr/local/lib/fares-vercel-validation.sh
+              fares_require_identifier ODOO_DB_NAME
+              fares_require_db_connection_user ODOO_DB_USER
+              /opt/odoo-venv/bin/python -c "import os, psycopg2; c=psycopg2.connect(host=os.environ['"'"'ODOO_DB_HOST'"'"'],port=int(os.environ['"'"'ODOO_DB_PORT'"'"']),dbname=os.environ['"'"'ODOO_DB_NAME'"'"'],user=os.environ['"'"'ODOO_DB_USER'"'"'],password=os.environ['"'"'ODOO_DB_PASSWORD'"'"'],sslmode=os.environ['"'"'ODOO_DB_SSLMODE'"'"'],connect_timeout=10); cur=c.cursor(); cur.execute('"'"'SELECT current_database(), current_user'"'"'); d,r=cur.fetchone(); assert d=='"'"'postgres'"'"'; assert r==os.environ['"'"'EXPECTED_BACKEND_ROLE'"'"']; c.close(); print('"'"'runtime_image_supabase_session_pooler=PASS'"'"')"
+            '
+          echo "pooler_probe=database:${database} role:${backend_role} createdb:${can_create_db} createrole:${can_create_role} superuser:${is_superuser}"
