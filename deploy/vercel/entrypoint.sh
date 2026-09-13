@@ -2,6 +2,7 @@
 set -euo pipefail
 
 source /usr/local/lib/fares-vercel-runtime-mode.sh
+source /usr/local/lib/fares-vercel-validation.sh
 
 read_secret() {
   local value_var="$1"
@@ -15,12 +16,6 @@ read_secret() {
   [[ -n "$current" ]] || { echo "Required secret is empty: $value_var/$file_var" >&2; exit 64; }
   [[ "$current" != *$'\n'* && "$current" != *$'\r'* ]] || { echo "Secret contains a newline: $value_var" >&2; exit 64; }
   printf -v "$value_var" '%s' "$current"
-}
-
-require_identifier() {
-  local name="$1"
-  local value="${!name:-}"
-  [[ "$value" =~ ^[A-Za-z0-9_]+$ ]] || { echo "$name must match [A-Za-z0-9_]+" >&2; exit 64; }
 }
 
 : "${ODOO_DB_HOST:?ODOO_DB_HOST is required}"
@@ -47,8 +42,8 @@ require_identifier() {
 # preserving explicit ODOO_RUNTIME_MODE overrides for CI/local operation.
 ODOO_RUNTIME_MODE="$(fares_resolve_odoo_runtime_mode)"
 
-require_identifier ODOO_DB_NAME
-require_identifier ODOO_DB_USER
+fares_require_identifier ODOO_DB_NAME
+fares_require_db_connection_user ODOO_DB_USER
 [[ "$ODOO_DB_PORT" =~ ^[0-9]+$ ]] || { echo "ODOO_DB_PORT must be numeric" >&2; exit 64; }
 [[ "$ODOO_HTTP_PORT" =~ ^[0-9]+$ ]] || { echo "ODOO_HTTP_PORT/PORT must be numeric" >&2; exit 64; }
 [[ "$ODOO_WORKERS" == "0" ]] || { echo "Vercel runtime requires ODOO_WORKERS=0" >&2; exit 64; }
