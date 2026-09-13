@@ -23,14 +23,15 @@ BEGIN
 END
 $bootstrap$;
 
--- Reassert the routine-role boundary on every idempotent bootstrap run.
+-- Supabase's managed postgres role has CREATEROLE but is intentionally not a
+-- true PostgreSQL superuser. It may reassert these routine-role attributes,
+-- while SUPERUSER/REPLICATION drift is fail-closed by the verification below
+-- because changing those attributes itself requires a true superuser.
 ALTER ROLE fares_app
     NOLOGIN
-    NOSUPERUSER
     NOCREATEDB
     NOCREATEROLE
-    NOINHERIT
-    NOREPLICATION;
+    NOINHERIT;
 
 CREATE EXTENSION IF NOT EXISTS unaccent;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
