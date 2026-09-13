@@ -29,7 +29,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 2C contract](phases/PHASE_2C_REFUNDS_EXCHANGES.md) | Retail refunds/exchanges |
 | [Phase 2C policy](requirements/PHASE_2C_POLICY_DECISIONS.md) | Accepted Phase 2C policy |
 | [Phase 2C architecture](architecture/PHASE_2C_REFUND_RETURN_MODEL.md) | Refund/return model |
-| [Phase 2C validation](validation/PHASE_2C_REFUNDS_EXCHANGES.md) | Phase 2C evidence |
+| [Phase 2C validation](validation/PHASE_2C_REFUNDS_EXCHANGES.md) | Refund/exchange evidence |
 | [Phase 3A contract](phases/PHASE_3A_PREORDER_PRODUCTION.md) | Production workflow |
 | [Phase 3A architecture](architecture/PHASE_3A_PRODUCTION_MODEL.md) | Production model |
 | [Phase 3A validation](validation/PHASE_3A_PREORDER_PRODUCTION.md) | Production evidence |
@@ -37,35 +37,64 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 3B architecture](architecture/PHASE_3B_BUSINESS_ORDER_MODEL.md) | CRM/Sales/payment/stock ownership |
 | [Phase 3B policy](requirements/PHASE_3B_POLICY_DECISIONS.md) | Accepted commercial policy |
 | [Phase 3B validation](validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md) | Business-client evidence |
-| [Phase 4A public catalog/enquiry contract](phases/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Completed public catalog/enquiry scope |
-| [Phase 4A public integration architecture](architecture/PHASE_4A_PUBLIC_INTEGRATION.md) | Odoo/Next.js DTO/enquiry boundary |
-| [Phase 4A validation](validation/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Final server/web authority and evidence |
-| [Phase 4B operational reporting contract](phases/PHASE_4B_OPERATIONAL_REPORTING.md) | Completed operational-reporting definitions and security boundaries |
+| [Phase 4A public catalog/enquiry](phases/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Completed public catalog/enquiry scope |
+| [Phase 4A public integration](architecture/PHASE_4A_PUBLIC_INTEGRATION.md) | Odoo/Next.js DTO/enquiry boundary |
+| [Phase 4A validation](validation/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Public server/web authority and evidence |
+| [Phase 4B operational reporting](phases/PHASE_4B_OPERATIONAL_REPORTING.md) | Completed reporting definitions/security |
 | [Phase 4B reporting architecture](architecture/PHASE_4B_REPORTING_MODEL.md) | Reporting source/service/config boundary |
-| [Phase 4B validation](validation/PHASE_4B_OPERATIONAL_REPORTING.md) | Final reporting authority and manual evidence |
-| [Phase 5 integrated UAT/onboarding contract](phases/PHASE_5_INTEGRATED_UAT_ONBOARDING.md) | Completed/verified joined release acceptance and exit criteria |
-| [Phase 5 validation](validation/PHASE_5_INTEGRATED_UAT.md) | Exact-head UAT evidence, scenario matrix, artifacts, manual review and defect register |
-| [Phase 5A Arabic launch-quality polish](phases/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Completed/verified Arabic launch-quality closure |
-| [Phase 5A validation](validation/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Exact-head 149-test/public/manual evidence and P2-001 closure |
-| [Phase 6 deployment-readiness contract](phases/PHASE_6_DEPLOYMENT_READINESS.md) | Completed provider-neutral deployment packaging, persistence and restore-proof scope |
-| [Phase 6 deployment architecture](architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md) | Deployment architecture evolution; historical VPS recommendation and current Vercel supersession |
-| [Phase 6 validation](validation/PHASE_6_DEPLOYMENT_READINESS.md) | Exact RED-to-green hosted deployment-package evidence and artifact authority |
-| [Phase 7 Vercel deployment adaptation](phases/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | Active stateless Vercel/Odoo compatibility and validation contract |
-| [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result plus operator/client inputs still required |
-| [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Vercel-selected go/no-go checklist, recovery baseline and remaining live-resource decisions |
+| [Phase 4B validation](validation/PHASE_4B_OPERATIONAL_REPORTING.md) | Reporting authority/manual evidence |
+| [Phase 5 integrated UAT/onboarding](phases/PHASE_5_INTEGRATED_UAT_ONBOARDING.md) | Joined release acceptance/exit criteria |
+| [Phase 5 validation](validation/PHASE_5_INTEGRATED_UAT.md) | Exact-head UAT/manual evidence and defect register |
+| [Phase 5A Arabic launch polish](phases/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Arabic launch-quality closure |
+| [Phase 5A validation](validation/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | 149-test/public/manual evidence and localization closure |
+| [Phase 6 deployment-readiness](phases/PHASE_6_DEPLOYMENT_READINESS.md) | Provider-neutral packaging/persistence/restore proof |
+| [Phase 6 deployment architecture](architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md) | Provider-neutral baseline and Vercel supersession/history |
+| [Phase 6 validation](validation/PHASE_6_DEPLOYMENT_READINESS.md) | Exact RED-to-green deployment-package evidence |
+| [Phase 7 Vercel adaptation](phases/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | Completed stateless Vercel/Odoo repository/CI contract |
+| [Phase 7 validation](validation/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | State/session/cron/WebSocket/project-map RED-to-green evidence |
+| [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result and operator/client inputs still required |
+| [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Go/no-go checklist and remaining live-stage decisions |
 
-Current completed milestones: **Phase 5A application/UAT/localization — COMPLETE / VERIFIED; Phase 6 provider-neutral deployment/readiness proof — COMPLETE / VERIFIED.**
+## Current authority
 
-Current active milestone: **Phase 7 Vercel deployment adaptation — ACTIVE / AUTHORIZED** on branch `phase-7/vercel-deployment-adaptation`.
+Completed milestones: **Phase 5A application/UAT/localization — COMPLETE / VERIFIED; Phase 6 provider-neutral deployment/readiness — COMPLETE / VERIFIED; Phase 7 Vercel stateless adaptation — COMPLETE / VERIFIED at repository/CI level.**
 
-Authoritative business-application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`. Run `34700625051` passed **149 Odoo/UAT tests with 0 failures / 0 errors**, repeatable seven-production-addon upgrade, public typecheck/build and **8/8 Playwright**. Odoo/UAT artifact `10300402418` has digest `sha256:650fd702f12d0e042ec1761401b7a039778a973ab797d2c77f01d76c5eede701`; web artifact `10300486494` has digest `sha256:9658f4e094bd65292634d30f99e8020c5a1ce278644c30c0c7077b95722ff104`.
+Current branch: `phase-7/vercel-deployment-adaptation`.
 
-Authoritative Phase 6 provider-neutral deployment-package SHA remains `e337315684c62d69ad75ba56a5867098da17489c`. Workflow `Phase 6 deployment readiness`, run `34726690763`, job `103641932057`, completed every security/persistence/backup/destructive-restore/post-restore gate successfully. Artifact `10307809040` has digest `sha256:4367f4fd3085aa38b6381ef9cca0168bef0951b7e2d63cce67cd5b390fb0ae38`.
+Phase 7 final implementation authority: `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`.
 
-On 2026-09-13 the client explicitly selected **Vercel** as the deployment-platform direction, matching RenderLab/SAGA. This supersedes the prior Hetzner/single-VPS recommendation but does not invalidate the Phase 6 provider-neutral recovery proof.
+Phase 7 final runtime-regression checkpoint: `24850acc029e0e7bbef898d6598d0d8b3f7ce733`.
 
-Phase 7 now adapts Odoo to Vercel's stateless service model before any live deployment: managed PostgreSQL, database-backed attachments for the first proof, shared server-side sessions, trigger-driven scheduled work, and reconnect-safe realtime/bus behavior. The existing Compose/VPS package stays intact as a verified baseline/fallback.
+Authoritative business-application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`. Its hosted gate passed **149 Odoo/UAT tests with 0 failures / 0 errors**, repeatable seven-production-addon upgrade, public typecheck/build and **8/8 Playwright**.
 
-The currently connected Vercel team is on Hobby. Fares Uniform is a commercial workload, so repository/CI proof may proceed but any real business staging/production deployment or plan upgrade requires separate explicit authorization and an appropriate commercial plan.
+Authoritative Phase 6 provider-neutral deployment-package SHA remains `e337315684c62d69ad75ba56a5867098da17489c`, with exact security/persistence/backup/destructive-restore proof retained in Phase 6 validation.
 
-Production remains **NO-GO**. No paid/live provider resource, domain/DNS record, production certificate/secret or real business data has been created or changed by the Vercel selection.
+## Phase 7 result
+
+The accepted Vercel topology is now source-controlled and hosted-tested:
+
+- Next.js `public_web` service;
+- stateless `odoo_http` container service;
+- stateless `odoo_websocket` evented container service;
+- private public-web → Odoo HTTP service binding through `ODOO_BASE_URL`;
+- only `/websocket` publicly routed to the evented service;
+- only authenticated `/fares/internal/cron/run` publicly routed to Odoo HTTP;
+- no broad Odoo backoffice or direct public API rewrite;
+- database-backed Odoo attachments;
+- PostgreSQL-backed authenticated sessions;
+- built-in Odoo cron disabled and external authenticated trigger proven exactly once under concurrent invocation;
+- WebSocket notification delivery/replacement/reconnect/replay proven;
+- database-only state backup and clean restore proven;
+- final Vercel schema/topology gate and public-web regression green.
+
+At runtime checkpoint `24850acc...`, state/session/recovery run `34769858562`, cron run `34769858603`, WebSocket run `34769858556` and project-config run `34769858553` all succeeded. Final implementation `01ce26d...` then passed final project mapping and public-web regression in run `34770228476`. The only change between those SHAs is the project-config CI workflow.
+
+Supabase is the preferred managed PostgreSQL target for a future authorized staging deployment. Odoo must use direct PostgreSQL or Supavisor **session mode**, never transaction mode; live connectivity requires TLS. No real Supabase/Vercel staging resource has been created by this work.
+
+## Current gate
+
+The codebase is **technically ready for explicitly authorized commercial Vercel staging**, not production.
+
+Production remains **NO-GO**. Outstanding work is live/operational rather than unresolved Phase 7 repository engineering: commercial Vercel plan/project authorization, actual Supabase/PostgreSQL resource and region, runtime secrets, domain/DNS/TLS/access, backup retention/RPO/RTO, monitoring/log ownership, real store hardware acceptance, named staff/training, real-data cutover/reconciliation and launch timing.
+
+Do not infer authorization to create or mutate any of those live resources from Phase 7 completion.
