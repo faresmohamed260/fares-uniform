@@ -71,7 +71,7 @@ RUN git init /opt/odoo \
 # writable path explicitly disposable; durable truth belongs in PostgreSQL.
 RUN groupadd --system --gid 10001 odoo \
     && useradd --system --uid 10001 --gid 10001 --home-dir /tmp/odoo-home --create-home --shell /usr/sbin/nologin odoo \
-    && mkdir -p /mnt/extra-addons /mnt/runtime-addons /tmp/odoo-data /tmp/odoo-home \
+    && mkdir -p /mnt/extra-addons /mnt/runtime-addons /tmp/odoo-data /tmp/odoo-home /usr/local/lib \
     && chown -R 10001:10001 /mnt/extra-addons /mnt/runtime-addons /tmp/odoo-data /tmp/odoo-home /opt/odoo /opt/odoo-venv
 
 # Only production business addons plus the deployment-only runtime adapter are
@@ -84,9 +84,10 @@ COPY --chown=10001:10001 addons/fu_business /mnt/extra-addons/fu_business
 COPY --chown=10001:10001 addons/fu_public_api /mnt/extra-addons/fu_public_api
 COPY --chown=10001:10001 addons/fu_reporting /mnt/extra-addons/fu_reporting
 COPY --chown=10001:10001 deploy/vercel/runtime_addons/fares_vercel_runtime /mnt/runtime-addons/fares_vercel_runtime
+COPY --chown=10001:10001 deploy/vercel/runtime-mode.sh /usr/local/lib/fares-vercel-runtime-mode.sh
 COPY --chown=10001:10001 deploy/vercel/entrypoint.sh /usr/local/bin/fares-vercel-odoo-entrypoint
 
-RUN chmod 0755 /usr/local/bin/fares-vercel-odoo-entrypoint
+RUN chmod 0755 /usr/local/bin/fares-vercel-odoo-entrypoint /usr/local/lib/fares-vercel-runtime-mode.sh
 
 ENV HOME=/tmp/odoo-home \
     ODOO_DATA_DIR=/tmp/odoo-data \
