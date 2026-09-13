@@ -1,6 +1,6 @@
 # Phase 8A — Free-tier staging execution
 
-Status: **CLIENT AUTHORIZED; SUPABASE CONTROL PLANE + MANAGED CONNECTION VERIFIED; VERCEL LIVE PROJECT PENDING.**
+Status: **CLIENT AUTHORIZED; SUPABASE LIVE SLICE VERIFIED; VERCEL CONTROL PLANE + PROJECT SHELL VERIFIED; COMPLIANT FREE DEPLOYMENT STILL BLOCKED.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -17,6 +17,8 @@ Inherited business-application/test authority: `cc2656d7529cfd4af396ddd0af6444a0
 Pinned Odoo Community SHA: `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
 Current Phase 8 managed-database/runtime contract checkpoint: `b7a661bf70c2468b006bf971cba10172cf810e7d`.
+
+Current Vercel control-plane checkpoint: `884aedc9465122d25639ca24954f154dfa72dc70`.
 
 ## Client authorization
 
@@ -35,13 +37,44 @@ This authorization does not permit:
 
 ### Vercel
 
-Authorized team: `faresmohamed260-6733's projects`.
+Authorized team:
 
-Current plan: **Hobby**.
+- name: `faresmohamed260-6733's projects`;
+- team id: `team_r09C6RLmb2acHapENECQIn9T`;
+- slug: `faresmohamed260-6733s-projects`;
+- current plan: **Hobby**.
 
 Existing projects `studio`, `saga` and `renderlab` remain out of scope and must not be mutated by Fares Uniform automation.
 
-No Fares Uniform Vercel project exists at this checkpoint. Vercel project creation/linking, secret injection and first live deployment are the next provider actions.
+The GitHub Actions repository secret `VERCEL_TOKEN` is now configured. The client explicitly reported that the issued token has **full account control**. Hosted automation therefore treats the exact team id and exact `fares-uniform` project name as mandatory fail-closed boundaries rather than relying on token scope alone.
+
+The new isolated project shell now exists:
+
+- project name: `fares-uniform`;
+- project id: `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`;
+- account/team id: `team_r09C6RLmb2acHapENECQIn9T`;
+- latest deployment: none at the control-plane checkpoint;
+- domains: none at the control-plane checkpoint;
+- Git repository link: intentionally not activated by the first control-plane run, preventing an unintended automatic deployment before the free-tier/commercial-use constraint is resolved.
+
+Authoritative Vercel control-plane run:
+
+- commit: `884aedc9465122d25639ca24954f154dfa72dc70`;
+- workflow run: `34788971298`;
+- job: `103809533700`;
+- result: **SUCCESS**.
+
+That run proved:
+
+- the repository secret is present without printing its value;
+- the token can access exactly the authorized Vercel team;
+- `studio`, `saga` and `renderlab` each remain present and untouched;
+- there was no pre-existing `fares-uniform` project;
+- only the isolated `fares-uniform` project shell was created;
+- the resulting project id/account ownership match the exact expected team;
+- deployment count remained `0` after creation.
+
+The current full-account Vercel token is broader than the eventual steady-state requirement. After project creation/bootstrap no longer requires account-wide creation privileges, replace it with the narrowest project/team-scoped token that still supports required deployment/environment operations, prove the replacement in hosted CI, then revoke the broad token. The secret value itself must never be committed or printed.
 
 ### Supabase
 
@@ -95,7 +128,7 @@ The run builds the exact Vercel-target Odoo image with pinned Odoo SHA `1a13ceea
 The live project currently has:
 
 - `fares_app` routine application role;
-- `fares_app` initially `NOLOGIN` pending atomic Vercel secret injection;
+- `fares_app` still `NOLOGIN` pending atomic runtime secret injection;
 - `fares_app` verified `NOSUPERUSER`, `NOCREATEDB`, `NOCREATEROLE`, `NOINHERIT`, `NOREPLICATION`;
 - `CONNECT` and `TEMPORARY` on database `postgres` for `fares_app`;
 - `USAGE` and `CREATE` on schema `public` for `fares_app`;
@@ -123,6 +156,20 @@ The correction is source-controlled:
 
 Run `34787677724` proves both the validation contract and real psycopg2 connectivity from the exact built runtime image through the Fares Uniform Session Pooler.
 
+## Secret inventory
+
+The no-value secret inventory is authoritative at `docs/operations/PHASE_8_STAGING_SECRET_INVENTORY.md`.
+
+Current activation state:
+
+- `SUPABASE_ACCESS_TOKEN`: configured and proven;
+- `VERCEL_TOKEN`: configured and proven against the exact authorized team, but currently broader than desired steady-state scope;
+- `fares_app`: still `NOLOGIN`;
+- permanent `ODOO_DB_PASSWORD`: not generated;
+- `ODOO_ADMIN_PASSWD`: not generated;
+- `CRON_SECRET`: not generated;
+- no Vercel runtime environment secret has been injected yet.
+
 ## RED evidence retained
 
 Phase 8 retains failed runs that exposed provider-specific assumptions instead of hiding them:
@@ -133,7 +180,22 @@ Phase 8 retains failed runs that exposed provider-specific assumptions instead o
 - `34787368732` — bootstrap applied; verification exposed PostgreSQL `PUBLIC` pseudo-role handling;
 - `34787615934` — separate cross-provider workflow failed at workflow-definition parsing before any job started and was removed after its checks were integrated into the working control-plane workflow.
 
-Each issue was corrected at the actual failing boundary; the final integrated control-plane run is green.
+Each issue was corrected at the actual failing boundary; the final integrated Supabase control-plane run and the new Vercel control-plane run are green.
+
+## Free-tier Vercel deployment constraint
+
+The client requirement remains **stay free**. The authorized Vercel team remains on **Hobby**. The repository's earlier provider review established that Hobby is not a valid target for the intended commercial Fares Uniform workload under Vercel's current plan terms.
+
+For that reason the control-plane workflow intentionally stopped after creating a clean, empty project shell. It did **not**:
+
+- link the GitHub repository;
+- create a deployment;
+- activate `fares_app` login;
+- generate or inject permanent runtime secrets;
+- assign domains;
+- mutate the three existing Vercel projects.
+
+Do not turn the empty shell into a commercial staging deployment merely to obtain a free URL. A compliant next step requires either a separately authorized Vercel plan suitable for commercial use or a documented hosting-provider decision that preserves the Phase 7 security/state/realtime contract while remaining free.
 
 ## Gate state
 
@@ -143,30 +205,32 @@ Each issue was corrected at the actual failing boundary; the final integrated co
 
 ### Gate B — authorization/provider ownership
 
-**PARTIAL PASS / VERCEL RESOURCE PENDING.**
+**PARTIAL PASS / RESOURCE OWNERSHIP ESTABLISHED; COMPLIANT VERCEL PLAN UNRESOLVED.**
 
 Resolved:
 
 - live staging rehearsal authorized;
 - free-tier-only spending boundary authorized;
-- intended Vercel team identified;
+- exact Vercel team and new isolated Fares Uniform project shell established;
 - dedicated Fares Uniform Supabase project created in `eu-central-1`;
-- Supabase Management API automation established through GitHub Actions;
-- existing unrelated Vercel/Supabase resources preserved.
+- Supabase and Vercel API automation established through GitHub Actions;
+- existing unrelated Vercel/Supabase resources preserved;
+- secret inventory recorded without values.
 
 Pending:
 
-- Fares Uniform Vercel project creation/linking;
-- Vercel runtime secret injection and first deployment.
+- a Vercel plan/provider path that is both compatible with the intended commercial workload and the client's spending boundary;
+- Git repository linking only after the deployment target is compliant;
+- runtime secret injection and first deployment.
 
 ### Gate C — live staging technical GO
 
-**IN PROGRESS.** The managed-database slice is now live and green, including real Session Pooler/TLS connectivity from the exact Vercel-target runtime image. The complete staging gate is not yet green because no live Fares Uniform Vercel deployment exists.
+**IN PROGRESS / BLOCKED AT APPLICATION HOSTING.** The managed-database slice is live and green, including real Session Pooler/TLS connectivity from the exact Vercel-target runtime image. The complete staging gate is not green because the Vercel project shell has no deployment and the free Hobby plan remains an unresolved policy boundary.
 
-Still required after Vercel creation:
+Still required after a compliant application-hosting path is selected:
 
 - activate `fares_app` with a generated runtime password and inject it without exposing it;
-- deploy the three-service Vercel topology;
+- deploy the three-service topology or an explicitly approved equivalent preserving the Phase 7 contract;
 - initialize/install/upgrade the seven production addons against the managed database;
 - verify database-backed attachment continuity on live replaceable compute;
 - verify shared authenticated-session continuity;
@@ -182,17 +246,13 @@ Still required after Vercel creation:
 
 ## Next authorized action
 
-Establish the Vercel API control plane through a repository Actions secret, then create only the new `fares-uniform` project in the authorized Vercel team. The deployment workflow must fail closed and must not mutate `studio`, `saga` or `renderlab`.
+Do not activate permanent database/runtime credentials while no compliant application deployment target exists.
 
-Once Vercel API access is available, the preferred activation sequence is atomic/fail-closed:
+The next decision is provider-level rather than an application defect:
 
-1. verify the Vercel token and exact team ownership;
-2. create/link the new Fares Uniform project without touching existing projects;
-3. generate new runtime database/Odoo/cron secrets inside the hosted runner and mask them before use;
-4. enable `LOGIN` for `fares_app` with the generated password through the Supabase Management API;
-5. inject only the required server-side values into the new Vercel project;
-6. deploy the authorized Phase 8 branch;
-7. if provider setup fails before a usable deployment exists, rotate/disable the new runtime credential rather than leaving an orphan credential active;
-8. execute the remaining Gate C proofs.
+1. either separately authorize a Vercel plan suitable for the commercial staging workload, which is new spending authorization and must be cost-confirmed before any upgrade; or
+2. keep the hard `$0` boundary and select/document an alternative host that explicitly permits the commercial staging workload while preserving the accepted stateless Odoo HTTP + evented WebSocket + managed PostgreSQL/session/cron/security behavior.
+
+After that provider decision, resume the already-defined atomic activation sequence: generate/mask runtime secrets in hosted CI, enable `fares_app LOGIN`, inject only server-side environment values, deploy, fail closed on setup failure, then execute the remaining Gate C proofs.
 
 Until Gate C is complete, do not use real business data and do not claim production readiness.
