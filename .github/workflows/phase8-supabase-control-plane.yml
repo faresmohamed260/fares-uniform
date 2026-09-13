@@ -123,15 +123,30 @@ jobs:
             (SELECT rolsuper FROM pg_roles WHERE rolname='fares_app') AS app_superuser,
             (SELECT rolcreatedb FROM pg_roles WHERE rolname='fares_app') AS app_createdb,
             (SELECT rolcreaterole FROM pg_roles WHERE rolname='fares_app') AS app_createrole,
+            (SELECT rolreplication FROM pg_roles WHERE rolname='fares_app') AS app_replication,
+            (SELECT rolinherit FROM pg_roles WHERE rolname='fares_app') AS app_inherit,
             has_database_privilege('fares_app', 'postgres', 'CONNECT') AS app_connect,
             has_database_privilege('fares_app', 'postgres', 'TEMPORARY') AS app_temporary,
             has_schema_privilege('fares_app', 'public', 'USAGE') AS app_schema_usage,
             has_schema_privilege('fares_app', 'public', 'CREATE') AS app_schema_create,
-            NOT has_schema_privilege('PUBLIC', 'public', 'CREATE') AS public_schema_create_revoked,
+            NOT EXISTS (
+              SELECT 1
+              FROM pg_namespace n
+              CROSS JOIN LATERAL aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner))) a
+              WHERE n.nspname='public' AND a.grantee=0 AND a.privilege_type='CREATE'
+            ) AS public_schema_create_revoked,
             to_regclass('public.fares_http_session') IS NOT NULL AS session_table_exists,
             (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session') AS session_table_owner,
             has_table_privilege('fares_app', 'public.fares_http_session', 'SELECT,INSERT,UPDATE,DELETE') AS session_app_dml,
-            NOT has_table_privilege('PUBLIC', 'public.fares_http_session', 'SELECT,INSERT,UPDATE,DELETE') AS session_public_dml_revoked,
+            NOT EXISTS (
+              SELECT 1
+              FROM pg_class c
+              JOIN pg_namespace n ON n.oid=c.relnamespace
+              CROSS JOIN LATERAL aclexplode(COALESCE(c.relacl, acldefault('r', c.relowner))) a
+              WHERE n.nspname='public' AND c.relname='fares_http_session'
+                AND a.grantee=0
+                AND a.privilege_type IN ('SELECT','INSERT','UPDATE','DELETE')
+            ) AS session_public_dml_revoked,
             EXISTS (SELECT 1 FROM pg_extension WHERE extname='unaccent') AS unaccent_present,
             EXISTS (SELECT 1 FROM pg_extension WHERE extname='pg_trgm') AS pg_trgm_present;
           SQL
@@ -150,6 +165,8 @@ jobs:
             and .[0].app_superuser == false
             and .[0].app_createdb == false
             and .[0].app_createrole == false
+            and .[0].app_replication == false
+            and .[0].app_inherit == false
             and .[0].app_connect == true
             and .[0].app_temporary == true
             and .[0].app_schema_usage == true
