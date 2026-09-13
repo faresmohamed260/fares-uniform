@@ -271,7 +271,7 @@ jobs:
 
           test "$(docker inspect -f '{{json .Mounts}}' "$PHASE7_WS_CONTAINER")" = '[]'
           for attempt in $(seq 1 40); do
-            if curl -fsS "http://127.0.0.1:$PHASE7_WS_PORT/websocket/health" >/dev/null; then break; fi
+            if curl -fsS -H "X-Odoo-Database: $ODOO_DB_NAME" "http://127.0.0.1:$PHASE7_WS_PORT/websocket/health" >/dev/null; then break; fi
             if [[ "$attempt" == 40 ]]; then docker logs "$PHASE7_WS_CONTAINER"; exit 1; fi
             sleep 2
           done
@@ -354,7 +354,7 @@ jobs:
 
           test "$(docker inspect -f '{{json .Mounts}}' "$PHASE7_WS_CONTAINER")" = '[]'
           for attempt in $(seq 1 40); do
-            if curl -fsS "http://127.0.0.1:$PHASE7_WS_PORT/websocket/health" >/dev/null; then break; fi
+            if curl -fsS -H "X-Odoo-Database: $ODOO_DB_NAME" "http://127.0.0.1:$PHASE7_WS_PORT/websocket/health" >/dev/null; then break; fi
             if [[ "$attempt" == 40 ]]; then docker logs "$PHASE7_WS_CONTAINER"; exit 1; fi
             sleep 2
           done
