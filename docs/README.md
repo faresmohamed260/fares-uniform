@@ -52,6 +52,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 6 validation](validation/PHASE_6_DEPLOYMENT_READINESS.md) | Exact RED-to-green deployment-package evidence |
 | [Phase 7 Vercel adaptation](phases/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | Completed stateless Vercel/Odoo repository/CI contract |
 | [Phase 7 validation](validation/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | State/session/cron/WebSocket/project-map RED-to-green evidence |
+| [Phase 8 commercial staging readiness](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) | Active commercial-staging ownership, authorization, live-proof and GO/NO-GO contract |
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result and operator/client inputs still required |
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Go/no-go checklist and remaining live-stage decisions |
 
@@ -59,7 +60,9 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 
 Completed milestones: **Phase 5A application/UAT/localization — COMPLETE / VERIFIED; Phase 6 provider-neutral deployment/readiness — COMPLETE / VERIFIED; Phase 7 Vercel stateless adaptation — COMPLETE / VERIFIED at repository/CI level.**
 
-Current branch: `phase-7/vercel-deployment-adaptation`.
+Active bounded stage: **Phase 8 commercial staging readiness — repository-planning contract active; live commercial staging NOT AUTHORIZED.**
+
+Current branch: `phase-8/commercial-staging-readiness`.
 
 Phase 7 final implementation authority: `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`.
 
@@ -71,7 +74,7 @@ Authoritative Phase 6 provider-neutral deployment-package SHA remains `e33731568
 
 ## Phase 7 result
 
-The accepted Vercel topology is now source-controlled and hosted-tested:
+The accepted Vercel topology is source-controlled and hosted-tested:
 
 - Next.js `public_web` service;
 - stateless `odoo_http` container service;
@@ -91,10 +94,30 @@ At runtime checkpoint `24850acc...`, state/session/recovery run `34769858562`, c
 
 Supabase is the preferred managed PostgreSQL target for a future authorized staging deployment. Odoo must use direct PostgreSQL or Supavisor **session mode**, never transaction mode; live connectivity requires TLS. No real Supabase/Vercel staging resource has been created by this work.
 
+## Phase 8 result so far
+
+The active Phase 8 contract converts the remaining deployment-readiness blockers into explicit ownership, authorization, managed-provider proof and operations gates without creating live resources.
+
+It defines:
+
+- Vercel/Supabase commercial ownership and billing records;
+- direct/session-mode TLS database requirements and bootstrap/runtime role separation;
+- staging/production state and secret isolation;
+- secret ownership/injection/rotation records;
+- actual managed backup/destructive-restore rehearsal;
+- monitoring/log retention/alert ownership;
+- domain/DNS/TLS/internal-access requirements;
+- actual managed cron/WebSocket/state replacement proof;
+- public EN/AR staging smoke tests;
+- store device acceptance, staff/training and real-data cutover/reconciliation;
+- separate repository-planning, staging-authorization, live-staging and production GO/NO-GO gates.
+
+No live Vercel/Supabase resource, secret, domain or real data is authorized by the Phase 8 repository-planning contract.
+
 ## Current gate
 
-The codebase is **technically ready for explicitly authorized commercial Vercel staging**, not production.
+The codebase remains **technically ready for explicitly authorized commercial Vercel staging**, not production.
 
-Production remains **NO-GO**. Outstanding work is live/operational rather than unresolved Phase 7 repository engineering: commercial Vercel plan/project authorization, actual Supabase/PostgreSQL resource and region, runtime secrets, domain/DNS/TLS/access, backup retention/RPO/RTO, monitoring/log ownership, real store hardware acceptance, named staff/training, real-data cutover/reconciliation and launch timing.
+Phase 8 repository planning does not itself authorize commercial staging. The next live boundary is explicit client approval of the commercial staging rehearsal plus concrete Vercel plan/project/billing ownership and Supabase project/region/billing ownership as defined by Phase 8 Gate B.
 
-Do not infer authorization to create or mutate any of those live resources from Phase 7 completion.
+Production remains **NO-GO** until live staging proof plus store hardware, named staff/training, real-data cutover/reconciliation, monitoring, backup/RPO/RTO, domains/access and separate production authorization are complete.

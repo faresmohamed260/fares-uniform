@@ -14,11 +14,13 @@
 
 ## Current state — 2026-09-13
 
-**Phases 0 through 7 repository/CI scope are COMPLETE / VERIFIED.**
+**Phases 0 through 7 repository/CI scope are COMPLETE / VERIFIED. Phase 8 commercial-staging readiness is the active repository-planning stage; live staging remains unauthorized.**
 
-Phase 7 Vercel stateless deployment adaptation is complete at implementation authority `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`. The final runtime-sensitive checkpoint is `24850acc029e0e7bbef898d6598d0d8b3f7ce733`. Documentation commits after `01ce26d...` are closure lineage only and do not replace implementation authority.
+Current branch: `phase-8/commercial-staging-readiness`.
 
-Current branch: `phase-7/vercel-deployment-adaptation`.
+Phase 8 contract: `docs/phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md`.
+
+Phase 7 Vercel stateless deployment adaptation remains complete at implementation authority `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`. The final runtime-sensitive checkpoint is `24850acc029e0e7bbef898d6598d0d8b3f7ce733`. Documentation commits after `01ce26d...` are closure lineage only and do not replace implementation authority.
 
 Authoritative business-application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.
 
@@ -91,6 +93,28 @@ Supabase is the preferred managed PostgreSQL target when commercial staging is e
 
 No real Supabase database/resource was created or mutated by Phase 7.
 
+## Phase 8 commercial-staging readiness boundary
+
+Phase 8 turns the remaining live/operational blockers into an execution-ready staging contract without creating live resources. The contract owns:
+
+- commercial Vercel plan/project ownership and authorization;
+- Supabase project/database/region/billing ownership;
+- direct/session-mode TLS database connectivity requirements;
+- staging/production separation;
+- secret ownership/injection/rotation;
+- privileged bootstrap versus routine DB role;
+- managed backup/restore rehearsal;
+- monitoring/log retention/alert ownership;
+- domain/DNS/TLS/internal-access model;
+- public EN/AR staging smoke tests;
+- actual cron/WebSocket proof against managed PostgreSQL;
+- store browser/scanner/printer acceptance;
+- staff/role/training ownership;
+- real-data cutover/reconciliation;
+- explicit repository-planning, staging-authorization, live-staging and production GO/NO-GO gates.
+
+The repository-planning stage does not authorize Vercel/Supabase account or resource mutation. Any live staging work waits for explicit client authorization satisfying the Phase 8 Gate B requirements.
+
 ## Verified inherited application authority
 
 Phase 5A workflow `Phase 5A Arabic polish`, run `34700625051`:
@@ -133,23 +157,19 @@ Phase 7 exact-head source-authority checks preserve `addons` and `apps/public-we
 12. Phase 5 integrated UAT/onboarding — complete / verified.
 13. Phase 5A Arabic launch-quality polish — complete / verified.
 14. Phase 6 provider-neutral deployment/restore proof — complete / verified.
-15. Phase 7 Vercel stateless deployment adaptation — **complete / verified at repository/CI level**.
-16. Next live stage — **not yet authorized**: commercial Vercel staging + managed PostgreSQL/Supabase rehearsal, followed later by real device/operations/cutover proof and production only under separate authorization.
+15. Phase 7 Vercel stateless deployment adaptation — complete / verified at repository/CI level.
+16. Phase 8 commercial staging readiness — **active repository-planning contract; live staging not authorized**.
+17. Production — **NO-GO** until Phase 8 live staging and separate operational/cutover authorization gates pass.
 
 ## Immediate next action
 
 Do not redo Phase 7 discovery or reopen its green CI slices without evidence of a regression.
 
-The next session should:
+The active Phase 8 repository-planning step is to keep `docs/phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md` as the bounded authority for the next live stage. Repository planning may refine templates/checklists without changing application/runtime source.
 
-1. verify the live branch and documentation HEAD before any write;
-2. read `AGENTS.md`, this file, `docs/README.md`, `docs/DECISIONS.md`, the Phase 7 contract/validation and deployment-readiness docs;
-3. confirm Phase 7 closure docs are internally consistent and treat `01ce26d...` as final Phase 7 implementation authority, not later documentation commits;
-4. prepare the next bounded stage around **commercial staging readiness/authorization**: actual Vercel plan/project ownership, Supabase project/database/region, secret ownership, access model, backup retention/RPO/RTO and monitoring;
-5. do **not** create or mutate Vercel/Supabase resources, upgrade plans, set production secrets/domains/DNS or use real data unless the client explicitly authorizes that live stage;
-6. if live staging is later authorized, use Supabase direct/session-mode PostgreSQL connectivity and immediately prove the actual managed connection, migrations/bootstrap, session/attachment continuity, cron/WebSocket behavior, backups and access boundaries before considering production.
+No live staging mutation is authorized. The next boundary requiring client action is Phase 8 **Gate B**: explicit authorization of the commercial staging rehearsal plus concrete Vercel plan/project/billing ownership and Supabase project/region/billing ownership. Only after that authorization may the project create or mutate staging resources and execute the live managed-database, backup/restore, cron, WebSocket, EN/AR smoke and monitoring proofs defined by the contract.
 
-Production remains **NO-GO**.
+Production remains **NO-GO** and requires a separate production GO after real device/staff/cutover/reconciliation gates.
 
 ## Later explicit business-policy decisions
 
