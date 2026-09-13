@@ -128,7 +128,8 @@ jobs:
             "SELECT current_database(), current_user, (SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user), (SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user), (SELECT rolsuper FROM pg_roles WHERE rolname=current_user), ssl FROM pg_stat_ssl WHERE pid=pg_backend_pid();")"
 
           IFS='|' read -r database backend_role can_create_db can_create_role is_superuser ssl <<<"$result"
+          printf 'pooler_probe=database:%s role:%s createdb:%s createrole:%s superuser:%s ssl:%s\n' \
+            "$database" "$backend_role" "$can_create_db" "$can_create_role" "$is_superuser" "$ssl"
           test "$database" = "postgres"
           test "$ssl" = "t"
-          echo "Session pooler connectivity verified as temporary role ${backend_role}."
-          echo "temporary_role_flags=createdb:${can_create_db},createrole:${can_create_role},superuser:${is_superuser}"
+          echo "Session pooler connectivity verified."
