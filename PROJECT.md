@@ -8,19 +8,24 @@
 - Execution: remote-only through GitHub and hosted CI. Do not use a local/scratch project source tree.
 - Odoo Community is the operational/domain core; Fares addons extend rather than duplicate native product, POS, CRM, sale, payment and stock truth.
 - Public presentation is a separate Next.js surface consuming only the narrow Fares public API.
+- Vercel is now the client-selected deployment-platform direction, following the RenderLab/SAGA pattern: application compute on Vercel, durable truth in managed backing services.
 - No production deployment is authorized yet.
 
 ## Current state — 2026-09-13
 
-**Phase 0 Discovery: COMPLETE. Phase 0A Hosted Odoo proof: PASS. Phase 0B Foundation architecture/UX: COMPLETE. Phase 1 Products/stock/access: COMPLETE. Phase 2A Retail checkout/offline: COMPLETE. Phase 2B Preorder/balance/collection: COMPLETE. Phase 2C Retail refunds/size exchanges: COMPLETE. Phase 3A Preorder production: COMPLETE. Phase 3B Business-client workflow: COMPLETE. Phase 4A Public catalog/enquiry: COMPLETE / VERIFIED. Phase 4B Operational reporting: COMPLETE / VERIFIED. Phase 5 Integrated UAT/onboarding: COMPLETE / VERIFIED. Phase 5A Arabic launch-quality polish: COMPLETE / VERIFIED. Phase 6 Deployment architecture/readiness proof: COMPLETE / VERIFIED.**
+**Phase 0 Discovery: COMPLETE. Phase 0A Hosted Odoo proof: PASS. Phase 0B Foundation architecture/UX: COMPLETE. Phase 1 Products/stock/access: COMPLETE. Phase 2A Retail checkout/offline: COMPLETE. Phase 2B Preorder/balance/collection: COMPLETE. Phase 2C Retail refunds/size exchanges: COMPLETE. Phase 3A Preorder production: COMPLETE. Phase 3B Business-client workflow: COMPLETE. Phase 4A Public catalog/enquiry: COMPLETE / VERIFIED. Phase 4B Operational reporting: COMPLETE / VERIFIED. Phase 5 Integrated UAT/onboarding: COMPLETE / VERIFIED. Phase 5A Arabic launch-quality polish: COMPLETE / VERIFIED. Phase 6 Provider-neutral deployment/readiness proof: COMPLETE / VERIFIED. Phase 7 Vercel deployment adaptation: ACTIVE / AUTHORIZED.**
 
-Current branch: `phase-6/deployment-readiness`.
+Current branch: `phase-7/vercel-deployment-adaptation`.
 
-**Authoritative business-application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.** Phase 6 changes only deployment/operations packaging; final Phase 6 source-authority evidence records no `addons` or `apps/public-web` diff from Phase 5A.
+**Authoritative business-application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.**
 
-**Authoritative Phase 6 deployment-package SHA is `e337315684c62d69ad75ba56a5867098da17489c`.**
+**Authoritative Phase 6 provider-neutral deployment-package SHA remains `e337315684c62d69ad75ba56a5867098da17489c`.**
 
-### Final Phase 5A application authority
+Pinned Odoo Community SHA remains `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
+
+## Verified inherited authority
+
+### Phase 5A application authority
 
 Workflow `Phase 5A Arabic polish`, run `34700625051`:
 - Odoo/UAT job `103571619120` — success;
@@ -29,53 +34,41 @@ Workflow `Phase 5A Arabic polish`, run `34700625051`:
 - Odoo/UAT artifact `10300402418`, digest `sha256:650fd702f12d0e042ec1761401b7a039778a973ab797d2c77f01d76c5eede701`;
 - public-web job `103571619062` — success;
 - public `npm ci`, typecheck, production build and **8/8 Playwright** — success;
-- web artifact `10300486494`, digest `sha256:9658f4e094bd65292634d30f99e8020c5a1ce278644c30c0c7077b95722ff104`;
 - fresh Arabic/RTL/narrow review — pass;
 - open release-candidate P0/P1/P2 — **0 / 0 / 0**.
 
-## Phase 6 closure authority
+### Phase 6 deployment authority
 
-Final deployment-package candidate: `e337315684c62d69ad75ba56a5867098da17489c` (`fix(phase6): initialize clean Odoo volume ownership`).
+Workflow `Phase 6 deployment readiness`, run `34726690763`, job `103641932057`, is **GREEN / VERIFIED** at deployment-package SHA `e337315684c62d69ad75ba56a5867098da17489c`.
 
-Hosted workflow `Phase 6 deployment readiness`, run `34726690763`, job `103641932057`, is **GREEN / VERIFIED**.
+Artifact `10307809040`, `phase6-deployment-e337315684c62d69ad75ba56a5867098da17489c`, digest `sha256:4367f4fd3085aa38b6381ef9cca0168bef0951b7e2d63cce67cd5b390fb0ae38`.
 
-Artifact `10307809040`, name `phase6-deployment-e337315684c62d69ad75ba56a5867098da17489c`, digest `sha256:4367f4fd3085aa38b6381ef9cca0168bef0951b7e2d63cce67cd5b390fb0ae38`.
+The Phase 6 proof established restrictive runtime secrets, least-privileged PostgreSQL role, blocked database-manager routes, HTTPS edge behavior, application-container replacement persistence, manifest/checksum backup verification, incomplete-set rejection, destructive clean-volume restore, fixed non-root Odoo volume ownership and restored database/attachment verification. Its RED chronology remains authoritative in `docs/validation/PHASE_6_DEPLOYMENT_READINESS.md`.
 
-The run proves:
-- exact Fares deployment SHA and exact pinned Odoo SHA `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`;
-- `application_source_diff=none` from Phase 5A for `addons` and `apps/public-web`;
-- restrictive file-backed secret permissions and no rendered secret leakage;
-- seven production addons install/upgrade successfully in the packaged environment;
-- nginx HTTPS edge and HTTP redirect are reachable while database-manager routes are blocked;
-- PostgreSQL app role is not superuser/createdb/createrole and database owner remains `postgres`;
-- Odoo/DB remain isolated behind the proxy edge;
-- synthetic database + filestore fixture persists across Odoo container replacement;
-- coordinated quiesced PostgreSQL + filestore backup set is created and checksum/manifest verified;
-- incomplete backup is rejected;
-- named state volumes are destroyed and recreated cleanly;
-- least-privileged database restore succeeds without transferring PostgreSQL extension ownership to `fares_app`;
-- fresh Odoo data volume is initialized for fixed non-root UID/GID `10001:10001` at the privileged ops boundary;
-- restored database marker and stored attachment are verified through Odoo;
-- final PostgreSQL, Odoo and proxy services are healthy.
+Phase 6 source-authority evidence records `application_source_diff=none` for `addons` and `apps/public-web`, so Phase 6 does not replace Phase 5A as business-application authority.
 
-The RED history remains evidence rather than being erased: unreadable DB secret, PostgreSQL validation PATH, proxy liveness redirect, internal-only edge network, prefork shell port binding, extension comment ownership, and fresh-volume ownership were each fixed forward before the final green run. See `docs/validation/PHASE_6_DEPLOYMENT_READINESS.md`.
+## Phase 7 — Vercel direction
 
-No merge, production deployment, real-data migration, live domain/DNS change, provider secret/resource mutation or paid-resource creation has occurred.
+The client explicitly selected **Vercel** on 2026-09-13, asking to use it like RenderLab and SAGA. This supersedes the earlier Phase 6 single-VPS/Hetzner recommendation. It does not erase the valid Phase 6 provider-neutral recovery proof.
 
-## Deployment architecture recommendation — pending client acceptance
+The active contract is `docs/phases/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md`.
 
-`docs/architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md` records the recommendation, not a provider selection.
+The Vercel target is deliberately stateless:
+- `apps/public-web` remains Next.js on Vercel;
+- private Odoo is evaluated as a Vercel container/Service;
+- PostgreSQL moves to a managed external service, with Supabase the preferred first candidate because it is already an accepted/available project service family;
+- Odoo attachments are first proven with native database-backed attachment storage instead of a mounted filestore;
+- Odoo HTTP sessions must move from filesystem persistence to a shared server-side store;
+- scheduled work must use safe trigger-driven execution rather than depending on an immortal cron worker;
+- Odoo bus/WebSocket behavior must reconnect safely across Vercel runtime lifecycle changes.
 
-Recommended initial shape:
-- one small x86-64 EU Linux VPS for Odoo + PostgreSQL + persistent Odoo filestore;
-- reverse proxy/TLS in front of Odoo;
-- database and filestore outside the application image/container lifecycle;
-- coordinated database+filestore backup sets copied off-host to S3-compatible object storage;
-- provider-native VM backups/snapshots as secondary recovery only;
-- public Next.js remains separate and Vercel-targeted;
-- production and staging remain separate state/security boundaries.
+The verified Compose/VPS package is **not** being deleted or retroactively reclassified. It remains the provider-neutral recovery baseline and fallback if Vercel-specific assumptions fail evidence-based validation.
 
-Dated 2026-09-12 provider research put Hetzner Cloud first on cost/value, DigitalOcean as a simpler/more-expensive alternative, and Render as a materially more expensive split-state option. **No provider, region, server size, budget or live resource is selected yet.**
+## Commercial/live-resource boundary
+
+The connected Vercel team is currently on the Hobby plan. Fares Uniform is a commercial workload. Phase 7 repository design, compatibility implementation and hosted CI are authorized, but no plan upgrade, billable Vercel project/resource, managed production database, production secret, domain/DNS mutation or real-data deployment is authorized by this provider-selection decision alone.
+
+A real Fares staging/production deployment must use an appropriate commercial plan and requires separate explicit authorization before any purchase/account mutation.
 
 ## Product and architecture direction
 
@@ -89,7 +82,7 @@ Confirmed product/stock rules remain:
 - Cash and InstaPay are current payment methods; cards/wallets are future work;
 - public catalog exposes neither price nor stock;
 - production Finished remains workflow state until physical Store/Storage receipt;
-- numeric real volumes, service budget and launch date remain unknown and must not be invented.
+- numeric real volumes and launch date remain unknown and must not be invented.
 
 ## Authoritative completed phases
 
@@ -102,15 +95,7 @@ Confirmed product/stock rules remain:
 - Phase 4B operational reporting — application `29b2589e7e71271071f97c9de57dfb97b49b100d`; 144 Odoo tests + repeatable seven-addon upgrade + 8/8 public Playwright + manual reporting review.
 - Phase 5 integrated UAT/onboarding — application/UAT `5d23e56e72122014a7f886ee7f4ec24d3153c78a`; 148 tests + repeatable seven-production-addon upgrade + 8/8 public Playwright + integrated/manual release evidence.
 - Phase 5A Arabic launch-quality polish — application/test `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`; 149 tests + repeatable seven-production-addon upgrade + 8/8 public Playwright + fresh Arabic/RTL manual evidence; P2-001 closed.
-- Phase 6 deployment architecture/readiness proof — deployment package `e337315684c62d69ad75ba56a5867098da17489c`; exact-head hosted security/persistence/backup/destructive-restore proof green.
-
-Detailed contracts/evidence remain in `docs/phases/`, `docs/validation/` and `docs/operations/`; this file is the current handoff, not a replacement for those records.
-
-## Release-readiness conclusion
-
-The accepted MVP release scenarios remain proven together and the current release candidate has no known P0/P1/P2 application defect. The provider-neutral deployment/recovery mechanics are also now proven.
-
-Application readiness and production readiness remain separate. **Production stays NO-GO.** Phase 6 completion means the package is ready for provider-specific paid-staging evaluation only after the required operator choices and explicit authorization.
+- Phase 6 provider-neutral deployment architecture/readiness — package `e337315684c62d69ad75ba56a5867098da17489c`; exact-head hosted security/persistence/backup/destructive-restore proof green.
 
 ## Roadmap
 
@@ -127,28 +112,22 @@ Application readiness and production readiness remain separate. **Production sta
 11. Phase 4B operational reporting — complete / verified.
 12. Phase 5 integrated UAT/onboarding — complete / verified.
 13. Phase 5A Arabic launch-quality polish — complete / verified.
-14. Phase 6 deployment architecture + provider-neutral package + synthetic restore proof — **complete / verified**.
-15. Next, only after explicit client/operator choices and authorization: provider-specific paid staging, restore/device/operations proof, then production cutover under separate authorization.
+14. Phase 6 provider-neutral deployment + synthetic restore proof — complete / verified.
+15. Phase 7 Vercel stateless deployment adaptation — **active / authorized**.
+16. After Phase 7 exact-head proof and separate commercial/live-resource authorization: Vercel commercial staging, real backing-service rehearsal/device/operations proof, then production cutover only under separate authorization.
 
 ## Immediate next action
 
-The repository/CI implementation phase has reached its authorized boundary. Do not create live resources by inference.
+Continue Phase 7 from repository evidence, without creating live resources:
+1. inspect the pinned Odoo session/attachment/cron/bus boundaries and current `deploy/` package;
+2. design the smallest stateless runtime adapter layer;
+3. preserve the seven production addons and public contract unless evidence requires a narrow compatibility change;
+4. add Vercel-target configuration and hosted CI that proves runtime replacement with DB-backed durable truth;
+5. prove attachments, authenticated sessions, scheduled work and realtime reconnect without local persistent disk;
+6. rerun inherited application/public gates if runtime adaptation can affect them;
+7. document exact RED/green evidence before calling the Vercel adaptation verified.
 
-The next work requires client/operator decisions recorded in `docs/operations/DEPLOYMENT_READINESS.md`, including:
-1. hosting provider and region;
-2. initial server size and budget ceiling;
-3. provider-native backup layer and S3-compatible off-host target;
-4. backup retention/frequency and RPO/RTO;
-5. paid staging strategy;
-6. domain/DNS/TLS/internal-access model;
-7. secret ownership/rotation;
-8. actual store browser/scanner/printer validation;
-9. named staff/training/recovery ownership;
-10. real opening-data/cutover/reconciliation procedure;
-11. monitoring/logging/alert ownership;
-12. launch timing.
-
-No paid staging/production resource, domain, DNS, production certificate/secret, real business data or production integration may be created or mutated without separate explicit client authorization.
+Do not upgrade Vercel, create a paid Fares project/database, set production secrets/domains, or deploy real data while doing this.
 
 ## Later explicit business-policy decisions
 
