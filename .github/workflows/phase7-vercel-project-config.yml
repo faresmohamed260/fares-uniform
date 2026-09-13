@@ -6,6 +6,7 @@ on:
       - phase-7/vercel-deployment-adaptation
     paths:
       - 'vercel.json'
+      - 'Dockerfile.vercel'
       - 'deploy/vercel/**'
       - 'deploy/ci/phase7_verify_vercel_project.py'
       - '.github/workflows/phase7-vercel-project-config.yml'
@@ -67,6 +68,35 @@ jobs:
           set -euo pipefail
           python deploy/ci/phase7_verify_vercel_project.py \
             | tee evidence/vercel-topology.txt
+
+      - name: Execute service-local runtime mode resolution
+        run: |
+          set -euo pipefail
+          RESOLVER="$PWD/deploy/vercel/runtime-mode.sh"
+
+          DEFAULT_MODE="$(env -u ODOO_RUNTIME_MODE -u VERCEL -u FARES_ODOO_HTTP_INTERNAL_URL \
+            bash -c 'source "$1"; fares_resolve_odoo_runtime_mode' _ "$RESOLVER")"
+          test "$DEFAULT_MODE" = http
+
+          VERCEL_HTTP_MODE="$(env -u ODOO_RUNTIME_MODE -u FARES_ODOO_HTTP_INTERNAL_URL VERCEL=1 \
+            bash -c 'source "$1"; fares_resolve_odoo_runtime_mode' _ "$RESOLVER")"
+          test "$VERCEL_HTTP_MODE" = http
+
+          VERCEL_WS_MODE="$(env -u ODOO_RUNTIME_MODE VERCEL=1 FARES_ODOO_HTTP_INTERNAL_URL=https://internal.invalid \
+            bash -c 'source "$1"; fares_resolve_odoo_runtime_mode' _ "$RESOLVER")"
+          test "$VERCEL_WS_MODE" = websocket
+
+          EXPLICIT_MODE="$(env ODOO_RUNTIME_MODE=http VERCEL=1 FARES_ODOO_HTTP_INTERNAL_URL=https://internal.invalid \
+            bash -c 'source "$1"; fares_resolve_odoo_runtime_mode' _ "$RESOLVER")"
+          test "$EXPLICIT_MODE" = http
+
+          {
+            echo "default_mode=$DEFAULT_MODE"
+            echo "vercel_http_without_binding=$VERCEL_HTTP_MODE"
+            echo "vercel_websocket_with_binding=$VERCEL_WS_MODE"
+            echo "explicit_override=$EXPLICIT_MODE"
+            echo 'runtime_mode_resolution=PASS'
+          } | tee evidence/runtime-mode.txt
 
       - name: Verify application authority remains unchanged
         env:
