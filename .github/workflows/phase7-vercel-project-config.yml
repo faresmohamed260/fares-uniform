@@ -1,0 +1,87 @@
+name: Phase 7 Vercel project configuration
+
+on:
+  push:
+    branches:
+      - phase-7/vercel-deployment-adaptation
+    paths:
+      - 'vercel.json'
+      - 'deploy/vercel/**'
+      - 'deploy/ci/phase7_verify_vercel_project.py'
+      - '.github/workflows/phase7-vercel-project-config.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase7-vercel-project-config-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  project-config-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify exact checkout
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          mkdir -p evidence
+          echo "candidate_sha=$GITHUB_SHA" | tee evidence/source-authority.txt
+
+      - name: Validate against current Vercel project schema
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            https://openapi.vercel.sh/vercel.json \
+            --output /tmp/vercel.schema.json
+          python -m pip install --disable-pip-version-check --quiet 'jsonschema>=4.23,<5'
+          python - <<'PY' | tee evidence/vercel-schema.txt
+          import json
+          from pathlib import Path
+          from jsonschema.validators import validator_for
+
+          config = json.loads(Path('vercel.json').read_text(encoding='utf-8'))
+          schema = json.loads(Path('/tmp/vercel.schema.json').read_text(encoding='utf-8'))
+          Validator = validator_for(schema)
+          Validator.check_schema(schema)
+          errors = sorted(Validator(schema).iter_errors(config), key=lambda error: list(error.path))
+          if errors:
+              for error in errors:
+                  path = '.'.join(str(part) for part in error.path) or '<root>'
+                  print(f'VERCEL_SCHEMA_ERROR path={path} message={error.message}')
+              raise SystemExit(1)
+          print('VERCEL_SCHEMA_OK source=https://openapi.vercel.sh/vercel.json')
+          PY
+
+      - name: Verify service bindings and public exposure contract
+        run: |
+          set -euo pipefail
+          python deploy/ci/phase7_verify_vercel_project.py \
+            | tee evidence/vercel-topology.txt
+
+      - name: Verify application authority remains unchanged
+        env:
+          BASE_APP_SHA: cc2656d7529cfd4af396ddd0af6444a0f6600dc8
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$BASE_APP_SHA"
+          git diff --quiet "$BASE_APP_SHA" HEAD -- addons apps/public-web
+          echo 'application_source_diff=none' | tee evidence/application-authority.txt
+
+      - name: Upload Vercel project evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase7-vercel-project-${{ github.sha }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 7
