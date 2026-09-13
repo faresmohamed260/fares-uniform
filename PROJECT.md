@@ -10,16 +10,19 @@
 - Public presentation is a separate Next.js surface consuming only the narrow Fares public API.
 - No production deployment is authorized yet.
 
-## Current state — 2026-09-12
+## Current state — 2026-09-13
 
-**Phase 0 Discovery: COMPLETE. Phase 0A Hosted Odoo proof: PASS. Phase 0B Foundation architecture/UX: COMPLETE. Phase 1 Products/stock/access: COMPLETE. Phase 2A Retail checkout/offline: COMPLETE. Phase 2B Preorder/balance/collection: COMPLETE. Phase 2C Retail refunds/size exchanges: COMPLETE. Phase 3A Preorder production: COMPLETE. Phase 3B Business-client workflow: COMPLETE. Phase 4A Public catalog/enquiry: COMPLETE / VERIFIED. Phase 4B Operational reporting: COMPLETE / VERIFIED. Phase 5 Integrated UAT/onboarding: COMPLETE / VERIFIED. Phase 5A Arabic launch-quality polish: COMPLETE / VERIFIED. Phase 6 Deployment architecture/readiness proof: ACTIVE / AUTHORIZED; FIRST IMPLEMENTATION CANDIDATE RED / NOT VERIFIED.**
+**Phase 0 Discovery: COMPLETE. Phase 0A Hosted Odoo proof: PASS. Phase 0B Foundation architecture/UX: COMPLETE. Phase 1 Products/stock/access: COMPLETE. Phase 2A Retail checkout/offline: COMPLETE. Phase 2B Preorder/balance/collection: COMPLETE. Phase 2C Retail refunds/size exchanges: COMPLETE. Phase 3A Preorder production: COMPLETE. Phase 3B Business-client workflow: COMPLETE. Phase 4A Public catalog/enquiry: COMPLETE / VERIFIED. Phase 4B Operational reporting: COMPLETE / VERIFIED. Phase 5 Integrated UAT/onboarding: COMPLETE / VERIFIED. Phase 5A Arabic launch-quality polish: COMPLETE / VERIFIED. Phase 6 Deployment architecture/readiness proof: COMPLETE / VERIFIED.**
 
 Current branch: `phase-6/deployment-readiness`.
 
-**Authoritative application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.** Phase 6 documentation/configuration work must not be mistaken for newer application authority unless exact-head hosted evidence explicitly proves a new runtime candidate.
+**Authoritative business-application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.** Phase 6 changes only deployment/operations packaging; final Phase 6 source-authority evidence records no `addons` or `apps/public-web` diff from Phase 5A.
 
-Final Phase 5A authority remains:
-- workflow `Phase 5A Arabic polish`, run `34700625051`;
+**Authoritative Phase 6 deployment-package SHA is `e337315684c62d69ad75ba56a5867098da17489c`.**
+
+### Final Phase 5A application authority
+
+Workflow `Phase 5A Arabic polish`, run `34700625051`:
 - Odoo/UAT job `103571619120` — success;
 - **149 tests, 0 failures, 0 errors**;
 - repeatable seven-production-addon upgrade — success;
@@ -30,56 +33,49 @@ Final Phase 5A authority remains:
 - fresh Arabic/RTL/narrow review — pass;
 - open release-candidate P0/P1/P2 — **0 / 0 / 0**.
 
-## Latest Phase 6 implementation status
+## Phase 6 closure authority
 
-First implementation candidate: `1892455616d7cd59e4706006b794d35df7f8f170` (`feat(phase6): add reproducible deployment restore proof`).
+Final deployment-package candidate: `e337315684c62d69ad75ba56a5867098da17489c` (`fix(phase6): initialize clean Odoo volume ownership`).
 
-This commit adds the provider-neutral `deploy/` package, PostgreSQL/Odoo/nginx Compose topology, backup/restore operations tooling, CI recovery fixtures and `.github/workflows/phase6-deployment-readiness.yml`.
+Hosted workflow `Phase 6 deployment readiness`, run `34726690763`, job `103641932057`, is **GREEN / VERIFIED**.
 
-Hosted workflow run `34707428136`, job `103589908228`, is **RED / NON-AUTHORITATIVE**.
+Artifact `10307809040`, name `phase6-deployment-e337315684c62d69ad75ba56a5867098da17489c`, digest `sha256:4367f4fd3085aa38b6381ef9cca0168bef0951b7e2d63cce67cd5b390fb0ae38`.
 
-What passed before failure:
-- exact candidate checkout;
-- verification that `addons` and `apps/public-web` have no source diff from Phase 5A application SHA `cc2656d...`;
-- exact pinned Odoo SHA `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` recorded in source authority;
-- synthetic secret/TLS preparation;
-- Compose rendering without secret leakage;
-- exact Odoo and operations image builds.
+The run proves:
+- exact Fares deployment SHA and exact pinned Odoo SHA `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`;
+- `application_source_diff=none` from Phase 5A for `addons` and `apps/public-web`;
+- restrictive file-backed secret permissions and no rendered secret leakage;
+- seven production addons install/upgrade successfully in the packaged environment;
+- nginx HTTPS edge and HTTP redirect are reachable while database-manager routes are blocked;
+- PostgreSQL app role is not superuser/createdb/createrole and database owner remains `postgres`;
+- Odoo/DB remain isolated behind the proxy edge;
+- synthetic database + filestore fixture persists across Odoo container replacement;
+- coordinated quiesced PostgreSQL + filestore backup set is created and checksum/manifest verified;
+- incomplete backup is rejected;
+- named state volumes are destroyed and recreated cleanly;
+- least-privileged database restore succeeds without transferring PostgreSQL extension ownership to `fares_app`;
+- fresh Odoo data volume is initialized for fixed non-root UID/GID `10001:10001` at the privileged ops boundary;
+- restored database marker and stored attachment are verified through Odoo;
+- final PostgreSQL, Odoo and proxy services are healthy.
 
-The failure occurred at **Initialize database and production addons**. Uploaded evidence shows PostgreSQL running `deploy/postgres/init/10-fares.sh` and failing with `Database password file is not readable`. The later security, persistence, backup, incomplete-set, clean-restore and restored-file checks were therefore skipped and remain unproven.
+The RED history remains evidence rather than being erased: unreadable DB secret, PostgreSQL validation PATH, proxy liveness redirect, internal-only edge network, prefork shell port binding, extension comment ownership, and fresh-volume ownership were each fixed forward before the final green run. See `docs/validation/PHASE_6_DEPLOYMENT_READINESS.md`.
 
-Artifact `10302037411` (`phase6-deployment-1892455616d7cd59e4706006b794d35df7f8f170`) has digest `sha256:22092c659bd7d7ef83ff6d7cff7a83badb57fc7dc71071d9e431881f8e3dfe92`.
-
-The failure is currently classified as a Phase 6 deployment secret-access/permissions defect, not an application regression and not an Odoo-source drift issue. See `docs/validation/PHASE_6_DEPLOYMENT_READINESS.md` for exact evidence and continuation steps.
-
-No merge, production deployment, real-data migration, live domain/DNS change, secret/resource mutation or paid-resource creation has occurred.
-
-## Active Phase 6 boundary
-
-The client instructed continued development after Phase 5A. The bounded next work is `docs/phases/PHASE_6_DEPLOYMENT_READINESS.md`.
-
-Phase 6 may:
-- document and compare deployment architecture/provider options;
-- add provider-neutral deployment configuration, backup/restore tooling and hosted CI proof;
-- use synthetic data and disposable GitHub-hosted runners;
-- prove database + filestore backup/restore mechanics without live cloud infrastructure.
-
-Phase 6 may **not** create paid/live staging or production resources, mutate Vercel/Cloudflare/hosting accounts, purchase domains, add real secrets, migrate real data, or deploy production without separate explicit authorization.
+No merge, production deployment, real-data migration, live domain/DNS change, provider secret/resource mutation or paid-resource creation has occurred.
 
 ## Deployment architecture recommendation — pending client acceptance
 
-`docs/architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md` records the current technical recommendation, not a provider selection.
+`docs/architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md` records the recommendation, not a provider selection.
 
 Recommended initial shape:
 - one small x86-64 EU Linux VPS for Odoo + PostgreSQL + persistent Odoo filestore;
 - reverse proxy/TLS in front of Odoo;
-- database and filestore stored outside the application image/container lifecycle;
-- coordinated database+filestore backup sets copied off-host to an S3-compatible object store;
-- provider-native VM backups/snapshots as a secondary layer, never the sole recovery authority;
+- database and filestore outside the application image/container lifecycle;
+- coordinated database+filestore backup sets copied off-host to S3-compatible object storage;
+- provider-native VM backups/snapshots as secondary recovery only;
 - public Next.js remains separate and Vercel-targeted;
 - production and staging remain separate state/security boundaries.
 
-Dated 2026-09-12 provider research currently puts Hetzner Cloud first on cost/value, DigitalOcean as a simpler/more expensive alternative, and Render as a materially more expensive split-state option for this small initial deployment. **No provider is selected yet.**
+Dated 2026-09-12 provider research put Hetzner Cloud first on cost/value, DigitalOcean as a simpler/more-expensive alternative, and Render as a materially more expensive split-state option. **No provider, region, server size, budget or live resource is selected yet.**
 
 ## Product and architecture direction
 
@@ -106,14 +102,15 @@ Confirmed product/stock rules remain:
 - Phase 4B operational reporting — application `29b2589e7e71271071f97c9de57dfb97b49b100d`; 144 Odoo tests + repeatable seven-addon upgrade + 8/8 public Playwright + manual reporting review.
 - Phase 5 integrated UAT/onboarding — application/UAT `5d23e56e72122014a7f886ee7f4ec24d3153c78a`; 148 tests + repeatable seven-production-addon upgrade + 8/8 public Playwright + integrated/manual release evidence.
 - Phase 5A Arabic launch-quality polish — application/test `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`; 149 tests + repeatable seven-production-addon upgrade + 8/8 public Playwright + fresh Arabic/RTL manual evidence; P2-001 closed.
+- Phase 6 deployment architecture/readiness proof — deployment package `e337315684c62d69ad75ba56a5867098da17489c`; exact-head hosted security/persistence/backup/destructive-restore proof green.
 
 Detailed contracts/evidence remain in `docs/phases/`, `docs/validation/` and `docs/operations/`; this file is the current handoff, not a replacement for those records.
 
 ## Release-readiness conclusion
 
-The accepted MVP release scenarios remain proven together and the current release candidate has no known P0/P1/P2 application defect. Phase 6 is therefore an operations/deployment-proof phase, not a feature phase.
+The accepted MVP release scenarios remain proven together and the current release candidate has no known P0/P1/P2 application defect. The provider-neutral deployment/recovery mechanics are also now proven.
 
-Application readiness and production readiness remain separate. Production stays **NO-GO** until the deployment-specific gates are explicitly selected/proven.
+Application readiness and production readiness remain separate. **Production stays NO-GO.** Phase 6 completion means the package is ready for provider-specific paid-staging evaluation only after the required operator choices and explicit authorization.
 
 ## Roadmap
 
@@ -130,37 +127,28 @@ Application readiness and production readiness remain separate. Production stays
 11. Phase 4B operational reporting — complete / verified.
 12. Phase 5 integrated UAT/onboarding — complete / verified.
 13. Phase 5A Arabic launch-quality polish — complete / verified.
-14. Phase 6 deployment architecture + provider-neutral package + synthetic restore proof — **active / authorized; first candidate red**.
-15. After explicit client/operator choices: paid staging, provider-specific restore/device/operations proof, then production cutover only under separate authorization.
+14. Phase 6 deployment architecture + provider-neutral package + synthetic restore proof — **complete / verified**.
+15. Next, only after explicit client/operator choices and authorization: provider-specific paid staging, restore/device/operations proof, then production cutover under separate authorization.
 
 ## Immediate next action
 
-Continue Phase 6 from the exact RED boundary:
-1. verify the live branch/HEAD before writing;
-2. correct the PostgreSQL init secret-access failure around `/run/secrets/odoo_db_password` without exposing passwords in source, rendered Compose output or logs;
-3. preserve exact Odoo SHA pinning and Phase 5A application source unless new evidence requires otherwise;
-4. rerun `Phase 6 deployment readiness` at the exact corrected HEAD;
-5. only after initialization succeeds, prove edge/database security, application-container replacement persistence, manifest-bound PostgreSQL+filestore backup, incomplete-set rejection, clean-target restore and restored attachment/database facts;
-6. record exact green evidence before calling Phase 6 verified.
+The repository/CI implementation phase has reached its authorized boundary. Do not create live resources by inference.
 
-Do not create live or paid resources while doing this.
+The next work requires client/operator decisions recorded in `docs/operations/DEPLOYMENT_READINESS.md`, including:
+1. hosting provider and region;
+2. initial server size and budget ceiling;
+3. provider-native backup layer and S3-compatible off-host target;
+4. backup retention/frequency and RPO/RTO;
+5. paid staging strategy;
+6. domain/DNS/TLS/internal-access model;
+7. secret ownership/rotation;
+8. actual store browser/scanner/printer validation;
+9. named staff/training/recovery ownership;
+10. real opening-data/cutover/reconciliation procedure;
+11. monitoring/logging/alert ownership;
+12. launch timing.
 
-## Decisions still required before live infrastructure
-
-Client/operator must explicitly accept or change:
-- hosting provider and region;
-- initial server size and budget ceiling;
-- provider-native backup choice;
-- object-store bucket/provider ownership;
-- backup frequency/retention and RPO/RTO;
-- paid staging strategy;
-- domain/DNS/TLS/internal-access model;
-- secret owners;
-- real store browser/scanner/printer validation;
-- named staff/training/recovery ownership;
-- opening-data/cutover method;
-- monitoring/logging/alert ownership;
-- launch timing.
+No paid staging/production resource, domain, DNS, production certificate/secret, real business data or production integration may be created or mutated without separate explicit client authorization.
 
 ## Later explicit business-policy decisions
 

@@ -32,11 +32,11 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 2C validation](validation/PHASE_2C_REFUNDS_EXCHANGES.md) | Phase 2C evidence |
 | [Phase 3A contract](phases/PHASE_3A_PREORDER_PRODUCTION.md) | Production workflow |
 | [Phase 3A architecture](architecture/PHASE_3A_PRODUCTION_MODEL.md) | Production model |
-| [Phase 3A validation](validation/PHASE_3A_PREORDER_PRODUCTION.md) | Phase 3A evidence |
+| [Phase 3A validation](validation/PHASE_3A_PREORDER_PRODUCTION.md) | Production evidence |
 | [Phase 3B contract](phases/PHASE_3B_BUSINESS_CLIENT_ORDERS.md) | Business-client workflow |
 | [Phase 3B architecture](architecture/PHASE_3B_BUSINESS_ORDER_MODEL.md) | CRM/Sales/payment/stock ownership |
 | [Phase 3B policy](requirements/PHASE_3B_POLICY_DECISIONS.md) | Accepted commercial policy |
-| [Phase 3B validation](validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md) | Phase 3B evidence |
+| [Phase 3B validation](validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md) | Business-client evidence |
 | [Phase 4A public catalog/enquiry contract](phases/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Completed public catalog/enquiry scope |
 | [Phase 4A public integration architecture](architecture/PHASE_4A_PUBLIC_INTEGRATION.md) | Odoo/Next.js DTO/enquiry boundary |
 | [Phase 4A validation](validation/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Final server/web authority and evidence |
@@ -44,27 +44,25 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 4B reporting architecture](architecture/PHASE_4B_REPORTING_MODEL.md) | Reporting source/service/config boundary |
 | [Phase 4B validation](validation/PHASE_4B_OPERATIONAL_REPORTING.md) | Final reporting authority and manual evidence |
 | [Phase 5 integrated UAT/onboarding contract](phases/PHASE_5_INTEGRATED_UAT_ONBOARDING.md) | Completed/verified joined release acceptance and exit criteria |
-| [Phase 5 validation](validation/PHASE_5_INTEGRATED_UAT.md) | Exact-head UAT evidence, scenario matrix, artifacts, manual review and Phase 5 defect register |
-| [Phase 5A Arabic launch-quality polish](phases/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Completed/verified closure of the remaining Arabic launch-quality finding |
+| [Phase 5 validation](validation/PHASE_5_INTEGRATED_UAT.md) | Exact-head UAT evidence, scenario matrix, artifacts, manual review and defect register |
+| [Phase 5A Arabic launch-quality polish](phases/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Completed/verified Arabic launch-quality closure |
 | [Phase 5A validation](validation/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Exact-head 149-test/public/manual evidence and P2-001 closure |
-| [Phase 6 deployment-readiness contract](phases/PHASE_6_DEPLOYMENT_READINESS.md) | Active bounded deployment packaging, persistence and restore-proof scope |
+| [Phase 6 deployment-readiness contract](phases/PHASE_6_DEPLOYMENT_READINESS.md) | Completed provider-neutral deployment packaging, persistence and restore-proof scope |
 | [Phase 6 deployment architecture](architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md) | Provider comparison, recommended topology, persistence/security/backup model and unresolved operator choices |
-| [Phase 6 validation](validation/PHASE_6_DEPLOYMENT_READINESS.md) | Exact RED/green hosted deployment-package evidence, artifact authority and continuation boundary |
+| [Phase 6 validation](validation/PHASE_6_DEPLOYMENT_READINESS.md) | Exact RED-to-green hosted deployment-package evidence and artifact authority |
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result plus operator/client inputs still required |
-| [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Provider-neutral launch go/no-go checklist and rollback baseline |
+| [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Provider-neutral go/no-go checklist, recovery baseline and remaining live-infrastructure decisions |
 
-Current completed product milestone: **Phase 5A Arabic launch-quality polish — COMPLETE / VERIFIED**.
+Current completed milestones: **Phase 5A application/UAT/localization — COMPLETE / VERIFIED; Phase 6 provider-neutral deployment architecture/readiness proof — COMPLETE / VERIFIED.**
 
-Current active milestone: **Phase 6 deployment architecture and readiness proof — ACTIVE / AUTHORIZED; first implementation candidate RED / NOT VERIFIED** on branch `phase-6/deployment-readiness`.
+Authoritative business-application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`. Run `34700625051` passed **149 Odoo/UAT tests with 0 failures / 0 errors**, the repeatable seven-production-addon upgrade, public typecheck/build and **8/8 Playwright tests**. Odoo/UAT artifact `10300402418` has digest `sha256:650fd702f12d0e042ec1761401b7a039778a973ab797d2c77f01d76c5eede701`; web artifact `10300486494` has digest `sha256:9658f4e094bd65292634d30f99e8020c5a1ce278644c30c0c7077b95722ff104`.
 
-Authoritative application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`. Exact-head run `34700625051` passed **149 Odoo/UAT tests with 0 failures / 0 errors**, the repeatable seven-production-addon upgrade, public typecheck/build and **8/8 Playwright tests**.
+Authoritative Phase 6 deployment-package SHA is `e337315684c62d69ad75ba56a5867098da17489c`. Workflow `Phase 6 deployment readiness`, run `34726690763`, job `103641932057`, completed every security/persistence/backup/destructive-restore/post-restore gate successfully. Artifact `10307809040` (`phase6-deployment-e337315684c62d69ad75ba56a5867098da17489c`) has digest `sha256:4367f4fd3085aa38b6381ef9cca0168bef0951b7e2d63cce67cd5b390fb0ae38`.
 
-Odoo/UAT artifact `10300402418` has digest `sha256:650fd702f12d0e042ec1761401b7a039778a973ab797d2c77f01d76c5eede701`; web artifact `10300486494` has digest `sha256:9658f4e094bd65292634d30f99e8020c5a1ce278644c30c0c7077b95722ff104`.
+Final Phase 6 evidence proves `application_source_diff=none` from Phase 5A for `addons` and `apps/public-web`, exact Odoo pin `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`, restrictive file-backed secrets, least-privileged PostgreSQL application role, reachable HTTPS edge with blocked database-manager routes, persistence across Odoo container replacement, verified coordinated database+filestore backup, incomplete-set rejection, destructive clean-volume restore, fixed non-root Odoo volume ownership, and restored database/attachment verification through Odoo.
 
-Phase 6 implementation candidate `1892455616d7cd59e4706006b794d35df7f8f170` added the provider-neutral deployment/restore package. Workflow run `34707428136`, job `103589908228`, is RED: source authority, Compose rendering and image builds passed, but PostgreSQL initialization stopped in `deploy/postgres/init/10-fares.sh` because `/run/secrets/odoo_db_password` was not readable. Later security/persistence/backup/restore checks were skipped. Artifact `10302037411` has digest `sha256:22092c659bd7d7ef83ff6d7cff7a83badb57fc7dc71071d9e431881f8e3dfe92`.
+Phase 6 is allowed to close because this proof used only synthetic state and disposable GitHub-hosted infrastructure. **No paid/live provider resource, domain/DNS record, production certificate/secret or real business data was created or changed.**
 
-The current correction target is the Compose/PostgreSQL secret-access boundary. Preserve exact Odoo SHA `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` and the Phase 5A application source while making the init hook able to consume the DB password without exposing it in source, rendered Compose output or logs.
+The architecture document still recommends an initial single EU Linux VPS for Odoo + PostgreSQL + persistent filestore with off-host S3-compatible backups, while retaining Vercel for the public Next.js surface. Dated research currently favors Hetzner Cloud on cost/value, but **no provider/resource is selected or authorized**.
 
-Phase 6 is allowed to add provider-neutral deployment/configuration/backup/restore tooling and prove it in hosted CI with synthetic data. The current architecture document recommends an initial single EU VPS for Odoo + PostgreSQL + persistent filestore with off-host S3-compatible backups, while retaining Vercel for the public Next.js surface. Dated provider research currently favors Hetzner Cloud on cost/value, but **no provider/resource is selected or authorized**.
-
-Production deployment remains **NO-GO**. Paid staging/production resources, domains/DNS/TLS, secrets, real device acceptance, real staff/data cutover, monitoring ownership, production backup retention/RPO/RTO, budget and launch timing still require explicit client/operator decisions and separate live-deployment authorization.
+Production deployment remains **NO-GO**. Provider/region/server/budget, production backup retention/RPO/RTO, paid staging, domain/DNS/TLS/access, secret ownership, real device acceptance, named staff/training, real data cutover, monitoring/alert ownership and launch timing still require explicit client/operator decisions and separate live-deployment authorization.

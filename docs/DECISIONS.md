@@ -284,3 +284,18 @@ The first implementation candidate `f5e2f03b92fc54aa433ba3ad3753bd68fb885030`, r
 Treat `cc2656d7529cfd4af396ddd0af6444a0f6600dc8` as the Phase 5A **application/test authority**. Later closure-documentation commits, including this decision-log commit, are documentation lineage only and do not become newer application proof merely by being branch HEAD. Phase 5A does not change business logic, permissions, the anonymous/public contract or deployment configuration.
 
 Phase 5A closure does **not** authorize merge, production deployment, live cutover, paid resources, domain/DNS/certificate or secret changes, or real-data migration. Production remains **NO-GO** until the unchecked production-specific requirements in `docs/operations/DEPLOYMENT_READINESS.md` are explicitly resolved/proven and deployment is separately authorized.
+
+## D-040 — Phase 6 provider-neutral deployment-readiness closure authority
+Status: Evidence-backed project state, 2026-09-13; application authority and production authorization remain unchanged.
+
+Phase 6 repository/CI scope closes at deployment-package SHA **`e337315684c62d69ad75ba56a5867098da17489c`**. GitHub Actions workflow `Phase 6 deployment readiness`, run **`34726690763`**, job **`103641932057`**, completed every required package, security, persistence, backup, destructive clean-volume restore and post-restore application check successfully.
+
+The exact-head evidence artifact is ID **`10307809040`**, name `phase6-deployment-e337315684c62d69ad75ba56a5867098da17489c`, digest **`sha256:4367f4fd3085aa38b6381ef9cca0168bef0951b7e2d63cce67cd5b390fb0ae38`**. Source-authority evidence records Phase 5A application/test SHA `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`, exact Odoo SHA `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`, and `application_source_diff=none` for `addons` and `apps/public-web`.
+
+The green proof preserves the intended security model rather than weakening it: file-backed secrets remain restrictive, `fares_app` is not superuser/createdb/createrole, database/extension ownership remains with `postgres`, database-management routes remain blocked, Odoo remains fixed non-root UID/GID `10001:10001`, and only the operations restore boundary initializes ownership of a newly recreated Odoo data volume. Coordinated PostgreSQL+filestore backup verification, incomplete-set rejection, application-container replacement persistence, destructive `down -v` recovery and restored attachment/database facts all pass.
+
+The retained RED chronology—unreadable DB secret, PostgreSQL validation PATH, proxy liveness redirect, internal-only edge networking, prefork shell bind, extension-comment ownership and fresh-volume ownership—is part of the validation evidence and must not be rewritten as green history. See `docs/validation/PHASE_6_DEPLOYMENT_READINESS.md`.
+
+Treat `e337315684c62d69ad75ba56a5867098da17489c` as the Phase 6 **deployment-package authority**, not a new business-application authority. Phase 5A `cc2656d...` remains the business-application/test authority because Phase 6 exact-head evidence proves no application-source diff.
+
+Phase 6 closure means the provider-neutral package is ready for provider-specific paid-staging evaluation after explicit operator choices. It **does not** select a hosting provider/region/server/budget, production backup retention/RPO/RTO, object-store resource, paid staging model, domain/DNS/TLS/access, secret owners, store hardware, named staff, real-data cutover, monitoring ownership or launch timing. It does not authorize paid/live resource creation, account mutation, production deployment, real secrets, real data or production cutover. Production remains **NO-GO** until those items are explicitly resolved and the next live stage is separately authorized.
