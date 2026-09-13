@@ -14,6 +14,7 @@ from odoo.tools._vendor import sessions
 _logger = logging.getLogger(__name__)
 _IDENTIFIER_LENGTH = http.STORED_SESSION_BYTES
 _IDENTIFIER_RE = re.compile(rf"^[A-Za-z0-9_-]{{{_IDENTIFIER_LENGTH}}}$")
+_SESSION_TABLE = "public.fares_http_session"
 
 
 class PostgresSessionStore(http.FilesystemSessionStore):
@@ -23,12 +24,16 @@ class PostgresSessionStore(http.FilesystemSessionStore):
     rotation and delayed old-session deletion semantics. Filesystem operations
     are replaced by SQL implementations so replaceable Vercel instances share
     one server-side session truth.
+
+    Schema ownership deliberately lives outside application runtime. The table
+    must be provisioned by the Phase 7 operations/bootstrap boundary before an
+    Odoo process starts.
     """
 
     def __init__(self, session_class=None, renew_missing=True):
         sessions.SessionStore.__init__(self, session_class=session_class)
         self.renew_missing = renew_missing
-        self._ensure_schema()
+        self._validate_schema()
 
     @staticmethod
     def _connection_kwargs():
@@ -56,29 +61,29 @@ class PostgresSessionStore(http.FilesystemSessionStore):
     def _connect(self):
         return psycopg2.connect(**self._connection_kwargs())
 
-    def _ensure_schema(self):
+    def _validate_schema(self):
         with self._connect() as conn, conn.cursor() as cr:
-            cr.execute(
-                """
-                CREATE TABLE IF NOT EXISTS fares_http_session (
-                    sid varchar(84) PRIMARY KEY,
-                    data jsonb NOT NULL,
-                    updated_at timestamptz NOT NULL DEFAULT now()
+            cr.execute("SELECT to_regclass(%s), current_user", (_SESSION_TABLE,))
+            relation, current_user = cr.fetchone()
+            if relation is None:
+                raise RuntimeError(
+                    "Shared HTTP session table is missing; run the Phase 7 "
+                    "session-store bootstrap before starting Odoo"
                 )
-                """
-            )
             cr.execute(
-                """
-                CREATE INDEX IF NOT EXISTS fares_http_session_updated_at_idx
-                    ON fares_http_session (updated_at)
-                """
+                "SELECT has_table_privilege(current_user, %s, %s)",
+                (_SESSION_TABLE, "SELECT,INSERT,UPDATE,DELETE"),
             )
+            if not cr.fetchone()[0]:
+                raise RuntimeError(
+                    f"Database role {current_user!r} lacks required DML on {_SESSION_TABLE}"
+                )
 
     def save(self, session):
         with self._connect() as conn, conn.cursor() as cr:
             cr.execute(
-                """
-                INSERT INTO fares_http_session (sid, data, updated_at)
+                f"""
+                INSERT INTO {_SESSION_TABLE} (sid, data, updated_at)
                 VALUES (%s, %s, now())
                 ON CONFLICT (sid) DO UPDATE
                     SET data = EXCLUDED.data,
@@ -89,13 +94,13 @@ class PostgresSessionStore(http.FilesystemSessionStore):
 
     def delete(self, session):
         with self._connect() as conn, conn.cursor() as cr:
-            cr.execute("DELETE FROM fares_http_session WHERE sid = %s", (session.sid,))
+            cr.execute(f"DELETE FROM {_SESSION_TABLE} WHERE sid = %s", (session.sid,))
 
     def get(self, sid):
         if not self.is_valid_key(sid):
             return self.new()
         with self._connect() as conn, conn.cursor() as cr:
-            cr.execute("SELECT data FROM fares_http_session WHERE sid = %s", (sid,))
+            cr.execute(f"SELECT data FROM {_SESSION_TABLE} WHERE sid = %s", (sid,))
             row = cr.fetchone()
         if row is None:
             if self.renew_missing:
@@ -108,7 +113,7 @@ class PostgresSessionStore(http.FilesystemSessionStore):
     def vacuum(self, max_lifetime=http.SESSION_LIFETIME):
         threshold = datetime.now(timezone.utc) - timedelta(seconds=max_lifetime)
         with self._connect() as conn, conn.cursor() as cr:
-            cr.execute("DELETE FROM fares_http_session WHERE updated_at < %s", (threshold,))
+            cr.execute(f"DELETE FROM {_SESSION_TABLE} WHERE updated_at < %s", (threshold,))
 
     @staticmethod
     def _validated_identifiers(identifiers):
@@ -124,9 +129,9 @@ class PostgresSessionStore(http.FilesystemSessionStore):
             return set()
         with self._connect() as conn, conn.cursor() as cr:
             cr.execute(
-                """
+                f"""
                 SELECT DISTINCT left(sid, %s)
-                  FROM fares_http_session
+                  FROM {_SESSION_TABLE}
                  WHERE left(sid, %s) = ANY(%s)
                 """,
                 (_IDENTIFIER_LENGTH, _IDENTIFIER_LENGTH, list(identifiers)),
@@ -140,8 +145,8 @@ class PostgresSessionStore(http.FilesystemSessionStore):
             return
         with self._connect() as conn, conn.cursor() as cr:
             cr.execute(
-                """
-                DELETE FROM fares_http_session
+                f"""
+                DELETE FROM {_SESSION_TABLE}
                  WHERE left(sid, %s) = ANY(%s)
                 """,
                 (_IDENTIFIER_LENGTH, identifiers),

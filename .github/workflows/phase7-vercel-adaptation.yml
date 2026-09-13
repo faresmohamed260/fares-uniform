@@ -97,7 +97,7 @@ jobs:
           ' | tee evidence/runtime-image.txt
           echo 'declared_persistent_volumes=none' | tee -a evidence/runtime-image.txt
 
-      - name: Start synthetic PostgreSQL authority
+      - name: Start PostgreSQL and bootstrap shared session state
         run: |
           set -euo pipefail
           docker network create "$PHASE7_NETWORK"
@@ -115,24 +115,52 @@ jobs:
             -v "$PWD/deploy/postgres/init/10-fares.sh:/docker-entrypoint-initdb.d/10-fares.sh:ro" \
             "fares-uniform-postgres:$GITHUB_SHA"
 
-          for attempt in $(seq 1 40); do
-            if docker exec "$PHASE7_DB_CONTAINER" pg_isready -U postgres -d postgres >/dev/null 2>&1; then
+          for attempt in $(seq 1 60); do
+            INIT_READY="$(docker exec "$PHASE7_DB_CONTAINER" \
+              psql -U postgres -d "$ODOO_DB_NAME" -Atc \
+              "SELECT CASE WHEN
+                 EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '$ODOO_DB_USER')
+                 AND (SELECT count(*) FROM pg_extension WHERE extname IN ('pg_trgm', 'unaccent')) = 2
+                 AND has_schema_privilege('$ODOO_DB_USER', 'public', 'USAGE')
+                 AND has_schema_privilege('$ODOO_DB_USER', 'public', 'CREATE')
+               THEN 'ready' ELSE 'waiting' END;" 2>/dev/null || true)"
+            if [[ "$INIT_READY" == 'ready' ]]; then
               break
             fi
-            if [[ "$attempt" == 40 ]]; then
+            if [[ "$attempt" == 60 ]]; then
               docker logs "$PHASE7_DB_CONTAINER"
+              echo "PostgreSQL initialization did not reach the full Fares bootstrap boundary" >&2
               exit 1
             fi
             sleep 2
           done
 
+          cat deploy/vercel/bootstrap-session-store.sh | docker exec -i \
+            -e FARES_DB_NAME="$ODOO_DB_NAME" \
+            -e FARES_DB_USER="$ODOO_DB_USER" \
+            -e POSTGRES_USER=postgres \
+            "$PHASE7_DB_CONTAINER" bash
+
           ROLE_FLAGS="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d postgres -Atc "SELECT rolsuper, rolcreatedb, rolcreaterole FROM pg_roles WHERE rolname = '$ODOO_DB_USER';")"
           test "$ROLE_FLAGS" = 'f|f|f'
           DB_OWNER="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d postgres -Atc "SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname = '$ODOO_DB_NAME';")"
           test "$DB_OWNER" = 'postgres'
+          SESSION_OWNER="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d "$ODOO_DB_NAME" -Atc "SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session';")"
+          test "$SESSION_OWNER" = 'postgres'
+          PUBLIC_SESSION_GRANTS="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d "$ODOO_DB_NAME" -Atc "SELECT count(*) FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='PUBLIC';")"
+          test "$PUBLIC_SESSION_GRANTS" = '0'
+          APP_SESSION_GRANTS="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d "$ODOO_DB_NAME" -Atc "SELECT string_agg(privilege_type, ',' ORDER BY privilege_type) FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='$ODOO_DB_USER';")"
+          test "$APP_SESSION_GRANTS" = 'DELETE,INSERT,SELECT,UPDATE'
+          MIGRATION_SCHEMA_CREATE="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d "$ODOO_DB_NAME" -Atc "SELECT has_schema_privilege('$ODOO_DB_USER', 'public', 'CREATE');")"
+          test "$MIGRATION_SCHEMA_CREATE" = 't'
           {
             echo "app_role_flags=$ROLE_FLAGS"
             echo "database_owner=$DB_OWNER"
+            echo "session_table_owner=$SESSION_OWNER"
+            echo "session_public_grants=$PUBLIC_SESSION_GRANTS"
+            echo "session_app_grants=$APP_SESSION_GRANTS"
+            echo "odoo_schema_create_for_install_upgrade=$MIGRATION_SCHEMA_CREATE"
+            echo 'session_runtime_ddl=disabled'
           } | tee evidence/database-boundary.txt
 
       - name: Initialize production addons in stateless image
@@ -234,7 +262,7 @@ jobs:
           rm -f deploy/.phase7-secrets/session.cookies deploy/.phase7-secrets/login-response.json
 
           docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d "$ODOO_DB_NAME" -Atc \
-            'SELECT count(*) FROM fares_http_session;' | grep -Eq '^[1-9][0-9]*$'
+            'SELECT count(*) FROM public.fares_http_session;' | grep -Eq '^[1-9][0-9]*$'
           echo "authenticated_session_created=PASS uid=$LOGIN_UID" | tee evidence/session-login.txt
 
       - name: Prove attachment and authenticated session survive runtime replacement
@@ -313,6 +341,14 @@ jobs:
             pg_restore --host=127.0.0.1 --username="$ODOO_DB_USER" --dbname="$ODOO_DB_NAME" \
             --no-owner --no-acl --no-comments --exit-on-error
 
+          cat deploy/vercel/bootstrap-session-store.sh | docker exec -i \
+            -e FARES_DB_NAME="$ODOO_DB_NAME" \
+            -e FARES_DB_USER="$ODOO_DB_USER" \
+            -e POSTGRES_USER=postgres \
+            "$PHASE7_DB_CONTAINER" bash
+          RESTORED_SESSION_OWNER="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d "$ODOO_DB_NAME" -Atc "SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session';")"
+          test "$RESTORED_SESSION_OWNER" = 'postgres'
+
           docker run -d \
             --name "$PHASE7_ODOO_CONTAINER" \
             --network "$PHASE7_NETWORK" \
@@ -355,9 +391,10 @@ jobs:
             echo 'database_only_restore=PASS'
             echo "restored_authenticated_session=PASS uid=$LOGIN_UID"
             echo 'restored_attachment=PASS storage=db'
+            echo "restored_session_table_owner=$RESTORED_SESSION_OWNER"
           } | tee evidence/database-restore.txt
 
-      - name: Record first-candidate result
+      - name: Record state-proof result
         run: |
           set -euo pipefail
           {
@@ -365,6 +402,7 @@ jobs:
             echo 'local_persistent_volume_required=false'
             echo 'attachment_storage=db'
             echo 'session_storage=postgres'
+            echo 'session_runtime_ddl=disabled'
             echo 'builtin_odoo_cron_threads=0'
             echo 'cron_trigger_proof=pending'
             echo 'websocket_reconnect_proof=pending'
