@@ -1,4 +1,4 @@
-name: Phase 8 Supabase control-plane smoke
+name: Phase 8 Supabase control plane
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - phase-8/commercial-staging-readiness
     paths:
       - .github/workflows/phase8-supabase-control-plane.yml
+      - deploy/supabase/**
   workflow_dispatch:
 
 permissions:
@@ -21,6 +22,7 @@ jobs:
     timeout-minutes: 10
     env:
       SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+      SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
       SUPABASE_API_BASE: https://api.supabase.com/v1
     steps:
       - name: Verify GitHub secret is present
@@ -86,3 +88,47 @@ jobs:
 
           jq -e 'type == "array" and length == 1 and .[0].ok == true' "$response" >/dev/null
           echo "Supabase Management API database query access verified."
+
+      - name: Probe temporary CLI database role over session pooler
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+
+          status="$(curl --silent --show-error \
+            --request POST \
+            --output "$response" \
+            --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            --header 'Content-Type: application/json' \
+            --data '{"read_only":false}' \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/cli/login-role")"
+
+          if [[ "$status" != "201" ]]; then
+            echo "Supabase temporary login-role creation failed with HTTP ${status}." >&2
+            exit 1
+          fi
+
+          role="$(jq -er '.role' "$response")"
+          password="$(jq -er '.password' "$response")"
+          ttl="$(jq -er '.ttl_seconds' "$response")"
+          echo "::add-mask::$password"
+          echo "Temporary CLI database role issued with TTL ${ttl}s."
+
+          command -v psql >/dev/null
+          export PGPASSWORD="$password"
+          pooler_user="${role}.${SUPABASE_PROJECT_REF}"
+
+          result="$(psql \
+            "host=${SUPABASE_POOLER_HOST} port=5432 dbname=postgres user=${pooler_user} sslmode=require connect_timeout=10" \
+            -v ON_ERROR_STOP=1 -Atc \
+            "SELECT current_database(), current_user, (SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user), (SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user), (SELECT rolsuper FROM pg_roles WHERE rolname=current_user), ssl FROM pg_stat_ssl WHERE pid=pg_backend_pid();")"
+
+          IFS='|' read -r database backend_role can_create_db can_create_role is_superuser ssl <<<"$result"
+          test "$database" = "postgres"
+          test "$ssl" = "t"
+          echo "Session pooler connectivity verified as temporary role ${backend_role}."
+          echo "temporary_role_flags=createdb:${can_create_db},createrole:${can_create_role},superuser:${is_superuser}"
