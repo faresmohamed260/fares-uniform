@@ -13,9 +13,11 @@
 
 ## Current state — 2026-09-13
 
-**Phase 0 Discovery: COMPLETE. Phase 0A Hosted Odoo proof: PASS. Phase 0B Foundation architecture/UX: COMPLETE. Phase 1 Products/stock/access: COMPLETE. Phase 2A Retail checkout/offline: COMPLETE. Phase 2B Preorder/balance/collection: COMPLETE. Phase 2C Retail refunds/size exchanges: COMPLETE. Phase 3A Preorder production: COMPLETE. Phase 3B Business-client workflow: COMPLETE. Phase 4A Public catalog/enquiry: COMPLETE / VERIFIED. Phase 4B Operational reporting: COMPLETE / VERIFIED. Phase 5 Integrated UAT/onboarding: COMPLETE / VERIFIED. Phase 5A Arabic launch-quality polish: COMPLETE / VERIFIED. Phase 6 Provider-neutral deployment/readiness proof: COMPLETE / VERIFIED. Phase 7 Vercel deployment adaptation: ACTIVE / AUTHORIZED.**
+**Phase 0 Discovery: COMPLETE. Phase 0A Hosted Odoo proof: PASS. Phase 0B Foundation architecture/UX: COMPLETE. Phase 1 Products/stock/access: COMPLETE. Phase 2A Retail checkout/offline: COMPLETE. Phase 2B Preorder/balance/collection: COMPLETE. Phase 2C Retail refunds/size exchanges: COMPLETE. Phase 3A Preorder production: COMPLETE. Phase 3B Business-client workflow: COMPLETE. Phase 4A Public catalog/enquiry: COMPLETE / VERIFIED. Phase 4B Operational reporting: COMPLETE / VERIFIED. Phase 5 Integrated UAT/onboarding: COMPLETE / VERIFIED. Phase 5A Arabic launch-quality polish: COMPLETE / VERIFIED. Phase 6 Provider-neutral deployment/readiness proof: COMPLETE / VERIFIED. Phase 7 Vercel deployment adaptation: ACTIVE / AUTHORIZED — durable state/session/recovery and external cron slices are GREEN; WebSocket continuity is the current RED blocker.**
 
 Current branch: `phase-7/vercel-deployment-adaptation`.
+
+Latest implementation HEAD before this documentation checkpoint: `fcb811f947aa74c0370fd82b83bc0e01e962f07b` (`fix(phase7): install websocket bus dependency explicitly`).
 
 **Authoritative business-application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.**
 
@@ -51,16 +53,32 @@ Phase 6 source-authority evidence records `application_source_diff=none` for `ad
 
 The client explicitly selected **Vercel** on 2026-09-13, asking to use it like RenderLab and SAGA. This supersedes the earlier Phase 6 single-VPS/Hetzner recommendation. It does not erase the valid Phase 6 provider-neutral recovery proof.
 
-The active contract is `docs/phases/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md`.
+The active contract is `docs/phases/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md`; exact RED/GREEN chronology is in `docs/validation/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md`.
 
 The Vercel target is deliberately stateless:
 - `apps/public-web` remains Next.js on Vercel;
 - private Odoo is evaluated as a Vercel container/Service;
 - PostgreSQL moves to a managed external service, with Supabase the preferred first candidate because it is already an accepted/available project service family;
-- Odoo attachments are first proven with native database-backed attachment storage instead of a mounted filestore;
-- Odoo HTTP sessions must move from filesystem persistence to a shared server-side store;
-- scheduled work must use safe trigger-driven execution rather than depending on an immortal cron worker;
-- Odoo bus/WebSocket behavior must reconnect safely across Vercel runtime lifecycle changes.
+- Odoo attachments use native database-backed attachment storage for the first proven topology instead of a mounted filestore;
+- Odoo HTTP sessions use a shared PostgreSQL-backed server-side store;
+- scheduled work uses an authenticated external trigger while built-in Odoo cron threads remain disabled;
+- Odoo bus/WebSocket behavior still must be proven to reconnect safely across Vercel runtime lifecycle changes.
+
+### Phase 7 verified progress
+
+**Durable state/session/recovery slice — GREEN.** Exact-head implementation SHA `52bd809facb2a701e7d61db777ff018fa2f8778b`; workflow `Phase 7 Vercel adaptation`, run `34754781691`, job `103717216101`; artifact `10316318863`, digest `sha256:37bc11aff6d652b256e283a6ac9132c3ba11f023e4158da780d48ef4d9815191`.
+
+That proof establishes no declared persistent Odoo volume, database-backed attachments, PostgreSQL-backed authenticated HTTP sessions, runtime replacement continuity, database-only backup/recreate/restore continuity, privileged ownership of the session schema, least-privileged runtime DML and built-in cron threads disabled.
+
+**External cron/background slice — GREEN.** Exact-head implementation SHA `8719a6f868813da1f7618200e7ad1036f2214b60`; workflow `Phase 7 Vercel cron trigger`, run `34755578761`, job `103719261532`; artifact `10317405872`, digest `sha256:5fe902b2788bb35c7220a12f6add36a6544ef072a00bb20aaf4709c3474ae60c`.
+
+That proof establishes two stateless Odoo runtimes with built-in cron disabled, rejection of unauthenticated/invalid external trigger requests and exactly-once execution of one due synthetic Odoo cron under concurrent authenticated triggers using Odoo's native locking semantics.
+
+**Realtime/WebSocket slice — RED / ACTIVE BLOCKER.** The current implementation includes an evented WebSocket runtime mode plus continuity client/sender proof scaffolding. Diagnostic commit `8c1f70bcf45f748f6baf4c7a16b7b2bf37690f32` preserved evented-startup evidence in run `34762055023`, job `103736500596`, artifact `10319296739`, digest `sha256:ebf065dccd4ed92bd5704129c4074a2db4a5938b99a92ceb720952aaa527e308`.
+
+The latest candidate `fcb811f947aa74c0370fd82b83bc0e01e962f07b` explicitly installs/upgrades Odoo `bus`. Workflow `Phase 7 Vercel websocket continuity`, run `34762496143`, job `103737654226` still fails at **Start evented websocket service on its Vercel service port** after the database, production addons + `bus`, normal HTTP runtime and shared authenticated session steps all pass. Artifact `10319751894`, digest `sha256:1a48d06872914fef024e68fdaa68d421218f67f6bb1f5bb2b2ca4dc439cbf8ff`. Notification/replacement/reconnect steps are not yet reached.
+
+The temporary diagnostic workflow `.github/workflows/phase7-diagnose-websocket.yml` remains intentionally present until the WebSocket startup issue is resolved and its exact RED evidence is no longer needed for active debugging.
 
 The verified Compose/VPS package is **not** being deleted or retroactively reclassified. It remains the provider-neutral recovery baseline and fallback if Vercel-specific assumptions fail evidence-based validation.
 
@@ -113,21 +131,20 @@ Confirmed product/stock rules remain:
 12. Phase 5 integrated UAT/onboarding — complete / verified.
 13. Phase 5A Arabic launch-quality polish — complete / verified.
 14. Phase 6 provider-neutral deployment + synthetic restore proof — complete / verified.
-15. Phase 7 Vercel stateless deployment adaptation — **active / authorized**.
+15. Phase 7 Vercel stateless deployment adaptation — **active / authorized; state/session/recovery GREEN; external cron GREEN; WebSocket continuity RED**.
 16. After Phase 7 exact-head proof and separate commercial/live-resource authorization: Vercel commercial staging, real backing-service rehearsal/device/operations proof, then production cutover only under separate authorization.
 
 ## Immediate next action
 
-Continue Phase 7 from repository evidence, without creating live resources:
-1. inspect the pinned Odoo session/attachment/cron/bus boundaries and current `deploy/` package;
-2. design the smallest stateless runtime adapter layer;
-3. preserve the seven production addons and public contract unless evidence requires a narrow compatibility change;
-4. add Vercel-target configuration and hosted CI that proves runtime replacement with DB-backed durable truth;
-5. prove attachments, authenticated sessions, scheduled work and realtime reconnect without local persistent disk;
-6. rerun inherited application/public gates if runtime adaptation can affect them;
-7. document exact RED/green evidence before calling the Vercel adaptation verified.
+Continue Phase 7 from the current remote branch state, without creating live resources:
+1. inspect the preserved WebSocket diagnostic evidence first — run `34762055023` / job `103736500596` / artifact `10319296739` — and the latest failed WebSocket proof run `34762496143` / job `103737654226` / artifact `10319751894`; identify the exact evented/gevent startup error rather than guessing;
+2. make the narrowest deployment/runtime fix supported by that evidence and rerun `Phase 7 Vercel websocket continuity` at the exact candidate head until startup, authenticated notification, runtime replacement and reconnect/replay gates are all green;
+3. once the WebSocket slice is green, remove `.github/workflows/phase7-diagnose-websocket.yml` and preserve its historical RED run/artifact in validation chronology;
+4. verify the exact current Vercel Services/project configuration schema immediately before adding final service/routing/security configuration, keeping private Odoo exposure minimal and the cron boundary authenticated;
+5. rerun inherited application/public gates if the final runtime/platform configuration can affect them;
+6. update exact RED/GREEN evidence and close Phase 7 only when all exit criteria are exact-head green.
 
-Do not upgrade Vercel, create a paid Fares project/database, set production secrets/domains, or deploy real data while doing this.
+Do not regress or redo the already-green durable-state/session/recovery or external-cron slices unless a later change can affect them. Do not upgrade Vercel, create a paid Fares project/database, set production secrets/domains, or deploy real data while doing this.
 
 ## Later explicit business-policy decisions
 
