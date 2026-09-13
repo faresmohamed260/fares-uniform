@@ -37,6 +37,7 @@ require_identifier() {
 : "${ODOO_LIMIT_TIME_REAL_CRON:=600}"
 : "${ODOO_LOG_LEVEL:=info}"
 : "${ODOO_DATA_DIR:=/tmp/odoo-data}"
+: "${ODOO_RUNTIME_MODE:=http}"
 : "${FARES_SESSION_STORE:=postgres}"
 
 require_identifier ODOO_DB_NAME
@@ -45,6 +46,10 @@ require_identifier ODOO_DB_USER
 [[ "$ODOO_HTTP_PORT" =~ ^[0-9]+$ ]] || { echo "ODOO_HTTP_PORT/PORT must be numeric" >&2; exit 64; }
 [[ "$ODOO_WORKERS" == "0" ]] || { echo "Vercel runtime requires ODOO_WORKERS=0" >&2; exit 64; }
 [[ "$ODOO_MAX_CRON_THREADS" == "0" ]] || { echo "Vercel runtime requires ODOO_MAX_CRON_THREADS=0" >&2; exit 64; }
+case "$ODOO_RUNTIME_MODE" in
+  http|websocket) ;;
+  *) echo "ODOO_RUNTIME_MODE must be http or websocket" >&2; exit 64 ;;
+esac
 case "$ODOO_DB_SSLMODE" in
   disable|allow|prefer|require|verify-ca|verify-full) ;;
   *) echo "Invalid ODOO_DB_SSLMODE" >&2; exit 64 ;;
@@ -111,9 +116,18 @@ limit_time_real = ${ODOO_LIMIT_TIME_REAL}
 limit_time_real_cron = ${ODOO_LIMIT_TIME_REAL_CRON}
 http_interface = 0.0.0.0
 http_port = ${ODOO_HTTP_PORT}
+gevent_port = ${ODOO_HTTP_PORT}
 log_level = ${ODOO_LOG_LEVEL}
 without_demo = all
 EOF
 chmod 0600 "$ODOO_RC"
+
+if [[ "$ODOO_RUNTIME_MODE" == "websocket" ]]; then
+  # Pinned Odoo's WebSocket handler requires the raw socket injected by its
+  # GeventServer. Vercel exposes one HTTP port per service, so bind the evented
+  # Odoo service's gevent port directly to PORT and keep it as a separate
+  # stateless service from the normal threaded HTTP runtime.
+  exec /opt/odoo-venv/bin/python /opt/odoo/odoo-bin gevent -c "$ODOO_RC" "$@"
+fi
 
 exec /opt/odoo-venv/bin/python /opt/odoo/odoo-bin -c "$ODOO_RC" "$@"
