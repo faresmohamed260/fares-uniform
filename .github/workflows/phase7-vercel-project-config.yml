@@ -48,13 +48,21 @@ jobs:
           python - <<'PY' | tee evidence/vercel-schema.txt
           import json
           from pathlib import Path
-          from jsonschema.validators import validator_for
+          from jsonschema import Draft7Validator
 
           config = json.loads(Path('vercel.json').read_text(encoding='utf-8'))
           schema = json.loads(Path('/tmp/vercel.schema.json').read_text(encoding='utf-8'))
-          Validator = validator_for(schema)
-          Validator.check_schema(schema)
-          errors = sorted(Validator(schema).iter_errors(config), key=lambda error: list(error.path))
+
+          # Vercel's live schema currently declares draft-04 while also using
+          # newer JSON-Schema keywords/shapes (for example `const` and numeric
+          # `exclusiveMinimum`). Meta-validating it strictly as draft-04 fails
+          # on Vercel's schema itself before our config is examined. Use a
+          # modern-compatible validator for the provider document and retain a
+          # separate exact semantic contract check below for service constants.
+          declared_draft = schema.get('$schema', '<unset>')
+          errors = sorted(Draft7Validator(schema).iter_errors(config), key=lambda error: list(error.path))
+          print(f'VERCEL_SCHEMA_SOURCE=https://openapi.vercel.sh/vercel.json declared={declared_draft}')
+          print('VERCEL_SCHEMA_VALIDATOR=draft7-compatible mixed-draft provider schema')
           if errors:
               for error in errors:
                   path = '.'.join(str(part) for part in error.path) or '<root>'
