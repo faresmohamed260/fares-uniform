@@ -52,8 +52,8 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 6 validation](validation/PHASE_6_DEPLOYMENT_READINESS.md) | Exact RED-to-green deployment-package evidence |
 | [Phase 7 Vercel adaptation](phases/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | Completed stateless Vercel/Odoo repository/CI contract |
 | [Phase 7 validation](validation/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | State/session/cron/WebSocket/project-map RED-to-green evidence |
-| [Phase 8 commercial staging readiness](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) | Commercial-staging ownership, live-proof and GO/NO-GO parent contract |
-| [Phase 8A free-tier staging execution](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md) | Client authorization, inspected provider state and free-tier execution blockers |
+| [Phase 8 commercial staging readiness](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) | Staging ownership, live-proof and GO/NO-GO parent contract |
+| [Phase 8A free-tier staging execution](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md) | Live Supabase/Vercel execution status, control-plane evidence and remaining Gate C work |
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result and operator/client inputs still required |
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Go/no-go checklist and remaining live-stage decisions |
 
@@ -61,62 +61,70 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 
 Completed milestones: **Phase 5A application/UAT/localization — COMPLETE / VERIFIED; Phase 6 provider-neutral deployment/readiness — COMPLETE / VERIFIED; Phase 7 Vercel stateless adaptation — COMPLETE / VERIFIED at repository/CI level; Phase 8 repository planning — COMPLETE.**
 
-Active bounded stage: **Phase 8A free-tier staging execution — CLIENT AUTHORIZED / PROVIDER BLOCKED.**
+Active bounded stage: **Phase 8A free-tier staging execution — IN PROGRESS. Supabase live managed-database/runtime-image slice is GREEN; Vercel live project/deployment is pending.**
 
 Current branch: `phase-8/commercial-staging-readiness`.
 
-Phase 7 final implementation authority: `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`.
+Current Phase 8 managed-database/runtime checkpoint: `b7a661bf70c2468b006bf971cba10172cf810e7d`.
 
-Phase 7 final runtime-regression checkpoint: `24850acc029e0e7bbef898d6598d0d8b3f7ce733`.
+Current Phase 8 Supabase proof: run `34787677724`, job `103806024323` — **SUCCESS**.
 
-Authoritative business-application/test SHA remains Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`. Its hosted gate passed **149 Odoo/UAT tests with 0 failures / 0 errors**, repeatable seven-production-addon upgrade, public typecheck/build and **8/8 Playwright**.
+Inherited authorities remain:
 
-Authoritative Phase 6 provider-neutral deployment-package SHA remains `e337315684c62d69ad75ba56a5867098da17489c`, with exact security/persistence/backup/destructive-restore proof retained in Phase 6 validation.
+- Phase 7 final implementation: `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`;
+- Phase 7 runtime checkpoint: `24850acc029e0e7bbef898d6598d0d8b3f7ce733`;
+- Phase 6 deployment package: `e337315684c62d69ad75ba56a5867098da17489c`;
+- Phase 5A application/test authority: `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`, with **149 tests / 0 failures / 0 errors**, repeatable seven-addon upgrade, public typecheck/build and **8/8 Playwright**.
 
 ## Phase 7 result
 
-The accepted Vercel topology is source-controlled and hosted-tested:
+The accepted Vercel topology remains source-controlled and hosted-tested:
 
 - Next.js `public_web` service;
 - stateless `odoo_http` container service;
-- stateless `odoo_websocket` evented container service;
-- private public-web → Odoo HTTP service binding through `ODOO_BASE_URL`;
+- separate stateless `odoo_websocket` service;
+- private public-web → Odoo HTTP binding through `ODOO_BASE_URL`;
 - only `/websocket` publicly routed to the evented service;
 - only authenticated `/fares/internal/cron/run` publicly routed to Odoo HTTP;
-- no broad Odoo backoffice or direct public API rewrite;
+- no broad Odoo backoffice/direct Fares API rewrite;
 - database-backed Odoo attachments;
 - PostgreSQL-backed authenticated sessions;
-- built-in Odoo cron disabled and external authenticated trigger proven exactly once under concurrent invocation;
-- WebSocket notification delivery/replacement/reconnect/replay proven;
-- database-only state backup and clean restore proven;
-- final Vercel schema/topology gate and public-web regression green.
+- built-in Odoo cron disabled and external authenticated trigger proven;
+- WebSocket replacement/reconnect/replay proven;
+- database-only state recovery proven;
+- Vercel schema/topology gate and public-web regression green.
 
-At runtime checkpoint `24850acc...`, state/session/recovery run `34769858562`, cron run `34769858603`, WebSocket run `34769858556` and project-config run `34769858553` all succeeded. Final implementation `01ce26d...` then passed final project mapping and public-web regression in run `34770228476`. The only change between those SHAs is the project-config CI workflow.
+At runtime checkpoint `24850acc...`, state/session/recovery run `34769858562`, cron run `34769858603`, WebSocket run `34769858556` and project-config run `34769858553` succeeded. Final implementation `01ce26d...` passed final project mapping/public-web regression in run `34770228476`.
 
-## Phase 8 / Phase 8A result so far
+## Phase 8A result so far
 
-The Phase 8 parent contract defines the commercial staging ownership, provider proof, security and production separation gates.
+The earlier Supabase free-project-cap issue was resolved by using a separate account for Fares Uniform. `AI Studio` and `S.A.G.A.` remain untouched.
 
-The client then explicitly authorized creating new isolated Fares Uniform Vercel/Supabase staging resources using the existing RenderLab/SAGA account conventions, with a hard **free-tier-only** constraint.
+Dedicated live Supabase target:
 
-Live provider inspection found:
+- `Fares Uniform`;
+- project ref `urqlxisivowkmsfisjek`;
+- `eu-central-1`;
+- `ACTIVE_HEALTHY`;
+- Session Pooler `aws-0-eu-central-1.pooler.supabase.com:5432`;
+- dedicated project's provider-managed `postgres` database;
+- routine application role `fares_app`.
 
-- Vercel team `faresmohamed260-6733's projects` is on Hobby; existing projects are `studio`, `saga` and `renderlab`; no Fares Uniform project exists.
-- Current Vercel terms restrict Hobby to personal/non-commercial use, so the commercial Fares Uniform staging workload was not deployed on Hobby.
-- Supabase organization `Fares Home Lab` is Free; active projects are `AI Studio` in `eu-west-1` and `S.A.G.A.` in `eu-central-1`.
-- A new Supabase project was quoted at **$0/month** and `eu-central-1` was selected to match S.A.G.A.
-- Creation of `Fares Uniform` was rejected because the user has reached Supabase's two-active-free-project limit.
-- No existing Vercel/Supabase project was mutated, paused, deleted or repurposed.
+GitHub Actions now controls Supabase through repository secret `SUPABASE_ACCESS_TOKEN`. Source-controlled bootstrap creates and verifies the least-privileged runtime role, extensions, schema ACLs and shared session table without exposing credentials.
 
-No Fares Uniform live staging resource, secret, domain or real data exists yet.
+The real managed-database proof also exposed and fixed the required Supavisor custom-role username form. The runtime now accepts exactly one project-ref suffix such as `fares_app.urqlxisivowkmsfisjek` while keeping database-name validation strict and rejecting unsafe username syntax.
+
+Run `34787677724`, job `103806024323`, at `b7a661bf...` proves the exact Vercel-target Odoo image can connect with psycopg2 through the real Supabase **Session Pooler** using `sslmode=require`. The same run verifies the live project identity, bootstrap, ACL boundary and provider-issued temporary role permissions.
+
+No permanent `fares_app` runtime password is stored yet. The role remains `NOLOGIN` until the Vercel project can be created and the runtime password can be generated and injected atomically through hosted automation.
 
 ## Current gate
 
-The codebase remains technically ready for a compliant live staging proof, but **Phase 8A is provider-blocked rather than deployed**.
+- Gate A repository planning: **PASS**.
+- Gate B authorization/provider ownership: **PARTIAL PASS** — Supabase is established; Fares Uniform Vercel project is pending.
+- Gate C live staging technical proof: **IN PROGRESS** — managed database/runtime-image connectivity is green; live Vercel services and remaining end-to-end proofs are pending.
+- Gate D production: **NO-GO**.
 
-To stay free:
+The next prerequisite is Vercel API access stored as a GitHub Actions repository secret. After that the project should create/link only `fares-uniform`, activate/inject fresh runtime secrets fail-closed, deploy the Phase 8 branch, then execute seven-addon, attachment/session, cron, WebSocket, backup/restore, monitoring and EN/AR staging proofs.
 
-- Supabase requires the client to explicitly choose one existing free project to pause before a new isolated Fares Uniform project can be created.
-- Vercel Hobby is not a valid commercial-use target under current provider terms. A Vercel Pro upgrade would require separate spending authorization; otherwise the platform decision must change.
-
-Production remains **NO-GO** until compliant live staging proof plus store hardware, named staff/training, real-data cutover/reconciliation, monitoring, backup/RPO/RTO, domains/access and separate production authorization are complete.
+Production remains **NO-GO** until live Gate C plus store hardware, named staff/training, real-data cutover/reconciliation and separate production authorization are complete.
