@@ -298,7 +298,7 @@ jobs:
           CLIENT_PID=$!
           sleep 2
 
-          docker exec \
+          docker exec -i \
             -e PHASE7_WS_CHANNEL="$PHASE7_WS_CHANNEL" \
             -e PHASE7_NOTIFICATION_MARKER="$MARKER_ONE" \
             "$PHASE7_HTTP_CONTAINER" \
@@ -326,7 +326,7 @@ jobs:
             exit 1
           fi
 
-          docker exec \
+          docker exec -i \
             -e PHASE7_WS_CHANNEL="$PHASE7_WS_CHANNEL" \
             -e PHASE7_NOTIFICATION_MARKER="$MARKER_TWO" \
             "$PHASE7_HTTP_CONTAINER" \
