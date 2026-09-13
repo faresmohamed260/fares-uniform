@@ -4,6 +4,6 @@
     "license": "LGPL-3",
     "depends": ["base"],
     "post_load": "post_load",
-    "installable": 0,
-    "application": 0,
+    "installable": False,
+    "application": False,
 }
