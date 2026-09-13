@@ -26,6 +26,7 @@ env:
   ODOO_DB_NAME: fares
   ODOO_DB_USER: fares_app
   PRODUCTION_ADDONS: fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting
+  REALTIME_ADDON: bus
   PHASE7_NETWORK: fares-phase7-websocket
   PHASE7_DB_CONTAINER: fares-phase7-websocket-db
   PHASE7_HTTP_CONTAINER: fares-phase7-websocket-http
@@ -60,6 +61,7 @@ jobs:
             echo "odoo_sha=$ODOO_SHA"
             echo "application_source_diff=none"
             echo "pinned_websocket_worker_version=$PHASE7_WS_VERSION"
+            echo "realtime_database_addon=$REALTIME_ADDON"
           } | tee evidence/source-authority.txt
 
       - name: Prepare synthetic credentials
@@ -149,7 +151,7 @@ jobs:
             echo "database_owner=$DB_OWNER"
           } | tee evidence/database-boundary.txt
 
-      - name: Initialize and upgrade production addons
+      - name: Initialize and upgrade production addons plus realtime bus
         run: |
           set -euo pipefail
           DB_PASSWORD="$(sudo cat deploy/.phase7-secrets/odoo_db_password)"
@@ -170,9 +172,14 @@ jobs:
               -e ODOO_WORKERS=0 \
               -e ODOO_MAX_CRON_THREADS=0 \
               "fares-uniform-vercel:$GITHUB_SHA" \
-              --stop-after-init "$ACTION" "$PRODUCTION_ADDONS"
+              --stop-after-init "$ACTION" "$PRODUCTION_ADDONS,$REALTIME_ADDON"
           done
-          echo 'production_addons_init_upgrade=PASS' | tee evidence/addon-init.txt
+          BUS_STATE="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d "$ODOO_DB_NAME" -Atc "SELECT state FROM ir_module_module WHERE name = '$REALTIME_ADDON';")"
+          test "$BUS_STATE" = 'installed'
+          {
+            echo 'production_addons_init_upgrade=PASS'
+            echo "realtime_addon_state=$REALTIME_ADDON:$BUS_STATE"
+          } | tee evidence/addon-init.txt
 
       - name: Start normal HTTP runtime and create shared authenticated session
         run: |
