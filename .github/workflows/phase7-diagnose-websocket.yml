@@ -20,6 +20,7 @@ env:
   ODOO_DB_NAME: fares
   ODOO_DB_USER: fares_app
   PRODUCTION_ADDONS: fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting
+  REALTIME_ADDON: bus
   PHASE7_NETWORK: fares-phase7-ws-diag
   PHASE7_DB_CONTAINER: fares-phase7-ws-diag-db
   PHASE7_WS_CONTAINER: fares-phase7-ws-diag-evented
@@ -49,7 +50,7 @@ jobs:
           sudo chown root:10001 deploy/.phase7-secrets/odoo_db_password
           sudo chmod 0440 deploy/.phase7-secrets/odoo_db_password
           chmod 0600 deploy/.phase7-secrets/odoo_admin_passwd
-          printf 'fares_sha=%s\nodoo_sha=%s\n' "$GITHUB_SHA" "$ODOO_SHA" > evidence/source-authority.txt
+          printf 'fares_sha=%s\nodoo_sha=%s\nrealtime_addon=%s\n' "$GITHUB_SHA" "$ODOO_SHA" "$REALTIME_ADDON" > evidence/source-authority.txt
 
       - name: Build exact runtime images
         run: |
@@ -61,6 +62,10 @@ jobs:
             --build-arg FARES_SHA="$GITHUB_SHA" \
             -t "fares-uniform-vercel:$GITHUB_SHA" .
           test "$(docker image inspect -f '{{json .Config.Volumes}}' "fares-uniform-vercel:$GITHUB_SHA")" = 'null'
+          docker run --rm --entrypoint bash "fares-uniform-vercel:$GITHUB_SHA" -lc '
+            /opt/odoo-venv/bin/python -c "import gevent, websocket"
+            grep -q "_VERSION = \"19.0-2\"" /opt/odoo/addons/bus/websocket.py
+          '
 
       - name: Start PostgreSQL and bootstrap session schema
         run: |
@@ -94,7 +99,7 @@ jobs:
             -e POSTGRES_USER=postgres \
             "$PHASE7_DB_CONTAINER" bash
 
-      - name: Initialize production addons exactly like the realtime proof
+      - name: Initialize production addons plus realtime bus
         run: |
           set -euo pipefail
           DB_PASSWORD="$(sudo cat deploy/.phase7-secrets/odoo_db_password)"
@@ -115,10 +120,13 @@ jobs:
               -e ODOO_WORKERS=0 \
               -e ODOO_MAX_CRON_THREADS=0 \
               "fares-uniform-vercel:$GITHUB_SHA" \
-              --stop-after-init "$ACTION" "$PRODUCTION_ADDONS"
+              --stop-after-init "$ACTION" "$PRODUCTION_ADDONS,$REALTIME_ADDON"
           done
+          BUS_STATE="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d "$ODOO_DB_NAME" -Atc "SELECT state FROM ir_module_module WHERE name = '$REALTIME_ADDON';")"
+          test "$BUS_STATE" = installed
+          printf 'realtime_addon_state=%s:%s\n' "$REALTIME_ADDON" "$BUS_STATE" > evidence/addon-state.txt
 
-      - name: Reproduce evented startup and capture stderr
+      - name: Reproduce post-bus evented startup and preserve exact boundary
         id: reproduce
         continue-on-error: true
         run: |
@@ -143,13 +151,13 @@ jobs:
             -e ODOO_MAX_CRON_THREADS=0 \
             "fares-uniform-vercel:$GITHUB_SHA"
 
-          for attempt in $(seq 1 15); do
+          HTTP_CODE=000
+          for attempt in $(seq 1 30); do
             STATUS="$(docker inspect -f '{{.State.Status}}' "$PHASE7_WS_CONTAINER" 2>/dev/null || true)"
             if [[ "$STATUS" == exited || "$STATUS" == dead ]]; then break; fi
-            if curl -fsS "http://127.0.0.1:18072/websocket/health" >/dev/null 2>&1; then
-              echo 'evented_startup=PASS' | tee evidence/evented-result.txt
-              exit 0
-            fi
+            HTTP_CODE="$(curl -sS --max-time 2 -D evidence/evented-health.headers -o evidence/evented-health.body -w '%{http_code}' \
+              "http://127.0.0.1:18072/websocket/health" || true)"
+            if [[ "$HTTP_CODE" == 200 ]]; then break; fi
             sleep 1
           done
 
@@ -158,13 +166,21 @@ jobs:
             "$PHASE7_WS_CONTAINER" > evidence/evented-inspect.txt || true
           docker inspect -f 'entrypoint={{json .Config.Entrypoint}} cmd={{json .Config.Cmd}} user={{json .Config.User}} mounts={{json .Mounts}}' \
             "$PHASE7_WS_CONTAINER" > evidence/evented-runtime.txt || true
-          printf 'http_health=' >> evidence/evented-runtime.txt
-          if curl -fsS --max-time 2 "http://127.0.0.1:18072/websocket/health" >/dev/null 2>&1; then echo PASS; else echo FAIL; fi >> evidence/evented-runtime.txt
+          docker exec "$PHASE7_WS_CONTAINER" cat /tmp/fares-odoo.conf > evidence/evented-config.txt 2>/dev/null || true
+          printf 'http_health_code=%s\n' "$HTTP_CODE" >> evidence/evented-runtime.txt
+
+          if [[ "$HTTP_CODE" == 200 ]]; then
+            echo 'evented_startup=PASS health=200 bus=installed' | tee evidence/evented-result.txt
+            exit 0
+          fi
+
           cat evidence/evented.log
           cat evidence/evented-inspect.txt
+          cat evidence/evented-health.headers 2>/dev/null || true
+          cat evidence/evented-health.body 2>/dev/null || true
           exit 1
 
-      - name: Persist diagnostics even when reproduction fails
+      - name: Persist diagnostics
         if: always()
         run: |
           docker logs "$PHASE7_WS_CONTAINER" > evidence/evented.log 2>&1 || true
