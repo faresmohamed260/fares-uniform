@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase8-managed-odoo-reset
+  group: phase8-managed-db-mutation
   cancel-in-progress: false
 
 jobs:
@@ -164,6 +164,72 @@ jobs:
           test "$status" = 201 || { echo "bootstrap failed HTTP $status" >&2; jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
           echo 'managed_bootstrap_reapplied=PASS'
 
+      - name: Seal clean target and advance deployment epoch
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          epoch_id="${GITHUB_RUN_ID}:${GITHUB_RUN_ATTEMPT}:${GITHUB_SHA}"
+          read -r -d '' query <<SQL || true
+          SELECT pg_terminate_backend(pid)
+          FROM pg_stat_activity
+          WHERE datname='postgres' AND usename='fares_app' AND pid <> pg_backend_pid();
+          ALTER ROLE fares_app NOLOGIN PASSWORD NULL;
+          REVOKE CREATE ON SCHEMA public FROM fares_app;
+
+          CREATE SCHEMA IF NOT EXISTS fares_control AUTHORIZATION postgres;
+          ALTER SCHEMA fares_control OWNER TO postgres;
+          REVOKE ALL ON SCHEMA fares_control FROM PUBLIC;
+
+          CREATE TABLE IF NOT EXISTS fares_control.deployment_epoch (
+            singleton boolean PRIMARY KEY DEFAULT TRUE CHECK (singleton),
+            epoch_id text NOT NULL,
+            reset_run_id bigint NOT NULL,
+            reset_run_attempt integer NOT NULL,
+            reset_sha text NOT NULL CHECK (length(reset_sha) = 40),
+            reset_completed_at timestamptz NOT NULL
+          );
+          ALTER TABLE fares_control.deployment_epoch OWNER TO postgres;
+          REVOKE ALL ON TABLE fares_control.deployment_epoch FROM PUBLIC, fares_app, anon, authenticated, service_role;
+
+          INSERT INTO fares_control.deployment_epoch (
+            singleton, epoch_id, reset_run_id, reset_run_attempt, reset_sha, reset_completed_at
+          ) VALUES (
+            TRUE, '${epoch_id}', ${GITHUB_RUN_ID}, ${GITHUB_RUN_ATTEMPT}, '${GITHUB_SHA}', clock_timestamp()
+          )
+          ON CONFLICT (singleton) DO UPDATE SET
+            epoch_id = EXCLUDED.epoch_id,
+            reset_run_id = EXCLUDED.reset_run_id,
+            reset_run_attempt = EXCLUDED.reset_run_attempt,
+            reset_sha = EXCLUDED.reset_sha,
+            reset_completed_at = EXCLUDED.reset_completed_at;
+
+          SELECT
+            epoch_id,
+            reset_run_id,
+            reset_run_attempt,
+            reset_sha,
+            reset_completed_at,
+            pg_get_userbyid((SELECT relowner FROM pg_class WHERE oid='fares_control.deployment_epoch'::regclass)) AS epoch_owner,
+            has_schema_privilege('fares_app','public','CREATE') AS fares_app_can_create;
+          FROM fares_control.deployment_epoch
+          WHERE singleton = TRUE;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { echo "deployment epoch seal failed HTTP $status" >&2; jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
+          jq -c '.[0]' "$response"
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$epoch_id"
+          test "$(jq -r '.[0].reset_run_id' "$response")" = "$GITHUB_RUN_ID"
+          test "$(jq -r '.[0].reset_run_attempt' "$response")" = "$GITHUB_RUN_ATTEMPT"
+          test "$(jq -r '.[0].reset_sha' "$response")" = "$GITHUB_SHA"
+          test "$(jq -r '.[0].epoch_owner' "$response")" = postgres
+          test "$(jq -r '.[0].fares_app_can_create' "$response")" = false
+          echo "managed_deployment_epoch=PASS epoch=$epoch_id fares_app_create=false"
+
       - name: Verify clean Odoo target and preserved provider bootstrap
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -172,6 +238,7 @@ jobs:
           set -euo pipefail
           response="$(mktemp)"
           trap 'rm -f "$response"' EXIT
+          expected_epoch="${GITHUB_RUN_ID}:${GITHUB_RUN_ATTEMPT}:${GITHUB_SHA}"
           read -r -d '' query <<'SQL' || true
           SELECT
             (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
@@ -181,7 +248,10 @@ jobs:
             (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
             has_database_privilege('fares_app','postgres','CONNECT') AS can_connect,
             has_schema_privilege('fares_app','public','USAGE') AS can_use_public,
-            has_schema_privilege('fares_app','public','CREATE') AS can_create_public;
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            to_regclass('fares_control.deployment_epoch') IS NOT NULL AS epoch_table_exists,
+            (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='fares_control' AND c.relname='deployment_epoch') AS epoch_owner,
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id;
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
           status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
@@ -194,5 +264,8 @@ jobs:
           test "$(jq -r '.[0].required_extensions' "$response")" = 2
           test "$(jq -r '.[0].can_connect' "$response")" = true
           test "$(jq -r '.[0].can_use_public' "$response")" = true
-          test "$(jq -r '.[0].can_create_public' "$response")" = true
-          echo 'managed_odoo_target_reset=PASS role=NOLOGIN app_owned_relations=0 bootstrap=preserved'
+          test "$(jq -r '.[0].can_create_public' "$response")" = false
+          test "$(jq -r '.[0].epoch_table_exists' "$response")" = true
+          test "$(jq -r '.[0].epoch_owner' "$response")" = postgres
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$expected_epoch"
+          echo "managed_odoo_target_reset=PASS role=NOLOGIN app_owned_relations=0 create=false epoch=$expected_epoch bootstrap=preserved"
