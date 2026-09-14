@@ -1,0 +1,52 @@
+name: Phase 8 Vercel exposure diagnostic
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-vercel-exposure-diagnostic.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      VERCEL_API_BASE: https://api.vercel.com
+      VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+      VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+      DEPLOYMENT_ID: dpl_5z8YzXof55xePvYRiq5qFtPjrJt3
+    steps:
+      - name: Inspect protection and anonymous exposure without secret values
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          project="$(mktemp)"
+          deployment="$(mktemp)"
+          headers="$(mktemp)"
+          body="$(mktemp)"
+          trap 'rm -f "$project" "$deployment" "$headers" "$body"' EXIT
+
+          status="$(curl -sS -o "$project" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v9/projects/${VERCEL_PROJECT_ID}?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          jq -c '{name,id,ssoProtection,passwordProtection,trustedIps,protectionBypass}' "$project"
+
+          status="$(curl -sS -o "$deployment" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v13/deployments/${DEPLOYMENT_ID}?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          jq -c '{uid,url,readyState,target,alias}' "$deployment"
+
+          mapfile -t hosts < <(jq -r '[.url] + (.alias // []) | unique[]' "$deployment")
+          for host in "${hosts[@]}"; do
+            : >"$headers"
+            : >"$body"
+            http="$(curl -sS -o "$body" -D "$headers" -w '%{http_code}' --max-time 30 "https://${host}/" || true)"
+            auth_header="$(awk 'BEGIN{IGNORECASE=1} /^x-vercel-challenge:|^x-vercel-mitigated:|^www-authenticate:/{gsub(/\r/,""); print}' "$headers" | paste -sd ';' -)"
+            location="$(awk 'BEGIN{IGNORECASE=1} /^location:/{sub(/^[^:]*:[[:space:]]*/,""); gsub(/\r/,""); print; exit}' "$headers")"
+            printf 'anonymous_root host=%s status=%s protection_headers=%q location=%q\n' "$host" "$http" "$auth_header" "$location"
+          done
