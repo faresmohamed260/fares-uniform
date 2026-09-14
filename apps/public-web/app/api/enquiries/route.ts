@@ -1,3 +1,4 @@
+import { odooPrivateFetch, odooPrivateUrl } from "@/lib/odoo-private";
 import { NextResponse } from "next/server";
 
 const allowed = new Set(["idempotency_key", "contact_name", "organization_name", "phone", "email", "sector", "message", "source_product_slug", "language"]);
@@ -30,12 +31,6 @@ type EnquiryPayload = {
 type ValidationResult =
   | { ok: true; payload: EnquiryPayload }
   | { ok: false; error: string };
-
-function baseUrl() {
-  const raw = process.env.ODOO_BASE_URL;
-  if (!raw) throw new Error("ODOO_BASE_URL is required outside fixture mode");
-  return raw.endsWith("/") ? raw : `${raw}/`;
-}
 
 function text(record: Record<string, unknown>, key: TextKey, required = false): string | null {
   const raw = record[key] ?? "";
@@ -96,8 +91,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ status: "accepted", reference: "FUQ-CI-0001" }, { status: 201 });
   }
 
-  const url = new URL("fu/public/enquiries", baseUrl());
-  const upstream = await fetch(url, {
+  const url = odooPrivateUrl("/fu/public/enquiries");
+  const upstream = await odooPrivateFetch(url, {
     method: "POST",
     cache: "no-store",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
