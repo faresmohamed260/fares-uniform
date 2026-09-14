@@ -169,13 +169,14 @@ jobs:
           restore_list=/tmp/fares-phase8-v2-restore.list
           docker exec "$BOOTSTRAP_DB_CONTAINER" pg_dump -U postgres -d postgres --format=custom --schema=public --exclude-table=public.fares_http_session --no-owner --no-privileges > "$dump"
           docker exec -i "$BOOTSTRAP_DB_CONTAINER" pg_restore -l < "$dump" > "$full_list"
-          grep -v -E ' EXTENSION .* (unaccent|pg_trgm)$| COMMENT .* EXTENSION .* (unaccent|pg_trgm)$| SCHEMA .* public$|fares_http_session' "$full_list" > "$restore_list"
+          grep -v -E '^[0-9]+; [0-9]+ [0-9]+ (SCHEMA - public|COMMENT - SCHEMA public|ACL - SCHEMA public|EXTENSION - (unaccent|pg_trgm)|COMMENT - EXTENSION (unaccent|pg_trgm))( |$)|fares_http_session' "$full_list" > "$restore_list"
           test -s "$dump"
           test -s "$restore_list"
-          ! grep -Eq 'fares_http_session| EXTENSION .* (unaccent|pg_trgm)$| SCHEMA .* public$' "$restore_list"
+          ! grep -Eq '^[0-9]+; [0-9]+ [0-9]+ (SCHEMA - public|COMMENT - SCHEMA public|ACL - SCHEMA public|EXTENSION - (unaccent|pg_trgm)|COMMENT - EXTENSION (unaccent|pg_trgm))( |$)|fares_http_session' "$restore_list"
+          grep -Eq '^[0-9]+; [0-9]+ [0-9]+ (SCHEMA - public|EXTENSION - (unaccent|pg_trgm))( |$)' "$full_list"
           docker cp "$dump" "$BOOTSTRAP_DB_CONTAINER":/tmp/fares-phase8-v2.dump
           docker cp "$restore_list" "$BOOTSTRAP_DB_CONTAINER":/tmp/fares-phase8-v2-restore.list
-          echo "restore_set=PASS entries=$(grep -vc '^;' "$restore_list") bytes=$(stat -c '%s' "$dump")"
+          echo "restore_set=PASS entries=$(grep -vc '^;' "$restore_list") bytes=$(stat -c '%s' "$dump") provider_boundary_entries_excluded=true"
 
       - name: Activate least-privileged managed runtime role
         env:
