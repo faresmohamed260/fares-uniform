@@ -1,0 +1,80 @@
+name: Phase 8 live database diagnostics
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-live-db-diagnostics.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SUPABASE_API_BASE: https://api.supabase.com/v1
+      SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+    steps:
+      - name: Inspect active database work without secrets
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || exit 64
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            pid,
+            usename,
+            state,
+            wait_event_type,
+            wait_event,
+            backend_xid IS NOT NULL AS has_xid,
+            now() - query_start AS query_age,
+            left(regexp_replace(query, E'[\n\r\t]+', ' ', 'g'), 240) AS query_excerpt
+          FROM pg_stat_activity
+          WHERE datname = 'postgres'
+            AND usename = 'fares_app'
+          ORDER BY query_start;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[] | {pid,usename,state,wait_event_type,wait_event,has_xid,query_age,query_excerpt}' "$response"
+
+      - name: Inspect Odoo module initialization progress
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            to_regclass('public.ir_module_module') IS NOT NULL AS module_table_exists,
+            CASE WHEN to_regclass('public.ir_module_module') IS NULL THEN NULL ELSE
+              (SELECT count(*) FROM ir_module_module WHERE name IN ('fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting'))
+            END AS fares_module_rows,
+            CASE WHEN to_regclass('public.ir_module_module') IS NULL THEN NULL ELSE
+              (SELECT count(*) FROM ir_module_module WHERE name IN ('fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting') AND state='installed')
+            END AS fares_installed_rows;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[0]' "$response"
