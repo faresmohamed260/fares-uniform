@@ -1,0 +1,57 @@
+name: Phase 8 Vercel exposure fix
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-vercel-exposure-fix.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      VERCEL_API_BASE: https://api.vercel.com
+      VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+      VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+      FAILED_DEPLOYMENT_ID: dpl_5z8YzXof55xePvYRiq5qFtPjrJt3
+    steps:
+      - name: Disable Vercel Authentication for authorized public staging
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          before="$(mktemp)"
+          after="$(mktemp)"
+          trap 'rm -f "$before" "$after"' EXIT
+          status="$(curl -sS -o "$before" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v9/projects/${VERCEL_PROJECT_ID}?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          test "$(jq -r '.passwordProtection == null' "$before")" = true
+          test "$(jq -r '.trustedIps == null' "$before")" = true
+          echo "sso_before=$(jq -r '.ssoProtection.deploymentType // "disabled"' "$before")"
+          status="$(curl -sS -X PATCH -o "$after" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" -H 'Content-Type: application/json' --data '{"ssoProtection":null}' "${VERCEL_API_BASE}/v9/projects/${VERCEL_PROJECT_ID}?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          test "$(jq -r '.ssoProtection == null' "$after")" = true
+          echo 'public_staging_sso=disabled'
+
+      - name: Remove failed deployment before exact clean retry
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          list="$(mktemp)"
+          trap 'rm -f "$response" "$list"' EXIT
+          status="$(curl -sS -X DELETE -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v13/deployments/${FAILED_DEPLOYMENT_ID}?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          status="$(curl -sS -o "$list" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          test "$status" = 200
+          test "$(jq -r '.deployments | length' "$list")" = 0
+          echo 'failed_deployment_removed=PASS clean_retry_boundary=true'
