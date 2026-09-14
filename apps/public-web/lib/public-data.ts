@@ -1,3 +1,5 @@
+import { odooPrivateFetch, odooPrivateUrl } from "./odoo-private";
+
 export type PublicLanguage = "en" | "ar";
 
 export type PublicCatalogItem = {
@@ -45,16 +47,10 @@ function providerIsFixture() {
   return process.env.FU_PUBLIC_PROVIDER === "fixture";
 }
 
-function odooBaseUrl() {
-  const raw = process.env.ODOO_BASE_URL;
-  if (!raw) throw new Error("ODOO_BASE_URL is required outside fixture mode");
-  return raw.endsWith("/") ? raw : `${raw}/`;
-}
-
 async function fetchJson(path: string, language: PublicLanguage) {
-  const url = new URL(path.replace(/^\//, ""), odooBaseUrl());
+  const url = odooPrivateUrl(path);
   url.searchParams.set("lang", language);
-  const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
+  const response = await odooPrivateFetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
   if (!response.ok) {
     if (response.status === 404) return null;
     throw new Error(`Public catalog request failed with ${response.status}`);
