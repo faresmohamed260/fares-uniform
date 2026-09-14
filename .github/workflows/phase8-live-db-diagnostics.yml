@@ -19,7 +19,7 @@ jobs:
       SUPABASE_API_BASE: https://api.supabase.com/v1
       SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
     steps:
-      - name: Inspect active database work without secrets
+      - name: Inspect runtime role and active database work
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         shell: bash
@@ -29,18 +29,15 @@ jobs:
           response="$(mktemp)"
           trap 'rm -f "$response"' EXIT
           read -r -d '' query <<'SQL' || true
+          SELECT rolname, rolcanlogin, rolsuper, rolcreatedb, rolcreaterole, rolreplication, rolinherit
+          FROM pg_roles WHERE rolname='fares_app';
           SELECT
-            pid,
-            usename,
-            state,
-            wait_event_type,
-            wait_event,
+            pid, usename, state, wait_event_type, wait_event,
             backend_xid IS NOT NULL AS has_xid,
             now() - query_start AS query_age,
             left(regexp_replace(query, E'[\n\r\t]+', ' ', 'g'), 240) AS query_excerpt
           FROM pg_stat_activity
-          WHERE datname = 'postgres'
-            AND usename = 'fares_app'
+          WHERE datname='postgres' AND usename='fares_app'
           ORDER BY query_start;
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
@@ -50,9 +47,9 @@ jobs:
             --data "$payload" \
             "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
           test "$status" = 201
-          jq -c '.[] | {pid,usename,state,wait_event_type,wait_event,has_xid,query_age,query_excerpt}' "$response"
+          jq -c '.[]' "$response"
 
-      - name: Inspect Odoo module initialization progress
+      - name: Inspect committed Odoo module state
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         shell: bash
@@ -60,15 +57,23 @@ jobs:
           set -euo pipefail
           response="$(mktemp)"
           trap 'rm -f "$response"' EXIT
+          existence_query="SELECT EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='ir_module_module' AND c.relkind IN ('r','p')) AS module_table_exists;"
+          payload="$(jq -cn --arg query "$existence_query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          exists="$(jq -r '.[0].module_table_exists' "$response")"
+          echo "module_table_exists=$exists"
+          if [[ "$exists" != true ]]; then exit 0; fi
+
           read -r -d '' query <<'SQL' || true
-          SELECT
-            to_regclass('public.ir_module_module') IS NOT NULL AS module_table_exists,
-            CASE WHEN to_regclass('public.ir_module_module') IS NULL THEN NULL ELSE
-              (SELECT count(*) FROM ir_module_module WHERE name IN ('fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting'))
-            END AS fares_module_rows,
-            CASE WHEN to_regclass('public.ir_module_module') IS NULL THEN NULL ELSE
-              (SELECT count(*) FROM ir_module_module WHERE name IN ('fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting') AND state='installed')
-            END AS fares_installed_rows;
+          SELECT name, state
+          FROM ir_module_module
+          WHERE name IN ('base','web','point_of_sale','stock','sale_management','crm','account','fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting','fu_uat')
+          ORDER BY name;
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
           status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
@@ -77,4 +82,4 @@ jobs:
             --data "$payload" \
             "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
           test "$status" = 201
-          jq -c '.[0]' "$response"
+          jq -c '.[] | {name,state}' "$response"
