@@ -1,4 +1,5 @@
 name: Phase 8 live database diagnostics
+# Safe to run while a staging restore is active; all provider queries are read-only.
 
 on:
   push:
