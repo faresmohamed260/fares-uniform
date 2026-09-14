@@ -85,8 +85,50 @@ jobs:
           conn="host=${SUPABASE_POOLER_HOST} port=5432 dbname=postgres user=fares_app.${SUPABASE_PROJECT_REF} sslmode=require connect_timeout=10"
           current="$(psql "$conn" -v ON_ERROR_STOP=1 -Atc 'SELECT current_user;')"
           test "$current" = fares_app
+
+          # DROP OWNED attempted to lock the entire restored Odoo graph in one
+          # transaction and exceeded Supabase's max_locks_per_transaction.
+          # Generate one owner-scoped DROP per relation instead. psql autocommit
+          # keeps every statement in its own transaction, bounding lock usage.
+          drop_sql="$(mktemp)"
+          trap 'rm -f "$drop_sql"' EXIT
+          psql "$conn" -v ON_ERROR_STOP=1 -Atc "
+            SELECT format(
+              CASE c.relkind
+                WHEN 'v' THEN 'DROP VIEW IF EXISTS %I.%I CASCADE;'
+                WHEN 'm' THEN 'DROP MATERIALIZED VIEW IF EXISTS %I.%I CASCADE;'
+                WHEN 'r' THEN 'DROP TABLE IF EXISTS %I.%I CASCADE;'
+                WHEN 'p' THEN 'DROP TABLE IF EXISTS %I.%I CASCADE;'
+                WHEN 'f' THEN 'DROP FOREIGN TABLE IF EXISTS %I.%I CASCADE;'
+                WHEN 'S' THEN 'DROP SEQUENCE IF EXISTS %I.%I CASCADE;'
+              END,
+              n.nspname,
+              c.relname
+            )
+            FROM pg_class c
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = 'public'
+              AND pg_get_userbyid(c.relowner) = current_user
+              AND c.relkind IN ('v','m','r','p','f','S')
+            ORDER BY CASE c.relkind
+              WHEN 'v' THEN 1
+              WHEN 'm' THEN 2
+              WHEN 'f' THEN 3
+              WHEN 'r' THEN 4
+              WHEN 'p' THEN 4
+              WHEN 'S' THEN 5
+              ELSE 9
+            END, c.relname;
+          " > "$drop_sql"
+          test -s "$drop_sql"
+          PGOPTIONS='-c client_min_messages=warning' psql "$conn" -v ON_ERROR_STOP=1 -f "$drop_sql"
+
+          # With the large relation graph gone, clean any remaining fares_app
+          # owned routines/types/grants without exceeding the lock budget.
           psql "$conn" -v ON_ERROR_STOP=1 -c 'DROP OWNED BY CURRENT_USER CASCADE;'
-          echo 'owner_scoped_partial_odoo_cleanup=PASS tls=require'
+          remaining="$(psql "$conn" -v ON_ERROR_STOP=1 -Atc "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND pg_get_userbyid(c.relowner)=current_user;")"
+          test "$remaining" = 0
+          echo 'owner_scoped_partial_odoo_cleanup=PASS tls=require bounded_locks=true'
 
       - name: Disable cleanup login before bootstrap
         if: ${{ always() }}
@@ -154,5 +196,3 @@ jobs:
           test "$(jq -r '.[0].can_use_public' "$response")" = true
           test "$(jq -r '.[0].can_create_public' "$response")" = true
           echo 'managed_odoo_target_reset=PASS role=NOLOGIN app_owned_relations=0 bootstrap=preserved'
-
-# Recovery trigger: reset managed Odoo-owned staging objects before clean public redeploy.
