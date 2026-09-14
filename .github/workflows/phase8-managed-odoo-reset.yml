@@ -43,7 +43,8 @@ jobs:
             (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
             (SELECT count(*)::int FROM pg_stat_activity WHERE datname='postgres' AND usename='fares_app') AS sessions,
             (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
-            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_owned_by_postgres;
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_owned_by_postgres,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public;
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
           status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
@@ -52,8 +53,17 @@ jobs:
           test "$(jq -r '.[0].rolcanlogin' "$response")" = false
           test "$(jq -r '.[0].sessions' "$response")" = 0
           test "$(jq -r '.[0].session_table_owned_by_postgres' "$response")" = 1
-          test "$(jq -r '.[0].app_owned_relations' "$response")" -gt 0
-          echo 'managed_odoo_reset_precondition=PASS'
+          relations="$(jq -r '.[0].app_owned_relations' "$response")"
+          if (( relations > 0 )); then
+            echo "managed_odoo_reset_precondition=PASS mode=populated relations=$relations"
+          else
+            # A previous reset may have completed owner cleanup and bootstrap but
+            # failed before sealing the clean boundary. Only that exact stranded
+            # state is recoverable: clean graph, role disabled, CREATE still open.
+            test "$relations" = 0
+            test "$(jq -r '.[0].can_create_public' "$response")" = true
+            echo 'managed_odoo_reset_precondition=PASS mode=interrupted-reset-recovery relations=0 create=true'
+          fi
 
       - name: Generate masked temporary reset credential
         shell: bash
@@ -86,10 +96,6 @@ jobs:
           current="$(psql "$conn" -v ON_ERROR_STOP=1 -Atc 'SELECT current_user;')"
           test "$current" = fares_app
 
-          # DROP OWNED attempted to lock the entire restored Odoo graph in one
-          # transaction and exceeded Supabase's max_locks_per_transaction.
-          # Generate one owner-scoped DROP per relation instead. psql autocommit
-          # keeps every statement in its own transaction, bounding lock usage.
           drop_sql="$(mktemp)"
           trap 'rm -f "$drop_sql"' EXIT
           psql "$conn" -v ON_ERROR_STOP=1 -Atc "
@@ -120,11 +126,12 @@ jobs:
               ELSE 9
             END, c.relname;
           " > "$drop_sql"
-          test -s "$drop_sql"
-          PGOPTIONS='-c client_min_messages=warning' psql "$conn" -v ON_ERROR_STOP=1 -f "$drop_sql"
+          if [[ -s "$drop_sql" ]]; then
+            PGOPTIONS='-c client_min_messages=warning' psql "$conn" -v ON_ERROR_STOP=1 -f "$drop_sql"
+          else
+            echo 'owner_scoped_relation_cleanup=SKIP already_clean=true'
+          fi
 
-          # With the large relation graph gone, clean any remaining fares_app
-          # owned routines/types/grants without exceeding the lock budget.
           psql "$conn" -v ON_ERROR_STOP=1 -c 'DROP OWNED BY CURRENT_USER CASCADE;'
           remaining="$(psql "$conn" -v ON_ERROR_STOP=1 -Atc "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND pg_get_userbyid(c.relowner)=current_user;")"
           test "$remaining" = 0
