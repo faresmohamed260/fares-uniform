@@ -153,7 +153,7 @@ jobs:
           } | tee phase8-public-db-routing.txt
           test "$no_header_status" = 404
           test "$with_header_status" = 200
-          grep -Fq '"products"' /tmp/catalog-with-db.json
+          grep -Fq '"items"' /tmp/catalog-with-db.json
           echo 'managed_owner_route_differential=PASS without_header=404 with_header=200'
 
       - name: Require private Next-to-Odoo database selection contract
