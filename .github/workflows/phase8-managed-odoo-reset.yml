@@ -214,7 +214,7 @@ jobs:
             reset_sha,
             reset_completed_at,
             pg_get_userbyid((SELECT relowner FROM pg_class WHERE oid='fares_control.deployment_epoch'::regclass)) AS epoch_owner,
-            has_schema_privilege('fares_app','public','CREATE') AS fares_app_can_create;
+            has_schema_privilege('fares_app','public','CREATE') AS fares_app_can_create
           FROM fares_control.deployment_epoch
           WHERE singleton = TRUE;
           SQL
