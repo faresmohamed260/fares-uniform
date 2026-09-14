@@ -1,0 +1,145 @@
+name: Phase 8 restore boundary preflight
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-restore-boundary-preflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CANDIDATE_SHA: a75131b7c8ad3060ba2ab4e805916dc1d0ad4ff2
+  ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+  PRODUCTION_ADDONS: fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting
+  NETWORK: fares-phase8-restore-preflight
+  SOURCE_DB: fares-phase8-restore-source
+  TARGET_DB: fares-phase8-restore-target
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact deployment candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE_SHA }}
+          fetch-depth: 1
+
+      - name: Build exact candidate images
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          docker build --pull -f deploy/postgres/Dockerfile -t "fares-preflight-postgres:$CANDIDATE_SHA" .
+          docker build --pull -f Dockerfile.vercel \
+            --build-arg ODOO_SHA="$ODOO_SHA" \
+            --build-arg FARES_SHA="$CANDIDATE_SHA" \
+            -t "fares-preflight-odoo:$CANDIDATE_SHA" .
+
+      - name: Build initialized source and clean provider-like target
+        shell: bash
+        run: |
+          set -euo pipefail
+          db_password="$(openssl rand -hex 32)"
+          admin_password="$(openssl rand -hex 32)"
+          postgres_password="$(openssl rand -hex 32)"
+          for secret in "$db_password" "$admin_password" "$postgres_password"; do echo "::add-mask::$secret"; done
+          {
+            echo "ODOO_DB_PASSWORD=$db_password"
+            echo "ODOO_ADMIN_PASSWD=$admin_password"
+            echo "LOCAL_POSTGRES_PASSWORD=$postgres_password"
+          } >> "$GITHUB_ENV"
+
+          mkdir -p deploy/.phase8-restore-preflight
+          printf '%s' "$postgres_password" > deploy/.phase8-restore-preflight/postgres_password
+          printf '%s' "$db_password" > deploy/.phase8-restore-preflight/odoo_db_password
+          chmod 0444 deploy/.phase8-restore-preflight/*
+          docker network create "$NETWORK"
+
+          for container in "$SOURCE_DB" "$TARGET_DB"; do
+            docker run -d --name "$container" --network "$NETWORK" \
+              -e POSTGRES_USER=postgres -e POSTGRES_DB=postgres \
+              -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
+              -e FARES_DB_NAME=postgres -e FARES_DB_USER=fares_app \
+              -e FARES_DB_PASSWORD_FILE=/run/secrets/odoo_db_password \
+              -v "$PWD/deploy/.phase8-restore-preflight/postgres_password:/run/secrets/postgres_password:ro" \
+              -v "$PWD/deploy/.phase8-restore-preflight/odoo_db_password:/run/secrets/odoo_db_password:ro" \
+              -v "$PWD/deploy/postgres/init/10-fares.sh:/docker-entrypoint-initdb.d/10-fares.sh:ro" \
+              "fares-preflight-postgres:$CANDIDATE_SHA"
+          done
+
+          for container in "$SOURCE_DB" "$TARGET_DB"; do
+            for attempt in $(seq 1 90); do
+              if docker exec "$container" pg_isready -U postgres -d postgres >/dev/null 2>&1; then break; fi
+              if [[ "$attempt" == 90 ]]; then docker logs "$container"; exit 1; fi
+              sleep 2
+            done
+            cat deploy/vercel/bootstrap-session-store.sh | docker exec -i \
+              -e FARES_DB_NAME=postgres -e FARES_DB_USER=fares_app -e POSTGRES_USER=postgres \
+              "$container" bash
+          done
+
+          docker run --rm --network "$NETWORK" \
+            -e ODOO_DB_HOST="$SOURCE_DB" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres \
+            -e ODOO_DB_USER=fares_app -e ODOO_DB_PASSWORD="$db_password" -e ODOO_DB_SSLMODE=prefer \
+            -e ODOO_ADMIN_PASSWD="$admin_password" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0 \
+            -e FARES_SESSION_STORE=postgres -e PORT=8069 \
+            "fares-preflight-odoo:$CANDIDATE_SHA" --stop-after-init -i "$PRODUCTION_ADDONS"
+
+          test "$(docker exec "$SOURCE_DB" psql -U postgres -d postgres -Atc "SELECT count(*) FROM ir_module_module WHERE name='fu_uat' AND state='installed';")" = 0
+          echo 'preflight_source=PASS seven_addons=installed fu_uat=absent target=provider_like_clean'
+
+      - name: Reproduce current restore-list boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          dump=/tmp/fares-preflight.dump
+          full=/tmp/fares-preflight-full.list
+          legacy=/tmp/fares-preflight-legacy.list
+
+          docker exec "$SOURCE_DB" pg_dump -U postgres -d postgres \
+            --format=custom --schema=public --exclude-table=public.fares_http_session \
+            --no-owner --no-privileges > "$dump"
+          docker exec -i "$SOURCE_DB" pg_restore -l < "$dump" > "$full"
+
+          # This is intentionally identical to the currently deployed filter so
+          # this workflow preserves a reproducible RED proof before the fix.
+          grep -v -E ' EXTENSION .* (unaccent|pg_trgm)$| COMMENT .* EXTENSION .* (unaccent|pg_trgm)$| SCHEMA .* public$|fares_http_session' "$full" > "$legacy"
+
+          echo '--- surviving provider-boundary TOC entries ---'
+          grep -E ' (SCHEMA|EXTENSION|COMMENT - (SCHEMA|EXTENSION)) ' "$legacy" || true
+          echo '--- end boundary entries ---'
+
+          docker cp "$dump" "$SOURCE_DB":/tmp/fares-preflight.dump
+          docker cp "$legacy" "$SOURCE_DB":/tmp/fares-preflight-legacy.list
+
+          set +e
+          restore_output="$(docker exec -e PGPASSWORD="$ODOO_DB_PASSWORD" "$SOURCE_DB" \
+            pg_restore --host="$TARGET_DB" --port=5432 --username=fares_app --dbname=postgres \
+            --no-owner --no-privileges --exit-on-error --jobs=1 \
+            --use-list=/tmp/fares-preflight-legacy.list /tmp/fares-preflight.dump 2>&1)"
+          rc=$?
+          set -e
+          printf '%s\n' "$restore_output"
+          test "$rc" -ne 0 || { echo 'Legacy restore unexpectedly succeeded; reproduction invalid' >&2; exit 2; }
+
+          # RED assertion: no provider-owned schema/extension DDL may survive.
+          if grep -Eq ' SCHEMA - public | EXTENSION - (unaccent|pg_trgm) | COMMENT - EXTENSION (unaccent|pg_trgm) ' "$legacy"; then
+            echo 'restore_boundary=RED legacy_filter_retains_provider_owned_TOC_entries' >&2
+            exit 1
+          fi
+          echo 'restore_boundary=RED restore_failed_for_another_object; inspect pg_restore output above' >&2
+          exit 1
+
+      - name: Cleanup
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          docker rm -f "$SOURCE_DB" "$TARGET_DB" >/dev/null 2>&1 || true
+          docker network rm "$NETWORK" >/dev/null 2>&1 || true
+          rm -rf deploy/.phase8-restore-preflight /tmp/fares-preflight.dump /tmp/fares-preflight-full.list /tmp/fares-preflight-legacy.list || true
