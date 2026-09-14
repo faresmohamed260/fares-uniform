@@ -15,7 +15,7 @@
 
 ## Current state — 2026-09-14
 
-**Phases 0 through 7 repository/CI scope are COMPLETE / VERIFIED. Phase 8 planning is complete. Phase 8A live staging execution is IN PROGRESS: the dedicated Supabase project/bootstrap/real Session Pooler proof is GREEN, and the Vercel token/control plane plus isolated `fares-uniform` project shell are GREEN. The project shell intentionally has no deployment because the authorized Vercel team is still on Hobby while the client requires staying free; the compliant application-hosting path is now the active blocker. Production remains NO-GO.**
+**Phases 0 through 7 repository/CI scope are COMPLETE / VERIFIED. Phase 8 planning is complete. Phase 8A live staging execution is IN PROGRESS. The isolated Supabase target, Supavisor Session Pooler contract, Vercel control plane and isolated `fares-uniform` project are established. The first current live-deployment workflow candidate reached exact-image build, local seven-addon initialization, restore-set creation and temporary least-privileged runtime-role activation, then failed while restoring the initialized schema into the clean managed Supabase target. Vercel runtime environment injection and deployment were not reached. The fail-closed guard subsequently disabled the managed runtime role. Production remains NO-GO.**
 
 Current branch: `phase-8/commercial-staging-readiness`.
 
@@ -25,13 +25,27 @@ Active Phase 8A execution/status contract: `docs/phases/PHASE_8A_FREE_TIER_STAGI
 
 Staging secret inventory: `docs/operations/PHASE_8_STAGING_SECRET_INVENTORY.md`.
 
-Current managed-database/runtime contract checkpoint: `b7a661bf70c2468b006bf971cba10172cf810e7d`.
+### Current live execution evidence
 
-Current Phase 8 Supabase proof: workflow run `34787677724`, job `103806024323` — **SUCCESS**.
+- managed-database/runtime contract checkpoint: `b7a661bf70c2468b006bf971cba10172cf810e7d`;
+- Supabase proof: workflow run `34787677724`, job `103806024323` — **SUCCESS**;
+- Vercel control-plane checkpoint: `884aedc9465122d25639ca24954f154dfa72dc70`;
+- Vercel control-plane proof: workflow run `34788971298`, job `103809533700` — **SUCCESS**;
+- current live-deployment candidate: `a75131b7c8ad3060ba2ab4e805916dc1d0ad4ff2`;
+- current live-deployment workflow run: `34821582384`;
+- deploy job `103904147677` — **FAILURE** at `Restore initialized schema into clean Supabase target`;
+- fail-closed guard job `103905391955` — **SUCCESS**, including `Disable managed runtime role after unsuccessful deployment`.
 
-Current Vercel control-plane checkpoint: `884aedc9465122d25639ca24954f154dfa72dc70`.
+Run `34821582384` proved, before the restore failure:
 
-Current Vercel control-plane proof: workflow run `34788971298`, job `103809533700` — **SUCCESS**.
+- the deployment boundary started clean and `fares_app` started `NOLOGIN`;
+- fresh activation secrets were generated and masked in hosted CI;
+- the exact database image and exact Vercel Odoo image built successfully;
+- the exact initialized application database built locally and the seven production addons installed/upgraded with `fu_uat` absent;
+- the filtered restore set was created successfully;
+- the managed `fares_app` role was activated only for the bounded attempt.
+
+The same run did **not** prove Vercel environment injection, a Vercel deployment, a READY runtime or staging smoke because those steps were skipped after the managed restore failed. A direct Vercel project check after the run still showed zero deployments. The failed restore may have partially changed the managed `public` schema, so the next session must inspect/clean the managed target before retrying rather than assuming it is pristine.
 
 Inherited authorities remain:
 
@@ -68,66 +82,41 @@ Correctness-critical state is externalized from Vercel compute:
 
 The Phase 6 PostgreSQL+filestore package remains preserved as a verified fallback/reference topology.
 
-## Phase 8A Supabase live state
+## Phase 8A live provider state
 
-A dedicated Fares Uniform Supabase project exists on a separate account. The earlier free-project-cap issue in the account containing `AI Studio` and `S.A.G.A.` was resolved without pausing, deleting or repurposing either existing project.
+### Supabase
 
-Live target:
+The dedicated Fares Uniform project is isolated from unrelated projects.
 
 - project: `Fares Uniform`;
 - project ref: `urqlxisivowkmsfisjek`;
 - region: `eu-central-1`;
-- provider status: `ACTIVE_HEALTHY`;
 - Session Pooler: `aws-0-eu-central-1.pooler.supabase.com:5432`;
-- application database: the dedicated project's provider-managed `postgres` database;
+- application database: provider-managed `postgres` database in the dedicated project;
 - routine runtime role: `fares_app`;
-- runtime pooler username after activation: `fares_app.urqlxisivowkmsfisjek`;
+- runtime pooler username: `fares_app.urqlxisivowkmsfisjek`;
 - live TLS rule: `sslmode=require` minimum;
 - Supavisor transaction mode remains prohibited for Odoo.
 
-Supabase is administered through GitHub Actions using repository secret `SUPABASE_ACCESS_TOKEN`. The token itself must never be committed or printed.
+`deploy/supabase/bootstrap.sql` remains the idempotent managed-database bootstrap authority. The routine role must remain non-superuser/non-createdb/non-createrole and is enabled only inside a bounded activation attempt. The failed run's guard successfully disabled the role after the restore error.
 
-`deploy/supabase/bootstrap.sql` is the idempotent managed-database bootstrap authority. Current live state includes:
+The managed target was verified clean at the start of run `34821582384`. Because `pg_restore` can apply objects before a later error, its post-failure schema state is **not assumed clean** and must be inspected before the next attempt.
 
-- `fares_app` created least-privileged and still `NOLOGIN` pending atomic application-host activation;
-- `fares_app` verified non-superuser, non-createdb, non-createrole, non-replication and noinherit;
-- required database/schema grants only;
-- `CREATE` revoked from `PUBLIC` on schema `public`;
-- `unaccent` and `pg_trgm` installed;
-- `public.fares_http_session` created and owned by managed `postgres`;
-- public session-table DML revoked;
-- required session-table DML granted to `fares_app`.
+### Vercel
 
-The managed bootstrap context is provider role `postgres` with `CREATEDB` and `CREATEROLE` but not true PostgreSQL superuser; bootstrap code must respect that provider boundary.
-
-## Phase 8A Vercel live control plane
-
-The repository secret `VERCEL_TOKEN` is configured and was proven through hosted CI against the exact authorized team. The client reported that the issued token has full-account control, so automation is deliberately constrained by exact team/project assertions rather than trusting token scope.
-
-Authorized team:
-
-- team id: `team_r09C6RLmb2acHapENECQIn9T`;
-- slug: `faresmohamed260-6733s-projects`;
-- name: `faresmohamed260-6733's projects`;
-- plan: Hobby.
-
-New isolated project shell:
+Authorized isolated project:
 
 - name: `fares-uniform`;
 - project id: `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`;
-- account/team id: `team_r09C6RLmb2acHapENECQIn9T`;
-- deployment count at proof: `0`;
-- latest deployment: none;
-- domains: none;
-- Git link: intentionally not activated yet.
+- team id: `team_r09C6RLmb2acHapENECQIn9T`.
 
-Run `34788971298`, job `103809533700`, at `884aedc...` proves the token/team boundary, preserves `studio`, `saga` and `renderlab`, creates only the new shell and verifies no deployment mutation occurred.
+Repository secret `VERCEL_TOKEN` is proven against the exact authorized team. Exact team/project assertions remain mandatory because the current control-plane token is broader than desired steady-state scope.
 
-The full-account token is broader than desired steady-state scope. Once provider setup no longer needs account-wide project-creation privileges, replace it with the narrowest project/team-scoped token that still supports the required env/deployment operations and revoke the broad token only after the replacement passes hosted CI.
+The current live-deployment attempt never reached Vercel environment injection or deployment. A direct Vercel project check after run `34821582384` returned **0 deployments**. Existing unrelated Vercel projects remain out of scope and must not be mutated.
 
-## Phase 8A provider/runtime proof
+## Phase 8A provider/runtime corrections already completed
 
-Phase 8 live provider work exposed and corrected a real Supavisor compatibility issue: the original Phase 7 entrypoint allowed only a bare PostgreSQL identifier for `ODOO_DB_USER`, while Supavisor Session Pooler requires a custom-role connection username with one project-ref suffix.
+Live provider work exposed and corrected a real Supavisor compatibility issue: the original Phase 7 entrypoint allowed only a bare PostgreSQL identifier for `ODOO_DB_USER`, while Supavisor Session Pooler requires a custom-role connection username with one project-ref suffix.
 
 Current correction:
 
@@ -136,43 +125,31 @@ Current correction:
 - `deploy/vercel/entrypoint.sh` uses the connection-user validator;
 - `Dockerfile.vercel` ships the validation helper into the exact non-root runtime image.
 
-Authoritative run `34787677724` / job `103806024323` at checkpoint `b7a661bf...` proves:
+Authoritative run `34787677724` / job `103806024323` proves real Session Pooler connectivity and the exact Vercel-target image with the dotted username form.
 
-- GitHub Actions PAT access to the exact Fares Uniform Supabase project;
-- writable Management API SQL context;
-- repeatable bootstrap and least-privilege ACLs;
-- real Session Pooler connectivity on port `5432` using client `sslmode=require`;
-- temporary provider-issued CLI role is non-superuser/non-createdb/non-createrole;
-- exact Vercel-target runtime image builds successfully with pinned Odoo/Fares authority;
-- exact runtime image can connect with psycopg2 through the real Session Pooler using the dotted username form.
-
-RED evidence is retained in the Phase 8A status contract rather than rewritten as green history.
+The current live-deployment workflow also now builds an initialized application database, creates a filtered restore set, activates the managed role only for the bounded attempt and has a separate fail-closed guard that disables the runtime role when deployment does not complete.
 
 ## Phase 8A gate state
 
 - **Gate A — repository planning: PASS.**
-- **Gate B — authorization/provider ownership: PARTIAL PASS.** Supabase and the isolated Vercel project shell/control plane are established, but the Vercel Hobby/free commercial-use constraint leaves the compliant application-hosting path unresolved.
-- **Gate C — live staging technical GO: IN PROGRESS / BLOCKED AT APPLICATION HOSTING.** Managed-database/bootstrap/runtime-image connectivity is green; there is intentionally no live Vercel deployment yet.
+- **Gate B — authorization/provider ownership: PASS.** Isolated free-tier Supabase and Vercel resources plus the required control-plane credentials are established for this staging rehearsal.
+- **Gate C — live staging technical GO: IN PROGRESS / RED AT MANAGED SCHEMA RESTORE.** The current workflow fails at the managed `pg_restore` boundary before Vercel environment injection/deployment. This is now the immediate technical blocker.
 - **Gate D — production: NO-GO.** Production requires separate authorization after staging plus device/staff/data-cutover gates.
 
 ## Immediate next action
 
-Do not redo Phase 7 discovery or reopen inherited green slices without evidence of a regression. Do not activate permanent runtime credentials while no compliant application deployment target exists.
+Do not redo Phase 7 discovery or reopen inherited green slices without regression evidence. Do not assume the managed Supabase schema is clean after the failed restore.
 
-The next decision is provider-level:
+Continue from run `34821582384` and candidate `a75131b7c8ad3060ba2ab4e805916dc1d0ad4ff2`:
 
-1. separately authorize a Vercel plan suitable for the commercial staging workload, which is a new spending authorization and must be cost-confirmed before any upgrade; or
-2. keep the hard `$0` boundary and select/document an alternative host that permits the intended commercial staging workload while preserving the stateless Odoo HTTP + evented WebSocket + managed PostgreSQL/session/cron/security contract.
+1. inspect the exact `pg_restore` failure from job `103904147677` and the current managed Supabase schema/ownership state;
+2. identify the specific object/ownership/ACL/extension conflict instead of retrying the same restore blindly;
+3. restore the managed target to the workflow's defined clean boundary without weakening least privilege or deleting unrelated provider-managed objects;
+4. fix the source-controlled restore path and add/adjust hosted assertions that reproduce the failure boundary;
+5. rerun hosted CI from an exact new candidate;
+6. once managed restore and repeat seven-addon upgrade are green, continue to Vercel environment injection, deployment, READY/minimal-exposure proof and the remaining Gate C attachment/session/cron/WebSocket/backup/monitoring/EN-AR smoke evidence.
 
-After that provider decision, resume through hosted automation:
-
-1. generate and mask the `fares_app` runtime password, Odoo master secret and cron secret in the hosted runner;
-2. atomically enable `LOGIN` for `fares_app` and inject only required server-side environment variables;
-3. deploy the approved hosting topology;
-4. fail closed by rotating/disabling any newly activated runtime credential if provider setup aborts before a usable deployment exists;
-5. run the complete managed staging proof: seven addons, attachment/session continuity, cron, WebSocket replay, managed backup/destructive restore, monitoring/logs and EN/AR staging smoke.
-
-Do not add generic browser Supabase keys, `SUPABASE_SERVICE_ROLE_KEY`, transaction-pooler credentials or a broad `DATABASE_URL` unless an explicit source change requires them. `ODOO_BASE_URL`, `FARES_ODOO_HTTP_INTERNAL_URL`, `PORT` and runtime mode are platform/service-binding concerns and must not be manually overridden as project secrets.
+No paid upgrade is authorized. No production deployment is authorized. No real business data is authorized.
 
 ## Product and architecture rules that remain authoritative
 
@@ -205,7 +182,7 @@ Do not add generic browser Supabase keys, `SUPABASE_SERVICE_ROLE_KEY`, transacti
 14. Phase 6 provider-neutral deployment/restore proof — complete / verified.
 15. Phase 7 Vercel stateless deployment adaptation — complete / verified at repository/CI level.
 16. Phase 8 commercial staging readiness — repository planning complete.
-17. Phase 8A free-tier staging execution — **in progress; Supabase + Vercel project shell/control plane green, deployment target policy unresolved**.
+17. Phase 8A free-tier staging execution — **in progress; provider/control planes established, current live-deployment workflow RED at managed schema restore before Vercel deployment**.
 18. Production — **NO-GO** until live staging and separate operational/cutover authorization gates pass.
 
 ## Later explicit business-policy decisions
@@ -223,4 +200,4 @@ Still deferred unless their affected work starts:
 
 ## Evidence policy
 
-Implemented, hosted-tested, visually reviewed, staged and deployed are separate states. Every implementation/deployment claim must refer to exact remote evidence. Synthetic proof data only until real-data migration is separately authorized; credentials and private business records never belong in this public repository.
+Implemented, hosted-tested, visually reviewed, staged and deployed are separate states. Every implementation/deployment claim must refer to exact remote evidence. Synthetic proof data only until real-data migration is separately authorized; credentials and private business records never belong in this public repository. Meaningful RED evidence is retained and fixed at the actual failing boundary rather than hidden by weakening assertions.
