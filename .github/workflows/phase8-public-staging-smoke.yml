@@ -57,7 +57,7 @@ jobs:
           grep -Fq 'Selected programs' "$en"
           grep -Fq 'زي يعكس هوية فريقك' "$ar"
           grep -Fq 'برامج مختارة' "$ar"
-          catalog_href="$(grep -Eo 'href="/catalog/[^"?]+\?lang=en"' "$en" | head -1 | sed -E 's/^href="([^"]+)"$/\1/')"
+          catalog_href="$(grep -Eo 'href="/catalog/[^"?]+\?lang=en"' "$en" | head -1 | sed -E 's/^href="([^"]+)"$/\1/' || true)"
           [[ -n "$catalog_href" ]] || { echo 'No public catalog item is currently available for detail smoke.' >&2; exit 2; }
           slug_path="${catalog_href%%\?lang=en}"
           echo "CATALOG_DETAIL_PATH=$slug_path" >> "$GITHUB_ENV"
