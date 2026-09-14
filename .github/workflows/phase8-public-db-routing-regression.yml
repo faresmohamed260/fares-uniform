@@ -1,0 +1,194 @@
+name: Phase 8 public private-DB routing regression
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - '.github/workflows/phase8-public-db-routing-regression.yml'
+      - 'apps/public-web/**'
+      - 'addons/fu_public_api/**'
+      - 'Dockerfile.vercel'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8-public-private-db-routing-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+  PRODUCTION_ADDONS: fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting
+  TEST_DB_PASSWORD: phase8-routing-only-ci-password
+  TEST_DB_PORT: '54329'
+  TEST_ODOO_PORT: '18069'
+
+jobs:
+  private-db-routing:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify exact source boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test ! -e addons/fu_uat || {
+            echo 'fu_uat may exist in source but must not be copied into the Vercel image; checking exact runtime boundary below'
+          }
+          grep -Fq 'COPY --chown=10001:10001 addons/fu_public_api /mnt/extra-addons/fu_public_api' Dockerfile.vercel
+          ! grep -Fq 'addons/fu_uat' Dockerfile.vercel
+
+      - name: Start provider-owned PostgreSQL fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name phase8-routing-db \
+            -e POSTGRES_PASSWORD="$TEST_DB_PASSWORD" \
+            -p "$TEST_DB_PORT:5432" \
+            postgres:16.12-bookworm >/dev/null
+          for attempt in $(seq 1 60); do
+            if docker exec phase8-routing-db pg_isready -U postgres -d postgres >/dev/null 2>&1; then
+              break
+            fi
+            if [ "$attempt" -eq 60 ]; then
+              docker logs phase8-routing-db >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+          docker exec -i phase8-routing-db psql -v ON_ERROR_STOP=1 -U postgres -d postgres <<SQL
+          CREATE ROLE fares_app LOGIN PASSWORD '$TEST_DB_PASSWORD' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;
+          GRANT CONNECT ON DATABASE postgres TO fares_app;
+          GRANT USAGE, CREATE ON SCHEMA public TO fares_app;
+          SQL
+          owner="$(docker exec phase8-routing-db psql -U postgres -d postgres -Atc "SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname='postgres';")"
+          test "$owner" = postgres
+          echo "provider_owned_database=PASS database=postgres owner=$owner runtime_role=fares_app"
+
+      - name: Build exact pinned Vercel Odoo runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build \
+            --build-arg ODOO_SHA="$ODOO_SHA" \
+            --build-arg FARES_SHA="$GITHUB_SHA" \
+            -f Dockerfile.vercel \
+            -t "fares-vercel-routing:$GITHUB_SHA" \
+            .
+          docker run --rm --entrypoint bash "fares-vercel-routing:$GITHUB_SHA" -lc \
+            'test "$ODOO_SHA" = "1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf" && test ! -e /mnt/extra-addons/fu_uat && test -e /mnt/extra-addons/fu_public_api/controllers/public_api.py'
+
+      - name: Initialize provider-owned database as least-privileged runtime role
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --network host \
+            --entrypoint /opt/odoo-venv/bin/python \
+            "fares-vercel-routing:$GITHUB_SHA" \
+            /opt/odoo/odoo-bin \
+            --db_host=127.0.0.1 \
+            --db_port="$TEST_DB_PORT" \
+            --db_user=fares_app \
+            --db_password="$TEST_DB_PASSWORD" \
+            --database=postgres \
+            --addons-path=/opt/odoo/addons,/mnt/extra-addons,/mnt/runtime-addons \
+            --without-demo=all \
+            --stop-after-init \
+            -i "$PRODUCTION_ADDONS"
+          owner="$(docker exec phase8-routing-db psql -U postgres -d postgres -Atc "SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname='postgres';")"
+          test "$owner" = postgres
+          installed="$(docker exec phase8-routing-db psql -U postgres -d postgres -Atc "SELECT count(*) FROM ir_module_module WHERE name = ANY (ARRAY['fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting']) AND state='installed';")"
+          test "$installed" = 7
+          echo "least_privileged_init=PASS database_owner=$owner installed_addons=$installed"
+
+      - name: Start exact Odoo HTTP runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name phase8-routing-odoo --network host \
+            --entrypoint /opt/odoo-venv/bin/python \
+            "fares-vercel-routing:$GITHUB_SHA" \
+            /opt/odoo/odoo-bin \
+            --db_host=127.0.0.1 \
+            --db_port="$TEST_DB_PORT" \
+            --db_user=fares_app \
+            --db_password="$TEST_DB_PASSWORD" \
+            --database=postgres \
+            --db-filter='^postgres$' \
+            --addons-path=/opt/odoo/addons,/mnt/extra-addons,/mnt/runtime-addons \
+            --workers=0 \
+            --http-port="$TEST_ODOO_PORT" >/dev/null
+          for attempt in $(seq 1 90); do
+            status="$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:${TEST_ODOO_PORT}/web/login" || true)"
+            if [ "$status" != 000 ]; then
+              break
+            fi
+            if [ "$attempt" -eq 90 ]; then
+              docker logs phase8-routing-odoo >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+      - name: Reproduce managed-owner anonymous routing failure and supported DB selection
+        shell: bash
+        run: |
+          set -euo pipefail
+          no_header_status="$(curl -sS -o /tmp/catalog-no-db.json -w '%{http_code}' "http://127.0.0.1:${TEST_ODOO_PORT}/fu/public/catalog?lang=en")"
+          with_header_status="$(curl -sS -H 'X-Odoo-Database: postgres' -o /tmp/catalog-with-db.json -w '%{http_code}' "http://127.0.0.1:${TEST_ODOO_PORT}/fu/public/catalog?lang=en")"
+          {
+            echo "catalog_without_db_header_http=$no_header_status"
+            echo "catalog_with_db_header_http=$with_header_status"
+            echo 'database_owner=postgres'
+            echo 'runtime_role=fares_app'
+          } | tee phase8-public-db-routing.txt
+          test "$no_header_status" = 404
+          test "$with_header_status" = 200
+          grep -Fq '"products"' /tmp/catalog-with-db.json
+          echo 'managed_owner_route_differential=PASS without_header=404 with_header=200'
+
+      - name: Require private Next-to-Odoo database selection contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          matches="$(grep -R -l --include='*.ts' --include='*.tsx' 'X-Odoo-Database' apps/public-web || true)"
+          if [ -z "$matches" ]; then
+            echo 'RED: apps/public-web makes private Odoo requests without the required X-Odoo-Database selection header.' >&2
+            echo 'The hosted runtime proof above reproduced the same provider-owned DB boundary: 404 without the header and 200 with it.' >&2
+            exit 1
+          fi
+          printf '%s\n' "$matches"
+          echo 'private_odoo_database_selection_contract=PASS'
+
+      - name: Capture runtime logs
+        if: always()
+        shell: bash
+        run: |
+          docker logs phase8-routing-odoo > phase8-public-db-routing-odoo.log 2>&1 || true
+          docker logs phase8-routing-db > phase8-public-db-routing-postgres.log 2>&1 || true
+
+      - name: Upload routing evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-public-db-routing-${{ github.run_id }}
+          if-no-files-found: warn
+          path: |
+            phase8-public-db-routing.txt
+            phase8-public-db-routing-odoo.log
+            phase8-public-db-routing-postgres.log
+
+      - name: Cleanup
+        if: always()
+        shell: bash
+        run: |
+          docker rm -f phase8-routing-odoo phase8-routing-db >/dev/null 2>&1 || true
