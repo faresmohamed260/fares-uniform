@@ -1,0 +1,421 @@
+name: Phase 8 Vercel bootstrap restore and deploy
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-vercel-bootstrap-restore-deploy.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8-vercel-first-live-deploy
+  cancel-in-progress: false
+
+env:
+  ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+  PRODUCTION_ADDONS: fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+  SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_TEAM_SLUG: faresmohamed260-6733s-projects
+  VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+  VERCEL_PROJECT_NAME: fares-uniform
+  BOOTSTRAP_NETWORK: fares-phase8-bootstrap
+  BOOTSTRAP_DB_CONTAINER: fares-phase8-bootstrap-db
+
+jobs:
+  bootstrap-deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify source, provider credentials and Frankfurt runtime contract
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo 'VERCEL_TOKEN missing' >&2; exit 64; }
+          jq -e '.regions == ["fra1"] and .services.public_web.root == "apps/public-web/" and .services.odoo_http.runtime == "container" and .services.odoo_websocket.runtime == "container"' vercel.json >/dev/null
+          test -f Dockerfile.vercel
+          test -f deploy/postgres/Dockerfile
+          test -f deploy/postgres/init/10-fares.sh
+          test -f deploy/vercel/bootstrap-session-store.sh
+          echo 'source_provider_region_contract=PASS region=fra1'
+
+      - name: Verify isolated Vercel project still has no deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          project="$(mktemp)"
+          deployments="$(mktemp)"
+          trap 'rm -f "$project" "$deployments"' EXIT
+          status="$(curl -sS -o "$project" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v9/projects/${VERCEL_PROJECT_ID}?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          jq -e --arg id "$VERCEL_PROJECT_ID" --arg name "$VERCEL_PROJECT_NAME" --arg team "$VERCEL_TEAM_ID" 'select(.id==$id and .name==$name and .accountId==$team)' "$project" >/dev/null
+          status="$(curl -sS -o "$deployments" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          test "$status" = 200
+          test "$(jq -r '.deployments | length' "$deployments")" = 0
+          echo 'isolated_vercel_first_deployment_boundary=PASS deployments=0'
+
+      - name: Generate and mask activation secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          db_password="$(openssl rand -hex 32)"
+          admin_password="$(openssl rand -hex 32)"
+          cron_secret="$(openssl rand -hex 32)"
+          local_postgres_password="$(openssl rand -hex 32)"
+          for secret in "$db_password" "$admin_password" "$cron_secret" "$local_postgres_password"; do
+            echo "::add-mask::$secret"
+          done
+          {
+            echo "ODOO_DB_PASSWORD=$db_password"
+            echo "ODOO_ADMIN_PASSWD=$admin_password"
+            echo "CRON_SECRET=$cron_secret"
+            echo "LOCAL_POSTGRES_PASSWORD=$local_postgres_password"
+          } >> "$GITHUB_ENV"
+          echo 'activation_secrets_generated_and_masked=PASS'
+
+      - name: Build exact PostgreSQL and Vercel-target Odoo images
+        shell: bash
+        run: |
+          set -euo pipefail
+          start=$SECONDS
+          docker build --pull -f deploy/postgres/Dockerfile -t "fares-uniform-postgres:$GITHUB_SHA" .
+          docker build --pull -f Dockerfile.vercel \
+            --build-arg ODOO_SHA="$ODOO_SHA" \
+            --build-arg FARES_SHA="$GITHUB_SHA" \
+            -t "fares-uniform-vercel:$GITHUB_SHA" .
+          test "$(docker image inspect -f '{{json .Config.Volumes}}' "fares-uniform-vercel:$GITHUB_SHA")" = 'null'
+          docker run --rm --entrypoint bash "fares-uniform-vercel:$GITHUB_SHA" -lc '
+            set -euo pipefail
+            test "$(id -u)" = 10001
+            test "$(id -g)" = 10001
+            test "$ODOO_SHA" = "1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf"
+            test "$FARES_SHA" = "'"$GITHUB_SHA"'"
+            test ! -e /mnt/extra-addons/fu_uat
+          '
+          echo "exact_images=PASS build_seconds=$((SECONDS-start))"
+
+      - name: Initialize exact application database locally at low latency
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p deploy/.phase8-bootstrap-secrets
+          printf '%s' "$LOCAL_POSTGRES_PASSWORD" > deploy/.phase8-bootstrap-secrets/postgres_password
+          printf '%s' "$ODOO_DB_PASSWORD" > deploy/.phase8-bootstrap-secrets/odoo_db_password
+          chmod 0444 deploy/.phase8-bootstrap-secrets/postgres_password deploy/.phase8-bootstrap-secrets/odoo_db_password
+
+          docker network create "$BOOTSTRAP_NETWORK"
+          docker run -d \
+            --name "$BOOTSTRAP_DB_CONTAINER" \
+            --network "$BOOTSTRAP_NETWORK" \
+            -e POSTGRES_USER=postgres \
+            -e POSTGRES_DB=postgres \
+            -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
+            -e FARES_DB_NAME=postgres \
+            -e FARES_DB_USER=fares_app \
+            -e FARES_DB_PASSWORD_FILE=/run/secrets/odoo_db_password \
+            -v "$PWD/deploy/.phase8-bootstrap-secrets/postgres_password:/run/secrets/postgres_password:ro" \
+            -v "$PWD/deploy/.phase8-bootstrap-secrets/odoo_db_password:/run/secrets/odoo_db_password:ro" \
+            -v "$PWD/deploy/postgres/init/10-fares.sh:/docker-entrypoint-initdb.d/10-fares.sh:ro" \
+            "fares-uniform-postgres:$GITHUB_SHA"
+
+          for attempt in $(seq 1 90); do
+            if docker exec "$BOOTSTRAP_DB_CONTAINER" pg_isready -U postgres -d postgres >/dev/null 2>&1; then break; fi
+            if [[ "$attempt" == 90 ]]; then docker logs "$BOOTSTRAP_DB_CONTAINER"; exit 1; fi
+            sleep 2
+          done
+
+          cat deploy/vercel/bootstrap-session-store.sh | docker exec -i \
+            -e FARES_DB_NAME=postgres -e FARES_DB_USER=fares_app -e POSTGRES_USER=postgres \
+            "$BOOTSTRAP_DB_CONTAINER" bash
+
+          start=$SECONDS
+          for mode in install upgrade; do
+            if [[ "$mode" == install ]]; then action=-i; else action=-u; fi
+            echo "local_exact_database_${mode}=START"
+            docker run --rm \
+              --network "$BOOTSTRAP_NETWORK" \
+              -e ODOO_DB_HOST="$BOOTSTRAP_DB_CONTAINER" \
+              -e ODOO_DB_PORT=5432 \
+              -e ODOO_DB_NAME=postgres \
+              -e ODOO_DB_USER=fares_app \
+              -e ODOO_DB_PASSWORD="$ODOO_DB_PASSWORD" \
+              -e ODOO_DB_SSLMODE=prefer \
+              -e ODOO_ADMIN_PASSWD="$ODOO_ADMIN_PASSWD" \
+              -e ODOO_WORKERS=0 \
+              -e ODOO_MAX_CRON_THREADS=0 \
+              -e FARES_SESSION_STORE=postgres \
+              -e PORT=8069 \
+              "fares-uniform-vercel:$GITHUB_SHA" \
+              --stop-after-init "$action" "$PRODUCTION_ADDONS"
+            echo "local_exact_database_${mode}=PASS"
+          done
+          echo "local_install_upgrade_seconds=$((SECONDS-start))"
+
+          states="$(docker exec "$BOOTSTRAP_DB_CONTAINER" psql -U postgres -d postgres -Atc "SELECT string_agg(name || '=' || state, ',' ORDER BY name) FROM ir_module_module WHERE name = ANY (ARRAY['fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting']);")"
+          for addon in fu_core fu_retail fu_preorder fu_production fu_business fu_public_api fu_reporting; do
+            [[ ",$states," == *",${addon}=installed,"* ]] || { echo "Local addon not installed: $addon" >&2; exit 1; }
+          done
+          test "$(docker exec "$BOOTSTRAP_DB_CONTAINER" psql -U postgres -d postgres -Atc "SELECT count(*) FROM ir_module_module WHERE name='fu_uat' AND state='installed';")" = 0
+          echo 'local_exact_application_database=PASS seven_addons=installed fu_uat=absent'
+
+      - name: Produce filtered public-schema restore set
+        shell: bash
+        run: |
+          set -euo pipefail
+          dump=/tmp/fares-phase8-public.dump
+          full_list=/tmp/fares-phase8-full.list
+          restore_list=/tmp/fares-phase8-restore.list
+          docker exec "$BOOTSTRAP_DB_CONTAINER" pg_dump -U postgres -d postgres \
+            --format=custom --schema=public --exclude-table=public.fares_http_session \
+            --no-owner --no-privileges > "$dump"
+          docker exec -i "$BOOTSTRAP_DB_CONTAINER" pg_restore -l < "$dump" > "$full_list"
+          grep -v -E ' EXTENSION .* (unaccent|pg_trgm)$| COMMENT .* EXTENSION .* (unaccent|pg_trgm)$| SCHEMA .* public$|fares_http_session' "$full_list" > "$restore_list"
+          test -s "$dump"
+          test -s "$restore_list"
+          ! grep -Eq 'fares_http_session| EXTENSION .* (unaccent|pg_trgm)$| SCHEMA .* public$' "$restore_list"
+          docker cp "$dump" "$BOOTSTRAP_DB_CONTAINER":/tmp/fares-phase8-public.dump
+          docker cp "$restore_list" "$BOOTSTRAP_DB_CONTAINER":/tmp/fares-phase8-restore.list
+          echo "restore_set=PASS entries=$(grep -vc '^;' "$restore_list") bytes=$(stat -c '%s' "$dump")"
+
+      - name: Activate least-privileged managed runtime role
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<SQL || true
+          DO \$\$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='fares_app') THEN
+              RAISE EXCEPTION 'fares_app role missing';
+            END IF;
+            IF (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') THEN
+              RAISE EXCEPTION 'fares_app unexpectedly already LOGIN';
+            END IF;
+          END
+          \$\$;
+          ALTER ROLE fares_app LOGIN PASSWORD '${ODOO_DB_PASSWORD}';
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { echo "fares_app activation failed HTTP $status" >&2; jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
+          echo 'managed_runtime_role_activation=PASS'
+
+      - name: Restore exact initialized application schema to Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          start=$SECONDS
+          docker exec \
+            -e PGPASSWORD="$ODOO_DB_PASSWORD" \
+            "$BOOTSTRAP_DB_CONTAINER" \
+            pg_restore \
+              --host="$SUPABASE_POOLER_HOST" \
+              --port=5432 \
+              --username="fares_app.${SUPABASE_PROJECT_REF}" \
+              --dbname=postgres \
+              --no-owner --no-privileges \
+              --clean --if-exists --exit-on-error --jobs=4 \
+              --use-list=/tmp/fares-phase8-restore.list \
+              /tmp/fares-phase8-public.dump
+          echo "managed_schema_restore=PASS restore_seconds=$((SECONDS-start))"
+
+      - name: Verify managed database and repeat Fares addon upgrade
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PGPASSWORD="$ODOO_DB_PASSWORD"
+          pooler_user="fares_app.${SUPABASE_PROJECT_REF}"
+          states="$(psql "host=${SUPABASE_POOLER_HOST} port=5432 dbname=postgres user=${pooler_user} sslmode=require connect_timeout=10" -v ON_ERROR_STOP=1 -Atc "SELECT string_agg(name || '=' || state, ',' ORDER BY name) FROM ir_module_module WHERE name = ANY (ARRAY['fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting']);")"
+          for addon in fu_core fu_retail fu_preorder fu_production fu_business fu_public_api fu_reporting; do
+            [[ ",$states," == *",${addon}=installed,"* ]] || { echo "Managed addon not installed after restore: $addon" >&2; exit 1; }
+          done
+          test "$(psql "host=${SUPABASE_POOLER_HOST} port=5432 dbname=postgres user=${pooler_user} sslmode=require connect_timeout=10" -v ON_ERROR_STOP=1 -Atc "SELECT count(*) FROM ir_module_module WHERE name='fu_uat' AND state='installed';")" = 0
+
+          start=$SECONDS
+          docker run --rm \
+            -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" \
+            -e ODOO_DB_PORT=5432 \
+            -e ODOO_DB_NAME=postgres \
+            -e ODOO_DB_USER="$pooler_user" \
+            -e ODOO_DB_PASSWORD="$ODOO_DB_PASSWORD" \
+            -e ODOO_DB_SSLMODE=require \
+            -e ODOO_ADMIN_PASSWD="$ODOO_ADMIN_PASSWD" \
+            -e ODOO_WORKERS=0 \
+            -e ODOO_MAX_CRON_THREADS=0 \
+            -e FARES_SESSION_STORE=postgres \
+            -e PORT=8069 \
+            "fares-uniform-vercel:$GITHUB_SHA" \
+            --stop-after-init -u "$PRODUCTION_ADDONS"
+          echo "managed_fares_upgrade=PASS upgrade_seconds=$((SECONDS-start)) tls=require"
+
+          states="$(psql "host=${SUPABASE_POOLER_HOST} port=5432 dbname=postgres user=${pooler_user} sslmode=require connect_timeout=10" -v ON_ERROR_STOP=1 -Atc "SELECT string_agg(name || '=' || state, ',' ORDER BY name) FROM ir_module_module WHERE name = ANY (ARRAY['fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting']);")"
+          for addon in fu_core fu_retail fu_preorder fu_production fu_business fu_public_api fu_reporting; do
+            [[ ",$states," == *",${addon}=installed,"* ]] || { echo "Managed upgrade state invalid: $addon" >&2; exit 1; }
+          done
+          echo 'managed_database_seven_addons=PASS'
+
+      - name: Inject only required Vercel runtime environment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          payload="$(jq -cn \
+            --arg host "$SUPABASE_POOLER_HOST" \
+            --arg user "fares_app.${SUPABASE_PROJECT_REF}" \
+            --arg dbpass "$ODOO_DB_PASSWORD" \
+            --arg admin "$ODOO_ADMIN_PASSWD" \
+            --arg cron "$CRON_SECRET" \
+            '[
+              {key:"ODOO_DB_HOST",value:$host,type:"plain",target:["production"]},
+              {key:"ODOO_DB_PORT",value:"5432",type:"plain",target:["production"]},
+              {key:"ODOO_DB_NAME",value:"postgres",type:"plain",target:["production"]},
+              {key:"ODOO_DB_USER",value:$user,type:"plain",target:["production"]},
+              {key:"ODOO_DB_SSLMODE",value:"require",type:"plain",target:["production"]},
+              {key:"ODOO_DB_PASSWORD",value:$dbpass,type:"encrypted",target:["production"]},
+              {key:"ODOO_ADMIN_PASSWD",value:$admin,type:"encrypted",target:["production"]},
+              {key:"CRON_SECRET",value:$cron,type:"encrypted",target:["production"]},
+              {key:"FARES_SESSION_STORE",value:"postgres",type:"plain",target:["production"]},
+              {key:"ODOO_WORKERS",value:"0",type:"plain",target:["production"]},
+              {key:"ODOO_MAX_CRON_THREADS",value:"0",type:"plain",target:["production"]}
+            ]')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${VERCEL_API_BASE}/v10/projects/${VERCEL_PROJECT_ID}/env?upsert=true&teamId=${VERCEL_TEAM_ID}")"
+          if [[ "$status" != 200 && "$status" != 201 ]]; then
+            echo "Vercel environment injection failed HTTP $status" >&2
+            jq -c '{error:(.error // .)}' "$response" >&2 || true
+            exit 1
+          fi
+          echo 'vercel_runtime_environment=PASS'
+
+      - name: Verify Vercel environment inventory by name only
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          status="$(curl -sS -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v10/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          for key in ODOO_DB_HOST ODOO_DB_PORT ODOO_DB_NAME ODOO_DB_USER ODOO_DB_SSLMODE ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD CRON_SECRET FARES_SESSION_STORE ODOO_WORKERS ODOO_MAX_CRON_THREADS; do
+            test "$(jq -r --arg key "$key" '[.envs[] | select(.key==$key and (.target|index("production")))] | length' "$response")" = 1 || { echo "Invalid env inventory for $key" >&2; exit 1; }
+          done
+          for forbidden in SUPABASE_SERVICE_ROLE_KEY SUPABASE_ANON_KEY NEXT_PUBLIC_SUPABASE_URL DATABASE_URL POSTGRES_URL ODOO_BASE_URL FARES_ODOO_HTTP_INTERNAL_URL ODOO_RUNTIME_MODE; do
+            test "$(jq -r --arg key "$forbidden" '[.envs[] | select(.key==$key)] | length' "$response")" = 0 || { echo "Forbidden project env present: $forbidden" >&2; exit 1; }
+          done
+          echo 'vercel_environment_inventory=PASS values_not_read'
+
+      - name: Deploy exact candidate to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_r09C6RLmb2acHapENECQIn9T
+          VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+        shell: bash
+        run: |
+          set -euo pipefail
+          cli_version="$(npm view vercel version)"
+          echo "vercel_cli_version=$cli_version"
+          log="$(mktemp)"
+          trap 'rm -f "$log"' EXIT
+          npx --yes "vercel@${cli_version}" deploy --prod --yes \
+            --scope "$VERCEL_TEAM_SLUG" --project "$VERCEL_PROJECT_ID" 2>&1 | tee "$log"
+          deployment_url="$(grep -Eo 'https://[^[:space:]]+\.vercel\.app' "$log" | tail -1)"
+          [[ -n "$deployment_url" ]] || { echo 'Could not identify deployment URL' >&2; exit 1; }
+          echo "DEPLOYMENT_URL=$deployment_url" >> "$GITHUB_ENV"
+          echo "deployment_url=$deployment_url"
+
+      - name: Verify READY deployment and minimal public exposure
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          deployments="$(mktemp)"
+          trap 'rm -f "$deployments"' EXIT
+          for attempt in $(seq 1 90); do
+            status="$(curl -sS -o "$deployments" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=5")"
+            test "$status" = 200
+            state="$(jq -r '.deployments[0].state // .deployments[0].readyState // ""' "$deployments")"
+            if [[ "$state" == READY ]]; then break; fi
+            if [[ "$state" == ERROR || "$state" == CANCELED ]]; then jq -c '.deployments[0] | {uid,url,state,readyState,created}' "$deployments" >&2; exit 1; fi
+            if [[ "$attempt" == 90 ]]; then echo "deployment did not become READY; state=$state" >&2; exit 1; fi
+            sleep 5
+          done
+
+          curl -fsS --retry 8 --retry-delay 5 "$DEPLOYMENT_URL/" >/dev/null
+          noauth_status="$(curl -sS -o /tmp/cron-noauth.json -w '%{http_code}' "$DEPLOYMENT_URL/fares/internal/cron/run")"
+          test "$noauth_status" = 401
+          web_status="$(curl -sS -o /tmp/web-login.html -w '%{http_code}' "$DEPLOYMENT_URL/web/login")"
+          test "$web_status" != 200
+          echo "live_staging=PASS root=PASS cron_noauth=$noauth_status broad_odoo_web_status=$web_status"
+
+      - name: Clean local bootstrap resources
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          docker rm -f "$BOOTSTRAP_DB_CONTAINER" >/dev/null 2>&1 || true
+          docker network rm "$BOOTSTRAP_NETWORK" >/dev/null 2>&1 || true
+          rm -rf deploy/.phase8-bootstrap-secrets /tmp/fares-phase8-public.dump /tmp/fares-phase8-full.list /tmp/fares-phase8-restore.list || true
+
+  fail-closed-guard:
+    needs: bootstrap-deploy
+    if: ${{ always() && needs.bootstrap-deploy.result != 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Disable runtime login and terminate sessions after unsuccessful deployment
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_API_BASE: https://api.supabase.com/v1
+          SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || exit 64
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT pg_terminate_backend(pid)
+          FROM pg_stat_activity
+          WHERE datname='postgres' AND usename='fares_app' AND pid <> pg_backend_pid();
+          ALTER ROLE fares_app NOLOGIN PASSWORD NULL;
+          SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app';
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' \
+            --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          test "$(jq -r '.[0].rolcanlogin' "$response")" = false
+          echo 'unsuccessful_deployment_fail_closed=PASS fares_app=NOLOGIN sessions=terminated'
