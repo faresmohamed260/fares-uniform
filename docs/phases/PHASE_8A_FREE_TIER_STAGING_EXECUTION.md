@@ -1,6 +1,6 @@
 # Phase 8A — Free-tier staging execution
 
-Status: **CLIENT AUTHORIZED; PROVIDER CONTROL PLANES ESTABLISHED; RESTORE/UPGRADE/VERCEL READY PROVEN; PUBLIC APPLICATION SMOKE RED; MANAGED TARGET RESET CLEAN FOR NEXT ATTEMPT.**
+Status: **CLIENT AUTHORIZED; GUARDED RESET/DEPLOY PATH HARDENED; MANAGED RUNTIME POPULATED AND PRIVILEGE-SEALED; EXACT PUBLIC BILINGUAL SMOKE RED ON CONTENT/FIXTURE ASSERTION; GATE C IN PROGRESS.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -14,16 +14,9 @@ Production remains a separate **NO-GO** gate.
 
 ## Authorization boundary
 
-The client authorized creation/mutation of new isolated Fares Uniform staging resources on Vercel and Supabase for this rehearsal, with one hard spending condition: **stay on free tiers**.
+The client authorized creation/mutation of new isolated Fares Uniform staging resources on Vercel and Supabase for this rehearsal, with a hard spending condition: **stay on free tiers**.
 
-Not authorized:
-
-- paid provider upgrades;
-- unrelated project mutation;
-- production cutover;
-- real customer/staff/stock/order/bank/payment data;
-- broad Odoo backoffice exposure;
-- weakening the Phase 7 database/session/cron/WebSocket/security model.
+Not authorized: paid provider upgrades, unrelated project mutation, production cutover, real business data, broad Odoo backoffice exposure, transaction-mode pooling, or weakening the Phase 7 database/session/cron/WebSocket/security model.
 
 ## Live resources
 
@@ -37,34 +30,25 @@ Not authorized:
 - runtime role: `fares_app`;
 - pooler username: `fares_app.urqlxisivowkmsfisjek`;
 - TLS: `sslmode=require`;
-- transaction-mode pooling: prohibited for Odoo;
-- provider/bootstrap-owned session table: `fares_http_session`;
+- transaction-mode pooling: prohibited;
+- provider-owned session table: `public.fares_http_session`;
 - required provider-owned extensions: `unaccent`, `pg_trgm`.
 
-Supabase control-plane work is performed through hosted GitHub Actions using the configured `SUPABASE_ACCESS_TOKEN`. Secret values must never be committed or printed.
-
-Current managed state after the successful bounded reset:
-
-- `fares_app` NOLOGIN;
-- zero `fares_app` sessions;
-- zero app-owned public relations;
-- `fares_http_session` preserved under `postgres` ownership;
-- both required extensions preserved;
-- role retains required CONNECT/USAGE/CREATE privileges for the next bounded activation.
+Current post-deploy state is populated, not reset-clean. Runtime privilege-seal run `34898140110` / job `104160591708` observed `988` app-owned public relations, the provider session table, both required extensions, and the active deployment epoch. It then revoked `CREATE` on schema `public` from `fares_app` while leaving runtime LOGIN enabled.
 
 ### Vercel
 
 - team: `team_r09C6RLmb2acHapENECQIn9T`;
 - project: `fares-uniform`;
 - project id: `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`;
+- region: `fra1`;
+- Fluid compute: OFF;
 - authorized public staging SSO state: disabled;
-- retained READY deployment artifact: `dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu`;
-- canonical alias: `fares-uniform.vercel.app`;
-- deployment metadata SHA: `6d273e4eac9cc8b89b6baf7529564b401c875047`.
+- canonical staging URL used by the exact smoke: `https://fares-uniform.vercel.app`.
 
-The retained READY artifact is not a valid current staging runtime because the managed Odoo schema was subsequently reset and `fares_app` returned to NOLOGIN. It is retained as deployment evidence until the next controlled action decides otherwise.
+A historical READY deployment artifact remains useful evidence (`dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu`, SHA `6d273e4eac9cc8b89b6baf7529564b401c875047`) but is **not** current deployment authority; the current execution contract is the epoch-bound guarded workflow plus post-deploy evidence.
 
-## Previously established provider checkpoints
+## Established provider checkpoints
 
 ### Managed DB/runtime-image proof
 
@@ -73,7 +57,7 @@ The retained READY artifact is not a valid current staging runtime because the m
 - job `103806024323`;
 - **SUCCESS**.
 
-Proved exact project Management API access, repeatable least-privilege bootstrap, real Session Pooler connectivity on port 5432 with TLS, provider bootstrap boundaries, exact Vercel-target Odoo image build, and provider-required dotted runtime username connectivity.
+Proved exact Management API access, least-privilege bootstrap, real Session Pooler connectivity with TLS, exact Vercel-target Odoo image and provider-required dotted runtime username.
 
 ### Vercel control-plane proof
 
@@ -84,238 +68,147 @@ Proved exact project Management API access, repeatable least-privilege bootstrap
 
 Proved exact token/team/project boundary for the isolated staging project.
 
-## Managed restore defect — preserved RED evidence
+## Restore boundary — preserved RED→GREEN
 
-Initial live workflow run `34821582384`, deploy job `103904147677`, failed at `Restore initialized schema into clean Supabase target`. Guard job `103905391955` succeeded.
+Initial run `34821582384`, deploy job `103904147677`, failed because `pg_restore` attempted to mutate provider-owned extension metadata. Guard job `103905391955` disabled the runtime role.
 
-Exact error:
+The PG16-compatible TOC filter was fixed at commit `06c0af27dd49375b19d00a9276e2d225bf519c5b`.
 
-- `pg_restore` attempted `COMMENT ON EXTENSION unaccent`;
-- `fares_app` is not owner of provider-owned extension `unaccent`.
+- RED regression: run `34836378096`, job `103951039660`;
+- GREEN regression: run `34841523130`, job `103967384659`.
 
-The old TOC filter anchored provider object names at line end even though archive owner is trailing. PostgreSQL 16.12 is pinned, so the correction remains PG16-compatible.
+The GREEN proof restores the application-owned set and performs a repeat seven-addon upgrade with `fu_uat` absent while preserving provider-owned schema/extension/session objects.
 
-Provider/bootstrap entries now excluded from the restore set include public schema metadata/ACL, `unaccent`, `pg_trgm`, their comments and `fares_http_session`.
+## Private public-API database selection — preserved RED→GREEN
 
-### Hosted RED to GREEN regression
+The managed application database is literally named `postgres`. Odoo anonymous DB autodiscovery excludes that maintenance DB name, so old private calls without explicit DB selection reached nodb routing and returned 404 for `/fu/public/catalog`.
 
-- RED run `34836378096`, job `103951039660`;
-- fix commit `06c0af27dd49375b19d00a9276e2d225bf519c5b`;
-- GREEN run `34841523130`, job `103967384659`;
-- live workflow patch commit `6d273e4eac9cc8b89b6baf7529564b401c875047`.
+The fix is server-side only: private Next.js→Odoo calls add `X-Odoo-Database: postgres`, derived from `ODOO_DB_NAME`. Browser-facing routing remains unchanged and direct `/fu/public/**` stays unexposed.
 
-The GREEN regression proved the corrected provider-boundary restore and repeat seven-addon upgrade, with `fu_uat` absent and provider objects preserved.
+- RED run `34879388824`;
+- GREEN run `34880200932`, job `104097532186`;
+- implementation commits `8db0cd6ae35228ffee08ae00a17b504556cc9929`, `3fc780a92a6a7d339b3ff62ff35443e8f000c3f6`, `b2ed30127d239719af1df01a0aa6fc8c0391f2cc`, `8720e9c32c1bfffeb02af90ceca2b9db7a218aee`.
 
-## Corrected live deployment attempt
+Do not reopen this diagnosis unless new evidence regresses it.
 
-Workflow: `.github/workflows/phase8-vercel-live-deploy-v2.yml`.
+## Managed reset history and stale-rerun provenance
 
-Run `34842081247`, deploy job `104054566511`.
+### Bounded reset
 
-### Successful boundaries
+The first reset (`8cc6d651096759d1212fb3249fa05f2ddc04b236`, run `34866894850`, job `104052858733`) exceeded `max_locks_per_transaction` via a large single `DROP OWNED` transaction.
 
-The corrected attempt passed:
+The bounded reset (`7311c0a07ea020b967240ab44a57fb7be8c190a8`, run `34867078825`, job `104053486058`) succeeded by dropping app-owned relations one-at-a-time under autocommit, proving `988 → 0` relations, `fares_app` NOLOGIN, zero sessions, and preservation of provider objects.
 
-| Boundary | Result |
-| --- | --- |
-| Exact checkout / clean deployment boundary | PASS |
-| Masked activation secret generation | PASS |
-| Exact DB and Vercel Odoo image build | PASS |
-| Local initialized application DB | PASS |
-| Corrected filtered restore set | PASS |
-| Bounded `fares_app` activation | PASS |
-| Managed schema restore | **PASS** |
-| Repeat seven-addon verification/upgrade | **PASS** |
-| Required Vercel environment injection | PASS |
-| No-value environment inventory verification | PASS |
-| Exact isolated Vercel deployment | **PASS** |
-| Vercel build and READY activation | **PASS** |
-| Public application/exposure smoke | **FAIL** |
+### Why the schema came back after reset
 
-The managed restore boundary is therefore no longer the current blocker.
+The recreated `988` relations were traced to a stale rerun, not provider drift:
 
-### Vercel build evidence
+- reset completed around `2026-09-14 16:13:47 UTC`;
+- old live-deploy run `34842081247`, attempt 2, started around `16:14:51 UTC`;
+- deploy job `104054566511`;
+- stale head SHA `6d273e4eac9cc8b89b6baf7529564b401c875047`.
 
-Deployment `dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu` reached READY.
+That rerun passed the old clean-boundary preflight, activated `fares_app`, restored the schema and ran the repeat seven-addon upgrade. GitHub reruns retain old run identity, so filtering only by original creation time hid this execution initially.
 
-Build evidence included:
+This is preserved provenance evidence. Do not rerun an old live-deploy run as a retry mechanism.
 
-- Next.js production compilation and TypeScript checks passed;
-- Odoo HTTP image completed all 26 container steps and pushed successfully;
-- WebSocket image reused 25/26 layers and pushed successfully;
-- deployment received canonical alias `fares-uniform.vercel.app`.
+## Current managed-writer safety model
 
-### Public application RED evidence
+The reset/deploy lifecycle is now generation-bound rather than merely clean-boundary-bound.
 
-The final fail-closed validation surfaced an application/runtime defect:
+Relevant hardening:
 
-- public root `/` returned 500;
-- Next.js logged `Invalid catalog response`;
-- private backend call `/fu/public/catalog?lang=en` reached Odoo;
-- Odoo returned 404;
-- Odoo had booted and loaded its registry/modules;
-- the PostgreSQL-backed session store was installed;
-- runtime connected through the expected Session Pooler identity.
+- `b859fc1a9774470581819918740f56b5fba1855e` — RED stale-writer evidence;
+- `b8335abc9ecb7ef5e04d42fda85b52bfe3545260` — writer guard regression;
+- `41ff0bf1b2b9d2bb084a362941522e9c4a0d17d4`, `970a39698cd95e01b799854d7444435655a3c7dc` — managed mutation hardening;
+- `eca0732213d3a02d94ea5c80d7442d511355d0a3` — reset creates/seals deployment epoch;
+- `f66fbf08566f75c587eb3ad8eca55f0e157692b4` — epoch verification correction;
+- `2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a` — interrupted reset recovery;
+- `2a74e93b1828c16839ba7cede336caa4ca374306` — live deploy bound to reset epoch;
+- `3d2520840ce1cf67757fc623b2ffb9b53c17a3fd` — DB recovery manual/fail-closed;
+- `9978bbaf60344e74ec48dd8537ad3e09d4258293`, `937211fbc09927a6308df0f9804e5ba3843df454`, `5a5b0c38f89890eeff6d3a911e59bd1b38ea65a0` — legacy DB writers retired.
 
-This proves the failure was not simply the public request being stopped before the application. The expected public catalog route/runtime registration or initialization path must be diagnosed before the next clean deployment can pass.
+Current epoch observed by the privilege seal:
 
-The unsuccessful deployment attempt returned to fail-closed role state.
+`34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`
 
-## Vercel public-exposure diagnosis and correction
+Managed writers must continue to share the guarded mutation discipline, prove the current epoch immediately before writes, and fail closed on unsuccessful execution. Recovery is deliberate/manual, not an implicit background writer.
 
-### Exposure diagnostic — GREEN
+## Runtime privilege seal — GREEN
 
-- commit `4380972525d70d3126a56e86a6ffeff01f5887ba`;
-- workflow `.github/workflows/phase8-vercel-exposure-diagnostic.yml`;
-- run `34865665473`;
-- job `104048749999`;
-- result **SUCCESS**.
+Commit `63303846f3e373abb323bdc969dcc9e92c56311f` added the post-deploy privilege seal.
 
-It found Vercel project SSO protection set to `all_except_custom_domains`; anonymous deployment hosts redirected to Vercel SSO.
+Hosted proof:
 
-### Authorized public-staging policy fix — GREEN
+- run `34898140110`;
+- job `104160591708`;
+- **SUCCESS**.
 
-- commit `0ad8ad3d75af4a3d25df9ccf5a64a97ee9bdd92f`;
-- workflow `.github/workflows/phase8-vercel-exposure-fix.yml`;
-- run `34866159453`;
-- job `104050408771`;
-- result **SUCCESS**.
+Pre-seal state:
 
-Exact evidence:
+- `rolcanlogin=true`;
+- `can_create_public=true`;
+- `app_owned_relations=988`;
+- provider session table and both required extensions present;
+- epoch table/current epoch present.
 
-- `sso_before=all_except_custom_domains`;
-- public-staging SSO changed to disabled;
-- failed deployment boundary removed before the clean retry;
-- `failed_deployment_removed=PASS clean_retry_boundary=true`.
+Post-seal state:
 
-This change only removes Vercel Authentication from the explicitly authorized public staging surface. It does not expose broad Odoo routes.
+- `rolcanlogin=true`;
+- `can_create_public=false`;
+- `app_owned_relations=988`;
+- provider boundary preserved;
+- epoch preserved.
 
-## Managed target reset — preserved RED to GREEN
+This is the current runtime privilege posture. A future schema-writing operation must explicitly enter its bounded writer path instead of depending on permanent schema CREATE permission.
 
-A clean managed target is required before another exact deployment attempt.
+## Exact public staging smoke — RED
 
-### First owner cleanup — RED
+Workflow: `.github/workflows/phase8-public-staging-smoke.yml`.
 
-- commit `8cc6d651096759d1212fb3249fa05f2ddc04b236`;
-- workflow `.github/workflows/phase8-managed-odoo-reset.yml`;
-- run `34866894850`;
-- job `104052858733`;
+Current run:
+
+- run `34899200346`;
+- job `104160775144`;
+- target `https://fares-uniform.vercel.app`;
 - result **FAILURE**.
 
-Precondition:
+The workflow validates exact content for:
 
-- `fares_app` NOLOGIN;
-- sessions `0`;
-- app-owned relations `988`;
-- provider-owned session table preserved.
+- English home `/`;
+- Arabic home `/ar`;
+- English catalog `/catalog`;
+- Arabic catalog `/ar/catalog`;
+- English synthetic product detail `/catalog/SYN-EN-001`;
+- Arabic synthetic product detail `/ar/catalog/SYN-AR-001`;
+- then browser-facing Odoo-route absence and unauthenticated cron `401`.
 
-A one-transaction `DROP OWNED BY CURRENT_USER CASCADE` then failed with `ERROR: out of shared memory` and the PostgreSQL hint to increase `max_locks_per_transaction`.
+The current run reached both product-detail requests, then exited 1 before the exposure-boundary checks. The failing `grep` is not identified in the log. Therefore this run proves reachability through those requests but **does not** prove the exact content contract or the final exposure assertions.
 
-The workflow's fail-closed path still disabled the temporary cleanup login.
+Immediate task: identify the exact failed assertion. Check whether the intended synthetic staging fixture is present and whether its English/Arabic strings/SKUs match the source-controlled smoke. If data repair is required, use only clearly synthetic staging records and delete only those records. Do not weaken an assertion merely to obtain GREEN.
 
-### Bounded-lock cleanup — GREEN
+## Secret-management boundary
 
-- commit `7311c0a07ea020b967240ab44a57fb7be8c190a8`;
-- run `34867078825`;
-- job `104053486058`;
-- result **SUCCESS**.
+`docs/operations/PHASE_8_STAGING_SECRET_INVENTORY.md` is authoritative for names/purpose/custody only.
 
-The fix generates owner-scoped DROP statements for app-owned public relations and executes them under psql autocommit so every statement has its own transaction/lock budget. Only after that large relation graph is gone does it run `DROP OWNED` for remaining routines/types/grants.
-
-Exact final evidence:
-
-- `owner_scoped_partial_odoo_cleanup=PASS tls=require bounded_locks=true`;
-- `temporary_cleanup_login_disabled=PASS`;
-- `managed_bootstrap_reapplied=PASS`;
-- `rolcanlogin=false`;
-- `sessions=0`;
-- `app_owned_relations=0`;
-- `session_table_ok=1`;
-- `required_extensions=2`;
-- CONNECT/USAGE/CREATE remain available for the next controlled activation;
-- `managed_odoo_target_reset=PASS role=NOLOGIN app_owned_relations=0 bootstrap=preserved`.
-
-This is the authoritative current managed baseline.
-
-## Secret activation state
-
-The no-value inventory remains authoritative at `docs/operations/PHASE_8_STAGING_SECRET_INVENTORY.md`.
-
-- `SUPABASE_ACCESS_TOKEN` is configured/proven;
-- `VERCEL_TOKEN` is configured/proven against the exact team;
-- runtime DB/admin/cron secrets are generated and masked inside hosted CI;
-- `fares_app` is currently NOLOGIN after the managed reset;
-- secret values must never be reconstructed from logs or documentation.
-
-## RED evidence retained
-
-Meaningful RED evidence remains part of the audit trail and must not be hidden by weaker assertions:
-
-- `34787115988` — temporary-role/pooler assertion failure after connectivity;
-- `34787178859` — clarified `pg_stat_ssl` behavior behind Supavisor;
-- `34787327217` — managed non-superuser boundary;
-- `34787368732` — PostgreSQL `PUBLIC` pseudo-role handling;
-- `34787615934` — cross-provider workflow-definition failure;
-- `34821582384` — provider-owned extension metadata restore failure;
-- `34836378096` — hosted regression reproducing the broken restore filter;
-- `34842081247` — managed restore/upgrade/Vercel READY green but public application smoke red;
-- `34866894850` — single-transaction managed reset exceeded lock budget.
-
-Corresponding fixes are recorded above.
+**WANDA is secret-management only.** Do not treat it as general deployment, database mutation, Vercel, Supabase or GitHub control-plane authority. No secret values belong in repository docs or logs.
 
 ## Gate state
 
-### Gate A — repository planning
+- **Gate A — repository planning: PASS.**
+- **Gate B — authorization/provider ownership: PASS.**
+- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing and runtime privilege seal are GREEN; exact public bilingual smoke is currently RED on content/fixture validation.
+- **Gate D — production: NO-GO.** Separate operational, device/staff/data-cutover and explicit production authorization are still required.
 
-**PASS.**
+## Next authorized execution sequence
 
-### Gate B — authorization/provider ownership
+1. Re-read `AGENTS.md`, `PROJECT.md`, this file, the parent Phase 8 contract and secret inventory.
+2. Reverify branch HEAD and inspect any intervening commits/workflow runs before mutation.
+3. Inspect run `34899200346` / job `104160775144` and the current smoke workflow to isolate the exact failed `grep`/fixture expectation.
+4. Inspect live staging data only as necessary and without exposing or documenting secret values. Use synthetic data only.
+5. Make the smallest source-controlled or synthetic-fixture correction that satisfies the intended product contract; preserve the current RED run.
+6. Rerun the exact public staging smoke and require all English/Arabic content and exposure-boundary assertions to pass.
+7. After public smoke is GREEN, complete remaining Gate C proof: enquiry/no-price-no-stock, attachment/session continuity, external cron/native locking, WebSocket reconnect/cursor replay, managed backup/destructive restore, monitoring/alerts, and the end-to-end business UAT scenarios.
+8. Update Phase 8 docs with exact new SHAs/run/job IDs after each authoritative proof.
 
-**PASS.**
-
-### Gate C — live staging technical GO
-
-**IN PROGRESS / NOT YET GO.**
-
-Already proven:
-
-- managed Session Pooler/TLS/dotted-user connectivity;
-- least-privilege bootstrap contract;
-- isolated Vercel project/control-plane boundary;
-- exact image build;
-- corrected provider-boundary restore;
-- managed seven-addon repeat upgrade with `fu_uat` absent;
-- Vercel env injection/inventory;
-- Vercel deployment and READY activation;
-- provider SSO diagnosis and intentional public-staging correction;
-- bounded managed reset back to a clean fail-closed baseline.
-
-Still required:
-
-- fix/verify the private Odoo public catalog route/runtime path that returned 404;
-- redeploy from the clean managed baseline;
-- pass public English/Arabic home/catalog/detail/enquiry smoke;
-- verify database-backed attachment continuity;
-- verify shared authenticated-session continuity;
-- verify external authenticated cron and native locking;
-- verify WebSocket reconnect/cursor replay;
-- perform managed backup + destructive restore rehearsal;
-- establish logs/monitoring/alert ownership.
-
-### Gate D — production
-
-**NO-GO.** Production requires separate authorization after Gate C plus store-device acceptance, named staff/roles/training and real-data cutover/reconciliation gates.
-
-## Next authorized action
-
-Start from the current branch HEAD and the clean managed baseline established by run `34867078825`.
-
-1. Re-read `AGENTS.md`, `PROJECT.md`, this file and the parent Phase 8 contract before mutation.
-2. Verify branch HEAD and inspect any newer Action runs before writing.
-3. Do **not** repeat the already-proven restore-filter investigation unless new evidence regresses it.
-4. Diagnose why the private Odoo endpoint expected by `public_web`, `/fu/public/catalog?lang=en`, returned 404 in run `34842081247`. Check route registration, addon/runtime initialization and exact source/deployment boundaries. Do not expose direct `/fu/public/**` publicly as a workaround.
-5. Inspect existing Phase 8 workflows first and reuse the exact-candidate hosted path rather than inventing a parallel deployment mechanism.
-6. Redeploy only from a verified clean managed state, with `fares_app` temporarily activated inside the bounded workflow and fail-closed afterward on failure.
-7. After public EN/AR smoke passes, complete attachment/session/cron/WebSocket/recovery/monitoring Gate C evidence.
-
-Do not use a local project checkout or scratch source tree. Do not force-push. Preserve RED evidence. Do not load `fu_uat` in staging/production. Do not expose broad Odoo routes. Do not use transaction pooling. Do not run routine Odoo as provider admin. Do not use real business data. Do not spend money without separate explicit authorization. Production remains NO-GO.
+Do not use a local/scratch source checkout. Do not force-push or rewrite evidence. Do not load `fu_uat` in staging/production. Do not expose `/fu/public/**` directly. Do not use transaction pooling. Do not use provider admin as routine Odoo runtime. Do not use real business data. Do not spend money without explicit approval. Production remains NO-GO.
