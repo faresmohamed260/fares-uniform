@@ -14,21 +14,21 @@ Never clone, download, create, edit, build, test, or otherwise work on project f
 
 If a required remote capability is unavailable, explain the concrete limitation and request only the necessary client action. Do not silently switch to local work. Hosted CI can check out the repository on its remote runner for builds and tests.
 
-### WANDA-616 control-plane exception
+### WANDA-616 secret-management control plane
 
-`WANDA-616` is not a local project-development workspace and does not weaken the rule above. Normal ChatGPT sessions may use its control plane only for GitHub/admin actions that are unavailable through the normal connected tools, especially defining or updating repository/Actions secrets. Do not clone, edit, build, test, inspect or execute Fares Uniform project source on WANDA.
+`WANDA-616` is not a local project-development workspace and does not weaken the rule above. Normal ChatGPT sessions may use its control plane only when they need to define, add or update GitHub repository/Actions secrets and the normal connected tools cannot perform that secret operation. The only additional allowed use is the minimal control-plane verification required to confirm that secret-management action. Do not use WANDA for general GitHub administration or to clone, edit, build, test, inspect or execute Fares Uniform project source.
 
-For an allowed shell/admin action, use this exact flow:
+For an allowed secret-management action, use this exact flow:
 
 1. Write only the required PowerShell task to `C:\ChatGPT-Control\current-task.ps1` through Remote Desktop Commander.
 2. Fetch `control/trigger.txt` from private repo `faresmohamed260/chatgpt-pc-control`, branch `main`.
 3. Replace it with a unique harmless nonce; never put commands, secrets, passwords or tokens in the trigger.
 4. Commit only that trigger-file change; workflow `.github/workflows/wanda-command.yml` runs on the WANDA self-hosted runner.
 5. Read the resulting GitHub Actions run logs/output and exit status.
-6. Verify important side effects through Remote Desktop Commander.
+6. Verify the secret-side effect or other directly required control-plane state through Remote Desktop Commander.
 7. Reset `C:\ChatGPT-Control\current-task.ps1` to exactly `Write-Output 'CHATGPT_CONTROL_READY'`.
 
-Use Remote Desktop Commander directly for the permitted control-plane filesystem/state checks needed by that flow. Keep project source, documentation edits, builds, tests and normal development on GitHub/hosted CI.
+Keep project source, documentation edits, builds, tests and normal development on GitHub/hosted CI.
 
 ## Planning and scope
 
