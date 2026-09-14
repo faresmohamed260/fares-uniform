@@ -74,8 +74,22 @@ jobs:
 
           status="$(curl -sS -o "$deployments" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
           test "$status" = 200
-          test "$(jq -r '.deployments | length' "$deployments")" = 0
-          echo 'clean_deployment_boundary=PASS db_clean=true role=NOLOGIN vercel_deployments=0 region=fra1'
+          deployment_count="$(jq -r '.deployments | length' "$deployments")"
+          retained_boundary=none
+          if [[ "$deployment_count" = 1 ]]; then
+            retained_id="$(jq -r '.deployments[0].uid // .deployments[0].id // ""' "$deployments")"
+            retained_state="$(jq -r '.deployments[0].state // .deployments[0].readyState // ""' "$deployments")"
+            retained_sha="$(jq -r '.deployments[0].meta.githubCommitSha // ""' "$deployments")"
+            test "$retained_id" = 'dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu'
+            test "$retained_state" = READY
+            test "$retained_sha" = '6d273e4eac9cc8b89b6baf7529564b401c875047'
+            retained_boundary=authorized-ready-evidence
+          elif [[ "$deployment_count" != 0 ]]; then
+            echo "Unexpected Vercel deployment inventory: count=$deployment_count" >&2
+            jq -c '.deployments[] | {uid,id,state,readyState,meta:{githubCommitSha:.meta.githubCommitSha}}' "$deployments" >&2
+            exit 1
+          fi
+          echo "clean_deployment_boundary=PASS db_clean=true role=NOLOGIN vercel_deployments=$deployment_count retained_boundary=$retained_boundary region=fra1"
 
       - name: Generate and mask fresh activation secrets
         shell: bash
