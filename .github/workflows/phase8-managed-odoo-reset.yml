@@ -154,3 +154,5 @@ jobs:
           test "$(jq -r '.[0].can_use_public' "$response")" = true
           test "$(jq -r '.[0].can_create_public' "$response")" = true
           echo 'managed_odoo_target_reset=PASS role=NOLOGIN app_owned_relations=0 bootstrap=preserved'
+
+# Recovery trigger: reset managed Odoo-owned staging objects before clean public redeploy.
