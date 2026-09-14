@@ -1,331 +1,274 @@
 # Phase 8 — Commercial staging readiness
 
-Status: **REPOSITORY CONTRACT COMPLETE; LIVE STAGING AUTHORIZED; GATE C TECHNICAL EXECUTION IN PROGRESS.**
+Status: **REPOSITORY CONTRACT COMPLETE; LIVE STAGING AUTHORIZED; GATE C TECHNICAL EXECUTION IN PROGRESS; CURRENT MANAGED TARGET RESET TO A CLEAN FAIL-CLOSED BASELINE.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
-Starting documentation HEAD: `9186b3556fb4a6a54d4580f9ea037cb2c33b2451`.
-
-Inherited Phase 7 implementation authority: `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`.
-
-Inherited Phase 7 runtime-regression checkpoint: `24850acc029e0e7bbef898d6598d0d8b3f7ce733`.
-
-Inherited business-application/test authority: `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.
-
-Inherited Phase 6 provider-neutral deployment-package authority: `e337315684c62d69ad75ba56a5867098da17489c`.
-
 Pinned Odoo Community SHA: `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
-Live execution status is owned by `docs/phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md`. As of 2026-09-14, Gate A and Gate B are PASS; Gate C is in progress and currently RED at the managed schema-restore boundary in workflow run `34821582384`; Gate D production remains NO-GO.
+Live execution detail is owned by `docs/phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md`.
+
+As of 2026-09-14, Gate A and Gate B are PASS. Gate C has advanced materially: the provider-boundary restore defect is fixed and regression-proven, a corrected live attempt restored and upgraded the seven production addons successfully, and Vercel reached READY. The live public smoke then failed closed because the public Next.js surface received a 404 from Odoo for `/fu/public/catalog?lang=en`, producing a root 500. Subsequent work diagnosed and disabled Vercel SSO for the authorized public staging boundary and returned the managed database to a clean fail-closed baseline. Gate D production remains NO-GO.
 
 ## Goal
 
-Define the smallest complete contract for moving from the verified repository/CI state to an explicitly authorized staging rehearsal on Vercel with managed PostgreSQL/Supabase, while preserving every Phase 7 security, state, recovery and exposure boundary.
+Move the verified repository/CI state into an explicitly authorized staging rehearsal on Vercel plus managed PostgreSQL/Supabase while preserving the Phase 7 security, state, recovery and exposure boundaries.
 
-This phase separates three states that must not be conflated:
+This phase keeps three states separate:
 
-1. repository readiness and planning;
+1. repository readiness;
 2. an explicitly authorized live staging rehearsal;
-3. a separately authorized production cutover.
+3. separately authorized production cutover.
 
-Phase 8 does not reopen completed Phase 7 engineering without new regression evidence.
+Staging success never authorizes production.
 
 ## Authorization boundary
 
-The repository-only planning work was completed first. The client subsequently authorized the live Phase 8A staging rehearsal on new isolated Vercel and Supabase resources with a hard **free-tier-only** spending boundary.
+The client authorized work on new isolated Fares Uniform staging resources on Vercel and Supabase with a hard **free-tier-only** spending boundary.
 
-That staging authorization does **not** authorize:
+This authorization does not permit:
 
-- upgrading or purchasing a Vercel/Supabase plan without a new explicit spending authorization;
-- mutating unrelated provider projects;
-- production deployment or production cutover;
+- any paid Vercel or Supabase upgrade without new explicit approval;
+- mutation of unrelated provider projects;
+- production deployment or cutover;
 - real customer, staff, stock, order, bank or payment data;
-- weakening server-side roles, public API allowlists, offline checkout correctness, database privilege boundaries or minimal public routing.
+- broad Odoo backoffice exposure;
+- weakening server-side roles, public-route allowlists, offline checkout correctness, database privilege boundaries, session semantics or recovery requirements.
 
-Production always requires a separate Gate D authorization.
+Production requires a separate Gate D authorization.
 
 ## Inherited technical baseline
 
-Phase 8 starts from the verified Phase 7 topology and does not redesign it by default:
+The Phase 7 topology remains authoritative unless a later decision replaces it with equal proof:
 
 - `public_web` is the Vercel-native Next.js public service;
-- `odoo_http` is a stateless Odoo container service;
-- `odoo_websocket` is a separate stateless evented Odoo service;
+- `odoo_http` is stateless Odoo HTTP compute;
+- `odoo_websocket` is separate stateless evented Odoo compute;
 - public web reaches Odoo HTTP through the private `ODOO_BASE_URL` service binding;
-- `/websocket` is the only public evented-service rewrite;
-- `/fares/internal/cron/run` is the only public Odoo HTTP rewrite and remains bearer-authenticated;
-- broad Odoo backoffice and direct `/fu/public/**` routes remain unexposed;
+- `/websocket` is the only intended public evented-service rewrite;
+- `/fares/internal/cron/run` is the only intended public Odoo HTTP rewrite and remains bearer-authenticated;
+- broad Odoo backoffice and direct `/fu/public/**` routes remain unexposed through the public mapping;
 - attachments and authenticated sessions are PostgreSQL-backed;
 - built-in Odoo cron threads remain disabled;
 - WebSocket continuity relies on reconnect/cursor replay rather than instance affinity;
-- the seven production addons remain `fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting`;
-- `fu_uat` remains test-only.
+- production addons are `fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting`;
+- `fu_uat` is test-only and must never be loaded in staging/production.
 
-The Phase 6 PostgreSQL+filestore package remains the verified fallback/reference topology.
+The Phase 6 PostgreSQL+filestore package remains the fallback/reference topology.
 
-## Commercial staging ownership record
-
-Current live staging ownership is recorded without secret values:
+## Current provider ownership
 
 | Item | Current state |
 | --- | --- |
-| Vercel plan | Existing free-tier boundary; no paid upgrade authorized |
+| Vercel plan | free-tier boundary; no paid upgrade authorized |
 | Vercel project | isolated `fares-uniform`, project id `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`, team `team_r09C6RLmb2acHapENECQIn9T` |
-| Supabase project | isolated `Fares Uniform`, project ref `urqlxisivowkmsfisjek`, region `eu-central-1` |
-| Database | provider-managed `postgres` database dedicated to this Supabase project |
+| Vercel exposure | Vercel SSO deliberately disabled for the authorized public staging boundary; broad Odoo routing remains prohibited |
+| Supabase project | isolated `Fares Uniform`, ref `urqlxisivowkmsfisjek`, region `eu-central-1` |
+| Database | provider-managed `postgres` database dedicated to this project |
 | Routine DB role | least-privileged `fares_app` |
 | Connection class | Supavisor Session Pooler `aws-0-eu-central-1.pooler.supabase.com:5432`, client `sslmode=require` |
-| Privileged bootstrap | provider-managed `postgres` bootstrap/control-plane context; separate from routine runtime |
-| Secret custody | no-value inventory in `docs/operations/PHASE_8_STAGING_SECRET_INVENTORY.md`; values remain in provider/GitHub secret stores only |
-| Domains/DNS/TLS | staging deployment not yet reached; record concrete runtime ownership when Gate C reaches the live URL |
+| Provider bootstrap | separate provider-managed bootstrap/control-plane context; not routine Odoo runtime |
+| Current managed app state | clean baseline: `fares_app` NOLOGIN, zero app-owned public relations, provider bootstrap preserved |
+| Provider-owned session table | `fares_http_session`, owned by `postgres`, preserved across reset |
+| Required extensions | `unaccent` and `pg_trgm`, provider-owned and preserved |
+| Secret custody | no-value inventory in `docs/operations/PHASE_8_STAGING_SECRET_INVENTORY.md`; values stay in provider/GitHub secret stores |
 | Monitoring/alerts | still required before Gate C GO |
-| Backup/recovery | managed/destructive restore rehearsal still required before Gate C GO |
+| Backup/recovery | managed backup + destructive restore rehearsal still required before Gate C GO |
 
-Credentials and private business data never belong in this repository.
+A READY Vercel deployment artifact from the corrected live attempt still exists (`dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu`, alias `fares-uniform.vercel.app`, workflow/deployment SHA `6d273e4eac9cc8b89b6baf7529564b401c875047`). It is evidence, **not a currently valid staging runtime**, because the managed application schema was subsequently reset and `fares_app` returned to NOLOGIN.
 
 ## Managed PostgreSQL/Supabase contract
 
-Supabase is the selected managed PostgreSQL target for the current staging rehearsal.
+Supabase is the selected managed PostgreSQL staging target.
 
-Odoo connectivity requirements remain non-negotiable unless a later architecture decision replaces them with equal proof:
+Non-negotiable runtime requirements:
 
 - direct PostgreSQL or Supavisor **session mode** is acceptable;
-- Supavisor **transaction mode is prohibited** for Odoo because realtime bus behavior requires PostgreSQL session semantics including `LISTEN/NOTIFY`;
-- live managed connectivity uses TLS with `sslmode=require` at minimum;
-- the routine Odoo role must not receive superuser, createdb or createrole merely because the provider is managed;
-- privileged bootstrap is separate from routine application runtime;
-- the shared `fares_http_session` table is created/owned at the bootstrap boundary and routine runtime receives only required DML;
-- database-backed attachment mode remains required for the Vercel topology unless separately migrated and re-proven.
+- Supavisor **transaction mode is prohibited** because Odoo realtime behavior requires PostgreSQL session semantics, including `LISTEN/NOTIFY`;
+- managed connectivity uses TLS with `sslmode=require` at minimum;
+- routine Odoo uses `fares_app` and must not receive superuser, createdb or createrole;
+- privileged bootstrap remains separate from routine runtime;
+- `fares_http_session` remains bootstrap/provider-owned and routine runtime receives only required DML;
+- database-backed attachments remain required for the Vercel topology unless explicitly migrated and re-proven.
 
-Live proof has already established the Session Pooler/TLS/dotted-user compatibility boundary. The current Gate C failure is later in the sequence: restoring the initialized application schema into the managed target.
+Live proof has established Session Pooler/TLS/dotted-user compatibility from the exact runtime image.
 
-## Staging and production separation
+## Provider-boundary restore defect — RED to GREEN
 
-Staging and production must have separate durable state and secrets. A staging GO does not authorize production.
+The first live deployment attempt failed in run `34821582384`, deploy job `103904147677`, at `Restore initialized schema into clean Supabase target`. Fail-closed guard job `103905391955` succeeded.
 
-At minimum, the live design must demonstrate that:
+Exact RED cause:
 
-- staging cannot write to a future production database;
-- production credentials are not available to preview/staging browser code or CI;
-- staging cron credentials are distinct from production credentials;
-- staging operational/admin accounts are not silently reused as production routine accounts;
-- real production data is not copied into staging unless a later explicit migration/privacy decision authorizes and sanitizes it;
-- environment ownership and teardown responsibility are known.
+- `pg_restore` attempted `COMMENT ON EXTENSION unaccent`;
+- PostgreSQL rejected it because `fares_app` is not the owner of provider-owned extension `unaccent`.
 
-## Secrets and rotation
+The old `pg_restore -l` filter incorrectly assumed object names were at the end of TOC lines; the archive owner is actually trailing, so provider-owned entries survived. PostgreSQL 16.12 is pinned, so the fix had to remain PG16-compatible rather than relying on PG17 `--exclude-extension`.
 
-The no-value staging secret inventory is `docs/operations/PHASE_8_STAGING_SECRET_INVENTORY.md`.
+The corrected TOC-descriptor filter excludes provider/bootstrap entries including:
 
-It covers:
+- `SCHEMA - public`;
+- `COMMENT - SCHEMA public`;
+- `ACL - SCHEMA public`;
+- `EXTENSION - unaccent`;
+- `EXTENSION - pg_trgm`;
+- extension comments;
+- `fares_http_session`.
 
-- Odoo database host/port/name/user/password;
-- Odoo master/admin password;
-- external cron bearer secret;
-- Vercel/Supabase control-plane credentials required by the operational workflow.
+Evidence:
 
-The current live workflow generates fresh runtime secrets inside hosted CI, masks them before use and activates the routine database role only inside a bounded attempt. If the attempt fails before a usable deployment exists, a separate fail-closed guard disables the managed runtime role. Public browser code must never receive broad Odoo/database credentials.
+- initial hosted regression RED: run `34836378096`, job `103951039660`;
+- corrected regression commit `06c0af27dd49375b19d00a9276e2d225bf519c5b`;
+- corrected hosted regression GREEN: run `34841523130`, job `103967384659`;
+- live workflow patch commit `6d273e4eac9cc8b89b6baf7529564b401c875047`.
 
-## Managed backup and restore rehearsal
+The corrected hosted regression proved provider-boundary restore plus a repeat full seven-addon upgrade while keeping `fu_uat` absent and provider-owned objects intact.
 
-Phase 7 synthetic database-only recovery is necessary but not sufficient for production.
+## Corrected live attempt — managed restore and Vercel READY
 
-Before Gate C GO, the staging rehearsal must:
+Corrected live workflow run `34842081247`, deploy job `104054566511`, advanced through the previously failing boundary.
 
-1. record the actual managed backup/export capability used for staging;
-2. create an independent recoverable database backup/export suitable for the selected topology;
-3. verify that application data, database-backed attachments and intended recoverable session state are included;
-4. perform a destructive restore rehearsal into a clean staging recovery boundary;
-5. verify recovered application facts, attachment content and session/re-authentication expectations;
-6. record measured recovery evidence without exposing secrets or real private data;
-7. decide production backup frequency/retention and explicit RPO/RTO before production GO.
+GREEN before the public smoke:
 
-No production RPO/RTO value is invented by this contract.
+- exact candidate/boundary assertions;
+- exact database and Vercel Odoo images;
+- local initialized application database;
+- corrected filtered restore set;
+- bounded activation of `fares_app`;
+- managed schema restore;
+- repeat seven-addon verification/upgrade;
+- required Vercel runtime environment injection and no-value inventory verification;
+- exact Vercel deployment;
+- Vercel build/containers and READY activation.
 
-The current managed `pg_restore` failure in run `34821582384` is part of schema activation, not the later Gate C backup/destructive-restore rehearsal. It must be fixed first without weakening the recovery contract.
+The deployment reached READY as `dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu` with production alias `fares-uniform.vercel.app`. Its metadata recorded workflow/deployment SHA `6d273e4eac9cc8b89b6baf7529564b401c875047` and pinned Odoo SHA `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
-## Monitoring, logging and alert ownership
+The final step `Verify READY deployment and minimal public exposure` remained correctly fail-closed and failed at the application smoke boundary.
 
-Before Gate C GO, select and record:
+### Public-runtime RED evidence
 
-- public-site availability/error monitoring;
-- Odoo HTTP and WebSocket health/error monitoring;
-- PostgreSQL availability/connection/storage alerts;
-- cron trigger failure and overdue-job visibility;
-- backup/restore failure alerts;
-- public enquiry delivery/failure monitoring;
-- log retention period and privacy/redaction rules;
-- named owner/escalation path for each alert class.
+Runtime evidence showed the request reached the application runtime; this was not merely an upstream Vercel-authentication failure:
 
-Logs and evidence must not retain credentials, bank details or unnecessary customer/staff personal data.
+- public root `/` returned HTTP 500;
+- Next.js reported `Invalid catalog response`;
+- public web called Odoo at `/fu/public/catalog?lang=en`;
+- Odoo returned HTTP 404;
+- Odoo itself booted, loaded its registry/modules and installed the PostgreSQL-backed session store.
 
-## Domain, TLS and internal-access model
+The fail-closed path subsequently returned `fares_app` to NOLOGIN.
 
-Before exposing a staging URL, record:
+This 404/root-500 remains unresolved application/runtime evidence that must be addressed before a new clean staging deployment can pass Gate C public smoke.
 
-- intended staging hostname and DNS owner;
-- certificate/TLS termination owner;
-- whether internal/backoffice access is private, allowlisted or otherwise restricted;
-- how the public Next.js surface reaches private Odoo HTTP;
-- confirmation that broad Odoo HTTP/backoffice and direct `/fu/public/**` exposure remain absent;
-- confirmation that `/websocket` and authenticated cron remain the only intended public Odoo-facing paths from the Phase 7 mapping.
+## Vercel exposure-policy diagnosis and correction
 
-Any broader Odoo exposure requires a separate architecture/security decision and dedicated proof.
+A separate provider diagnostic preserved the distinction between Vercel authentication and application routing.
 
-## Live staging validation contract
+Diagnostic commit `4380972525d70d3126a56e86a6ffeff01f5887ba`, run `34865665473`, job `104048749999` — **GREEN** — found project SSO protection configured as `all_except_custom_domains`; anonymous deployment hosts redirected to Vercel SSO.
 
-The staging rehearsal must prove the following against the **actual** Vercel + managed PostgreSQL/Supabase resources.
+Public-staging policy correction commit `0ad8ad3d75af4a3d25df9ccf5a64a97ee9bdd92f`, run `34866159453`, job `104050408771` — **GREEN** — intentionally disabled Vercel Authentication for this explicitly authorized public staging surface and removed the failed deployment boundary before a clean retry.
 
-### Database/bootstrap
+This change authorizes only the intended public Next.js staging surface. It does not authorize broad Odoo/backoffice exposure.
 
-- direct or session-mode PostgreSQL connectivity succeeds with TLS;
-- transaction-mode pooling is not used;
-- privileged bootstrap completes separately from routine Odoo runtime;
-- routine application role remains non-superuser/non-createdb/non-createrole;
-- seven production addons install/upgrade successfully;
-- `fu_uat` is absent from staging/production addon loading.
+## Managed staging reset — RED to GREEN
 
-The current workflow already proves exact-image build, local initialized seven-addon install/upgrade and filtered restore-set creation. It is currently RED while restoring that initialized schema into the managed target. The failed restore can leave partial objects, so the target must be inspected/cleaned before retrying.
+After the failed public runtime attempt, the managed target was deliberately returned to a clean staging baseline.
 
-### State and replacement
+### First reset attempt — RED
 
-- create synthetic staging application facts and a database-backed attachment;
-- create an authenticated session through the shared PostgreSQL session store;
-- replace/redeploy stateless Odoo compute;
-- prove application, attachment and expected authenticated-session continuity or documented re-authentication behavior;
-- prove no correctness-critical durable state depends on local Vercel filesystem state.
+Commit `8cc6d651096759d1212fb3249fa05f2ddc04b236`, run `34866894850`, job `104052858733`.
 
-### External cron
+Precondition was correct: `fares_app` NOLOGIN, zero sessions, `988` app-owned relations, provider-owned `fares_http_session` intact.
 
-- built-in Odoo cron threads remain disabled;
-- unauthenticated/invalid trigger requests fail closed;
-- the configured live scheduler invokes the authenticated cron boundary;
-- concurrent/overlapping valid invocation does not duplicate the bounded due job;
-- alerting/ownership for trigger failure is verified.
+The single-transaction `DROP OWNED BY CURRENT_USER CASCADE` failed with:
 
-### WebSocket/realtime
+- `ERROR: out of shared memory`;
+- hint to increase `max_locks_per_transaction`.
 
-- authenticated notification delivery succeeds through the real staging route;
-- the evented service is replaced/redeployed;
-- notification publication while the old evented runtime is absent is exercised where safely possible;
-- reconnect with shared session/cursor state delivers only unseen notification state without duplicating previously consumed state.
+The cleanup guard still disabled the temporary login, preserving fail-closed state.
 
-### Public EN/AR smoke
+### Bounded-lock reset — GREEN
 
-On the actual staging URL verify, at minimum:
+Commit `7311c0a07ea020b967240ab44a57fb7be8c190a8`, run `34867078825`, job `104053486058` — **SUCCESS**.
 
-- English public home/catalog/detail/enquiry paths;
-- Arabic/RTL equivalents;
+The fix drops app-owned public relations one at a time under psql autocommit, bounding locks per transaction, then uses `DROP OWNED` only for the remaining routines/types/grants.
+
+Final proof:
+
+- `owner_scoped_partial_odoo_cleanup=PASS tls=require bounded_locks=true`;
+- `managed_bootstrap_reapplied=PASS`;
+- `fares_app` `rolcanlogin=false`;
+- app sessions `0`;
+- app-owned public relations `0`;
+- `fares_http_session` preserved under `postgres` ownership;
+- both required extensions preserved;
+- routine role retains required CONNECT/USAGE/CREATE privileges for the next bounded activation;
+- `managed_odoo_target_reset=PASS role=NOLOGIN app_owned_relations=0 bootstrap=preserved`.
+
+This is the **current managed-database baseline** for the next attempt.
+
+## Secrets and role activation
+
+The no-value secret inventory remains `docs/operations/PHASE_8_STAGING_SECRET_INVENTORY.md`.
+
+Runtime secrets are generated/masked inside hosted CI. `fares_app` may be temporarily enabled only inside the bounded deployment/reset workflow and must return to NOLOGIN on an unsuccessful attempt. Secret values must never be reconstructed from logs or committed to documentation.
+
+## Remaining Gate C proof contract
+
+The next clean staging attempt must first resolve the public-runtime catalog failure without weakening exposure boundaries. After the exact deployment is usable, Gate C still requires:
+
+- live public English/Arabic home/catalog/detail/enquiry smoke;
 - no public price or stock leakage;
-- website enquiry submission with synthetic data;
-- WhatsApp/phone presentation remains correct where configured;
-- narrow/mobile layout and reduced-motion behavior;
-- no browser-visible broad Odoo/database credential;
-- broad Odoo backoffice/direct public API routes remain unavailable through the public mapping.
+- synthetic enquiry submission;
+- broad Odoo backoffice/direct public API routes unavailable from the public mapping;
+- database-backed attachment continuity across replaceable compute;
+- shared authenticated-session continuity or explicitly documented re-authentication behavior;
+- external authenticated cron with built-in cron disabled and native overlap locking proven;
+- WebSocket reconnect/cursor replay across replacement;
+- managed backup/export plus destructive restore rehearsal;
+- logs/monitoring/alert ownership and privacy/redaction rules.
 
-## Store device acceptance
-
-Production remains NO-GO until the actual store environment is checked. Record real device/browser versions only after the client/operator supplies them.
-
-Acceptance must cover:
-
-- checkout browser compatibility;
-- scanner input behavior without brand-specific application assumptions;
-- receipt/label printer capability and physical output dimensions;
-- IndexedDB/offline paid-order persistence on the real checkout browser/device;
-- outage operation and later synchronization;
-- operator recovery for sync/payment/stock discrepancies.
-
-Synthetic CI does not replace this physical-device gate.
-
-## Staff, roles and training
-
-Before production GO:
-
-- named staff accounts are prepared without shared routine-admin use;
-- role/location assignments are reviewed against `docs/requirements/ROLES_AND_PERMISSIONS.md`;
-- relevant owner/manager/cashier/inventory/production/sales staff complete workflow training;
-- a named recovery/escalation owner exists for payment, sync and stock discrepancies;
-- backup/restore and deployment ownership are named.
-
-## Real-data cutover and reconciliation
-
-Real data remains prohibited until separately authorized.
-
-Before production cutover, define and approve:
-
-- product master/variant/size/code review;
-- opening-stock count method and responsible people;
-- treatment of open preorders, business orders and balances;
-- cutover freeze/snapshot timing;
-- import/manual-entry ownership;
-- post-cutover reconciliation checks and sign-off;
-- rollback/no-go procedure if reconciliation fails.
-
-No real customer, staff, bank, payment, stock or order records belong in repository examples or hosted synthetic CI.
+Store-device acceptance, staff/training and real-data cutover remain later Gate D prerequisites and cannot be replaced by synthetic CI.
 
 ## GO / NO-GO gates
 
-### Gate A — repository planning complete
+### Gate A — repository planning
 
-**PASS.** The contract is present, indexed and internally consistent with Phase 7/deployment-readiness authority.
+**PASS.**
 
 ### Gate B — staging authorization/provider ownership
 
-**PASS.** The client authorized the bounded staging rehearsal; isolated Vercel and Supabase resources and the required control-plane credentials are established. Passing Gate B authorizes staging resource work only, not production.
+**PASS.** Isolated free-tier staging resources and required control-plane credentials are established.
 
 ### Gate C — live staging technical GO
 
-**IN PROGRESS / CURRENTLY RED AT MANAGED SCHEMA RESTORE.**
+**IN PROGRESS / NO-GO FOR STAGING SIGN-OFF.**
 
-GO only after exact live evidence passes:
+The managed restore boundary is no longer the blocker. Current authoritative state is:
 
-- managed DB TLS/direct-or-session-mode connectivity;
-- bootstrap/least-privilege checks;
-- managed seven-addon install/upgrade;
-- state/attachment/session replacement proof;
-- external cron proof;
-- WebSocket replacement/replay proof;
-- managed backup/destructive restore rehearsal;
-- monitoring/logging ownership;
-- public EN/AR staging smoke and exposure checks.
+- restore filter regression: GREEN;
+- managed restore: GREEN on corrected live attempt;
+- managed seven-addon repeat upgrade: GREEN;
+- Vercel environment/deployment: GREEN;
+- Vercel READY: GREEN;
+- public application smoke: RED (`/fu/public/catalog?lang=en` returned 404; root returned 500);
+- Vercel SSO diagnosis/correction: GREEN;
+- managed staging reset back to clean baseline: GREEN;
+- remaining continuity/realtime/recovery/monitoring/EN-AR proofs: not yet complete.
 
-Current candidate `a75131b7c8ad3060ba2ab4e805916dc1d0ad4ff2`, run `34821582384`, deploy job `103904147677` failed at `Restore initialized schema into clean Supabase target` after all prior build/local-initialization/restore-set/role-activation steps passed. Fail-closed guard job `103905391955` succeeded and disabled the managed runtime role. Vercel environment injection/deployment were skipped; a direct Vercel query after the run showed zero deployments.
+Any unresolved P0/P1 security or correctness failure remains NO-GO.
 
-Any unresolved P0/P1 security/correctness failure is NO-GO.
+### Gate D — production
 
-### Gate D — production authorization
-
-Production remains **NO-GO** until, in addition to Gate C:
-
-- store browser/scanner/printer/offline acceptance is complete;
-- named staff/roles/training are complete;
-- real-data cutover/reconciliation plan is approved and separately authorized;
-- production secrets/domains/DNS/TLS/access are approved;
-- production backup retention and RPO/RTO are explicitly decided;
-- monitoring/log retention/alert owners are named;
-- launch timing and production spending are explicitly authorized;
-- the client gives a separate production GO.
-
-Staging success never implies Gate D.
-
-## Evidence and validation discipline
-
-- Every implementation/deployment claim must identify the exact Fares SHA and pinned Odoo SHA in use.
-- Preserve meaningful RED evidence; do not weaken assertions to obtain green status.
-- Use synthetic/redacted proof data until real-data migration is separately authorized.
-- Credentials and private records must not appear in repository files, GitHub logs, screenshots or uploaded evidence.
-- Provider/runtime behavior must be checked against the actual authorized staging resources; Phase 7 synthetic CI cannot be relabeled as live-provider proof.
-- Documentation-only changes require read-back/link/consistency validation; they do not require rerunning completed application/runtime suites unless source changes or new evidence indicates regression.
+**NO-GO.** Production additionally requires store-device acceptance, named staff/roles/training, separately authorized real-data cutover/reconciliation, production domains/secrets/access, backup retention and RPO/RTO decisions, monitoring owners, launch/spending authorization and an explicit client production GO.
 
 ## Immediate continuation
 
-The planning contract itself is complete. The next execution step is not a new provider decision; it is the current Gate C technical failure:
+Start from branch `phase-8/commercial-staging-readiness` and re-read the current repository state before mutation.
 
-1. inspect the exact restore failure from run `34821582384` / job `103904147677`;
-2. inspect the managed Supabase schema/ownership state for partial restore residue;
-3. return the managed target to the defined clean boundary without weakening least privilege or deleting unrelated provider-managed objects;
-4. fix the source-controlled restore path at the actual failing object/ownership/ACL/extension boundary;
-5. rerun hosted CI from an exact new candidate;
-6. after managed restore/repeat-upgrade is green, proceed to Vercel environment injection/deployment and remaining Gate C live proofs.
+1. Treat run `34842081247` as preserved mixed evidence: managed restore/upgrade/Vercel READY passed; final public smoke failed.
+2. Treat run `34867078825` as the current managed baseline authority: clean target, `fares_app` NOLOGIN, zero app-owned relations, bootstrap preserved.
+3. Diagnose the expected public catalog route/runtime registration and data initialization path that caused `/fu/public/catalog?lang=en` to return 404. Do not expose direct `/fu/public/**` publicly to work around it.
+4. Inspect existing Phase 8 workflows before inventing a new deploy/proof path; reuse the source-controlled exact-candidate workflow where possible.
+5. Perform the next deployment from the clean managed baseline with hosted CI only and preserve new RED evidence if it fails.
+6. When public EN/AR smoke is green, finish the remaining Gate C attachment/session/cron/WebSocket/recovery/monitoring proofs.
 
-Do not retry the same failed restore blindly. Do not use a local project checkout. Do not force-push. Preserve RED evidence. No paid spend, real business data or production deployment is authorized by this contract.
+Do not use a local project checkout. Do not force-push. Do not load `fu_uat` in staging/production. Do not use transaction pooling. Do not run routine Odoo as provider admin. Do not use real business data. Do not spend money without new explicit authorization. Production remains NO-GO.
