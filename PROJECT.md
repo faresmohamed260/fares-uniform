@@ -35,9 +35,9 @@ Bounded live public enquiry proof is GREEN at workflow source `cc056ee19ece53499
 
 Live attachment/authenticated-session continuity is GREEN at workflow source `f3c8243d034d4cd6f15e2187d12957bf704a8f9e`, run `35005403008`, job `104503776621`. Two fresh exact-image runtimes proved an 84-character authenticated cookie and database-backed attachment survive complete runtime replacement; the epoch/provider/privilege seal remained intact with zero sale/payment/stock deltas.
 
-The bounded external-cron proof harness was introduced at `c8d201c6b498cb53de0133c1fd2ecf2201e00af9`. Its first hosted RED is run `35023213198`, job `104563848220`; it stopped before synthetic mutation. Read-only diagnosis then established the Odoo 19 storage detail that raw SQL must use stored `ir_cron.cron_name` rather than the delegated ORM `name` field. The final diagnostic source `81c55b914abae3468b05456fa45545fe505c095f`, run `35024524146`, job `104568215429`, is GREEN and reconfirms the exact database epoch and privilege/provider seal with session rows `5`, sale orders `0`, payments `0`, pickings `0`, `fu_uat=0`, database-backed attachments, schema `CREATE=false`, 988 app-owned relations and no synthetic cron/marker residue.
+External cron/native-locking is GREEN at workflow source `59d9553a1f14b6f4a1136ae4089d5289dcefd0e1`, run `35026879234`, job `104575905196`. The proof validated the diagnosed 19-job ordinary backlog, transaction-locked all 20 active ordinary cron rows with `FOR NO KEY UPDATE`, and used Odoo 19 native `SKIP LOCKED` acquisition so two concurrent authenticated external triggers could execute only the synthetic due job. Missing/invalid bearer requests returned `401`; concurrent valid triggers produced exactly one database-backed marker; a repeat trigger produced no duplicate. The synthetic cron and marker were removed, the quarantine transaction rolled back, and exact ordinary-cron and trigger snapshots were unchanged.
 
-That diagnostic also found a genuine fail-closed staging blocker: `19` active non-synthetic cron jobs are already due, all with `lastcall = NULL`. They include ordinary Odoo/Fares work such as mail/SMS queues, accounting auto-post, procurement, stock valuation, CRM IAP and `Fares Uniform: Evaluate preorder production demand`. Do not run, disable, reschedule or otherwise drain these jobs merely to make the proof green. The cron/native-locking mutation proof remains blocked until there is an explicitly authorized treatment for this pre-existing ordinary cron backlog.
+Postflight retained epoch `34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`, 988 app-owned relations, provider-owned session state/extensions, schema `CREATE=false`, `fu_uat=0`, session rows `5`, and zero sale/payment/stock deltas. No ordinary cron ran, was disabled, rescheduled or otherwise mutated. The deployed application remains `2a74e93b1828c16839ba7cede336caa4ca374306`.
 
 Preserved RED evidence:
 - fixture run `34963582581`: runtime database authentication failed before fixture execution, then repeated attempts triggered the pooler's authentication circuit breaker;
@@ -48,11 +48,13 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 ## Next tasks, in order
 
-1. Live bounded public enquiry/no-price-no-stock proof is GREEN at `cc056ee19ece534990b2d8885b6bd843e4324fbc`, run `34990008655`, job `104451908443`; live attachment/authenticated-session continuity is GREEN at `f3c8243d034d4cd6f15e2187d12957bf704a8f9e`, run `35005403008`, job `104503776621`.
-2. External cron/native-locking proof is the active Gate C blocker. Preserve the fail-closed rule: no synthetic mutation while any ordinary cron is due. Current read-only evidence is `81c55b914abae3468b05456fa45545fe505c095f`, run `35024524146`, job `104568215429`, with 19 ordinary due jobs and no synthetic residue. Resolve that backlog only through an explicitly authorized staging policy; do not drain or reschedule it by inference.
-3. Once the cron boundary is safely GREEN, complete WebSocket reconnect/replay, managed backup/destructive restore in the authorized rehearsal boundary, monitoring/alert ownership, and live synthetic business-flow acceptance.
-4. Reconcile the branch/PR release stack as a separate reviewable integration task. Only four early-phase draft PRs currently exist. `main` is historical, not the current application. Do not merge or delete phase branches without explicit authorization.
-5. Gate D requires named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, monitoring owners and explicit production GO.
+1. Live bounded public enquiry/no-price-no-stock, attachment/authenticated-session continuity, and external cron/native-locking are GREEN. Cron authority is `59d9553a1f14b6f4a1136ae4089d5289dcefd0e1`, run `35026879234`, job `104575905196`; preserve the 19-job ordinary backlog unchanged.
+2. Prove WebSocket reconnect and cursor replay across disposable exact-image runtime replacement without broad Odoo exposure.
+3. Prove managed backup/export and destructive restore only inside the authorized isolated rehearsal boundary; do not reset the populated staging database by inference.
+4. Establish hosted logs/monitoring/alerts with named ownership and privacy/redaction rules.
+5. Complete live synthetic business-flow acceptance for company → branch → warehouse → POS session → order → payment → posting → stock/cash/evidence, plus reorder/supplier/FIFO/credit-customer and offline/outbox/IPC scenarios.
+6. Reconcile the branch/PR release stack as a separate reviewable integration task. Only four early-phase draft PRs currently exist. `main` is historical, not the current application. Do not merge or delete phase branches without explicit authorization.
+7. Gate D requires named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, monitoring owners and explicit production GO.
 
 ## Constraints for every continuation
 

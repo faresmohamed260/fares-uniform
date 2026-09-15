@@ -172,7 +172,9 @@ Live bounded enquiry proof is GREEN at workflow source `cc056ee19ece534990b2d888
 
 Live attachment/authenticated-session continuity is GREEN at workflow source `f3c8243d034d4cd6f15e2187d12957bf704a8f9e`, run `35005403008`, job `104503776621`. Two fresh exact-image, no-mount runtimes proved that one authenticated session UID and exact database-backed attachment survive complete runtime replacement. Provider-owned session state retained effective exact runtime DML, PUBLIC remained revoked, schema `CREATE` remained false, and sale/payment/stock deltas were zero.
 
-See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep as the current blocker.
+External cron/native locking is GREEN at workflow source `59d9553a1f14b6f4a1136ae4089d5289dcefd0e1`, run `35026879234`, job `104575905196`. A bounded transaction quarantined all active ordinary cron rows without changing them; pinned Odoo `SKIP LOCKED` processing executed the synthetic job exactly once under concurrent authenticated triggers. Cleanup and exact ordinary cron/trigger snapshots passed with zero business deltas and the privilege/provider seal intact.
+
+See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep or the resolved ordinary-cron backlog as the current blocker.
 
 ## Secret-management boundary
 
@@ -213,7 +215,6 @@ Current public-smoke result is recorded in `docs/validation/PHASE_8_HANDOFF_REPA
 
 Still required for Gate C:
 
-- external cron/native locking;
 - WebSocket reconnect/cursor replay;
 - managed backup/export plus destructive restore rehearsal;
 - logs/monitoring/alert ownership and privacy/redaction rules;

@@ -172,7 +172,9 @@ Live bounded enquiry proof is GREEN at workflow source `cc056ee19ece534990b2d888
 
 Live attachment/authenticated-session continuity is GREEN at workflow source `f3c8243d034d4cd6f15e2187d12957bf704a8f9e`, run `35005403008`, job `104503776621`. The exact deployed image proved a database-backed attachment and authenticated session survive complete runtime replacement with no mounts, while the epoch/provider/privilege seal and zero sale/payment/stock deltas remained intact.
 
-See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep as the current blocker.
+External cron/native locking is GREEN at workflow source `59d9553a1f14b6f4a1136ae4089d5289dcefd0e1`, run `35026879234`, job `104575905196`. The hosted proof transaction-locked the diagnosed ordinary backlog without mutation, exercised pinned Odoo `SKIP LOCKED` processing concurrently, executed the synthetic job exactly once, removed all synthetic state, and retained exact ordinary-cron/trigger snapshots plus the provider/privilege seal.
+
+See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep or resolved ordinary-cron backlog as the current blocker.
 
 ## Secret-management boundary
 
@@ -184,7 +186,7 @@ See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current publi
 
 - **Gate A — repository planning: PASS.**
 - **Gate B — authorization/provider ownership: PASS.**
-- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering, bounded live enquiry/no-leak proof, and attachment/authenticated-session continuity are GREEN. Cron locking, WebSocket replay, recovery, monitoring and business-flow acceptance remain.
+- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering, bounded live enquiry/no-leak proof, attachment/authenticated-session continuity and cron locking are GREEN. WebSocket replay, recovery, monitoring and business-flow acceptance remain.
 - **Gate D — production: NO-GO.** Separate operational, device/staff/data-cutover and explicit production authorization are still required.
 
 ## Next authorized execution sequence
