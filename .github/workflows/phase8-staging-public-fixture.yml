@@ -118,14 +118,27 @@ jobs:
           trap 'rm -f "$envs" "$fixture"' EXIT
           chmod 0600 "$envs" "$fixture"
 
-          status="$(curl -sS -o "$envs" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v10/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}&decrypt=true")"
+          status="$(curl -sS -o "$envs" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v10/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}")"
           test "$status" = 200
-          ODOO_DB_PASSWORD="$(jq -er '[.envs[] | select(.key=="ODOO_DB_PASSWORD" and (((.target // []) | index("production")) != null))] | if length == 1 then .[0].value else error("expected exactly one production ODOO_DB_PASSWORD") end' "$envs")"
-          ODOO_ADMIN_PASSWD="$(jq -er '[.envs[] | select(.key=="ODOO_ADMIN_PASSWD" and (((.target // []) | index("production")) != null))] | if length == 1 then .[0].value else error("expected exactly one production ODOO_ADMIN_PASSWD") end' "$envs")"
-          [[ -n "$ODOO_DB_PASSWORD" && -n "$ODOO_ADMIN_PASSWD" ]]
-          echo "::add-mask::$ODOO_DB_PASSWORD"
-          echo "::add-mask::$ODOO_ADMIN_PASSWD"
+          # The list endpoint's decrypt flag is deprecated. Resolve each exact
+          # production variable through the dedicated decrypted-value endpoint.
+          for key in ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD; do
+            env_id="$(jq -er --arg key "$key" '[.envs[] | select(.key==$key and (((.target // []) | index("production")) != null))] | if length == 1 then .[0].id else error("expected exactly one production variable") end' "$envs")"
+            secret_response="$(mktemp)"
+            chmod 600 "$secret_response"
+            status="$(curl -sS -o "$secret_response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v1/projects/${VERCEL_PROJECT_ID}/env/${env_id}?teamId=${VERCEL_TEAM_ID}")"
+            test "$status" = 200 || { rm -f "$secret_response"; echo "Secret retrieval failed for $key (HTTP $status)" >&2; exit 1; }
+            value="$(jq -er --arg key "$key" 'select(.key==$key and .decrypted==true) | .value | select(type=="string" and length>0)' "$secret_response")"
+            echo "::add-mask::$value"
+            printf -v "$key" '%s' "$value"
+            rm -f "$secret_response"
+            unset value
+          done
           rm -f "$envs"
+
+          # Revalidate branch after the image build, immediately before execution.
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo 'Refusing stale fixture mutation' >&2; exit 1; }
 
           cat > "$fixture" <<'PY'
           INTERNAL_NAME = "[SYNTHETIC] Phase 8 Public Catalog Program"
