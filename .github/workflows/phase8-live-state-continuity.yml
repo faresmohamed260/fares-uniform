@@ -449,7 +449,11 @@ jobs:
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
           status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
-          test "$status" = 201
+          if [[ "$status" != 201 ]]; then
+            echo "managed_state_postflight_query=FAIL http_status=$status" >&2
+            exit 1
+          fi
+          jq -c '.[0] | {epoch_matches:(.epoch_id == "34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a"),rolcanlogin,can_create_public,app_owned_relations,session_table_ok,session_dml_grants,required_extensions,fu_uat_installed,synthetic_user_exact,attachment_exact,session_exact,sale_orders,payments,pickings}' "$db"
           test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
           test "$(jq -r '.[0].rolcanlogin' "$db")" = true
           test "$(jq -r '.[0].can_create_public' "$db")" = false
