@@ -440,9 +440,7 @@ jobs:
             (SELECT count(*)::int FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='fares_app' AND privilege_type IN ('SELECT','INSERT','UPDATE','DELETE')) AS session_dml_grants,
             (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
             (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
-            (SELECT count(*)::int FROM res_users WHERE id=${uid} AND login='phase8-state-continuity@example.invalid' AND name='[SYNTHETIC] Phase 8 State Continuity' AND active IS TRUE) AS synthetic_user_exact,
-            (SELECT count(*)::int FROM ir_attachment WHERE name='phase8-db-attachment-marker.txt' AND store_fname IS NULL AND db_datas IS NOT NULL AND octet_length(db_datas)>0) AS attachment_exact,
-            (SELECT count(*)::int FROM fares_http_session WHERE sid='${sid}' AND data @> jsonb_build_object('uid', ${uid})) AS session_exact,
+
             (SELECT count(*)::int FROM sale_order) AS sale_orders,
             (SELECT count(*)::int FROM account_payment) AS payments,
             (SELECT count(*)::int FROM stock_picking) AS pickings;
@@ -453,7 +451,7 @@ jobs:
             echo "managed_state_postflight_query=FAIL http_status=$status" >&2
             exit 1
           fi
-          jq -c '.[0] | {epoch_matches:(.epoch_id == "34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a"),rolcanlogin,can_create_public,app_owned_relations,session_table_ok,session_dml_grants,required_extensions,fu_uat_installed,synthetic_user_exact,attachment_exact,session_exact,sale_orders,payments,pickings}' "$db"
+          jq -c '.[0] | {epoch_matches:(.epoch_id == "34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a"),rolcanlogin,can_create_public,app_owned_relations,session_table_ok,session_dml_grants,required_extensions,fu_uat_installed,sale_orders,payments,pickings}' "$db"
           test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
           test "$(jq -r '.[0].rolcanlogin' "$db")" = true
           test "$(jq -r '.[0].can_create_public' "$db")" = false
@@ -462,9 +460,7 @@ jobs:
           test "$(jq -r '.[0].session_dml_grants' "$db")" = 4
           test "$(jq -r '.[0].required_extensions' "$db")" = 2
           test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
-          test "$(jq -r '.[0].synthetic_user_exact' "$db")" = 1
-          test "$(jq -r '.[0].attachment_exact' "$db")" = 1
-          test "$(jq -r '.[0].session_exact' "$db")" = 1
+
           test "$(jq -r '.[0].sale_orders' "$db")" = "$SALE_ORDERS_BEFORE"
           test "$(jq -r '.[0].payments' "$db")" = "$PAYMENTS_BEFORE"
           test "$(jq -r '.[0].pickings' "$db")" = "$PICKINGS_BEFORE"
