@@ -133,7 +133,7 @@ jobs:
           source_password="$(cat "$STATE_DIR/source-password")"
           echo "::add-mask::$source_password"
           docker pull "$POSTGRES_IMAGE"
-          docker run --rm -e PGPASSWORD="$source_password" -e PGSSLMODE=require -v "$backup_dir:/backup" "$POSTGRES_IMAGE" pg_dump             -h "$SUPABASE_POOLER_HOST" -p 5432 -U "fares_app.${SUPABASE_PROJECT_REF}" -d postgres             -Fc -n public --no-owner --no-privileges --serializable-deferrable -f /backup/managed.dump
+          docker run --rm -e PGPASSWORD="$source_password" -e PGSSLMODE=require -v "$backup_dir:/backup" "$POSTGRES_IMAGE" pg_dump             -h "$SUPABASE_POOLER_HOST" -p 5432 -U "fares_app.${SUPABASE_PROJECT_REF}" -d postgres             -Fc -n public --no-owner --no-privileges -f /backup/managed.dump
           docker run --rm -v "$backup_dir:/backup" "$POSTGRES_IMAGE" pg_restore -l /backup/managed.dump > "$backup_dir/full.list"
           awk '
             /^;/ {print; next}
