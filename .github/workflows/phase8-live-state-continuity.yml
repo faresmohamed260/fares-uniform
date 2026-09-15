@@ -334,7 +334,7 @@ jobs:
           headers="$SECRETS_DIR/auth-headers.txt"
           jq -cn --arg login "$SYNTHETIC_LOGIN" --arg password "$LOGIN_PASSWORD" '{jsonrpc:"2.0",method:"call",params:{db:"postgres",login:$login,password:$password},id:1}' > "$auth"
           auth_epoch="$(date +%s)"
-          curl -fsS -D "$headers" -c "$cookies" -H 'X-Odoo-Database: postgres' -H 'Content-Type: application/json' --data @"$auth" "http://127.0.0.1:$RUNTIME_PORT/web/session/authenticate" > "$SECRETS_DIR/auth-response.json"
+          curl -fsS -D "$headers" -c "$cookies" -H 'Content-Type: application/json' --data @"$auth" "http://127.0.0.1:$RUNTIME_PORT/web/session/authenticate" > "$SECRETS_DIR/auth-response.json"
           if ! jq -e '.result.uid | select(type=="number" and .>0)' "$SECRETS_DIR/auth-response.json" >/dev/null; then
             jq -c '{jsonrpc,id,has_result:(.result != null),error_name:(.error.data.name // null),error_message:(.error.message // null)}' "$SECRETS_DIR/auth-response.json" >&2
             docker logs --tail 120 "$RUNTIME_CONTAINER" >&2
