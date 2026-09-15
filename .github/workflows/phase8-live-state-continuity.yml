@@ -97,6 +97,7 @@ jobs:
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
           status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
           test "$status" = 201
+          jq -c '.[0] | {epoch_id,rolcanlogin,can_create_public,app_owned_relations,session_table_ok,session_dml_grants,required_extensions,fu_uat_installed,attachment_location,synthetic_users,synthetic_attachments}' "$db"
           test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
           test "$(jq -r '.[0].rolcanlogin' "$db")" = true
           test "$(jq -r '.[0].can_create_public' "$db")" = false
