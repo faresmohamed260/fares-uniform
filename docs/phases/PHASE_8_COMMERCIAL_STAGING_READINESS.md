@@ -174,6 +174,8 @@ Live attachment/authenticated-session continuity is GREEN at workflow source `f3
 
 External cron/native locking is GREEN at workflow source `59d9553a1f14b6f4a1136ae4089d5289dcefd0e1`, run `35026879234`, job `104575905196`. A bounded transaction quarantined all active ordinary cron rows without changing them; pinned Odoo `SKIP LOCKED` processing executed the synthetic job exactly once under concurrent authenticated triggers. Cleanup and exact ordinary cron/trigger snapshots passed with zero business deltas and the privilege/provider seal intact.
 
+Live WebSocket reconnect/cursor replay is GREEN at workflow source `96e456412495f5b0cb1bb6c20ef00422ed633337`, run `35029061502`, job `104583000465`. It proved authenticated delivery, complete evented-runtime destruction, publication during absence, fresh-runtime replay from the saved cursor without duplication, shared PostgreSQL-session continuity, complete synthetic cleanup and zero business/ordinary-cron deltas.
+
 See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep or the resolved ordinary-cron backlog as the current blocker.
 
 ## Secret-management boundary
@@ -215,7 +217,6 @@ Current public-smoke result is recorded in `docs/validation/PHASE_8_HANDOFF_REPA
 
 Still required for Gate C:
 
-- WebSocket reconnect/cursor replay;
 - managed backup/export plus destructive restore rehearsal;
 - logs/monitoring/alert ownership and privacy/redaction rules;
 - business UAT path for company → branch → warehouse → POS session → order → payment → posting → stock/cash/evidence, plus reorder/supplier/FIFO/credit-customer and offline/outbox/IPC scenarios.

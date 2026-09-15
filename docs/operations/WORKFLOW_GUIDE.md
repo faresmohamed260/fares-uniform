@@ -11,6 +11,7 @@ Read `PROJECT.md` first and verify the remote active branch HEAD. Workflow files
 | `phase8-live-public-enquiry.yml` | Fixed synthetic enquiry acceptance/replay/conflict, injected price/stock rejection, rendered no-leak checks and read-only persistence/side-effect proof |
 | `phase8-live-state-continuity.yml` | Exact-image attachment and authenticated PostgreSQL-session continuity across complete runtime replacement; bounded synthetic state and sealed postflight |
 | `phase8-live-cron-locking.yml` | Exact-image external cron/native `SKIP LOCKED` proof; temporarily transaction-locks the diagnosed ordinary backlog without mutation, then removes all synthetic state |
+| `phase8-live-websocket-replay.yml` | Exact-image authenticated WebSocket delivery, complete evented-runtime replacement, cursor replay/no-duplicate proof and full run-scoped cleanup |
 | `phase8-live-cron-diagnostic.yml` | Read-only Odoo 19 cron inventory and stored-field diagnostics; no mutation |
 | `phase8-live-db-diagnostics.yml` | Read-only runtime/connection facts; no SQL query text in logs |
 | `phase8-public-schema-preflight.yml` | Read-only schema/provider ownership inventory |

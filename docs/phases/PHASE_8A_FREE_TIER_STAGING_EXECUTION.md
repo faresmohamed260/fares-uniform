@@ -174,6 +174,8 @@ Live attachment/authenticated-session continuity is GREEN at workflow source `f3
 
 External cron/native locking is GREEN at workflow source `59d9553a1f14b6f4a1136ae4089d5289dcefd0e1`, run `35026879234`, job `104575905196`. The hosted proof transaction-locked the diagnosed ordinary backlog without mutation, exercised pinned Odoo `SKIP LOCKED` processing concurrently, executed the synthetic job exactly once, removed all synthetic state, and retained exact ordinary-cron/trigger snapshots plus the provider/privilege seal.
 
+Live WebSocket reconnect/cursor replay is GREEN at workflow source `96e456412495f5b0cb1bb6c20ef00422ed633337`, run `35029061502`, job `104583000465`. A shared authenticated session survived complete evented-runtime replacement; the notification committed during absence replayed exactly once from the saved cursor. Synthetic identity/session/bus cleanup and all database/provider seals passed.
+
 See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep or resolved ordinary-cron backlog as the current blocker.
 
 ## Secret-management boundary
@@ -186,7 +188,7 @@ See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current publi
 
 - **Gate A — repository planning: PASS.**
 - **Gate B — authorization/provider ownership: PASS.**
-- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering, bounded live enquiry/no-leak proof, attachment/authenticated-session continuity and cron locking are GREEN. WebSocket replay, recovery, monitoring and business-flow acceptance remain.
+- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering, bounded live enquiry/no-leak proof, attachment/authenticated-session continuity, cron locking and WebSocket replay are GREEN. Recovery, monitoring and business-flow acceptance remain.
 - **Gate D — production: NO-GO.** Separate operational, device/staff/data-cutover and explicit production authorization are still required.
 
 ## Next authorized execution sequence
