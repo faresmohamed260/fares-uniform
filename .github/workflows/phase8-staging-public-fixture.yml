@@ -227,9 +227,8 @@ jobs:
             -e ODOO_MAX_CRON_THREADS=0 \
             -e FARES_SESSION_STORE=postgres \
             -e PORT=8069 \
-            -v "$fixture:/tmp/phase8-public-fixture.py:ro" \
             "fares-uniform-phase8-fixture:$EXPECTED_DEPLOYMENT_SHA" \
-            shell -d postgres --shell-file=/tmp/phase8-public-fixture.py
+            shell -d postgres < "$fixture"
 
           unset ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD
 
