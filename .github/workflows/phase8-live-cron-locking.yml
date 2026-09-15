@@ -73,6 +73,34 @@ jobs:
             echo "database_epoch_expected=$EXPECTED_DB_EPOCH"
           } | tee evidence/source-authority.txt
 
+      - name: Fail closed early if ordinary live cron work is already due
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now()) AS due_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now() + interval '5 minutes') AS crons_due_within_guard,
+            (SELECT count(*)::int FROM ir_cron WHERE cron_name LIKE 'Phase 8 live cron locking proof%') AS synthetic_crons,
+            (SELECT count(*)::int FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%') AS synthetic_markers;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { jq -c '{error:(.message // .error // .)}' "$db" >&2 || true; exit 1; }
+          jq -c '.[0]' "$db" | tee evidence/early-cron-guard.json
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].synthetic_crons' "$db")" = 0
+          test "$(jq -r '.[0].synthetic_markers' "$db")" = 0
+          due_crons="$(jq -r '.[0].due_crons' "$db")"
+          guard_crons="$(jq -r '.[0].crons_due_within_guard' "$db")"
+          test "$due_crons" = 0 || { echo "Refusing mutation: non-synthetic cron jobs are already due count=$due_crons" >&2; exit 1; }
+          test "$guard_crons" = 0 || { echo "Refusing mutation: cron job enters due window within five minutes count=$guard_crons" >&2; exit 1; }
+
       - name: Build exact deployed stateless runtime
         shell: bash
         run: |
@@ -200,7 +228,7 @@ jobs:
             (SELECT count(*)::int FROM ir_cron) AS cron_rows,
             (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now()) AS due_crons,
             (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now() + interval '5 minutes') AS crons_due_within_guard,
-            (SELECT count(*)::int FROM ir_cron WHERE name::text LIKE '%Phase 8 live cron locking proof%') AS synthetic_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE cron_name LIKE 'Phase 8 live cron locking proof%') AS synthetic_crons,
             (SELECT count(*)::int FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%') AS synthetic_markers;
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
@@ -470,7 +498,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          [[ -n "${SESSION_ROWS_BEFORE:-}" ]] || { echo 'postflight unavailable because mutation preflight never completed' >&2; exit 1; }
+          if [[ -z "${SESSION_ROWS_BEFORE:-}" ]]; then
+            echo 'phase8_cron_postflight=SKIP mutation_never_armed' | tee evidence/postflight-summary.txt
+            exit 0
+          fi
           db="$(mktemp)"
           trap 'rm -f "$db"' EXIT
           read -r -d '' query <<'SQL' || true
@@ -493,7 +524,7 @@ jobs:
             (SELECT count(*)::int FROM account_payment) AS payments,
             (SELECT count(*)::int FROM stock_picking) AS pickings,
             (SELECT count(*)::int FROM ir_cron) AS cron_rows,
-            (SELECT count(*)::int FROM ir_cron WHERE name::text LIKE '%Phase 8 live cron locking proof%') AS synthetic_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE cron_name LIKE 'Phase 8 live cron locking proof%') AS synthetic_crons,
             (SELECT count(*)::int FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%') AS synthetic_markers;
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
