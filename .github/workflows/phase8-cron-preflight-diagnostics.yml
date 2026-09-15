@@ -1,0 +1,118 @@
+name: Phase 8 cron preflight diagnostics
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-cron-preflight-diagnostics.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+  EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Reproduce exact cron preflight query without mutation
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || exit 64
+          mkdir -p evidence
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND c.relkind IN ('r','p')) AS session_owner,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT') AS session_select,
+            has_table_privilege('fares_app','public.fares_http_session','INSERT') AS session_insert,
+            has_table_privilege('fares_app','public.fares_http_session','UPDATE') AS session_update,
+            has_table_privilege('fares_app','public.fares_http_session','DELETE') AS session_delete,
+            (SELECT count(*)::int FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='PUBLIC') AS session_public_grants,
+            (SELECT string_agg(e.extname || ':' || pg_get_userbyid(e.extowner), ',' ORDER BY e.extname) FROM pg_extension e WHERE e.extname IN ('pg_trgm','unaccent')) AS extension_signature,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT value FROM ir_config_parameter WHERE key='ir_attachment.location') AS attachment_location,
+            (SELECT count(*)::int FROM fares_http_session) AS session_rows,
+            (SELECT count(*)::int FROM sale_order) AS sale_orders,
+            (SELECT count(*)::int FROM account_payment) AS payments,
+            (SELECT count(*)::int FROM stock_picking) AS pickings,
+            (SELECT count(*)::int FROM ir_cron) AS cron_rows,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now()) AS due_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now() + interval '5 minutes') AS crons_due_within_guard,
+            (SELECT count(*)::int FROM ir_cron WHERE name::text LIKE '%Phase 8 live cron locking proof%') AS synthetic_crons,
+            (SELECT count(*)::int FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%') AS synthetic_markers;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          echo "exact_query_http_status=$status" | tee evidence/exact-query-status.txt
+          if [[ "$status" = 201 ]]; then
+            jq -c '.[0] | {epoch_id,rolcanlogin,can_create_public,app_owned_relations,session_owner,session_select,session_insert,session_update,session_delete,session_public_grants,extension_signature,fu_uat_installed,attachment_location,session_rows,sale_orders,payments,pickings,cron_rows,due_crons,crons_due_within_guard,synthetic_crons,synthetic_markers}' "$response" | tee evidence/exact-query.json
+            test "$(jq -r '.[0].epoch_id' "$response")" = "$EXPECTED_DB_EPOCH"
+            echo 'exact_query_result=PASS' | tee -a evidence/exact-query-status.txt
+          else
+            jq -c 'if type=="object" then {error:(.message // .error // .msg // "provider query failed"),code:(.code // null)} else {error:"provider query failed",response_type:type} end' "$response" | tee evidence/exact-query-error.json
+            echo 'exact_query_result=FAIL' | tee -a evidence/exact-query-status.txt
+          fi
+
+      - name: Probe cron-specific expressions independently
+        if: always()
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          query_api() {
+            local label="$1"
+            local query="$2"
+            local response
+            response="$(mktemp)"
+            local payload status
+            payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+            status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+              -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+              -H 'Content-Type: application/json' \
+              --data "$payload" \
+              "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+            if [[ "$status" = 201 ]]; then
+              printf '%s http=%s ' "$label" "$status" | tee -a evidence/probes.txt
+              jq -c '.[0]' "$response" | tee -a evidence/probes.txt
+            else
+              printf '%s http=%s ' "$label" "$status" | tee -a evidence/probes.txt
+              jq -c 'if type=="object" then {error:(.message // .error // .msg // "provider query failed"),code:(.code // null)} else {error:"provider query failed"} end' "$response" | tee -a evidence/probes.txt
+            fi
+            rm -f "$response"
+          }
+          query_api epoch "SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE;"
+          query_api cron_columns "SELECT count(*)::int AS cron_rows, count(*) FILTER (WHERE active AND nextcall IS NOT NULL AND nextcall <= now())::int AS due_crons, count(*) FILTER (WHERE active AND nextcall IS NOT NULL AND nextcall <= now() + interval '5 minutes')::int AS due_within_guard FROM ir_cron;"
+          query_api cron_name "SELECT count(*)::int AS synthetic_crons FROM ir_cron WHERE name::text LIKE '%Phase 8 live cron locking proof%';"
+          query_api marker_name "SELECT count(*)::int AS synthetic_markers FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%';"
+          query_api business_counts "SELECT (SELECT count(*)::int FROM fares_http_session) AS session_rows, (SELECT count(*)::int FROM sale_order) AS sale_orders, (SELECT count(*)::int FROM account_payment) AS payments, (SELECT count(*)::int FROM stock_picking) AS pickings;"
+          query_api privilege_seal "SELECT has_schema_privilege('fares_app','public','CREATE') AS can_create_public, has_table_privilege('fares_app','public.fares_http_session','SELECT') AS session_select, has_table_privilege('fares_app','public.fares_http_session','INSERT') AS session_insert, has_table_privilege('fares_app','public.fares_http_session','UPDATE') AS session_update, has_table_privilege('fares_app','public.fares_http_session','DELETE') AS session_delete;"
+
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-cron-preflight-diagnostics-${{ github.sha }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 7
