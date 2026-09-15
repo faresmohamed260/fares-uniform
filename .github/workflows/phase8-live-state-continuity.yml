@@ -329,8 +329,9 @@ jobs:
 
           auth="$SECRETS_DIR/auth.json"
           cookies="$SECRETS_DIR/cookies.txt"
+          headers="$SECRETS_DIR/auth-headers.txt"
           jq -cn --arg login "$SYNTHETIC_LOGIN" --arg password "$LOGIN_PASSWORD" '{jsonrpc:"2.0",method:"call",params:{db:"postgres",login:$login,password:$password},id:1}' > "$auth"
-          curl -fsS -c "$cookies" -H 'X-Odoo-Database: postgres' -H 'Content-Type: application/json' --data @"$auth" "http://127.0.0.1:$RUNTIME_PORT/web/session/authenticate" > "$SECRETS_DIR/auth-response.json"
+          curl -fsS -D "$headers" -c "$cookies" -H 'X-Odoo-Database: postgres' -H 'Content-Type: application/json' --data @"$auth" "http://127.0.0.1:$RUNTIME_PORT/web/session/authenticate" > "$SECRETS_DIR/auth-response.json"
           if ! jq -e '.result.uid | select(type=="number" and .>0)' "$SECRETS_DIR/auth-response.json" >/dev/null; then
             jq -c '{jsonrpc,id,has_result:(.result != null),error_name:(.error.data.name // null),error_message:(.error.message // null)}' "$SECRETS_DIR/auth-response.json" >&2
             docker logs --tail 120 "$RUNTIME_CONTAINER" >&2
@@ -338,13 +339,18 @@ jobs:
           fi
           uid="$(jq -r '.result.uid' "$SECRETS_DIR/auth-response.json")"
           sid="$(awk '$6 == "session_id" {print $7}' "$cookies" | tail -n1)"
-          echo "session_cookie_capture=observed length=${#sid}"
+          cookie_source=jar
+          if [[ -z "$sid" ]]; then
+            sid="$(tr -d '\r' < "$headers" | sed -n 's/^set-cookie:[[:space:]]*session_id=\([^;]*\).*/\1/ip' | tail -n1)"
+            cookie_source=header
+          fi
+          echo "session_cookie_capture=observed source=$cookie_source length=${#sid}"
           [[ "$sid" =~ ^[A-Za-z0-9_-]{84}$ ]]
           echo "::add-mask::$sid"
           printf '%s' "$uid" > "$SECRETS_DIR/uid"
           printf '%s' "$sid" > "$SECRETS_DIR/sid"
           chmod 600 "$SECRETS_DIR/uid" "$SECRETS_DIR/sid"
-          rm -f "$auth" "$cookies" "$SECRETS_DIR/auth-response.json"
+          rm -f "$auth" "$cookies" "$headers" "$SECRETS_DIR/auth-response.json"
           echo "first_runtime_authenticated=PASS uid=$uid attachment_storage=db"
 
       - name: Replace runtime completely and prove shared continuity
