@@ -437,7 +437,7 @@ jobs:
             has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
             (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
             (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
-            (SELECT count(*)::int FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='fares_app' AND privilege_type IN ('SELECT','INSERT','UPDATE','DELETE')) AS session_dml_grants,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT,INSERT,UPDATE,DELETE') AS session_dml,
             (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
             (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
 
@@ -451,13 +451,13 @@ jobs:
             echo "managed_state_postflight_query=FAIL http_status=$status" >&2
             exit 1
           fi
-          jq -c '.[0] | {epoch_matches:(.epoch_id == "34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a"),rolcanlogin,can_create_public,app_owned_relations,session_table_ok,session_dml_grants,required_extensions,fu_uat_installed,sale_orders,payments,pickings}' "$db"
+          jq -c '.[0] | {epoch_matches:(.epoch_id == "34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a"),rolcanlogin,can_create_public,app_owned_relations,session_table_ok,session_dml,required_extensions,fu_uat_installed,sale_orders,payments,pickings}' "$db"
           test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
           test "$(jq -r '.[0].rolcanlogin' "$db")" = true
           test "$(jq -r '.[0].can_create_public' "$db")" = false
           test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
           test "$(jq -r '.[0].session_table_ok' "$db")" = 1
-          test "$(jq -r '.[0].session_dml_grants' "$db")" = 4
+          test "$(jq -r '.[0].session_dml' "$db")" = true
           test "$(jq -r '.[0].required_extensions' "$db")" = 2
           test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
 
