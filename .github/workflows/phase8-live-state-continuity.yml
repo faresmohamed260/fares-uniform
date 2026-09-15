@@ -103,16 +103,69 @@ jobs:
           test "$(jq -r '.[0].can_create_public' "$db")" = false
           test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
           test "$(jq -r '.[0].session_table_ok' "$db")" = 1
-          test "$(jq -r '.[0].session_dml_grants' "$db")" = 4
+          session_dml_grants="$(jq -r '.[0].session_dml_grants' "$db")"
+          test "$session_dml_grants" = 0 || test "$session_dml_grants" = 4
           test "$(jq -r '.[0].required_extensions' "$db")" = 2
           test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
-          test "$(jq -r '.[0].attachment_location' "$db")" = db
+          attachment_location="$(jq -r '.[0].attachment_location' "$db")"
+          test "$attachment_location" = null || test "$attachment_location" = db
+          echo "SESSION_DML_GRANTS_BEFORE=$session_dml_grants" >> "$GITHUB_ENV"
+          echo "ATTACHMENT_LOCATION_BEFORE=$attachment_location" >> "$GITHUB_ENV"
           test "$(jq -r '.[0].synthetic_users' "$db")" -le 1
           test "$(jq -r '.[0].synthetic_attachments' "$db")" -le 1
           echo "SALE_ORDERS_BEFORE=$(jq -r '.[0].sale_orders' "$db")" >> "$GITHUB_ENV"
           echo "PAYMENTS_BEFORE=$(jq -r '.[0].payments' "$db")" >> "$GITHUB_ENV"
           echo "PICKINGS_BEFORE=$(jq -r '.[0].pickings' "$db")" >> "$GITHUB_ENV"
-          echo "state_preflight=PASS epoch=$EXPECTED_DB_EPOCH create=false app_relations=988 session_owner=postgres session_dml=exact attachment_location=db"
+          echo "state_preflight=PASS epoch=$EXPECTED_DB_EPOCH create=false app_relations=988 session_owner=postgres session_dml=$session_dml_grants attachment_location=$attachment_location"
+
+      - name: Activate exact provider-owned session DML boundary
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo 'Refusing stale state-boundary mutation' >&2; exit 1; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<SQL || true
+          DO \$\$
+          BEGIN
+            IF (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) IS DISTINCT FROM '${EXPECTED_DB_EPOCH}' THEN
+              RAISE EXCEPTION 'deployment epoch changed';
+            END IF;
+            IF (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') IS DISTINCT FROM TRUE THEN
+              RAISE EXCEPTION 'fares_app runtime login is not active';
+            END IF;
+            IF has_schema_privilege('fares_app','public','CREATE') THEN
+              RAISE EXCEPTION 'schema CREATE seal is open';
+            END IF;
+            IF (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND c.relkind IN ('r','p')) IS DISTINCT FROM 'postgres' THEN
+              RAISE EXCEPTION 'session table owner boundary changed';
+            END IF;
+          END
+          \$\$;
+          REVOKE ALL ON TABLE public.fares_http_session FROM PUBLIC;
+          REVOKE ALL ON TABLE public.fares_http_session FROM fares_app;
+          GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.fares_http_session TO fares_app;
+          SELECT
+            has_table_privilege('fares_app','public.fares_http_session','SELECT') AS session_select,
+            has_table_privilege('fares_app','public.fares_http_session','INSERT') AS session_insert,
+            has_table_privilege('fares_app','public.fares_http_session','UPDATE') AS session_update,
+            has_table_privilege('fares_app','public.fares_http_session','DELETE') AS session_delete,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          test "$(jq -r '.[0].session_select' "$response")" = true
+          test "$(jq -r '.[0].session_insert' "$response")" = true
+          test "$(jq -r '.[0].session_update' "$response")" = true
+          test "$(jq -r '.[0].session_delete' "$response")" = true
+          test "$(jq -r '.[0].can_create_public' "$response")" = false
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$EXPECTED_DB_EPOCH"
+          echo "session_dml_activation=PASS before=$SESSION_DML_GRANTS_BEFORE after=exact owner=postgres public=revoked create=false"
 
       - name: Build exact deployed stateless runtime
         shell: bash
@@ -184,6 +237,11 @@ jobs:
           if not password:
               raise RuntimeError("synthetic login password missing")
 
+          params = env["ir.config_parameter"].sudo()
+          params.set_param("ir_attachment.location", "db")
+          if params.get_param("ir_attachment.location") != "db":
+              raise RuntimeError("database attachment location activation failed")
+
           Users = env["res.users"].sudo()
           Attachments = env["ir.attachment"].sudo()
           ModelData = env["ir.model.data"].sudo()
@@ -243,7 +301,7 @@ jobs:
           if attachment.store_fname or not attachment.db_datas or attachment.raw != ATTACHMENT_BYTES:
               raise RuntimeError("synthetic attachment is not exact database-backed content")
           env.cr.commit()
-          print("phase8_state_seed=PASS user=synthetic attachment_storage=db")
+          print("phase8_state_seed=PASS user=synthetic attachment_storage=db config_activated=true")
           PY
           chmod 600 "$seed"
 
@@ -378,6 +436,8 @@ jobs:
             echo "- Deployment identity: \`$DEPLOYMENT_ID\`"
             echo "- Managed DB epoch: \`$EXPECTED_DB_EPOCH\`"
             echo '- Runtime instances: two fresh exact-image containers, no mounts'
+            echo "- Session DML activation: before \`$SESSION_DML_GRANTS_BEFORE\`, after exact four grants"
+            echo "- Attachment setting activation: before \`$ATTACHMENT_LOCATION_BEFORE\`, after \`db\`"
             echo '- Attachment: exact synthetic bytes, PostgreSQL-backed, survived replacement'
             echo '- Authenticated session: same UID after complete runtime replacement'
             echo '- Shared session table: provider-owned with exact runtime DML grants'
