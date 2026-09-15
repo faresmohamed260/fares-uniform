@@ -1,0 +1,507 @@
+name: Phase 8 live websocket replay
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-live-websocket-replay.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase8-managed-db-mutation
+  cancel-in-progress: false
+
+env:
+  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  EXPECTED_DEPLOYMENT_ID: dpl_Ba34KhzW7AZ6aBY7poz1DeaQa3rg
+  EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+  ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+  SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+  NETWORK: fares-phase8-websocket
+  HTTP_RUNTIME: fares-phase8-websocket-http
+  WS_RUNTIME: fares-phase8-websocket-evented
+  HTTP_PORT: '18069'
+  WS_PORT: '18072'
+  WS_VERSION: 19.0-2
+  SYNTHETIC_LOGIN: phase8-websocket-replay@example.invalid
+  SYNTHETIC_NAME: '[SYNTHETIC] Phase 8 WebSocket Replay'
+
+jobs:
+  websocket-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact deployed application source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_DEPLOYMENT_SHA }}
+          fetch-depth: 1
+
+      - name: Verify fresh workflow generation and deployed identity
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo 'VERCEL_TOKEN missing' >&2; exit 64; }
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          test "$GITHUB_RUN_ATTEMPT" = 1 || { echo "Workflow reruns are forbidden for live websocket mutation; start a fresh run. attempt=$GITHUB_RUN_ATTEMPT" >&2; exit 1; }
+          test "$(git rev-parse HEAD)" = "$EXPECTED_DEPLOYMENT_SHA"
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale websocket proof: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+          deployments="$(mktemp)"
+          trap 'rm -f "$deployments"' EXIT
+          status="$(curl -sS -o "$deployments" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          test "$status" = 200
+          test "$(jq -r --arg id "$EXPECTED_DEPLOYMENT_ID" --arg sha "$EXPECTED_DEPLOYMENT_SHA" '[.deployments[] | select((.uid // .id // "") == $id and (.meta.githubCommitSha // "") == $sha and (.state // .readyState // "") == "READY")] | length' "$deployments")" = 1
+          {
+            echo "workflow_sha=$GITHUB_SHA"
+            echo "deployed_application_sha=$EXPECTED_DEPLOYMENT_SHA"
+            echo "deployment_id=$EXPECTED_DEPLOYMENT_ID"
+            echo "database_epoch_expected=$EXPECTED_DB_EPOCH"
+          } | tee evidence/source-authority.txt
+
+      - name: Capture fail-closed managed database preflight
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          run_token="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          channel="phase8-websocket-replay-${run_token}"
+          read -r -d '' query <<SQL || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND c.relkind IN ('r','p')) AS session_owner,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT,INSERT,UPDATE,DELETE') AS session_dml,
+            (SELECT count(*)::int FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='PUBLIC') AS session_public_grants,
+            (SELECT string_agg(e.extname || ':' || pg_get_userbyid(e.extowner), ',' ORDER BY e.extname) FROM pg_extension e WHERE e.extname IN ('pg_trgm','unaccent')) AS extension_signature,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='bus' AND state='installed') AS bus_installed,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT value FROM ir_config_parameter WHERE key='ir_attachment.location') AS attachment_location,
+            (SELECT count(*)::int FROM res_users WHERE login='${SYNTHETIC_LOGIN}') AS synthetic_users,
+            (SELECT count(*)::int FROM res_partner WHERE name='${SYNTHETIC_NAME}' AND email='${SYNTHETIC_LOGIN}') AS synthetic_partners,
+            (SELECT count(*)::int FROM bus_bus WHERE channel LIKE '%${run_token}%' OR message LIKE '%${run_token}%') AS synthetic_bus_rows,
+            (SELECT count(*)::int FROM fares_http_session) AS session_rows,
+            (SELECT count(*)::int FROM sale_order) AS sale_orders,
+            (SELECT count(*)::int FROM account_payment) AS payments,
+            (SELECT count(*)::int FROM stock_picking) AS pickings,
+            (SELECT md5(COALESCE(string_agg(id::text || '|' || COALESCE(cron_name,'') || '|' || active::text || '|' || COALESCE(nextcall::text,'') || '|' || COALESCE(lastcall::text,'') || '|' || failure_count::text, E'\n' ORDER BY id),'')) FROM ir_cron WHERE cron_name NOT LIKE 'Phase 8 live cron locking proof%') AS ordinary_cron_snapshot;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { jq -c '{error:(.message // .error // .)}' "$db" >&2 || true; exit 1; }
+          jq -c '.[0]' "$db" | tee evidence/preflight.json
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$db")" = true
+          test "$(jq -r '.[0].can_create_public' "$db")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
+          test "$(jq -r '.[0].session_owner' "$db")" = postgres
+          test "$(jq -r '.[0].session_dml' "$db")" = true
+          test "$(jq -r '.[0].session_public_grants' "$db")" = 0
+          test "$(jq -r '.[0].bus_installed' "$db")" = 1
+          test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
+          test "$(jq -r '.[0].attachment_location' "$db")" = db
+          test "$(jq -r '.[0].synthetic_users' "$db")" = 0
+          test "$(jq -r '.[0].synthetic_partners' "$db")" = 0
+          test "$(jq -r '.[0].synthetic_bus_rows' "$db")" = 0
+          echo "SESSION_ROWS_BEFORE=$(jq -r '.[0].session_rows' "$db")" >> "$GITHUB_ENV"
+          echo "SALE_ORDERS_BEFORE=$(jq -r '.[0].sale_orders' "$db")" >> "$GITHUB_ENV"
+          echo "PAYMENTS_BEFORE=$(jq -r '.[0].payments' "$db")" >> "$GITHUB_ENV"
+          echo "PICKINGS_BEFORE=$(jq -r '.[0].pickings' "$db")" >> "$GITHUB_ENV"
+          echo "EXTENSION_SIGNATURE_BEFORE=$(jq -r '.[0].extension_signature' "$db")" >> "$GITHUB_ENV"
+          echo "ORDINARY_CRON_SNAPSHOT_BEFORE=$(jq -r '.[0].ordinary_cron_snapshot' "$db")" >> "$GITHUB_ENV"
+          echo "PHASE8_RUN_TOKEN=$run_token" >> "$GITHUB_ENV"
+          echo "PHASE8_WS_CHANNEL=$channel" >> "$GITHUB_ENV"
+          echo 'phase8_websocket_preflight=PASS synthetic_residue=0 bus=installed session=postgres' | tee evidence/preflight-summary.txt
+
+      - name: Build exact deployed dual-mode runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build --pull -f Dockerfile.vercel             --build-arg ODOO_SHA="$ODOO_SHA"             --build-arg FARES_SHA="$EXPECTED_DEPLOYMENT_SHA"             -t "fares-uniform-phase8-websocket:$EXPECTED_DEPLOYMENT_SHA" .
+          test "$(docker image inspect -f '{{json .Config.Volumes}}' "fares-uniform-phase8-websocket:$EXPECTED_DEPLOYMENT_SHA")" = null
+          docker run --rm --entrypoint bash "fares-uniform-phase8-websocket:$EXPECTED_DEPLOYMENT_SHA" -lc '
+            set -euo pipefail
+            test "$(id -u)" = 10001
+            test "$ODOO_SHA" = "1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf"
+            test "$FARES_SHA" = "2a74e93b1828c16839ba7cede336caa4ca374306"
+            /opt/odoo-venv/bin/python -c "import gevent, websocket"
+            grep -F "odoo-bin gevent" /usr/local/bin/fares-vercel-odoo-entrypoint >/dev/null
+            grep -F "_VERSION = \"19.0-2\"" /opt/odoo/addons/bus/websocket.py >/dev/null
+            test ! -e /mnt/extra-addons/fu_uat
+          '
+          echo 'exact_deployed_dual_mode_image=PASS persistent_volumes=none websocket_version=19.0-2 fu_uat=absent' | tee evidence/runtime-image.txt
+
+      - name: Resolve configured runtime secrets without disclosure
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          secrets_dir="$(mktemp -d)"
+          chmod 700 "$secrets_dir"
+          echo "SECRETS_DIR=$secrets_dir" >> "$GITHUB_ENV"
+          envs="$secrets_dir/vercel-env.json"
+          status="$(curl -sS -o "$envs" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v10/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          for key in ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD; do
+            env_id="$(jq -er --arg key "$key" '[.envs[] | select(.key==$key and (((.target // []) | index("production")) != null))] | if length == 1 then .[0].id else error("expected exactly one production variable") end' "$envs")"
+            response="$secrets_dir/$key.json"
+            status="$(curl -sS -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v1/projects/${VERCEL_PROJECT_ID}/env/${env_id}?teamId=${VERCEL_TEAM_ID}")"
+            test "$status" = 200
+            value="$(jq -er --arg key "$key" 'select(.key==$key and .decrypted==true) | .value | select(type=="string" and length>0)' "$response")"
+            echo "::add-mask::$value"
+            printf '%s' "$value" > "$secrets_dir/$key"
+            chmod 600 "$secrets_dir/$key"
+            unset value
+          done
+          rm -f "$envs" "$secrets_dir"/*.json
+          openssl rand -hex 32 > "$secrets_dir/login-password"
+          chmod 600 "$secrets_dir/login-password"
+          echo "::add-mask::$(cat "$secrets_dir/login-password")"
+          echo 'runtime_secret_resolution=PASS decrypted=true files=restricted' | tee evidence/secret-contract.txt
+
+      - name: Start HTTP runtime and create one synthetic authenticated session
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale websocket mutation: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+          DB_PASSWORD="$(cat "$SECRETS_DIR/ODOO_DB_PASSWORD")"
+          ADMIN_PASSWD="$(cat "$SECRETS_DIR/ODOO_ADMIN_PASSWD")"
+          LOGIN_PASSWORD="$(cat "$SECRETS_DIR/login-password")"
+          docker network create "$NETWORK"
+          docker run -d --name "$HTTP_RUNTIME" --network "$NETWORK" -p "$HTTP_PORT:8069"             -e ODOO_RUNTIME_MODE=http             -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres             -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require             -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0             -e FARES_SESSION_STORE=postgres -e PORT=8069             "fares-uniform-phase8-websocket:$EXPECTED_DEPLOYMENT_SHA"
+          for attempt in $(seq 1 60); do
+            if curl -fsS -H 'X-Odoo-Database: postgres' "http://127.0.0.1:$HTTP_PORT/web/login" >/dev/null; then break; fi
+            if [[ "$attempt" = 60 ]]; then docker logs "$HTTP_RUNTIME" >&2; exit 1; fi
+            sleep 2
+          done
+          test "$(docker inspect -f '{{json .Mounts}}' "$HTTP_RUNTIME")" = '[]'
+          docker exec "$HTTP_RUNTIME" grep -Fx 'max_cron_threads = 0' /tmp/fares-odoo.conf >/dev/null
+
+          seed="$SECRETS_DIR/websocket-seed.py"
+          cat > "$seed" <<'PY'
+          import os
+          from odoo import Command
+
+          login = os.environ["PHASE8_SYNTHETIC_LOGIN"]
+          name = os.environ["PHASE8_SYNTHETIC_NAME"]
+          password = os.environ["PHASE8_LOGIN_PASSWORD"]
+          users = env["res.users"].sudo().search([("login", "=", login)])
+          partners = env["res.partner"].sudo().search([("name", "=", name), ("email", "=", login)])
+          if users or partners:
+              raise RuntimeError("synthetic websocket identity already exists")
+          user = env["res.users"].sudo().with_context(no_reset_password=True).create({
+              "name": name,
+              "login": login,
+              "email": login,
+              "active": True,
+              "company_id": env.company.id,
+              "company_ids": [(6, 0, [env.company.id])],
+              "group_ids": [Command.set([env.ref("base.group_user").id])],
+          })
+          user.password = password
+          env.cr.commit()
+          print(f"phase8_websocket_seed=PASS uid={user.id} partner_id={user.partner_id.id}")
+          PY
+          chmod 600 "$seed"
+          docker exec -i             -e PHASE8_SYNTHETIC_LOGIN="$SYNTHETIC_LOGIN" -e PHASE8_SYNTHETIC_NAME="$SYNTHETIC_NAME" -e PHASE8_LOGIN_PASSWORD="$LOGIN_PASSWORD"             "$HTTP_RUNTIME" /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http < "$seed"             | tee evidence/websocket-seed.txt
+          grep -q 'phase8_websocket_seed=PASS' evidence/websocket-seed.txt
+
+          auth="$SECRETS_DIR/auth.json"
+          cookies="$SECRETS_DIR/cookies.txt"
+          headers="$SECRETS_DIR/auth-headers.txt"
+          jq -cn --arg login "$SYNTHETIC_LOGIN" --arg password "$LOGIN_PASSWORD" '{jsonrpc:"2.0",method:"call",params:{db:"postgres",login:$login,password:$password},id:1}' > "$auth"
+          auth_epoch="$(date +%s)"
+          curl -fsS -D "$headers" -c "$cookies" -H 'Content-Type: application/json' --data @"$auth" "http://127.0.0.1:$HTTP_PORT/web/session/authenticate" > "$SECRETS_DIR/auth-response.json"
+          uid="$(jq -er '.result.uid | select(type=="number" and .>0)' "$SECRETS_DIR/auth-response.json")"
+          sid="$(awk '$6 == "session_id" {print $7}' "$cookies" | tail -n1)"
+          cookie_source=jar
+          if [[ -z "$sid" ]]; then
+            sid="$(tr -d '\r' < "$headers" | sed -n 's/^set-cookie:[[:space:]]*session_id=\([^;]*\).*/\1/ip' | tail -n1)"
+            cookie_source=header
+          fi
+          if [[ -z "$sid" ]]; then
+            session_row="$SECRETS_DIR/session-row.json"
+            read -r -d '' session_query <<SQL || true
+          SELECT sid FROM public.fares_http_session
+          WHERE data->>'uid' = '${uid}' AND updated_at >= to_timestamp(${auth_epoch} - 10)
+          ORDER BY updated_at DESC LIMIT 1;
+          SQL
+            session_payload="$(jq -cn --arg query "$session_query" '{query:$query,read_only:true}')"
+            session_status="$(curl -sS -X POST -o "$session_row" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$session_payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+            test "$session_status" = 201
+            sid="$(jq -er 'if length == 1 then .[0].sid else error("expected one fresh authenticated session") end' "$session_row")"
+            cookie_source=postgres
+          fi
+          [[ "$sid" =~ ^[A-Za-z0-9_-]{84}$ ]]
+          echo "::add-mask::$sid"
+          printf '%s' "$uid" > "$SECRETS_DIR/uid"
+          printf '%s' "$sid" > "$SECRETS_DIR/sid"
+          chmod 600 "$SECRETS_DIR/uid" "$SECRETS_DIR/sid"
+          rm -f "$auth" "$cookies" "$headers" "$SECRETS_DIR/auth-response.json" "$SECRETS_DIR/session-row.json"
+          docker cp deploy/ci/phase7_websocket_client.py "$HTTP_RUNTIME:/tmp/phase8_websocket_client.py"
+          docker cp deploy/ci/phase7_websocket_send.py "$HTTP_RUNTIME:/tmp/phase8_websocket_send.py"
+          echo "synthetic_authenticated_session=PASS uid=$uid cookie_source=$cookie_source length=${#sid} runtime=http" | tee evidence/http-session.txt
+
+      - name: Start first disposable evented runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_PASSWORD="$(cat "$SECRETS_DIR/ODOO_DB_PASSWORD")"
+          ADMIN_PASSWD="$(cat "$SECRETS_DIR/ODOO_ADMIN_PASSWD")"
+          docker run -d --name "$WS_RUNTIME" --network "$NETWORK" -p "$WS_PORT:8069"             -e ODOO_RUNTIME_MODE=websocket             -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres             -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require             -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0             -e FARES_SESSION_STORE=postgres -e PORT=8069             "fares-uniform-phase8-websocket:$EXPECTED_DEPLOYMENT_SHA"
+          test "$(docker inspect -f '{{json .Mounts}}' "$WS_RUNTIME")" = '[]'
+          for attempt in $(seq 1 60); do
+            if curl -fsS -H 'X-Odoo-Database: postgres' "http://127.0.0.1:$WS_PORT/websocket/health" >/dev/null; then break; fi
+            if [[ "$attempt" = 60 ]]; then docker logs "$WS_RUNTIME" >&2; exit 1; fi
+            sleep 2
+          done
+          docker exec "$WS_RUNTIME" grep -Fx 'gevent_port = 8069' /tmp/fares-odoo.conf >/dev/null
+          docker exec "$WS_RUNTIME" grep -Fx 'max_cron_threads = 0' /tmp/fares-odoo.conf >/dev/null
+          echo 'first_evented_runtime=PASS mode=websocket_gevent mounts=none cron_threads=0' | tee evidence/websocket-service.txt
+
+      - name: Receive first authenticated notification
+        shell: bash
+        run: |
+          set -euo pipefail
+          sid="$(cat "$SECRETS_DIR/sid")"
+          echo "::add-mask::$sid"
+          marker="phase8-before-replacement-${PHASE8_RUN_TOKEN}"
+          docker exec             -e PHASE7_WS_URL="ws://$WS_RUNTIME:8069/websocket?version=$WS_VERSION"             -e PHASE7_SESSION_ID="$sid" -e PHASE7_WS_CHANNEL="$PHASE8_WS_CHANNEL"             -e PHASE7_EXPECT_MARKER="$marker" -e PHASE7_LAST_NOTIFICATION_ID=0             "$HTTP_RUNTIME" /opt/odoo-venv/bin/python /tmp/phase8_websocket_client.py             > evidence/websocket-first.txt 2>&1 &
+          client_pid=$!
+          sleep 2
+          docker exec -i -e PHASE7_WS_CHANNEL="$PHASE8_WS_CHANNEL" -e PHASE7_NOTIFICATION_MARKER="$marker"             "$HTTP_RUNTIME" /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http             < deploy/ci/phase7_websocket_send.py | tee evidence/websocket-first-send.txt
+          wait "$client_pid"
+          grep -q "PHASE7_WEBSOCKET_NOTIFICATION_OK marker=$marker" evidence/websocket-first.txt
+          first_id="$(sed -n 's/.*notification_id=\([0-9][0-9]*\).*/\1/p' evidence/websocket-first.txt | tail -n1)"
+          test -n "$first_id"
+          printf '%s' "$first_id" > "$SECRETS_DIR/websocket-last-id"
+          chmod 600 "$SECRETS_DIR/websocket-last-id"
+          echo "first_authenticated_websocket_notification=PASS notification_id=$first_id" | tee evidence/websocket-first-result.txt
+
+      - name: Destroy evented runtime and publish during complete absence
+        shell: bash
+        run: |
+          set -euo pipefail
+          marker="phase8-during-replacement-${PHASE8_RUN_TOKEN}"
+          docker rm -f "$WS_RUNTIME"
+          if curl -fsS --max-time 2 -H 'X-Odoo-Database: postgres' "http://127.0.0.1:$WS_PORT/websocket/health" >/dev/null 2>&1; then
+            echo 'Evented runtime unexpectedly remained reachable after destruction' >&2
+            exit 1
+          fi
+          docker exec -i -e PHASE7_WS_CHANNEL="$PHASE8_WS_CHANNEL" -e PHASE7_NOTIFICATION_MARKER="$marker"             "$HTTP_RUNTIME" /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http             < deploy/ci/phase7_websocket_send.py | tee evidence/websocket-downtime-send.txt
+          grep -q "PHASE7_WEBSOCKET_SEND_OK marker=$marker" evidence/websocket-downtime-send.txt
+          echo 'evented_runtime_absence=PASS downtime_notification_committed=true' | tee evidence/websocket-absence.txt
+
+      - name: Start fresh evented runtime and replay only unseen notification
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_PASSWORD="$(cat "$SECRETS_DIR/ODOO_DB_PASSWORD")"
+          ADMIN_PASSWD="$(cat "$SECRETS_DIR/ODOO_ADMIN_PASSWD")"
+          sid="$(cat "$SECRETS_DIR/sid")"
+          uid="$(cat "$SECRETS_DIR/uid")"
+          last_id="$(cat "$SECRETS_DIR/websocket-last-id")"
+          marker="phase8-during-replacement-${PHASE8_RUN_TOKEN}"
+          echo "::add-mask::$sid"
+          docker run -d --name "$WS_RUNTIME" --network "$NETWORK" -p "$WS_PORT:8069"             -e ODOO_RUNTIME_MODE=websocket             -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres             -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require             -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0             -e FARES_SESSION_STORE=postgres -e PORT=8069             "fares-uniform-phase8-websocket:$EXPECTED_DEPLOYMENT_SHA"
+          test "$(docker inspect -f '{{json .Mounts}}' "$WS_RUNTIME")" = '[]'
+          for attempt in $(seq 1 60); do
+            if curl -fsS -H 'X-Odoo-Database: postgres' "http://127.0.0.1:$WS_PORT/websocket/health" >/dev/null; then break; fi
+            if [[ "$attempt" = 60 ]]; then docker logs "$WS_RUNTIME" >&2; exit 1; fi
+            sleep 2
+          done
+          docker exec             -e PHASE7_WS_URL="ws://$WS_RUNTIME:8069/websocket?version=$WS_VERSION"             -e PHASE7_SESSION_ID="$sid" -e PHASE7_WS_CHANNEL="$PHASE8_WS_CHANNEL"             -e PHASE7_EXPECT_MARKER="$marker" -e PHASE7_LAST_NOTIFICATION_ID="$last_id"             "$HTTP_RUNTIME" /opt/odoo-venv/bin/python /tmp/phase8_websocket_client.py             | tee evidence/websocket-after-replacement.txt
+          grep -q "PHASE7_WEBSOCKET_NOTIFICATION_OK marker=$marker" evidence/websocket-after-replacement.txt
+          second_id="$(sed -n 's/.*notification_id=\([0-9][0-9]*\).*/\1/p' evidence/websocket-after-replacement.txt | tail -n1)"
+          test -n "$second_id"
+          test "$second_id" -gt "$last_id"
+          info='{"jsonrpc":"2.0","method":"call","params":{},"id":2}'
+          curl -fsS -H 'Content-Type: application/json' -H "Cookie: session_id=$sid" --data "$info" "http://127.0.0.1:$HTTP_PORT/web/session/get_session_info" > "$SECRETS_DIR/session-after-replacement.json"
+          jq -e --argjson expected "$uid" '.result.uid == $expected' "$SECRETS_DIR/session-after-replacement.json" >/dev/null
+          rm -f "$SECRETS_DIR/session-after-replacement.json"
+          {
+            echo 'phase8_live_websocket_replay=PASS'
+            echo "first_notification_id=$last_id"
+            echo "post_replacement_notification_id=$second_id"
+            echo 'notification_committed_while_evented_runtime_absent=true'
+            echo 'notification_replayed_after_reconnect=true'
+            echo 'prior_notification_duplicated=false'
+            echo 'shared_authenticated_session=postgres'
+            echo 'builtin_odoo_cron_threads=0'
+            echo 'evented_runtime_mounts=none'
+          } | tee evidence/result.txt
+
+      - name: Remove synthetic websocket state
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${SECRETS_DIR:-}" || ! -d "$SECRETS_DIR" || ! -f "$SECRETS_DIR/ODOO_DB_PASSWORD" ]]; then
+            echo 'phase8_websocket_cleanup=SKIP mutation_never_armed' | tee evidence/cleanup.txt
+            exit 0
+          fi
+          cleanup="$SECRETS_DIR/websocket-cleanup.py"
+          cat > "$cleanup" <<'PY'
+          import os
+
+          token = os.environ["PHASE8_RUN_TOKEN"]
+          login = os.environ["PHASE8_SYNTHETIC_LOGIN"]
+          name = os.environ["PHASE8_SYNTHETIC_NAME"]
+          sid = os.environ.get("PHASE8_SESSION_ID", "")
+          users = env["res.users"].sudo().search([("login", "=", login)])
+          if len(users) > 1 or (users and users.name != name):
+              raise RuntimeError("synthetic websocket user boundary mismatch")
+          partners = users.partner_id
+          user_count = len(users)
+          partner_count = len(partners)
+          if users:
+              users.unlink()
+          if partners.exists():
+              partners.exists().unlink()
+          env.cr.execute(
+              "DELETE FROM bus_bus WHERE channel LIKE %s OR message LIKE %s RETURNING id",
+              (f"%{token}%", f"%{token}%"),
+          )
+          bus_count = len(env.cr.fetchall())
+          session_count = 0
+          if sid:
+              env.cr.execute("DELETE FROM fares_http_session WHERE sid=%s RETURNING sid", (sid,))
+              session_count = len(env.cr.fetchall())
+          env.cr.commit()
+          print(f"phase8_websocket_cleanup=PASS users={user_count} partners={partner_count} bus_rows={bus_count} sessions={session_count}")
+          PY
+          chmod 600 "$cleanup"
+          sid=''
+          if [[ -f "$SECRETS_DIR/sid" ]]; then sid="$(cat "$SECRETS_DIR/sid")"; echo "::add-mask::$sid"; fi
+          cleanup_done=false
+          if docker ps --format '{{.Names}}' | grep -Fx "$HTTP_RUNTIME" >/dev/null; then
+            if docker exec -i -e PHASE8_RUN_TOKEN="${PHASE8_RUN_TOKEN:-unknown}" -e PHASE8_SYNTHETIC_LOGIN="$SYNTHETIC_LOGIN" -e PHASE8_SYNTHETIC_NAME="$SYNTHETIC_NAME" -e PHASE8_SESSION_ID="$sid"               "$HTTP_RUNTIME" /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http < "$cleanup"               | tee evidence/cleanup.txt; then cleanup_done=true; fi
+          fi
+          if [[ "$cleanup_done" != true ]]; then
+            DB_PASSWORD="$(cat "$SECRETS_DIR/ODOO_DB_PASSWORD")"
+            ADMIN_PASSWD="$(cat "$SECRETS_DIR/ODOO_ADMIN_PASSWD")"
+            docker run --rm -i --network "$NETWORK"               -e ODOO_RUNTIME_MODE=http -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres               -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require               -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0 -e FARES_SESSION_STORE=postgres -e PORT=8069               -e PHASE8_RUN_TOKEN="${PHASE8_RUN_TOKEN:-unknown}" -e PHASE8_SYNTHETIC_LOGIN="$SYNTHETIC_LOGIN" -e PHASE8_SYNTHETIC_NAME="$SYNTHETIC_NAME" -e PHASE8_SESSION_ID="$sid"               "fares-uniform-phase8-websocket:$EXPECTED_DEPLOYMENT_SHA" shell -d postgres --no-http < "$cleanup"               | tee evidence/cleanup.txt
+          fi
+          grep -q 'phase8_websocket_cleanup=PASS' evidence/cleanup.txt
+
+      - name: Verify cleanup, zero business deltas, and preserved seals
+        if: always()
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${SESSION_ROWS_BEFORE:-}" ]]; then
+            echo 'phase8_websocket_postflight=SKIP mutation_never_armed' | tee evidence/postflight-summary.txt
+            exit 0
+          fi
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          run_token="${PHASE8_RUN_TOKEN:-unknown}"
+          read -r -d '' query <<SQL || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND c.relkind IN ('r','p')) AS session_owner,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT,INSERT,UPDATE,DELETE') AS session_dml,
+            (SELECT count(*)::int FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='PUBLIC') AS session_public_grants,
+            (SELECT string_agg(e.extname || ':' || pg_get_userbyid(e.extowner), ',' ORDER BY e.extname) FROM pg_extension e WHERE e.extname IN ('pg_trgm','unaccent')) AS extension_signature,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='bus' AND state='installed') AS bus_installed,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT count(*)::int FROM res_users WHERE login='${SYNTHETIC_LOGIN}') AS synthetic_users,
+            (SELECT count(*)::int FROM res_partner WHERE name='${SYNTHETIC_NAME}' AND email='${SYNTHETIC_LOGIN}') AS synthetic_partners,
+            (SELECT count(*)::int FROM bus_bus WHERE channel LIKE '%${run_token}%' OR message LIKE '%${run_token}%') AS synthetic_bus_rows,
+            (SELECT count(*)::int FROM fares_http_session) AS session_rows,
+            (SELECT count(*)::int FROM sale_order) AS sale_orders,
+            (SELECT count(*)::int FROM account_payment) AS payments,
+            (SELECT count(*)::int FROM stock_picking) AS pickings,
+            (SELECT md5(COALESCE(string_agg(id::text || '|' || COALESCE(cron_name,'') || '|' || active::text || '|' || COALESCE(nextcall::text,'') || '|' || COALESCE(lastcall::text,'') || '|' || failure_count::text, E'\n' ORDER BY id),'')) FROM ir_cron WHERE cron_name NOT LIKE 'Phase 8 live cron locking proof%') AS ordinary_cron_snapshot;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { jq -c '{error:(.message // .error // .)}' "$db" >&2 || true; exit 1; }
+          jq -c '.[0]' "$db" | tee evidence/postflight.json
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$db")" = true
+          test "$(jq -r '.[0].can_create_public' "$db")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
+          test "$(jq -r '.[0].session_owner' "$db")" = postgres
+          test "$(jq -r '.[0].session_dml' "$db")" = true
+          test "$(jq -r '.[0].session_public_grants' "$db")" = 0
+          test "$(jq -r '.[0].extension_signature' "$db")" = "$EXTENSION_SIGNATURE_BEFORE"
+          test "$(jq -r '.[0].bus_installed' "$db")" = 1
+          test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
+          test "$(jq -r '.[0].synthetic_users' "$db")" = 0
+          test "$(jq -r '.[0].synthetic_partners' "$db")" = 0
+          test "$(jq -r '.[0].synthetic_bus_rows' "$db")" = 0
+          test "$(jq -r '.[0].session_rows' "$db")" = "$SESSION_ROWS_BEFORE"
+          test "$(jq -r '.[0].sale_orders' "$db")" = "$SALE_ORDERS_BEFORE"
+          test "$(jq -r '.[0].payments' "$db")" = "$PAYMENTS_BEFORE"
+          test "$(jq -r '.[0].pickings' "$db")" = "$PICKINGS_BEFORE"
+          test "$(jq -r '.[0].ordinary_cron_snapshot' "$db")" = "$ORDINARY_CRON_SNAPSHOT_BEFORE"
+          echo "phase8_websocket_postflight=PASS epoch=$EXPECTED_DB_EPOCH session_delta=0 sale_delta=0 payment_delta=0 stock_delta=0 ordinary_cron_delta=0 synthetic_cleanup=complete create=false app_relations=988" | tee evidence/postflight-summary.txt
+
+      - name: Publish websocket replay summary
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## Phase 8 live WebSocket reconnect/replay proof'
+            echo
+            echo "- Workflow source SHA: `$GITHUB_SHA`"
+            echo "- Deployed application SHA: `$EXPECTED_DEPLOYMENT_SHA`"
+            echo "- Database epoch: `$EXPECTED_DB_EPOCH`"
+            echo '- Authenticated first notification: PASS.'
+            echo '- Complete evented-runtime destruction: PASS.'
+            echo '- Notification committed while no evented runtime existed: PASS.'
+            echo '- Fresh runtime reconnect with shared PostgreSQL session and cursor: PASS.'
+            echo '- Only unseen notification replayed; prior notification not duplicated: PASS.'
+            echo '- Synthetic user/partner/session/bus cleanup: PASS.'
+            echo '- Sale/payment/stock and ordinary-cron deltas: zero; privilege/provider seal preserved.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload websocket proof evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-live-websocket-replay-${{ github.sha }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Cleanup disposable runtimes, network, and secrets
+        if: always()
+        shell: bash
+        run: |
+          docker rm -f "$WS_RUNTIME" "$HTTP_RUNTIME" 2>/dev/null || true
+          docker network rm "$NETWORK" 2>/dev/null || true
+          if [[ -n "${SECRETS_DIR:-}" && -d "$SECRETS_DIR" ]]; then
+            find "$SECRETS_DIR" -type f -exec shred -u {} + 2>/dev/null || true
+            rmdir "$SECRETS_DIR" 2>/dev/null || true
+          fi
