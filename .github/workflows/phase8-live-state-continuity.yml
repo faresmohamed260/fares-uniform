@@ -442,7 +442,7 @@ jobs:
             (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
             (SELECT count(*)::int FROM res_users WHERE id=${uid} AND login='phase8-state-continuity@example.invalid' AND name='[SYNTHETIC] Phase 8 State Continuity' AND active IS TRUE) AS synthetic_user_exact,
             (SELECT count(*)::int FROM ir_attachment WHERE name='phase8-db-attachment-marker.txt' AND store_fname IS NULL AND db_datas IS NOT NULL AND octet_length(db_datas)>0) AS attachment_exact,
-            (SELECT count(*)::int FROM fares_http_session WHERE sid='${sid}' AND (data->>'uid')::int=${uid}) AS session_exact,
+            (SELECT count(*)::int FROM fares_http_session WHERE sid='${sid}' AND data @> jsonb_build_object('uid', ${uid})) AS session_exact,
             (SELECT count(*)::int FROM sale_order) AS sale_orders,
             (SELECT count(*)::int FROM account_payment) AS payments,
             (SELECT count(*)::int FROM stock_picking) AS pickings;
