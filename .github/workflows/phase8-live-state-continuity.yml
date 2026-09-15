@@ -215,6 +215,8 @@ jobs:
           echo 'runtime_secret_resolution=PASS decrypted=true files=restricted'
 
       - name: Start first runtime and seed bounded database-backed state
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
@@ -331,6 +333,7 @@ jobs:
           cookies="$SECRETS_DIR/cookies.txt"
           headers="$SECRETS_DIR/auth-headers.txt"
           jq -cn --arg login "$SYNTHETIC_LOGIN" --arg password "$LOGIN_PASSWORD" '{jsonrpc:"2.0",method:"call",params:{db:"postgres",login:$login,password:$password},id:1}' > "$auth"
+          auth_epoch="$(date +%s)"
           curl -fsS -D "$headers" -c "$cookies" -H 'X-Odoo-Database: postgres' -H 'Content-Type: application/json' --data @"$auth" "http://127.0.0.1:$RUNTIME_PORT/web/session/authenticate" > "$SECRETS_DIR/auth-response.json"
           if ! jq -e '.result.uid | select(type=="number" and .>0)' "$SECRETS_DIR/auth-response.json" >/dev/null; then
             jq -c '{jsonrpc,id,has_result:(.result != null),error_name:(.error.data.name // null),error_message:(.error.message // null)}' "$SECRETS_DIR/auth-response.json" >&2
@@ -344,12 +347,33 @@ jobs:
             sid="$(tr -d '\r' < "$headers" | sed -n 's/^set-cookie:[[:space:]]*session_id=\([^;]*\).*/\1/ip' | tail -n1)"
             cookie_source=header
           fi
-          echo "session_cookie_capture=observed source=$cookie_source length=${#sid}"
+          if [[ -z "$sid" ]]; then
+            session_row="$SECRETS_DIR/session-row.json"
+            read -r -d '' session_query <<SQL || true
+          SELECT sid
+          FROM public.fares_http_session
+          WHERE data->>'uid' = '${uid}'
+            AND updated_at >= to_timestamp(${auth_epoch} - 10)
+          ORDER BY updated_at DESC
+          LIMIT 1;
+          SQL
+            session_payload="$(jq -cn --arg query "$session_query" '{query:$query,read_only:true}')"
+            session_status="$(curl -sS -X POST -o "$session_row" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$session_payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+            test "$session_status" = 201
+            sid="$(jq -er 'if length == 1 then .[0].sid else error("expected one fresh authenticated session") end' "$session_row")"
+            cookie_source=postgres
+          fi
           [[ "$sid" =~ ^[A-Za-z0-9_-]{84}$ ]]
           echo "::add-mask::$sid"
+          echo "session_cookie_capture=PASS source=$cookie_source length=${#sid}"
           printf '%s' "$uid" > "$SECRETS_DIR/uid"
           printf '%s' "$sid" > "$SECRETS_DIR/sid"
           chmod 600 "$SECRETS_DIR/uid" "$SECRETS_DIR/sid"
+
+          info='{"jsonrpc":"2.0","method":"call","params":{},"id":2}'
+          curl -fsS -H 'Content-Type: application/json' -H "Cookie: session_id=$sid" --data "$info" "http://127.0.0.1:$RUNTIME_PORT/web/session/get_session_info" > "$SECRETS_DIR/session-before-replacement.json"
+          jq -e --argjson expected "$uid" '.result.uid == $expected' "$SECRETS_DIR/session-before-replacement.json" >/dev/null
+          rm -f "$SECRETS_DIR/session-before-replacement.json" "$SECRETS_DIR/session-row.json"
           rm -f "$auth" "$cookies" "$headers" "$SECRETS_DIR/auth-response.json"
           echo "first_runtime_authenticated=PASS uid=$uid attachment_storage=db"
 
@@ -377,7 +401,7 @@ jobs:
             sleep 2
           done
           info='{"jsonrpc":"2.0","method":"call","params":{},"id":2}'
-          curl -fsS -H 'X-Odoo-Database: postgres' -H 'Content-Type: application/json' -H "Cookie: session_id=$sid" --data "$info" "http://127.0.0.1:$RUNTIME_PORT/web/session/get_session_info" > "$SECRETS_DIR/session-after-replacement.json"
+          curl -fsS -H 'Content-Type: application/json' -H "Cookie: session_id=$sid" --data "$info" "http://127.0.0.1:$RUNTIME_PORT/web/session/get_session_info" > "$SECRETS_DIR/session-after-replacement.json"
           jq -e --argjson expected "$uid" '.result.uid == $expected' "$SECRETS_DIR/session-after-replacement.json" >/dev/null
           rm -f "$SECRETS_DIR/session-after-replacement.json"
 
