@@ -8,6 +8,10 @@ on:
       - .github/workflows/phase8-public-staging-smoke.yml
   workflow_dispatch:
 
+concurrency:
+  group: phase8-public-smoke-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
@@ -52,6 +56,7 @@ jobs:
           echo "exact_ready_deployment=PASS id=$deployment_id sha=$EXPECTED_DEPLOYMENT_SHA host=$deployment_host"
 
       - name: Wait for immutable deployment HTTP readiness
+        id: readiness
         shell: bash
         run: |
           set -euo pipefail
@@ -132,6 +137,7 @@ jobs:
           echo "bilingual_catalog_detail=PASS path=$CATALOG_DETAIL_PATH"
 
       - name: Verify public exposure boundaries
+        if: ${{ always() && steps.readiness.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail

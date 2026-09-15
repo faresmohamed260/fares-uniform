@@ -1,6 +1,6 @@
 # Phase 8A — Free-tier staging execution
 
-Status: **CLIENT AUTHORIZED; GUARDED RESET/DEPLOY PATH HARDENED; MANAGED RUNTIME POPULATED AND PRIVILEGE-SEALED; EXACT PUBLIC BILINGUAL SMOKE RED ON CONTENT/FIXTURE ASSERTION; GATE C IN PROGRESS.**
+Status: **LIVE STAGING AUTHORIZED; FIXTURE REPAIR GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -162,30 +162,11 @@ Post-seal state:
 
 This is the current runtime privilege posture. A future schema-writing operation must explicitly enter its bounded writer path instead of depending on permanent schema CREATE permission.
 
-## Exact public staging smoke — RED
+## Public staging repair evidence
 
-Workflow: `.github/workflows/phase8-public-staging-smoke.yml`.
+The September 14 content failure (run `34899200346`, job `104160775144`) is historical RED evidence. Later exact immutable smoke run `34964093451` isolated missing fixture visibility. Native fixture repair is GREEN at `a2315605154b2739ff43f0d360fdd1cbe51e40e0`, run `34982822944`, job `104427222729`, with sealed privileges and provider boundary preserved.
 
-Current run:
-
-- run `34899200346`;
-- job `104160775144`;
-- target `https://fares-uniform.vercel.app`;
-- result **FAILURE**.
-
-The workflow validates exact content for:
-
-- English home `/`;
-- Arabic home `/ar`;
-- English catalog `/catalog`;
-- Arabic catalog `/ar/catalog`;
-- English synthetic product detail `/catalog/SYN-EN-001`;
-- Arabic synthetic product detail `/ar/catalog/SYN-AR-001`;
-- then browser-facing Odoo-route absence and unauthenticated cron `401`.
-
-The current run reached both product-detail requests, then exited 1 before the exposure-boundary checks. The failing `grep` is not identified in the log. Therefore this run proves reachability through those requests but **does not** prove the exact content contract or the final exposure assertions.
-
-Immediate task: identify the exact failed assertion. Check whether the intended synthetic staging fixture is present and whether its English/Arabic strings/SKUs match the source-controlled smoke. If data repair is required, use only clearly synthetic staging records and delete only those records. Do not weaken an assertion merely to obtain GREEN.
+See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep as the current blocker.
 
 ## Secret-management boundary
 
@@ -197,18 +178,11 @@ Immediate task: identify the exact failed assertion. Check whether the intended 
 
 - **Gate A — repository planning: PASS.**
 - **Gate B — authorization/provider ownership: PASS.**
-- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing and runtime privilege seal are GREEN; exact public bilingual smoke is currently RED on content/fixture validation.
+- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing and runtime privilege seal are GREEN; fixture repair is GREEN; current smoke status is recorded in the repair evidence.
 - **Gate D — production: NO-GO.** Separate operational, device/staff/data-cutover and explicit production authorization are still required.
 
 ## Next authorized execution sequence
 
-1. Re-read `AGENTS.md`, `PROJECT.md`, this file, the parent Phase 8 contract and secret inventory.
-2. Reverify branch HEAD and inspect any intervening commits/workflow runs before mutation.
-3. Inspect run `34899200346` / job `104160775144` and the current smoke workflow to isolate the exact failed `grep`/fixture expectation.
-4. Inspect live staging data only as necessary and without exposing or documenting secret values. Use synthetic data only.
-5. Make the smallest source-controlled or synthetic-fixture correction that satisfies the intended product contract; preserve the current RED run.
-6. Rerun the exact public staging smoke and require all English/Arabic content and exposure-boundary assertions to pass.
-7. After public smoke is GREEN, complete remaining Gate C proof: enquiry/no-price-no-stock, attachment/session continuity, external cron/native locking, WebSocket reconnect/cursor replay, managed backup/destructive restore, monitoring/alerts, and the end-to-end business UAT scenarios.
-8. Update Phase 8 docs with exact new SHAs/run/job IDs after each authoritative proof.
+Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Complete all remaining Gate C continuity/realtime/recovery/monitoring/business-flow evidence before staging sign-off. Gate D remains separately authorized.
 
-Do not use a local/scratch source checkout. Do not force-push or rewrite evidence. Do not load `fu_uat` in staging/production. Do not expose `/fu/public/**` directly. Do not use transaction pooling. Do not use provider admin as routine Odoo runtime. Do not use real business data. Do not spend money without explicit approval. Production remains NO-GO.
+Remote GitHub/hosted execution only. No force-push, stale writer rerun, real data, `fu_uat`, direct `/fu/public/**`, transaction pooling, routine provider-admin Odoo, paid upgrade or production cutover.

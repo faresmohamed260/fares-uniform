@@ -1,6 +1,6 @@
 # Phase 8 — Commercial staging readiness
 
-Status: **REPOSITORY CONTRACT COMPLETE; LIVE STAGING AUTHORIZED; GUARDED MANAGED DEPLOYMENT PATH HARDENED; GATE C TECHNICAL EXECUTION IN PROGRESS; EXACT PUBLIC SMOKE CURRENTLY RED.**
+Status: **LIVE STAGING AUTHORIZED; FIXTURE REPAIR GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -8,7 +8,7 @@ Pinned Odoo Community SHA: `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
 Live execution detail is owned by `docs/phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md`.
 
-As of 2026-09-14, Gate A and Gate B are PASS. Gate C has materially advanced beyond the earlier catalog-routing failure: the managed restore boundary is fixed, the private Next.js→Odoo database-selection defect is fixed and regression-proven, stale workflow reruns are now bound to a reset/deployment epoch, legacy managed-database writers were retired or made fail-closed/manual, a fresh guarded deployment repopulated the managed schema, and the runtime database privilege seal is GREEN. The exact public bilingual smoke now reaches the product-detail checks but is RED on a content/synthetic-fixture assertion. Production remains NO-GO.
+Gate A and Gate B are PASS. Gate C remains in progress. Current repair results and next actions are owned by `PROJECT.md` and `docs/validation/PHASE_8_HANDOFF_REPAIR.md`; the checkpoints below preserve their original evidence.
 
 ## Goal and authorization boundary
 
@@ -162,27 +162,11 @@ The seal then revoked `CREATE` on schema `public` from `fares_app` and proved:
 
 This is the current least-privilege runtime posture. Future reset/upgrade/deploy workflows must explicitly acquire the bounded write lease they need rather than leaving schema-creation rights permanently enabled.
 
-## Exact public staging smoke — current RED
+## Public staging repair evidence
 
-Workflow `.github/workflows/phase8-public-staging-smoke.yml` was added as the exact public-surface validator. Temporary workflow-definition validation was removed after it served its purpose.
+The September 14 content failure (run `34899200346`, job `104160775144`) is historical RED evidence. Later exact immutable smoke run `34964093451` isolated missing fixture visibility. Native fixture repair is GREEN at `a2315605154b2739ff43f0d360fdd1cbe51e40e0`, run `34982822944`, job `104427222729`, with sealed privileges and provider boundary preserved.
 
-Current hosted run:
-
-- run `34899200346`;
-- job `104160775144`;
-- target `https://fares-uniform.vercel.app`;
-- result **FAILURE**.
-
-The smoke checks exact English/Arabic home, catalog and product-detail content, then the Odoo/cron exposure boundary. The current run reached both product-detail requests before exiting with status 1. The workflow did not log the exact failed `grep`, and it exited before the boundary checks.
-
-Therefore the current authoritative conclusion is narrow:
-
-- the earlier nodb/private-DB-routing defect is fixed and regression-proven;
-- the public application is reachable far enough to exercise home/catalog/detail requests;
-- the **exact public smoke is still RED on a content/synthetic-fixture assertion**;
-- broad Odoo and cron boundary checks were not reached in this run and must not be claimed GREEN from it.
-
-Next work must identify the exact assertion/fixture mismatch. If the synthetic fixture is intentionally required, restore only clearly synthetic `FARES-UAT-*`/documented staging fixture data and clean up only that data. Do not weaken the smoke to hide a real contract regression.
+See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep as the current blocker.
 
 ## Secret-management boundary
 
@@ -217,9 +201,7 @@ Currently proven:
 - post-deploy runtime privilege seal;
 - isolated Vercel project and public staging SSO policy.
 
-Current blocker:
-
-- exact public bilingual smoke is RED on content/synthetic-fixture validation after reaching product-detail requests.
+Current public-smoke result is recorded in `docs/validation/PHASE_8_HANDOFF_REPAIR.md`.
 
 Still required after that is GREEN:
 
@@ -239,13 +221,6 @@ Still required after that is GREEN:
 
 ## Immediate continuation
 
-1. Re-read `AGENTS.md`, `PROJECT.md`, this file, Phase 8A and the secret inventory before mutation.
-2. Reverify branch HEAD and inspect intervening commits/runs; GitHub/hosted CI is source of truth.
-3. Treat stale rerun `34842081247` attempt 2 as preserved provenance evidence, not a valid retry mechanism.
-4. Treat runtime privilege-seal run `34898140110` / job `104160591708` as current managed-runtime least-privilege evidence.
-5. Diagnose public smoke run `34899200346` / job `104160775144` to identify the exact failed content/fixture assertion. Do not assume the boundary assertions passed; they were not reached.
-6. Fix only the actual failing contract or staging fixture, preserve RED→GREEN evidence, and rerun the exact public smoke.
-7. Once public smoke is GREEN, complete the remaining Gate C continuity/realtime/recovery/monitoring/business-flow evidence.
-8. Keep production NO-GO until the separate manual/operational Gate D requirements are explicitly signed off.
+Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Complete all remaining Gate C continuity/realtime/recovery/monitoring/business-flow evidence before staging sign-off. Gate D remains separately authorized.
 
-Do not use a local project checkout. Do not force-push or rewrite evidence. Do not load `fu_uat` in staging/production. Do not expose direct `/fu/public/**`. Do not use transaction pooling. Do not run routine Odoo as provider admin. Do not use real business data. Do not spend money without new explicit authorization.
+Remote GitHub/hosted execution only. No force-push, stale writer rerun, real data, `fu_uat`, direct `/fu/public/**`, transaction pooling, routine provider-admin Odoo, paid upgrade or production cutover.

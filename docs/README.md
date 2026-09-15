@@ -58,66 +58,11 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result and operator/client inputs still required |
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Go/no-go checklist and remaining live-stage decisions |
 
-## Current authority — 2026-09-14
+## Current work
 
-Completed milestones: **Phase 5A application/UAT/localization — COMPLETE / VERIFIED; Phase 6 provider-neutral deployment/readiness — COMPLETE / VERIFIED; Phase 7 Vercel stateless adaptation — COMPLETE / VERIFIED at repository/CI level; Phase 8 repository planning — COMPLETE.**
+[PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. Active contracts: [Phase 8](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) and [Phase 8A](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md).
 
-Active bounded stage: **Phase 8A free-tier staging execution — IN PROGRESS. Isolated Supabase and Vercel control planes are established. The current live-deployment workflow is RED at managed schema restore, before Vercel environment injection/deployment. Production remains NO-GO.**
+- [Staging repair and cleanup evidence](validation/PHASE_8_HANDOFF_REPAIR.md): current repair results and preserved RED evidence.
+- [Workflow guide](operations/WORKFLOW_GUIDE.md): retained workflows, retired diagnostic entry points and execution precautions.
 
-Current branch: `phase-8/commercial-staging-readiness`.
-
-Current live-deployment candidate: `a75131b7c8ad3060ba2ab4e805916dc1d0ad4ff2`.
-
-Current live-deployment run: `34821582384`.
-
-- deploy job `103904147677`: **FAILURE** at `Restore initialized schema into clean Supabase target`;
-- fail-closed guard job `103905391955`: **SUCCESS**, including runtime-role disable after the failed attempt.
-
-Before the failure, the run passed the clean-boundary assertion, generated/masked fresh activation secrets, built the exact database and Vercel Odoo images, built the exact initialized local application database with all seven production addons and `fu_uat` absent, created the filtered restore set and activated the bounded least-privileged managed runtime role.
-
-The managed restore failure caused all later Vercel environment/deployment/READY steps to be skipped. A direct Vercel project check after the run still showed **0 deployments**. Because `pg_restore` can leave partial schema objects before an error, the managed Supabase schema must be inspected before the next retry rather than assumed clean.
-
-Earlier green live-provider authorities remain:
-
-- managed-database/runtime checkpoint `b7a661bf70c2468b006bf971cba10172cf810e7d` — run `34787677724`, job `103806024323` — **SUCCESS**;
-- Vercel control-plane checkpoint `884aedc9465122d25639ca24954f154dfa72dc70` — run `34788971298`, job `103809533700` — **SUCCESS**.
-
-Inherited authorities remain:
-
-- Phase 7 final implementation: `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`;
-- Phase 7 runtime checkpoint: `24850acc029e0e7bbef898d6598d0d8b3f7ce733`;
-- Phase 6 deployment package: `e337315684c62d69ad75ba56a5867098da17489c`;
-- Phase 5A application/test authority: `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`, with **149 tests / 0 failures / 0 errors**, repeatable seven-addon upgrade, public typecheck/build and **8/8 Playwright**.
-
-## Phase 8A live provider state
-
-Dedicated Supabase target:
-
-- project ref `urqlxisivowkmsfisjek`;
-- region `eu-central-1`;
-- Session Pooler `aws-0-eu-central-1.pooler.supabase.com:5432`;
-- provider-managed `postgres` application database;
-- routine role `fares_app`;
-- connection username `fares_app.urqlxisivowkmsfisjek`;
-- `sslmode=require` minimum;
-- transaction pooling prohibited for Odoo.
-
-Dedicated Vercel target:
-
-- project `fares-uniform`;
-- project id `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`;
-- team id `team_r09C6RLmb2acHapENECQIn9T`;
-- current deployment count after the failed restore attempt: `0`.
-
-The provider control-plane credentials remain server-side GitHub Actions secrets and must never be committed or printed. Existing unrelated provider projects remain out of scope.
-
-## Current gate
-
-- Gate A repository planning: **PASS**.
-- Gate B authorization/provider ownership: **PASS**.
-- Gate C live staging technical proof: **IN PROGRESS / RED AT MANAGED SCHEMA RESTORE**.
-- Gate D production: **NO-GO**.
-
-Immediate continuation is to inspect the exact managed `pg_restore` failure and current schema/ownership state, clean any partial restore residue without weakening least privilege, fix the source-controlled restore path, rerun hosted CI, and only after restore/repeat-upgrade is green proceed to Vercel environment injection/deployment and the remaining attachment/session/cron/WebSocket/backup/monitoring/EN-AR smoke proof.
-
-Do not rerun the same failing restore blindly. Do not use a local project checkout. Do not force-push. Preserve RED evidence. Production remains **NO-GO** until Gate C plus store hardware, named staff/training, real-data cutover/reconciliation and separate production authorization are complete.
+Historical phase documents record the state at their closure. Their past authorization/status language does not override the current handoff or later explicit decisions.

@@ -58,7 +58,7 @@ Client visual target: premium modern UI with physics-based/morphing interactions
 
 Keep credentials and real private business records out of source, docs, issues, screenshots and logs. Use synthetic/redacted examples. Store runtime records in access-controlled services and credentials in their secret stores.
 
-Vercel is the initial deployment target. Supabase and Cloudflare are available, but resource IDs, service choices, isolation, environments, costs, domains and deployment policy remain undecided. Do not reuse or mutate RenderLab/Saga resources by inference.
+The isolated free-tier Vercel/Supabase staging choices are established in the Phase 8/8A contracts and PROJECT.md. Production domains, operational ownership, spending and GO remain separately gated. Do not reuse or mutate RenderLab/Saga resources by inference.
 
 ## Documentation ownership
 

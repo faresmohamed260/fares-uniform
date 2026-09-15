@@ -54,7 +54,7 @@ Do not add these merely because Supabase/Vercel commonly expose them:
 - unrelated-project credentials;
 - real customer, staff, stock, order, bank or payment data.
 
-## Current activation state — 2026-09-14
+## Activation evidence
 
 - `SUPABASE_ACCESS_TOKEN` is configured and proven for the exact project control-plane path.
 - `VERCEL_TOKEN` is configured and proven against team `team_r09C6RLmb2acHapENECQIn9T` and project `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`.
@@ -63,7 +63,7 @@ Do not add these merely because Supabase/Vercel commonly expose them:
 - Runtime privilege-seal run `34898140110` / job `104160591708` proved `fares_app` is LOGIN-enabled for runtime while `CREATE` on schema `public` is revoked.
 - The current deployment epoch observed by that seal is `34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`.
 - A future reset/restore/upgrade must use the source-controlled bounded writer path and current epoch checks; it must not simply broaden runtime privileges permanently.
-- Public smoke run `34899200346` failed on a content/fixture assertion after reaching product-detail requests. This does not authorize secret rotation, exposure changes or a weaker provider boundary.
+- Fixture repair run `34982822944` proved runtime authentication through explicit per-variable Vercel decryption (`decrypted=true`). Never accept an encrypted list response as a plaintext credential. Current smoke/repair results are in `docs/validation/PHASE_8_HANDOFF_REPAIR.md`. No secret rotation was needed.
 
 ## Fail-closed rule
 
