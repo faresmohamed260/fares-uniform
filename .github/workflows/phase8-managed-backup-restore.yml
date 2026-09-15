@@ -1,0 +1,374 @@
+name: Phase 8 managed backup and isolated restore
+
+on:
+  push:
+    branches: [phase-8/commercial-staging-readiness]
+    paths: [.github/workflows/phase8-managed-backup-restore.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8-managed-db-mutation
+  cancel-in-progress: false
+
+env:
+  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+  ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+  PRODUCTION_ADDONS: fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+  SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+  POSTGRES_IMAGE: postgres:16.12-bookworm
+  TARGET_NETWORK: fares-phase8-recovery
+  TARGET_DB_CONTAINER: fares-phase8-recovery-db
+
+jobs:
+  prove:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact deployed application
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_DEPLOYMENT_SHA }}
+          fetch-depth: 1
+
+      - name: Verify generation and managed source
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]]
+          test "$GITHUB_RUN_ATTEMPT" = 1 || { echo 'Reruns forbidden; start a fresh run' >&2; exit 1; }
+          test "$(git rev-parse HEAD)" = "$EXPECTED_DEPLOYMENT_SHA"
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Stale workflow: run=$GITHUB_SHA head=$remote_head" >&2; exit 1; }
+          state_dir="$(mktemp -d)"
+          chmod 700 "$state_dir"
+          echo "STATE_DIR=$state_dir" >> "$GITHUB_ENV"
+          source_state="$state_dir/source.json"
+          echo "SOURCE_STATE=$source_state" >> "$GITHUB_ENV"
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton) epoch_id,
+            (SELECT reset_run_id FROM fares_control.deployment_epoch WHERE singleton) reset_run_id,
+            (SELECT reset_run_attempt FROM fares_control.deployment_epoch WHERE singleton) reset_run_attempt,
+            (SELECT reset_sha FROM fares_control.deployment_epoch WHERE singleton) reset_sha,
+            (SELECT reset_completed_at::text FROM fares_control.deployment_epoch WHERE singleton) reset_completed_at,
+            current_setting('server_version_num')::int server_version_num,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') rolcanlogin,
+            (SELECT rolsuper FROM pg_roles WHERE rolname='fares_app') rolsuper,
+            (SELECT rolcreatedb FROM pg_roles WHERE rolname='fares_app') rolcreatedb,
+            (SELECT rolcreaterole FROM pg_roles WHERE rolname='fares_app') rolcreaterole,
+            (SELECT rolreplication FROM pg_roles WHERE rolname='fares_app') rolreplication,
+            (SELECT rolinherit FROM pg_roles WHERE rolname='fares_app') rolinherit,
+            has_schema_privilege('fares_app','public','CREATE') can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') session_table_ok,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT,INSERT,UPDATE,DELETE') session_dml,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') fu_uat_installed,
+            (SELECT value FROM ir_config_parameter WHERE key='ir_attachment.location') attachment_location,
+            (SELECT count(*)::int FROM product_template WHERE fu_public_slug='phase8-synthetic-program' AND fu_public_published AND NOT sale_ok AND NOT purchase_ok AND company_id IS NULL) fixture_products,
+            (SELECT count(*)::int FROM fu_public_enquiry WHERE idempotency_key='phase8-live-enquiry-2a74e93b-v1') enquiry_rows,
+            (SELECT count(*)::int FROM res_users WHERE login='phase8-state-continuity@example.invalid') continuity_users,
+            (SELECT count(*)::int FROM ir_attachment WHERE name='phase8-db-attachment-marker.txt' AND store_fname IS NULL AND db_datas IS NOT NULL) db_attachments,
+            (SELECT count(*)::int FROM fares_http_session) session_rows,
+            (SELECT count(*)::int FROM fares_http_session s JOIN res_users u ON (s.data->>'uid') ~ '^[0-9]+$' AND (s.data->>'uid')::int=u.id WHERE u.login='phase8-state-continuity@example.invalid') continuity_sessions,
+            (SELECT count(*)::int FROM sale_order) sale_orders,
+            (SELECT count(*)::int FROM account_payment) payments,
+            (SELECT count(*)::int FROM stock_picking) pickings,
+            (SELECT count(*)::int FROM ir_cron) cron_rows,
+            (SELECT count(*)::int FROM ir_cron_trigger) cron_trigger_rows;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$source_state" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[0] | {epoch_id,server_version_num,rolcanlogin,can_create_public,app_owned_relations,session_table_ok,session_dml,required_extensions,fu_uat_installed,attachment_location,fixture_products,enquiry_rows,continuity_users,db_attachments,session_rows,continuity_sessions,sale_orders,payments,pickings,cron_rows,cron_trigger_rows}' "$source_state"
+          test "$(jq -r '.[0].epoch_id' "$source_state")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].reset_sha' "$source_state")" = 2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+          test "$(jq -r '.[0].rolcanlogin' "$source_state")" = true
+          for key in rolsuper rolcreatedb rolcreaterole rolreplication rolinherit can_create_public; do test "$(jq -r ".[0].$key" "$source_state")" = false; done
+          test "$(jq -r '.[0].app_owned_relations' "$source_state")" = 988
+          test "$(jq -r '.[0].session_table_ok' "$source_state")" = 1
+          test "$(jq -r '.[0].session_dml' "$source_state")" = true
+          test "$(jq -r '.[0].required_extensions' "$source_state")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$source_state")" = 0
+          test "$(jq -r '.[0].attachment_location' "$source_state")" = db
+          for key in fixture_products enquiry_rows continuity_users db_attachments; do test "$(jq -r ".[0].$key" "$source_state")" = 1; done
+          test "$(jq -r '.[0].continuity_sessions' "$source_state")" -ge 1
+          for key in fixture_products enquiry_rows continuity_users db_attachments session_rows continuity_sessions sale_orders payments pickings cron_rows cron_trigger_rows; do
+            echo "SOURCE_${key^^}=$(jq -r ".[0].$key" "$source_state")" >> "$GITHUB_ENV"
+          done
+          echo 'managed_source_preflight=PASS epoch=exact relations=988 provider_boundary=sealed'
+
+      - name: Resolve runtime credential and export managed backup
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${VERCEL_TOKEN:-}" ]]
+          envs="$STATE_DIR/envs.json"
+          test "$(curl -sS -o "$envs" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v10/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}")" = 200
+          env_id="$(jq -er '[.envs[] | select(.key=="ODOO_DB_PASSWORD" and (((.target // []) | index("production")) != null))] | if length==1 then .[0].id else error("expected one variable") end' "$envs")"
+          response="$STATE_DIR/password.json"
+          test "$(curl -sS -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v1/projects/${VERCEL_PROJECT_ID}/env/$env_id?teamId=${VERCEL_TEAM_ID}")" = 200
+          value="$(jq -er 'select(.key=="ODOO_DB_PASSWORD" and .decrypted==true) | .value | select(type=="string" and length>0)' "$response")"
+          echo "::add-mask::$value"
+          printf '%s' "$value" > "$STATE_DIR/source-password"
+          chmod 600 "$STATE_DIR/source-password"
+          unset value
+          rm -f "$envs" "$response"
+          backup_dir="$STATE_DIR/backup"
+          mkdir -m 700 "$backup_dir"
+          echo "BACKUP_DIR=$backup_dir" >> "$GITHUB_ENV"
+          source_password="$(cat "$STATE_DIR/source-password")"
+          echo "::add-mask::$source_password"
+          docker pull "$POSTGRES_IMAGE"
+          docker run --rm -e PGPASSWORD="$source_password" -e PGSSLMODE=require -v "$backup_dir:/backup" "$POSTGRES_IMAGE" pg_dump             -h "$SUPABASE_POOLER_HOST" -p 5432 -U "fares_app.${SUPABASE_PROJECT_REF}" -d postgres             -Fc -n public --no-owner --no-privileges --serializable-deferrable -f /backup/managed.dump
+          docker run --rm -v "$backup_dir:/backup" "$POSTGRES_IMAGE" pg_restore -l /backup/managed.dump > "$backup_dir/full.list"
+          awk '
+            /^;/ {print; next}
+            / (SCHEMA - public|COMMENT - SCHEMA public|ACL - SCHEMA public|EXTENSION - (unaccent|pg_trgm)|COMMENT - EXTENSION (unaccent|pg_trgm))( |$)/ {next}
+            /fares_http_session/ && !/TABLE DATA public fares_http_session( |$)/ {next}
+            {print}
+          ' "$backup_dir/full.list" > "$backup_dir/restore.list"
+          test -s "$backup_dir/managed.dump"
+          test "$(grep -Ec 'TABLE DATA public fares_http_session( |$)' "$backup_dir/restore.list")" = 1
+          ! grep -Eq ' (TABLE|INDEX|CONSTRAINT|ACL) public fares_http_session( |$)' "$backup_dir/restore.list"
+          ! grep -Eq ' (SCHEMA - public|COMMENT - SCHEMA public|ACL - SCHEMA public|EXTENSION - (unaccent|pg_trgm)|COMMENT - EXTENSION (unaccent|pg_trgm))( |$)' "$backup_dir/restore.list"
+          echo "BACKUP_SHA=$(sha256sum "$backup_dir/managed.dump" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "BACKUP_BYTES=$(stat -c '%s' "$backup_dir/managed.dump")" >> "$GITHUB_ENV"
+          echo "RESTORE_ENTRIES=$(grep -vc '^;' "$backup_dir/restore.list")" >> "$GITHUB_ENV"
+          echo 'managed_backup_export=PASS format=custom session_data=included artifact_retained=false'
+
+      - name: Build exact image and destructively recreate isolated target
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build --pull -f Dockerfile.vercel --build-arg ODOO_SHA="$ODOO_SHA" --build-arg FARES_SHA="$EXPECTED_DEPLOYMENT_SHA" -t "fares-recovery:$EXPECTED_DEPLOYMENT_SHA" .
+          test "$(docker image inspect -f '{{json .Config.Volumes}}' "fares-recovery:$EXPECTED_DEPLOYMENT_SHA")" = null
+          pg_password="$(openssl rand -hex 32)"
+          app_password="$(openssl rand -hex 32)"
+          admin_password="$(openssl rand -hex 32)"
+          for value in "$pg_password" "$app_password" "$admin_password"; do echo "::add-mask::$value"; done
+          printf '%s' "$pg_password" > "$STATE_DIR/target-pg-password"
+          printf '%s' "$app_password" > "$STATE_DIR/target-app-password"
+          printf '%s' "$admin_password" > "$STATE_DIR/target-admin-password"
+          chmod 600 "$STATE_DIR"/target-*-password
+          docker network create "$TARGET_NETWORK"
+          docker run -d --name "$TARGET_DB_CONTAINER" --network "$TARGET_NETWORK" -e POSTGRES_USER=postgres -e POSTGRES_DB=postgres -e POSTGRES_PASSWORD="$pg_password" "$POSTGRES_IMAGE"
+          for attempt in $(seq 1 90); do
+            docker exec -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" pg_isready -U postgres -d postgres >/dev/null 2>&1 && break
+            if [[ "$attempt" = 90 ]]; then docker logs "$TARGET_DB_CONTAINER"; exit 1; fi
+            sleep 2
+          done
+          docker exec -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE TABLE public.must_disappear(marker text);'
+          docker exec -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" dropdb -U postgres --maintenance-db=template1 --force postgres
+          docker exec -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" createdb -U postgres -T template0 -E UTF8 postgres
+          test "$(docker exec -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" psql -U postgres -d postgres -Atc "SELECT to_regclass('public.must_disappear') IS NULL;")" = t
+          docker exec -i -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" psql -U postgres -d postgres -v ON_ERROR_STOP=1 --set=app_password="$app_password" <<'SQL'
+          CREATE ROLE fares_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION;
+          ALTER ROLE fares_app PASSWORD :'app_password';
+          CREATE EXTENSION unaccent;
+          CREATE EXTENSION pg_trgm;
+          REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+          GRANT CONNECT, TEMPORARY ON DATABASE postgres TO fares_app;
+          GRANT USAGE, CREATE ON SCHEMA public TO fares_app;
+          SQL
+          cat deploy/vercel/bootstrap-session-store.sh | docker exec -i -e PGPASSWORD="$pg_password" -e FARES_DB_NAME=postgres -e FARES_DB_USER=fares_app -e POSTGRES_USER=postgres "$TARGET_DB_CONTAINER" bash
+          epoch_id="$(jq -r '.[0].epoch_id' "$SOURCE_STATE")"
+          reset_run_id="$(jq -r '.[0].reset_run_id' "$SOURCE_STATE")"
+          reset_attempt="$(jq -r '.[0].reset_run_attempt' "$SOURCE_STATE")"
+          reset_sha="$(jq -r '.[0].reset_sha' "$SOURCE_STATE")"
+          reset_at="$(jq -r '.[0].reset_completed_at' "$SOURCE_STATE")"
+          docker exec -i -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" psql -U postgres -d postgres -v ON_ERROR_STOP=1             --set=epoch_id="$epoch_id" --set=reset_run_id="$reset_run_id" --set=reset_attempt="$reset_attempt" --set=reset_sha="$reset_sha" --set=reset_at="$reset_at" <<'SQL'
+          CREATE SCHEMA fares_control AUTHORIZATION postgres;
+          REVOKE ALL ON SCHEMA fares_control FROM PUBLIC;
+          CREATE TABLE fares_control.deployment_epoch (
+            singleton boolean PRIMARY KEY DEFAULT TRUE CHECK (singleton),
+            epoch_id text NOT NULL,
+            reset_run_id bigint NOT NULL,
+            reset_run_attempt integer NOT NULL,
+            reset_sha text NOT NULL CHECK (length(reset_sha)=40),
+            reset_completed_at timestamptz NOT NULL
+          );
+          INSERT INTO fares_control.deployment_epoch
+          VALUES (TRUE, :'epoch_id', :'reset_run_id'::bigint, :'reset_attempt'::integer, :'reset_sha', :'reset_at'::timestamptz);
+          REVOKE ALL ON TABLE fares_control.deployment_epoch FROM PUBLIC, fares_app;
+          SQL
+          echo 'isolated_destructive_boundary=PASS contaminant_removed=true provider_objects=bootstrapped'
+
+      - name: Restore backup and repeat seven-addon upgrade
+        shell: bash
+        run: |
+          set -euo pipefail
+          app_password="$(cat "$STATE_DIR/target-app-password")"
+          admin_password="$(cat "$STATE_DIR/target-admin-password")"
+          echo "::add-mask::$app_password"
+          echo "::add-mask::$admin_password"
+          docker run --rm --network "$TARGET_NETWORK" -e PGPASSWORD="$app_password" -v "$BACKUP_DIR:/backup:ro" "$POSTGRES_IMAGE" pg_restore             -h "$TARGET_DB_CONTAINER" -p 5432 -U fares_app -d postgres --no-owner --no-privileges --exit-on-error -j 1             -L /backup/restore.list /backup/managed.dump
+          docker run --rm --network "$TARGET_NETWORK"             -e ODOO_DB_HOST="$TARGET_DB_CONTAINER" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres             -e ODOO_DB_USER=fares_app -e ODOO_DB_PASSWORD="$app_password" -e ODOO_DB_SSLMODE=prefer             -e ODOO_ADMIN_PASSWD="$admin_password" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0             -e FARES_SESSION_STORE=postgres -e PORT=8069             "fares-recovery:$EXPECTED_DEPLOYMENT_SHA" --stop-after-init -u "$PRODUCTION_ADDONS"
+          pg_password="$(cat "$STATE_DIR/target-pg-password")"
+          docker exec -i -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" psql -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          REVOKE CREATE ON SCHEMA public FROM fares_app;
+          REVOKE ALL ON TABLE fares_http_session FROM PUBLIC, fares_app;
+          GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE fares_http_session TO fares_app;
+          SQL
+          echo 'isolated_restore=PASS archive=managed_export seven_addon_upgrade=PASS create=revoked'
+
+      - name: Verify recovered facts and privilege seal
+        shell: bash
+        run: |
+          set -euo pipefail
+          app_password="$(cat "$STATE_DIR/target-app-password")"
+          admin_password="$(cat "$STATE_DIR/target-admin-password")"
+          verify="$STATE_DIR/verify.py"
+          cat > "$verify" <<'PY'
+          expected = {"fu_core", "fu_retail", "fu_preorder", "fu_production", "fu_business", "fu_public_api", "fu_reporting"}
+          modules = env["ir.module.module"].sudo().search_read([("name", "in", list(expected))], ["name", "state"])
+          states = {row["name"]: row["state"] for row in modules}
+          if set(states) != expected or any(value != "installed" for value in states.values()):
+              raise RuntimeError(f"addon mismatch: {states}")
+          if env["ir.module.module"].sudo().search_count([("name", "=", "fu_uat"), ("state", "=", "installed")]):
+              raise RuntimeError("fu_uat installed")
+          attachment = env["ir.attachment"].sudo().search([("name", "=", "phase8-db-attachment-marker.txt")])
+          if len(attachment) != 1 or attachment.store_fname or not attachment.db_datas or attachment.raw != b"fares-uniform-phase8-live-db-attachment-v1\n":
+              raise RuntimeError("attachment mismatch")
+          if env["ir.config_parameter"].sudo().get_param("ir_attachment.location") != "db":
+              raise RuntimeError("attachment mode mismatch")
+          if env["res.users"].sudo().search_count([("login", "=", "phase8-state-continuity@example.invalid")]) != 1:
+              raise RuntimeError("user mismatch")
+          if env["product.template"].sudo().search_count([("fu_public_slug", "=", "phase8-synthetic-program"), ("fu_public_published", "=", True), ("sale_ok", "=", False), ("purchase_ok", "=", False), ("company_id", "=", False)]) != 1:
+              raise RuntimeError("catalog fixture mismatch")
+          if env["fu.public.enquiry"].sudo().search_count([("idempotency_key", "=", "phase8-live-enquiry-2a74e93b-v1")]) != 1:
+              raise RuntimeError("enquiry mismatch")
+          print("recovered_application=PASS addons=7 attachment=exact-db session_user=1 catalog=1 enquiry=1")
+          PY
+          docker run --rm -i --network "$TARGET_NETWORK"             -e ODOO_DB_HOST="$TARGET_DB_CONTAINER" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres             -e ODOO_DB_USER=fares_app -e ODOO_DB_PASSWORD="$app_password" -e ODOO_DB_SSLMODE=prefer             -e ODOO_ADMIN_PASSWD="$admin_password" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0             -e FARES_SESSION_STORE=postgres -e PORT=8069 "fares-recovery:$EXPECTED_DEPLOYMENT_SHA"             -c '/usr/local/bin/fares-vercel-odoo-entrypoint --stop-after-init --no-http </dev/null && exec /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http'             < "$verify" | grep -F 'recovered_application=PASS'
+
+          pg_password="$(cat "$STATE_DIR/target-pg-password")"
+          target="$STATE_DIR/target.json"
+          docker exec -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" psql -U postgres -d postgres -Atc "
+          SELECT json_build_object(
+            'epoch_id',(SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton),
+            'epoch_owner',(SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='fares_control' AND c.relname='deployment_epoch'),
+            'rolcanlogin',(SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app'),
+            'rolsuper',(SELECT rolsuper FROM pg_roles WHERE rolname='fares_app'),
+            'rolcreatedb',(SELECT rolcreatedb FROM pg_roles WHERE rolname='fares_app'),
+            'rolcreaterole',(SELECT rolcreaterole FROM pg_roles WHERE rolname='fares_app'),
+            'rolreplication',(SELECT rolreplication FROM pg_roles WHERE rolname='fares_app'),
+            'rolinherit',(SELECT rolinherit FROM pg_roles WHERE rolname='fares_app'),
+            'can_create_public',has_schema_privilege('fares_app','public','CREATE'),
+            'app_owned_relations',(SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app'),
+            'session_table_ok',(SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres'),
+            'session_dml',has_table_privilege('fares_app','public.fares_http_session','SELECT,INSERT,UPDATE,DELETE'),
+            'session_public',has_table_privilege('public','public.fares_http_session','SELECT,INSERT,UPDATE,DELETE'),
+            'required_extensions',(SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public'),
+            'fixture_products',(SELECT count(*)::int FROM product_template WHERE fu_public_slug='phase8-synthetic-program' AND fu_public_published AND NOT sale_ok AND NOT purchase_ok AND company_id IS NULL),
+            'enquiry_rows',(SELECT count(*)::int FROM fu_public_enquiry WHERE idempotency_key='phase8-live-enquiry-2a74e93b-v1'),
+            'continuity_users',(SELECT count(*)::int FROM res_users WHERE login='phase8-state-continuity@example.invalid'),
+            'db_attachments',(SELECT count(*)::int FROM ir_attachment WHERE name='phase8-db-attachment-marker.txt' AND store_fname IS NULL AND db_datas IS NOT NULL),
+            'session_rows',(SELECT count(*)::int FROM fares_http_session),
+            'continuity_sessions',(SELECT count(*)::int FROM fares_http_session s JOIN res_users u ON (s.data->>'uid') ~ '^[0-9]+$' AND (s.data->>'uid')::int=u.id WHERE u.login='phase8-state-continuity@example.invalid'),
+            'sale_orders',(SELECT count(*)::int FROM sale_order),
+            'payments',(SELECT count(*)::int FROM account_payment),
+            'pickings',(SELECT count(*)::int FROM stock_picking),
+            'cron_rows',(SELECT count(*)::int FROM ir_cron),
+            'cron_trigger_rows',(SELECT count(*)::int FROM ir_cron_trigger)
+          );" > "$target"
+          jq -c '.' "$target"
+          test "$(jq -r '.epoch_id' "$target")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.epoch_owner' "$target")" = postgres
+          test "$(jq -r '.rolcanlogin' "$target")" = true
+          for key in rolsuper rolcreatedb rolcreaterole rolreplication rolinherit can_create_public session_public; do test "$(jq -r ".$key" "$target")" = false; done
+          test "$(jq -r '.app_owned_relations' "$target")" = 988
+          test "$(jq -r '.session_table_ok' "$target")" = 1
+          test "$(jq -r '.session_dml' "$target")" = true
+          test "$(jq -r '.required_extensions' "$target")" = 2
+          for key in fixture_products enquiry_rows continuity_users db_attachments session_rows continuity_sessions sale_orders payments pickings cron_rows cron_trigger_rows; do
+            expected_name="SOURCE_${key^^}"
+            expected="${!expected_name}"
+            actual="$(jq -r ".$key" "$target")"
+            test "$actual" = "$expected" || { echo "Mismatch $key source=$expected target=$actual" >&2; exit 1; }
+          done
+          echo 'isolated_recovery_verification=PASS app_relations=988 attachment_session_business_counts=exact provider_seal=preserved'
+
+      - name: Prove managed source remained unchanged
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          post="$STATE_DIR/post.json"
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton) epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') session_table_ok,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT,INSERT,UPDATE,DELETE') session_dml,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') fu_uat_installed,
+            (SELECT count(*)::int FROM product_template WHERE fu_public_slug='phase8-synthetic-program' AND fu_public_published) fixture_products,
+            (SELECT count(*)::int FROM fu_public_enquiry WHERE idempotency_key='phase8-live-enquiry-2a74e93b-v1') enquiry_rows,
+            (SELECT count(*)::int FROM sale_order) sale_orders,
+            (SELECT count(*)::int FROM account_payment) payments,
+            (SELECT count(*)::int FROM stock_picking) pickings;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          test "$(curl -sS -X POST -o "$post" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")" = 201
+          jq -c '.[0]' "$post"
+          test "$(jq -r '.[0].epoch_id' "$post")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$post")" = true
+          test "$(jq -r '.[0].can_create_public' "$post")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$post")" = 988
+          test "$(jq -r '.[0].session_table_ok' "$post")" = 1
+          test "$(jq -r '.[0].session_dml' "$post")" = true
+          test "$(jq -r '.[0].required_extensions' "$post")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$post")" = 0
+          test "$(jq -r '.[0].fixture_products' "$post")" = "$SOURCE_FIXTURE_PRODUCTS"
+          test "$(jq -r '.[0].enquiry_rows' "$post")" = "$SOURCE_ENQUIRY_ROWS"
+          test "$(jq -r '.[0].sale_orders' "$post")" = "$SOURCE_SALE_ORDERS"
+          test "$(jq -r '.[0].payments' "$post")" = "$SOURCE_PAYMENTS"
+          test "$(jq -r '.[0].pickings' "$post")" = "$SOURCE_PICKINGS"
+          echo 'managed_source_postflight=PASS mutation=none business_deltas=0 privilege_seal=preserved'
+
+      - name: Publish evidence
+        shell: bash
+        run: |
+          {
+            echo '## Phase 8 managed backup and isolated restore'
+            echo
+            echo "Workflow source: $GITHUB_SHA"
+            echo "Deployed application: $EXPECTED_DEPLOYMENT_SHA"
+            echo "Odoo: $ODOO_SHA"
+            echo "Database epoch: $EXPECTED_DB_EPOCH"
+            echo "Managed export: $BACKUP_BYTES bytes; SHA-256 $BACKUP_SHA"
+            echo "Filtered restore entries: $RESTORE_ENTRIES"
+            echo 'Sensitive backup retained: no; destroyed with hosted runner'
+            echo 'Destructive target: disposable hosted PostgreSQL only'
+            echo 'Recovered exact attachment, shared sessions, public fixtures, business counts and seven addons'
+            echo 'Managed source: unchanged; provider/privilege seal preserved'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo 'phase8_managed_backup_isolated_restore=PASS'
+
+      - name: Cleanup
+        if: always()
+        shell: bash
+        run: |
+          docker rm -f "$TARGET_DB_CONTAINER" >/dev/null 2>&1 || true
+          docker network rm "$TARGET_NETWORK" >/dev/null 2>&1 || true
+          if [[ -n "${STATE_DIR:-}" && -d "$STATE_DIR" ]]; then
+            find "$STATE_DIR" -type f -exec shred -u {} + 2>/dev/null || true
+            rm -rf "$STATE_DIR" 2>/dev/null || true
+          fi
