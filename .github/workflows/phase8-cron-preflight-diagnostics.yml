@@ -76,21 +76,18 @@ jobs:
           trap 'rm -f "$response"' EXIT
           read -r -d '' query <<'SQL' || true
           SELECT
-            c.id,
-            c.cron_name,
-            c.nextcall,
-            c.lastcall,
-            c.interval_number,
-            c.interval_type,
-            c.priority,
-            c.failure_count,
-            c.ir_actions_server_id,
-            m.model
-          FROM ir_cron c
-          LEFT JOIN ir_actions_server a ON a.id = c.ir_actions_server_id
-          LEFT JOIN ir_model m ON m.id = a.model_id
-          WHERE c.active AND c.nextcall IS NOT NULL AND c.nextcall <= now()
-          ORDER BY c.failure_count, c.priority, c.id;
+            id,
+            cron_name,
+            nextcall,
+            lastcall,
+            interval_number,
+            interval_type,
+            priority,
+            failure_count,
+            ir_actions_server_id
+          FROM ir_cron
+          WHERE active AND nextcall IS NOT NULL AND nextcall <= now()
+          ORDER BY failure_count, priority, id;
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
           status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
