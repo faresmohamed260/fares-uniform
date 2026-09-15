@@ -310,3 +310,11 @@ The selected pattern is Vercel application/runtime deployment with durable state
 This decision does not invalidate deployment-package authority `e337315684c62d69ad75ba56a5867098da17489c`. The Phase 6 Compose/VPS package and its PostgreSQL+filestore recovery proof remain a verified provider-neutral baseline/fallback. Phase 7 must prove the Vercel-specific state model before any recovery assumption is changed.
 
 The currently connected Vercel team is on Hobby and Fares Uniform is a commercial workload. This decision authorizes repository/CI Vercel adaptation work only; it does **not** authorize upgrading the Vercel plan, purchasing services, creating paid staging/production resources, configuring production secrets/domains/DNS, creating a real managed database, migrating real data or cutting over production. Those live/account mutations require separate explicit authorization.
+
+## D-042 — Isolated free-tier staging and current-handoff ownership
+
+Status: Existing Phase 8A client authorization consolidated 2026-09-15; cleanup/handoff requested by client. This records the accepted Phase 8A boundary rather than granting new provider authority.
+
+The client-authorized isolated Fares Uniform Vercel/Supabase rehearsal is established in `docs/phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md`. It supersedes D-041's earlier repository-only staging authorization, within the free-tier/synthetic-data boundary only. Paid upgrades, production cutover, unrelated resources and real business data remain excluded.
+
+`PROJECT.md` is the sole current-status and next-task handoff; the documentation index links to it and phase/validation files preserve contracts and historical evidence. The September 15 cleanup removes generated prototype dependencies/build artifacts and obsolete one-off workflow entry points while preserving source, lockfiles, Git history, phase branches and draft PRs. Cleanup does not authorize merge or branch deletion. See `docs/validation/PHASE_8_HANDOFF_REPAIR.md` for exact repair proofs.

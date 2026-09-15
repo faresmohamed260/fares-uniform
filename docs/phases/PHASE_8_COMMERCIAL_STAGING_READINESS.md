@@ -1,6 +1,6 @@
 # Phase 8 — Commercial staging readiness
 
-Status: **LIVE STAGING AUTHORIZED; FIXTURE REPAIR GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
+Status: **LIVE STAGING AUTHORIZED; FIXTURE AND PUBLIC SMOKE GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -166,6 +166,8 @@ This is the current least-privilege runtime posture. Future reset/upgrade/deploy
 
 The September 14 content failure (run `34899200346`, job `104160775144`) is historical RED evidence. Later exact immutable smoke run `34964093451` isolated missing fixture visibility. Native fixture repair is GREEN at `a2315605154b2739ff43f0d360fdd1cbe51e40e0`, run `34982822944`, job `104427222729`, with sealed privileges and provider boundary preserved.
 
+Exact public smoke is GREEN at `289731278043c2b01cf1305e2580fa6c02a66819`, run `34988776192`, job `104447664334`: EN/AR home/catalog/detail and exposure boundary (`401` unauthenticated cron; `404` broad login/direct Odoo catalog).
+
 See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep as the current blocker.
 
 ## Secret-management boundary
@@ -203,10 +205,9 @@ Currently proven:
 
 Current public-smoke result is recorded in `docs/validation/PHASE_8_HANDOFF_REPAIR.md`.
 
-Still required after that is GREEN:
+Still required for Gate C:
 
-- re-run boundary assertions proving browser-facing Odoo routes remain unavailable and unauthenticated cron remains `401`;
-- public English/Arabic home/catalog/detail/enquiry proof, including no price/stock leakage;
+- live synthetic enquiry proof, including no price/stock leakage;
 - attachment continuity;
 - authenticated-session continuity or documented re-authentication behavior;
 - external cron/native locking;

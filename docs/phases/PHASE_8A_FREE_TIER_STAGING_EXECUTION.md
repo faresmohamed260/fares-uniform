@@ -1,6 +1,6 @@
 # Phase 8A — Free-tier staging execution
 
-Status: **LIVE STAGING AUTHORIZED; FIXTURE REPAIR GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
+Status: **LIVE STAGING AUTHORIZED; FIXTURE AND PUBLIC SMOKE GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -44,7 +44,7 @@ Current post-deploy state is populated, not reset-clean. Runtime privilege-seal 
 - region: `fra1`;
 - Fluid compute: OFF;
 - authorized public staging SSO state: disabled;
-- canonical staging URL used by the exact smoke: `https://fares-uniform.vercel.app`.
+- canonical staging URL (smoke resolves the immutable deployment URL): `https://fares-uniform.vercel.app`.
 
 A historical READY deployment artifact remains useful evidence (`dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu`, SHA `6d273e4eac9cc8b89b6baf7529564b401c875047`) but is **not** current deployment authority; the current execution contract is the epoch-bound guarded workflow plus post-deploy evidence.
 
@@ -165,6 +165,8 @@ This is the current runtime privilege posture. A future schema-writing operation
 ## Public staging repair evidence
 
 The September 14 content failure (run `34899200346`, job `104160775144`) is historical RED evidence. Later exact immutable smoke run `34964093451` isolated missing fixture visibility. Native fixture repair is GREEN at `a2315605154b2739ff43f0d360fdd1cbe51e40e0`, run `34982822944`, job `104427222729`, with sealed privileges and provider boundary preserved.
+
+Exact public smoke is GREEN at `289731278043c2b01cf1305e2580fa6c02a66819`, run `34988776192`, job `104447664334`: EN/AR home/catalog/detail and exposure boundary (`401` unauthenticated cron; `404` broad login/direct Odoo catalog).
 
 See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep as the current blocker.
 
