@@ -227,7 +227,7 @@ jobs:
           PY
 
           export ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD
-          docker run --rm -i \
+          docker run --rm -i --entrypoint bash \
             -e ODOO_RUNTIME_MODE=http \
             -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" \
             -e ODOO_DB_PORT=5432 \
@@ -241,7 +241,7 @@ jobs:
             -e FARES_SESSION_STORE=postgres \
             -e PORT=8069 \
             "fares-uniform-phase8-fixture:$EXPECTED_DEPLOYMENT_SHA" \
-            shell -d postgres < "$fixture"
+            -c '/usr/local/bin/fares-vercel-odoo-entrypoint --stop-after-init --no-http </dev/null && exec /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http' < "$fixture"
 
           unset ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD
 
