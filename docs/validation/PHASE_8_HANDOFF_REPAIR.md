@@ -28,6 +28,13 @@ PROJECT.md owns current handoff; root README and docs index point there. Phase 8
 
 No business logic changed. The historical 149-test/8-browser-test authority remains `cc2656d7529cfd4af396ddd0af6444a0f6600dc8` / run `34700625051`; this maintenance work is not a new full-suite proof. Phase 8 Gate C remains incomplete and production remains NO-GO. Phase branches and draft PRs remain unmerged.
 
+## Live attachment and authenticated-session continuity — GREEN
+
+Workflow source `f3c8243d034d4cd6f15e2187d12957bf704a8f9e` is GREEN in [run 35005403008](https://github.com/faresmohamed260/fares-uniform/actions/runs/35005403008), job `104503776621`, against immutable application SHA `2a74e93b1828c16839ba7cede336caa4ca374306` and deployment `dpl_Ba34KhzW7AZ6aBY7poz1DeaQa3rg`.
+
+The hosted proof activated only exact SELECT/INSERT/UPDATE/DELETE rights on provider-owned `public.fares_http_session`, kept PUBLIC revoked and schema `CREATE=false`, set attachment storage to `db`, and used one fixed synthetic user plus attachment. Authentication produced an 84-character session cookie. The same authenticated UID and exact database-backed attachment survived complete replacement of the first no-mount runtime by a second fresh exact-image runtime. Postflight retained epoch `34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`, 988 app-owned relations, provider-owned session state/extensions, `fu_uat` absent, effective session DML true, and zero sale/payment/stock deltas.
+
+Preserved RED runs `34990936317`, `34991190169`, `34991794426`, `34992709590`, `34993286866`, `34994089599`, `34994995194`, `34995763111`, `34996425452` and `34997129404` established the activation and harness corrections. The decisive issue was Odoo 19 treating requests with `X-Odoo-Database` as stateless; removing that header only from authentication restored cookie/session persistence. The final provider assertion uses PostgreSQL's effective `has_table_privilege` result because `information_schema.table_privileges` did not report the dotted pooled runtime identity accurately.
 ## Cleanup verification
 
 Remote read-back matched all 12 written files at `289731278043c2b01cf1305e2580fa6c02a66819`. The complete untruncated Git tree has 428 entries; all relative Markdown links in the changed documents resolve, the five retired workflow files and three generated paths are absent, and prototype source/lockfiles remain.

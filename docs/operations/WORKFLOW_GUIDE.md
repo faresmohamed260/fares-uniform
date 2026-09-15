@@ -9,6 +9,7 @@ Read `PROJECT.md` first and verify the remote active branch HEAD. Workflow files
 | `phase8-staging-public-fixture.yml` | Bounded synthetic catalog fixture through native Odoo, exact deployed image and current epoch |
 | `phase8-public-staging-smoke.yml` | Exact immutable deployment, EN/AR catalog/detail and exposure boundary |
 | `phase8-live-public-enquiry.yml` | Fixed synthetic enquiry acceptance/replay/conflict, injected price/stock rejection, rendered no-leak checks and read-only persistence/side-effect proof |
+| `phase8-live-state-continuity.yml` | Exact-image attachment and authenticated PostgreSQL-session continuity across complete runtime replacement; bounded synthetic state and sealed postflight |
 | `phase8-live-db-diagnostics.yml` | Read-only runtime/connection facts; no SQL query text in logs |
 | `phase8-public-schema-preflight.yml` | Read-only schema/provider ownership inventory |
 | `phase8-public-db-routing-regression.yml` | Private Odoo database-selection regression |
