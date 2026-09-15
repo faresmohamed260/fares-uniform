@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Reproduce exact cron preflight query without mutation
+      - name: Reproduce corrected cron preflight query without mutation
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         shell: bash
@@ -53,7 +53,7 @@ jobs:
             (SELECT count(*)::int FROM ir_cron) AS cron_rows,
             (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now()) AS due_crons,
             (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now() + interval '5 minutes') AS crons_due_within_guard,
-            (SELECT count(*)::int FROM ir_cron WHERE name::text LIKE '%Phase 8 live cron locking proof%') AS synthetic_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE cron_name LIKE 'Phase 8 live cron locking proof%') AS synthetic_crons,
             (SELECT count(*)::int FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%') AS synthetic_markers;
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
@@ -62,51 +62,45 @@ jobs:
             -H 'Content-Type: application/json' \
             --data "$payload" \
             "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
-          echo "exact_query_http_status=$status" | tee evidence/exact-query-status.txt
-          if [[ "$status" = 201 ]]; then
-            jq -c '.[0] | {epoch_id,rolcanlogin,can_create_public,app_owned_relations,session_owner,session_select,session_insert,session_update,session_delete,session_public_grants,extension_signature,fu_uat_installed,attachment_location,session_rows,sale_orders,payments,pickings,cron_rows,due_crons,crons_due_within_guard,synthetic_crons,synthetic_markers}' "$response" | tee evidence/exact-query.json
-            test "$(jq -r '.[0].epoch_id' "$response")" = "$EXPECTED_DB_EPOCH"
-            echo 'exact_query_result=PASS' | tee -a evidence/exact-query-status.txt
-          else
-            jq -c 'if type=="object" then {error:(.message // .error // .msg // "provider query failed"),code:(.code // null)} else {error:"provider query failed",response_type:type} end' "$response" | tee evidence/exact-query-error.json
-            echo 'exact_query_result=FAIL' | tee -a evidence/exact-query-status.txt
-          fi
+          test "$status" = 201 || { jq -c '{error:(.message // .error // .)}' "$response" >&2 || true; exit 1; }
+          jq -c '.[0]' "$response" | tee evidence/corrected-preflight.json
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$EXPECTED_DB_EPOCH"
 
-      - name: Probe cron-specific expressions independently
-        if: always()
+      - name: Inspect due cron inventory read-only
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p evidence
-          query_api() {
-            local label="$1"
-            local query="$2"
-            local response
-            response="$(mktemp)"
-            local payload status
-            payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
-            status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
-              -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-              -H 'Content-Type: application/json' \
-              --data "$payload" \
-              "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
-            if [[ "$status" = 201 ]]; then
-              printf '%s http=%s ' "$label" "$status" | tee -a evidence/probes.txt
-              jq -c '.[0]' "$response" | tee -a evidence/probes.txt
-            else
-              printf '%s http=%s ' "$label" "$status" | tee -a evidence/probes.txt
-              jq -c 'if type=="object" then {error:(.message // .error // .msg // "provider query failed"),code:(.code // null)} else {error:"provider query failed"} end' "$response" | tee -a evidence/probes.txt
-            fi
-            rm -f "$response"
-          }
-          query_api epoch "SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE;"
-          query_api cron_columns "SELECT count(*)::int AS cron_rows, count(*) FILTER (WHERE active AND nextcall IS NOT NULL AND nextcall <= now())::int AS due_crons, count(*) FILTER (WHERE active AND nextcall IS NOT NULL AND nextcall <= now() + interval '5 minutes')::int AS due_within_guard FROM ir_cron;"
-          query_api cron_name "SELECT count(*)::int AS synthetic_crons FROM ir_cron WHERE name::text LIKE '%Phase 8 live cron locking proof%';"
-          query_api marker_name "SELECT count(*)::int AS synthetic_markers FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%';"
-          query_api business_counts "SELECT (SELECT count(*)::int FROM fares_http_session) AS session_rows, (SELECT count(*)::int FROM sale_order) AS sale_orders, (SELECT count(*)::int FROM account_payment) AS payments, (SELECT count(*)::int FROM stock_picking) AS pickings;"
-          query_api privilege_seal "SELECT has_schema_privilege('fares_app','public','CREATE') AS can_create_public, has_table_privilege('fares_app','public.fares_http_session','SELECT') AS session_select, has_table_privilege('fares_app','public.fares_http_session','INSERT') AS session_insert, has_table_privilege('fares_app','public.fares_http_session','UPDATE') AS session_update, has_table_privilege('fares_app','public.fares_http_session','DELETE') AS session_delete;"
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            c.id,
+            c.cron_name,
+            c.nextcall,
+            c.lastcall,
+            c.interval_number,
+            c.interval_type,
+            c.priority,
+            c.failure_count,
+            c.ir_actions_server_id,
+            m.model
+          FROM ir_cron c
+          LEFT JOIN ir_actions_server a ON a.id = c.ir_actions_server_id
+          LEFT JOIN ir_model m ON m.id = a.model_id
+          WHERE c.active AND c.nextcall IS NOT NULL AND c.nextcall <= now()
+          ORDER BY c.failure_count, c.priority, c.id;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { jq -c '{error:(.message // .error // .)}' "$response" >&2 || true; exit 1; }
+          jq -c '.[]' "$response" | tee evidence/due-crons.jsonl
+          echo "due_cron_count=$(jq 'length' "$response")" | tee evidence/due-cron-count.txt
 
       - name: Upload diagnostic evidence
         if: always()
