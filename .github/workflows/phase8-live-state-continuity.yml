@@ -226,6 +226,8 @@ jobs:
           import base64
           import os
 
+          from odoo import Command
+
           LOGIN = "phase8-state-continuity@example.invalid"
           USER_NAME = "[SYNTHETIC] Phase 8 State Continuity"
           ATTACHMENT_NAME = "phase8-db-attachment-marker.txt"
@@ -273,7 +275,11 @@ jobs:
                   "company_ids": [(6, 0, [env.company.id])],
               })
               ModelData.create({"module": XML_MODULE, "name": USER_XML_NAME, "model": "res.users", "res_id": user.id, "noupdate": True})
-          user.write({"password": password, "active": True})
+          user.write({
+              "password": password,
+              "active": True,
+              "group_ids": [Command.set([env.ref("base.group_user").id])],
+          })
 
           attachment_xmlids = ModelData.search([("module", "=", XML_MODULE), ("name", "=", ATTACHMENT_XML_NAME)])
           if len(attachment_xmlids) > 1:
@@ -325,8 +331,14 @@ jobs:
           cookies="$SECRETS_DIR/cookies.txt"
           jq -cn --arg login "$SYNTHETIC_LOGIN" --arg password "$LOGIN_PASSWORD" '{jsonrpc:"2.0",method:"call",params:{db:"postgres",login:$login,password:$password},id:1}' > "$auth"
           curl -fsS -c "$cookies" -H 'X-Odoo-Database: postgres' -H 'Content-Type: application/json' --data @"$auth" "http://127.0.0.1:$RUNTIME_PORT/web/session/authenticate" > "$SECRETS_DIR/auth-response.json"
-          uid="$(jq -er '.result.uid | select(type=="number" and .>0)' "$SECRETS_DIR/auth-response.json")"
+          if ! jq -e '.result.uid | select(type=="number" and .>0)' "$SECRETS_DIR/auth-response.json" >/dev/null; then
+            jq -c '{jsonrpc,id,has_result:(.result != null),error_name:(.error.data.name // null),error_message:(.error.message // null)}' "$SECRETS_DIR/auth-response.json" >&2
+            docker logs --tail 120 "$RUNTIME_CONTAINER" >&2
+            exit 1
+          fi
+          uid="$(jq -r '.result.uid' "$SECRETS_DIR/auth-response.json")"
           sid="$(awk '$6 == "session_id" {print $7}' "$cookies" | tail -n1)"
+          echo "session_cookie_capture=observed length=${#sid}"
           [[ "$sid" =~ ^[A-Za-z0-9_-]{84}$ ]]
           echo "::add-mask::$sid"
           printf '%s' "$uid" > "$SECRETS_DIR/uid"
