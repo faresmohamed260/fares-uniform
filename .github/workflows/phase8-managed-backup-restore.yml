@@ -24,7 +24,7 @@ env:
   VERCEL_API_BASE: https://api.vercel.com
   VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
   VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
-  POSTGRES_IMAGE: postgres:16.12-bookworm
+  POSTGRES_IMAGE: postgres:17.6-bookworm
   TARGET_NETWORK: fares-phase8-recovery
   TARGET_DB_CONTAINER: fares-phase8-recovery-db
 
