@@ -31,6 +31,8 @@ Branch HEAD, deployed application SHA and historical full-suite authority are di
 
 See [staging repair and cleanup evidence](docs/validation/PHASE_8_HANDOFF_REPAIR.md) for the exact new results.
 
+Bounded live public enquiry proof is GREEN at workflow source `cc056ee19ece534990b2d8885b6bd843e4324fbc`, run `34990008655`, job `104451908443`. The immutable deployed application remains `2a74e93b1828c16839ba7cede336caa4ca374306`.
+
 Preserved RED evidence:
 - fixture run `34963582581`: runtime database authentication failed before fixture execution, then repeated attempts triggered the pooler's authentication circuit breaker;
 - smoke run `34964093451`: immutable deployment HTTP 200 passed, synthetic catalog entry remained invisible for 48 attempts, later bilingual/exposure checks were skipped.
@@ -39,8 +41,8 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 ## Next tasks, in order
 
-1. Fixture repair is GREEN at `a2315605154b2739ff43f0d360fdd1cbe51e40e0`, run `34982822944`, job `104427222729`. Public smoke is GREEN at `289731278043c2b01cf1305e2580fa6c02a66819`, run `34988776192`, job `104447664334`, including EN/AR catalog/detail and exposure checks. Begin with a bounded live synthetic enquiry/no-price-no-stock proof; inspect the Phase 4A integration and validation contracts before implementation. Do not recreate or reset the populated database.
-2. Complete remaining Gate C proofs: enquiry and no price/stock leakage; attachment/session continuity; external cron locking; WebSocket reconnect/replay; managed backup/destructive restore in the authorized rehearsal boundary; monitoring/alert ownership; live synthetic business-flow acceptance.
+1. Live bounded public enquiry/no-price-no-stock proof is GREEN at `cc056ee19ece534990b2d8885b6bd843e4324fbc`, run `34990008655`, job `104451908443`. It proved first acceptance `201`, exact replay `200`, conflicting replay `409`, injected price/stock rejection `400`, exact public response keys, EN/AR rendered no-leak checks, exactly one matching enquiry, zero sale/payment/stock deltas, and the unchanged epoch/privilege/provider seal. Continue with attachment and authenticated-session continuity; inspect the Phase 7 state/session contracts before implementation.
+2. Complete remaining Gate C proofs: attachment/session continuity; external cron locking; WebSocket reconnect/replay; managed backup/destructive restore in the authorized rehearsal boundary; monitoring/alert ownership; live synthetic business-flow acceptance.
 3. Reconcile the branch/PR release stack as a separate reviewable integration task. Only four early-phase draft PRs currently exist. `main` is historical, not the current application. Do not merge or delete phase branches without explicit authorization.
 4. Gate D requires named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, monitoring owners and explicit production GO.
 

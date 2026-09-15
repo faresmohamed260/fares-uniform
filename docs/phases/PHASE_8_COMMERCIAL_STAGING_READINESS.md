@@ -168,6 +168,8 @@ The September 14 content failure (run `34899200346`, job `104160775144`) is hist
 
 Exact public smoke is GREEN at `289731278043c2b01cf1305e2580fa6c02a66819`, run `34988776192`, job `104447664334`: EN/AR home/catalog/detail and exposure boundary (`401` unauthenticated cron; `404` broad login/direct Odoo catalog).
 
+Live bounded enquiry proof is GREEN at workflow source `cc056ee19ece534990b2d8885b6bd843e4324fbc`, run `34990008655`, job `104451908443`. Through immutable deployment `dpl_Ba34KhzW7AZ6aBY7poz1DeaQa3rg` it proved first acceptance `201`, exact replay `200`, conflicting replay `409`, injected `price`/`stock` rejection `400`, exact public response keys, EN/AR rendered no-leak checks, exactly one matching persisted enquiry and zero sale/payment/stock deltas. The deployment epoch, 988-relation application boundary, provider session table/extensions, absent `fu_uat` and revoked schema `CREATE` remained intact.
+
 See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep as the current blocker.
 
 ## Secret-management boundary
@@ -202,12 +204,12 @@ Currently proven:
 - managed schema repopulation under the guarded path;
 - post-deploy runtime privilege seal;
 - isolated Vercel project and public staging SSO policy.
+- bounded live synthetic enquiry intake, idempotent replay/conflict behavior, exact public response allowlist, EN/AR no-price/no-stock rendering and zero operational side effects.
 
 Current public-smoke result is recorded in `docs/validation/PHASE_8_HANDOFF_REPAIR.md`.
 
 Still required for Gate C:
 
-- live synthetic enquiry proof, including no price/stock leakage;
 - attachment continuity;
 - authenticated-session continuity or documented re-authentication behavior;
 - external cron/native locking;

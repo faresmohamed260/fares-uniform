@@ -168,6 +168,8 @@ The September 14 content failure (run `34899200346`, job `104160775144`) is hist
 
 Exact public smoke is GREEN at `289731278043c2b01cf1305e2580fa6c02a66819`, run `34988776192`, job `104447664334`: EN/AR home/catalog/detail and exposure boundary (`401` unauthenticated cron; `404` broad login/direct Odoo catalog).
 
+Live bounded enquiry proof is GREEN at workflow source `cc056ee19ece534990b2d8885b6bd843e4324fbc`, run `34990008655`, job `104451908443`. The immutable deployment returned `201` for the first synthetic submission, `200` with the same reference for exact replay, `409` for a conflicting replay and `400` for injected `price`/`stock` fields. Public responses retained their exact allowlist, EN/AR rendered enquiry surfaces contained no forbidden commercial/inventory wording, exactly one matching enquiry persisted, sale/payment/stock counts did not change, and the runtime/provider privilege seal remained intact.
+
 See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep as the current blocker.
 
 ## Secret-management boundary
@@ -180,7 +182,7 @@ See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current publi
 
 - **Gate A — repository planning: PASS.**
 - **Gate B — authorization/provider ownership: PASS.**
-- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing and runtime privilege seal are GREEN; fixture repair is GREEN; current smoke status is recorded in the repair evidence.
+- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering and bounded live enquiry/no-leak proof are GREEN. Attachment/session continuity, cron locking, WebSocket replay, recovery, monitoring and business-flow acceptance remain.
 - **Gate D — production: NO-GO.** Separate operational, device/staff/data-cutover and explicit production authorization are still required.
 
 ## Next authorized execution sequence
