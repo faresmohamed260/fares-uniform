@@ -1,0 +1,107 @@
+name: Phase 8 repair UAT shell invocation
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-repair-uat-shell.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact repair generation
+        uses: actions/checkout@v4
+        with:
+          ref: phase-8/commercial-staging-readiness
+          fetch-depth: 1
+
+      - name: Refuse stale repair generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          remote_head="$(git ls-remote origin refs/heads/phase-8/commercial-staging-readiness | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale repair: run=$GITHUB_SHA branch=$remote_head" >&2; exit 1; }
+
+      - name: Patch only the invalid Odoo shell invocation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/phase8-live-business-uat.yml')
+          text = path.read_text(encoding='utf-8')
+          old = '''          chmod 600 "$script"
+          docker run --rm -i \\
+            -e PHASE8_UAT_RUN_ID="$GITHUB_RUN_ID" \\
+            -e ODOO_RUNTIME_MODE=http \\
+            -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres \\
+            -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require \\
+            -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0 \\
+            -e FARES_SESSION_STORE=postgres \\
+            "fares-uniform-phase8-business:$EXPECTED_DEPLOYMENT_SHA" shell -d postgres --no-http < "$script" \\
+            | tee /tmp/phase8-business-uat.log
+'''
+          new = '''          chmod 600 "$script"
+          docker run --rm -i \\
+            -e PHASE8_UAT_RUN_ID="$GITHUB_RUN_ID" \\
+            -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres \\
+            -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require \\
+            -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0 \\
+            -e FARES_SESSION_STORE=postgres \\
+            --entrypoint bash \\
+            "fares-uniform-phase8-business:$EXPECTED_DEPLOYMENT_SHA" -lc '\''
+              set -euo pipefail
+              umask 077
+              cat > /tmp/fares-phase8-uat.conf <<EOF
+          [options]
+          addons_path = /mnt/runtime-addons,/mnt/extra-addons,/opt/odoo/addons
+          data_dir = /tmp/odoo-data
+          server_wide_modules = base,web,fares_vercel_runtime
+          admin_passwd = ${ODOO_ADMIN_PASSWD}
+          db_host = ${ODOO_DB_HOST}
+          db_port = ${ODOO_DB_PORT}
+          db_user = ${ODOO_DB_USER}
+          db_password = ${ODOO_DB_PASSWORD}
+          db_sslmode = ${ODOO_DB_SSLMODE}
+          db_name = ${ODOO_DB_NAME}
+          dbfilter = ^${ODOO_DB_NAME}$
+          list_db = False
+          proxy_mode = True
+          workers = 0
+          max_cron_threads = 0
+          log_level = info
+          without_demo = all
+          EOF
+              chmod 0600 /tmp/fares-phase8-uat.conf
+              exec /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-phase8-uat.conf -d "$ODOO_DB_NAME" --no-http
+            '\'' < "$script" 2>&1 | tee /tmp/phase8-business-uat.log
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f'expected exactly one old invocation block, found {text.count(old)}')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+          git diff --check
+          test "$(git diff --name-only | paste -sd, -)" = '.github/workflows/phase8-live-business-uat.yml'
+          grep -F -- '--entrypoint bash' .github/workflows/phase8-live-business-uat.yml
+          grep -F -- 'odoo-bin shell -c /tmp/fares-phase8-uat.conf' .github/workflows/phase8-live-business-uat.yml
+          grep -F -- '2>&1 | tee /tmp/phase8-business-uat.log' .github/workflows/phase8-live-business-uat.yml
+
+      - name: Commit repaired UAT harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_head="$(git ls-remote origin refs/heads/phase-8/commercial-staging-readiness | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing write after concurrent change: run=$GITHUB_SHA branch=$remote_head" >&2; exit 1; }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/phase8-live-business-uat.yml
+          git commit -m 'Fix Phase 8 live UAT Odoo shell invocation'
+          git push origin HEAD:refs/heads/phase-8/commercial-staging-readiness
