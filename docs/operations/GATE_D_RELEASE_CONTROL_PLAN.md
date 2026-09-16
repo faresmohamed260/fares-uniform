@@ -1,6 +1,6 @@
 # Gate D release-control plan
 
-Status: **PROPOSED — NOT APPLIED. PRODUCTION NO-GO.**
+Status: **DEFERRED BY CLIENT — NOT APPLIED. PRODUCTION NO-GO.**
 
 This plan defines the repository controls required before production deployment can be enabled. It records current GitHub state and a safe implementation sequence; it does not itself modify repository settings, create a production environment, select reviewers or authorize deployment.
 
@@ -80,12 +80,8 @@ Zero open alerts at one audit instant is not a substitute for an ongoing policy.
 7. Add production secrets only through the separately approved GD-03 custody process.
 8. Run the exact production preflight; production remains NO-GO until GD-01 through GD-10 are closed and explicit GO is recorded.
 
-## Required client input
+## Client decision
 
-Implementation cannot safely begin until the client approves:
+On 2026-09-16 the client declined applying these controls. No ruleset, branch protection, Dependabot setting or deployment environment was changed.
 
-- whether `main` should require one approving review and who may hold the emergency bypass role;
-- whether Dependabot security updates should be enabled;
-- which private role/person will review production-environment deployments.
-
-Names should be configured privately in GitHub, not committed to this public repository.
+This plan is retained for future review only. Do not implement it from a generic request to continue; explicit authorization must reopen GD-10 and provide the required reviewer/bypass roles privately.

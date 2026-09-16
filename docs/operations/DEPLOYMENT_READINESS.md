@@ -186,6 +186,8 @@ The Phase 6 PostgreSQL+filestore recovery model remains preserved for its verifi
 - [ ] Production deployment workflow proves an ordinary push cannot deploy without the approved environment gate.
 
 See [Gate D release-control plan](GATE_D_RELEASE_CONTROL_PLAN.md). No repository protection or environment setting was changed by the audit.
+
+Client direction on 2026-09-16: do not apply the proposed branch protection, Dependabot or production-environment changes. GD-10 is deferred/not approved and remains a production NO-GO condition.
 ### Store/device compatibility
 - [ ] Actual checkout computer/browser validated.
 - [ ] Scanner capability validated without brand-specific application assumptions.
@@ -251,7 +253,7 @@ There is no known application or Gate C engineering blocker. Remaining work is G
 
 1. Preserve the integrated application and staging evidence; do not delete phase branches without explicit authorization.
 2. Use `docs/operations/GATE_D_DECISION_REGISTER.md` to collect the unresolved production decisions without putting staff names, secrets or real customer/business data in GitHub.
-3. Continue reversible documentation/CI preparation that does not depend on an unresolved Gate D choice.
+3. Reversible repository/CI preparation is complete. Further work requires an explicit Gate D choice or private/physical acceptance evidence.
 4. Do not purchase a production plan, create production resources, activate production secrets, migrate real data, change DNS/domains or cut over by inference.
 5. Do not run, disable, postpone or drain the known ordinary-cron backlog merely to obtain proof.
 

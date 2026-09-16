@@ -76,10 +76,11 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 ## Next tasks, in order
 
-1. Release integration and native scheduled staging observability are complete. Preserve merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, scheduled authority run `35129331378` / job `104906119150`, and all phase branches unless deletion is explicitly authorized.
-2. Work through [the Gate D decision register](docs/operations/GATE_D_DECISION_REGISTER.md), beginning with GD-01 production hosting/spending and GD-10 release controls. The read-only audit found no `main` ruleset/branch protection and no GitHub deployment environments; see [the release-control plan](docs/operations/GATE_D_RELEASE_CONTROL_PLAN.md). Do not infer names, hardware, production host/plan, domains, secret owners, migration method, backup retention/RPO/RTO, monitoring recipients/escalation, launch window or production GO.
-3. Continue only reversible repository/CI preparation that does not require an unresolved Gate D choice. Production remains NO-GO, and real-data/provider spending/cutover actions require separate explicit authorization.
-4. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release staging gate. Treat any expansion as separately scoped work.
+1. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, scheduled authority run `35129331378` / job `104906119150`, and all phase branches.
+2. The client declined the proposed GD-10 repository/environment control changes on 2026-09-16. Do not enable branch protection, Dependabot security updates or a GitHub `production` environment unless later explicitly authorized.
+3. No remaining Gate D item can be completed from repository/CI evidence alone. GD-01 through GD-09 require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
+4. Do not create production resources, purchase services, activate production secrets, migrate real data, change domains/DNS, assign staff, invent hardware results or cut over without the corresponding explicit Gate D decisions and final production GO.
+5. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release scope.
 ## Constraints for every continuation
 
 Remote GitHub source edits and hosted execution only. No local/scratch source, builds or artifacts. No force push, broad Odoo exposure, real business data, `fu_uat` in staging/production, transaction pooling, routine provider-admin Odoo, paid upgrades or production cutover.

@@ -347,3 +347,10 @@ After PR #6 was ready for review, mergeable and GREEN across all 15 exact-head p
 The merge activates the twice-hourly staging observability schedule because the workflow now exists on default branch `main`. Manual default-branch run `35099333740`, job `104804477793`, passed at the merge commit and reconfirmed the live staging health, provider/database/cron seals and recovery authority without mutation.
 
 This integration does not redeploy application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`, alter the staging database, execute or reschedule the ordinary cron backlog, authorize real data or paid resources, resolve Gate D or authorize production cutover. Production remains NO-GO.
+## D-046 — Gate D repository release controls deferred
+
+Status: Client direction recorded 2026-09-16; production remains NO-GO.
+
+The read-only Gate D audit found no repository ruleset or `main` branch protection, no GitHub deployment environments and disabled Dependabot security updates. It also found read-only default Actions permissions, enabled secret scanning/push protection and zero open Dependabot, code-scanning or secret-scanning alerts at the audit time.
+
+The client declined the proposed changes to enable `main` protection, Dependabot security updates and an empty protected `production` environment, then instructed completion of the remaining authorized tasks. No GitHub setting, environment, secret or deployment was changed. This is a deferral, not acceptance of an unprotected production release process. GD-10 remains NOT APPROVED and production remains NO-GO unless a later explicit decision establishes the release-control boundary.
