@@ -41,7 +41,7 @@ jobs:
           test "$(jq -r '.conclusion' "$meta")" = failure
           echo "phase8_red_job_identity=PASS run=$SOURCE_RUN_ID job=$SOURCE_JOB_ID sha=$SOURCE_HEAD_SHA"
 
-      - name: Recover focused masked diagnostic
+      - name: Recover masked transaction-step diagnostic
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -59,66 +59,52 @@ jobs:
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/logs" \
             -o "$archive"
           unzip -q "$archive" -d "$logs_dir"
-          source_log="$(find "$logs_dir" -type f -name '*.txt' | head -n 1)"
+          source_log=""
+          while IFS= read -r candidate; do
+            if grep -q 'PHASE8_UAT_RUN_ID' "$candidate"; then
+              source_log="$candidate"
+              break
+            fi
+          done < <(find "$logs_dir" -type f -name '*.txt' -print)
           test -n "$source_log"
-          python - "$source_log" "$diagnostic" "$status_text" <<'PY'
+          cp "$source_log" "$diagnostic"
+          python - "$source_log" "$status_text" <<'PY'
           from pathlib import Path
           import re
           import sys
 
           source = Path(sys.argv[1])
-          target = Path(sys.argv[2])
-          status_target = Path(sys.argv[3])
+          status_target = Path(sys.argv[2])
           lines = source.read_text(encoding="utf-8", errors="replace").splitlines()
-          markers = [line for line in lines if "phase8_uat_" in line or "phase8_live_business_uat=" in line]
           specific = (
               "AssertionError",
               "ValidationError",
               "AccessError",
+              "UserError",
+              "MissingError",
+              "KeyError",
+              "TypeError",
+              "AttributeError",
+              "ValueError",
+              "RuntimeError",
               "odoo.exceptions",
               "psycopg2.errors",
               "Exception:",
           )
-          specific_hits = [i for i, line in enumerate(lines) if any(needle in line for needle in specific)]
-          traceback_hits = [i for i, line in enumerate(lines) if "Traceback (most recent call last):" in line]
+          specific_hits = [line for line in lines if any(needle in line for needle in specific)]
           if specific_hits:
-              anchor = specific_hits[-1]
-              traceback_before = [i for i in traceback_hits if i <= anchor]
-              start = max(0, (traceback_before[-1] if traceback_before else anchor) - 80)
-              end = min(len(lines), anchor + 120)
-              focused = lines[start:end]
-              description = lines[anchor]
-          elif traceback_hits:
-              anchor = traceback_hits[-1]
-              start = max(0, anchor - 80)
-              end = min(len(lines), anchor + 220)
-              focused = lines[start:end]
-              description = "Traceback recovered; inspect diagnostic artifact"
+              description = specific_hits[-1]
           else:
-              focused = lines[-1600:]
               fallback = [line for line in lines if "##[error]" in line or " ERROR " in line or " CRITICAL " in line]
-              description = fallback[-1] if fallback else "Phase 8 UAT failed; no exception line detected"
+              description = fallback[-1] if fallback else "Phase 8 UAT transaction step failed without a recognized exception line"
           description = re.sub(r"^\d{4}-\d{2}-\d{2}T[^ ]+\s+", "", description).strip()
           if len(description) > 140:
               description = description[:137] + "..."
-          output = [
-              "source_run=35078985169",
-              "source_job=104738120056",
-              "source_head=840b623340234518a1f58a6145ce7bc4f8eb0c19",
-              "",
-              "=== UAT PASS MARKERS ===",
-              *markers,
-              "",
-              "=== FOCUSED FAILURE CONTEXT ===",
-              *focused,
-              "",
-          ]
-          target.write_text("\n".join(output), encoding="utf-8")
           status_target.write_text(description, encoding="utf-8")
           PY
           test -s "$diagnostic"
           test -s "$status_text"
-          echo "phase8_red_diagnostic=PASS lines=$(wc -l < "$diagnostic")"
+          echo "phase8_red_transaction_log=PASS file=$(basename "$source_log") lines=$(wc -l < "$diagnostic")"
 
       - name: Publish final exception as commit status
         env:
@@ -137,7 +123,7 @@ jobs:
             > /dev/null
           echo "phase8_red_status=PASS description=$description"
 
-      - name: Upload focused RED diagnostic
+      - name: Upload masked transaction-step RED diagnostic
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
