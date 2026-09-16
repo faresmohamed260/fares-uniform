@@ -21,6 +21,7 @@ jobs:
       RED_RUN_ID: '35074919114'
     steps:
       - name: Recover exact preserved RED exception
+        id: recover
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
