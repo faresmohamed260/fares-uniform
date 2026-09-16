@@ -72,11 +72,25 @@ GREEN [run 35068971581](https://github.com/faresmohamed260/fares-uniform/actions
 
 The connector did not expose sealed stdout for the final GREEN job, so the final run's backup byte count, SHA-256 and filtered-list count are intentionally not reconstructed from older runs. Exact run/job/source identity, step conclusions and zero retained artifacts are the verified completion evidence.
 
+## Hosted staging observability and alert transport — GREEN
+
+Workflow source `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215` introduced `.github/workflows/phase8-staging-observability.yml` and is GREEN in [run 35071292407](https://github.com/faresmohamed260/fares-uniform/actions/runs/35071292407), job `104713180912`.
+
+The run resolved exact deployment `dpl_Ba34KhzW7AZ6aBY7poz1DeaQa3rg` at application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`. Immutable EN and canonical AR public checks returned `200`; unauthenticated cron returned `401`; broad `/web/login` and direct `/fu/public/catalog` returned `404`.
+
+Vercel runtime-log checks used pinned CLI `59.17.0`, captured log records only into runner-local temporary files, emitted aggregate counts only and observed `0` error/fatal records plus `0` HTTP 5xx over the preceding hour. The Vercel project alert-rule API was accessible and returned one existing rule. The proof does not assume that rule's recipients or semantics.
+
+The read-only Supabase Management API check retained epoch `34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`, non-elevated `fares_app`, `CREATE=false`, 988 app-owned relations, provider-owned session table with exact runtime DML and zero PUBLIC grants, both required extensions, `fu_uat=0`, attachment location `db` and the fixed live synthetic enquiry. It observed the same 19 ordinary due cron rows without executing/rescheduling them, `failing_crons=0`, zero synthetic cron-locking residue and zero idle-in-transaction sessions older than five minutes. Latest managed recovery remained run `35068971581` / exact source `01824eba...` / success.
+
+The workflow proved its source-controlled failure transport on first execution: synthetic GitHub issue `#5` (`[staging alert self-test] Phase 8 observability transport`) was created by `github-actions[bot]` and immediately closed with `state_reason=completed`. Repository read-back confirms its body contains only the synthetic self-test statement and owner-role label, with no runtime logs, customer data, secrets, request bodies, database rows or staff names.
+
+Ownership is role-based (`technical-operations-owner`, `business-operations-owner`) until Gate D supplies named people. `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md` defines the privacy/redaction boundary and current monitored invariants. The workflow contains a twice-hourly schedule but GitHub scheduled workflows execute only from the default branch; because the current workflow remains on the Phase 8 branch, recurring GitHub polling is not yet active. Current staging evidence is push/manual hosted proof plus native Vercel/Supabase observability. This limitation does not authorize early release integration.
+
 ## Cleanup
 
 PROJECT.md owns current handoff; root README and docs index point there. Phase 8 contracts retain scope and historical evidence while current repair results live here. Workflow guide identifies retained and retired entry points. Five obsolete diagnostic/one-time mutation workflows removed from the current tree; history preserved. Generated prototype `node_modules`, `.next` and `tsconfig.tsbuildinfo` removed from the tracked tree, with root ignore rules to prevent recurrence. Source and lockfiles retained. Read-only DB diagnostics omit SQL query text.
 
-No business logic changed. The historical 149-test/8-browser-test authority remains `cc2656d7529cfd4af396ddd0af6444a0f6600dc8` / run `34700625051`; this maintenance work is not a new full-suite proof. Phase 8 Gate C remains incomplete and production remains NO-GO. Phase branches and draft PRs remain unmerged.
+No business logic changed. The historical 149-test/8-browser-test authority remains `cc2656d7529cfd4af396ddd0af6444a0f6600dc8` / run `34700625051`; this maintenance work is not a new full-suite proof. Phase 8 Gate C remains incomplete only for live synthetic business-flow acceptance; production remains NO-GO. Phase branches and draft PRs remain unmerged.
 
 ## Cleanup verification
 
