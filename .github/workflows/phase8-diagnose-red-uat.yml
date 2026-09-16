@@ -1,0 +1,125 @@
+name: Phase 8 diagnose preserved UAT RED
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-diagnose-red-uat.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  statuses: write
+
+jobs:
+  diagnose-red-uat:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      RED_RUN_ID: '35074919114'
+    steps:
+      - name: Recover exact preserved RED exception
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d)"
+          trap 'rm -rf "$work"' EXIT
+          archive="$work/logs.zip"
+          status="$(curl -sS -L -o "$archive" -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$RED_RUN_ID/logs")"
+          test "$status" = 200 || { echo "Unable to fetch preserved RED logs: HTTP $status" >&2; exit 1; }
+          unzip -q "$archive" -d "$work/logs"
+
+          python3 - "$work/logs" "$GITHUB_OUTPUT" <<'PY'
+          import re
+          import sys
+          from pathlib import Path
+
+          root = Path(sys.argv[1])
+          output = Path(sys.argv[2])
+          lines = []
+          for path in sorted(root.rglob("*")):
+              if not path.is_file():
+                  continue
+              try:
+                  text = path.read_text(encoding="utf-8", errors="replace")
+              except OSError:
+                  continue
+              lines.extend(text.splitlines())
+
+          def clean(value):
+              value = re.sub(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z\s+", "", value).strip()
+              value = re.sub(r"\s+", " ", value)
+              return value
+
+          def short(value, limit=135):
+              value = clean(value)
+              return value[:limit] if value else "not-found"
+
+          markers = []
+          for line in lines:
+              match = re.search(r"(phase8_uat_[a-z_]+)=PASS", line)
+              if match and match.group(1) not in markers:
+                  markers.append(match.group(1))
+
+          traceback_starts = [i for i, line in enumerate(lines) if "Traceback (most recent call last):" in line]
+          frame = ""
+          error = ""
+          if traceback_starts:
+              start = traceback_starts[-1]
+              for raw in lines[start + 1:start + 160]:
+                  value = clean(raw)
+                  if re.search(r'File ".+", line \d+', value):
+                      frame = value
+                  if re.search(
+                      r"(?:^|[\w.])(?:AssertionError|ValidationError|AccessError|UserError|TypeError|AttributeError|KeyError|ValueError|RuntimeError|OperationalError|ProgrammingError|IntegrityError|Exception):",
+                      value,
+                  ):
+                      error = value
+
+          if not error:
+              for raw in reversed(lines):
+                  value = clean(raw)
+                  if re.search(r"(?:Error|Exception):", value):
+                      error = value
+                      break
+
+          with output.open("a", encoding="utf-8") as handle:
+              handle.write(f"markers={short(','.join(markers) or 'none')}\n")
+              handle.write(f"frame={short(frame)}\n")
+              handle.write(f"error={short(error)}\n")
+          PY
+
+      - name: Publish recovered diagnostic as commit statuses
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          publish() {
+            local context="$1"
+            local description="$2"
+            payload="$(jq -cn \
+              --arg state failure \
+              --arg context "$context" \
+              --arg description "$description" \
+              --arg target_url "https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+              '{state:$state,context:$context,description:$description,target_url:$target_url}')"
+            curl -fsS -X POST \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              --data "$payload" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" >/dev/null
+          }
+          publish 'phase8/uat-red/markers' "${{ steps.recover.outputs.markers }}"
+          publish 'phase8/uat-red/frame' "${{ steps.recover.outputs.frame }}"
+          publish 'phase8/uat-red/error' "${{ steps.recover.outputs.error }}"
+          echo 'phase8_red_diagnostic=PASS source_run=35074919114'
