@@ -1,6 +1,6 @@
 # Phase 8A — Free-tier staging execution
 
-Status: **LIVE STAGING AUTHORIZED; FIXTURE AND PUBLIC SMOKE GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
+Status: **LIVE STAGING AUTHORIZED; FIXTURE/PUBLIC CONTINUITY/RECOVERY GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -176,7 +176,19 @@ External cron/native locking is GREEN at workflow source `59d9553a1f14b6f4a1136a
 
 Live WebSocket reconnect/cursor replay is GREEN at workflow source `96e456412495f5b0cb1bb6c20ef00422ed633337`, run `35029061502`, job `104583000465`. A shared authenticated session survived complete evented-runtime replacement; the notification committed during absence replayed exactly once from the saved cursor. Synthetic identity/session/bus cleanup and all database/provider seals passed.
 
-See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep or resolved ordinary-cron backlog as the current blocker.
+## Managed backup/export and isolated destructive recovery — GREEN
+
+Workflow source `01824eba60dc55382a614178df3edd4d88997f61` is GREEN in run `35068971581`, job `104705729018`, against immutable application SHA `2a74e93b1828c16839ba7cede336caa4ca374306` and epoch `34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`.
+
+The workflow exported the managed `public` schema with PostgreSQL `17.6-bookworm` tooling, filtered provider-owned schema/extension/session definitions while preserving provider session data, built the exact deployed application image, destructively recreated only a disposable hosted PostgreSQL target, restored the archive there, repeated the seven-production-addon upgrade, and resealed provider/runtime privilege boundaries. Recovered application facts, attachment/session/business counts, exact durable `ir_cron` count, privilege seal and managed-source postflight all passed. Cleanup passed and GitHub reports zero retained workflow artifacts, so the backup archive was not retained by Actions.
+
+Preserved RED run `35062507713`, job `104685620618`, proved every recovery boundary except an exact `ir_cron_trigger` count equality. Inspection of pinned Odoo source established that `ir_cron_trigger` is a mutable scheduler wake-up queue: Odoo inserts trigger rows, removes due triggers during cron processing and garbage-collects stale/inactive trigger rows. Durable schedules live in `ir_cron`.
+
+Commit `01824eba60dc55382a614178df3edd4d88997f61` therefore anchors queue continuity to the restored archive itself: immediately after `pg_restore`, before the seven-addon upgrade, it records the complete restored trigger set; post-upgrade it requires every archive-restored trigger to remain, requires zero orphan triggers and permits legitimate newly created trigger rows. The durable `ir_cron` count remains exact source-to-target. Managed-source postflight now runs even when a target assertion fails. This corrects the recovery invariant rather than weakening it.
+
+The GitHub connector did not expose sealed stdout for final run `35068971581`; current backup byte/hash/list-count values are therefore intentionally not asserted in source documentation from an older run.
+
+See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current live evidence, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep, the resolved ordinary-cron backlog, or raw cross-time `ir_cron_trigger` count equality as a current blocker.
 
 ## Secret-management boundary
 
@@ -188,11 +200,11 @@ See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current publi
 
 - **Gate A — repository planning: PASS.**
 - **Gate B — authorization/provider ownership: PASS.**
-- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering, bounded live enquiry/no-leak proof, attachment/authenticated-session continuity, cron locking and WebSocket replay are GREEN. Recovery, monitoring and business-flow acceptance remain.
+- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering, bounded live enquiry/no-leak proof, attachment/authenticated-session continuity, cron locking, WebSocket replay and managed backup/isolated destructive recovery are GREEN. Monitoring and business-flow acceptance remain.
 - **Gate D — production: NO-GO.** Separate operational, device/staff/data-cutover and explicit production authorization are still required.
 
 ## Next authorized execution sequence
 
-Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Complete all remaining Gate C continuity/realtime/recovery/monitoring/business-flow evidence before staging sign-off. Gate D remains separately authorized.
+Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Establish hosted logs/monitoring/alerts with ownership-role and privacy/redaction rules, then complete live synthetic business-flow acceptance before staging sign-off. Gate D remains separately authorized.
 
 Remote GitHub/hosted execution only. No force-push, stale writer rerun, real data, `fu_uat`, direct `/fu/public/**`, transaction pooling, routine provider-admin Odoo, paid upgrade or production cutover.

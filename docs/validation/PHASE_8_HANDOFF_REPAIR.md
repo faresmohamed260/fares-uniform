@@ -1,4 +1,4 @@
-# Phase 8 staging repair and handoff evidence — 2026-09-15
+# Phase 8 staging repair and handoff evidence — 2026-09-16
 
 ## Scope
 
@@ -42,6 +42,7 @@ The accepted bounded policy in D-043 does not execute or mutate that backlog. Wo
 GREEN [run 35026879234](https://github.com/faresmohamed260/fares-uniform/actions/runs/35026879234), job `104575905196`, proved missing and invalid bearer requests return `401` with zero execution, two concurrent valid triggers create exactly one database-backed marker, and a repeat valid trigger creates no duplicate. Cleanup removed one synthetic cron and one marker before the quarantine transaction was rolled back.
 
 Pre/post snapshots matched exactly for every ordinary cron row and ordinary `ir_cron_trigger` row (`ordinary_cron_delta=0`, `ordinary_trigger_delta=0`). Postflight also proved zero sale/payment/stock deltas, no synthetic residue, unchanged epoch `34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`, 988 app-owned relations, provider-owned session state/extensions, effective session DML, schema `CREATE=false`, database-backed attachments and `fu_uat=0`. No ordinary cron ran, was disabled, postponed, rescheduled or otherwise changed.
+
 ## Live WebSocket reconnect and cursor replay — GREEN
 
 Workflow source `96e456412495f5b0cb1bb6c20ef00422ed633337` adapted the Phase 7 replacement/replay contract to the populated managed staging database without redeploying the application. GREEN [run 35029061502](https://github.com/faresmohamed260/fares-uniform/actions/runs/35029061502), job `104583000465`, verified immutable application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`, deployment `dpl_Ba34KhzW7AZ6aBY7poz1DeaQa3rg` and database epoch `34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`.
@@ -49,6 +50,28 @@ Workflow source `96e456412495f5b0cb1bb6c20ef00422ed633337` adapted the Phase 7 r
 One fixed synthetic internal user authenticated through the HTTP runtime and produced an 84-character PostgreSQL-backed session. A no-mount gevent runtime received the first channel notification (`id=7`). The proof then destroyed that runtime completely, confirmed its endpoint was absent, and committed the second notification while no evented runtime existed. A fresh exact-image gevent runtime reconnected with the same shared session and saved cursor, delivered the unseen second notification, and did not duplicate the first.
 
 Cleanup removed exactly one synthetic user, one partner, one shared-session row and two run-scoped bus rows. Postflight found no synthetic residue, zero session/sale/payment/stock deltas, and an unchanged ordinary-cron snapshot. The provider-owned session table/extensions, effective runtime session DML, revoked PUBLIC/session exposure, schema `CREATE=false`, 988 app-owned relations, installed `bus`, and absent `fu_uat` all remained intact. Built-in cron threads remained disabled throughout.
+
+## Managed backup/export and isolated destructive recovery — RED→GREEN
+
+The recovery workflow is `.github/workflows/phase8-managed-backup-restore.yml`. Its destructive action is restricted to a disposable hosted PostgreSQL target; it never resets the populated managed source. Backup files remain runner-local and are destroyed during cleanup rather than uploaded as Actions artifacts.
+
+Preserved RED progression:
+
+- run `35031853074`, job `104591923750`: safely failed before target creation because the runner's PostgreSQL 16 client could not dump the managed PostgreSQL 17.6 source;
+- run `35031940049`: cancelled while `--serializable-deferrable` waited; no target was created;
+- run `35032216272`, job `104593091927`: PostgreSQL `17.6-bookworm` export, exact image, disposable target, restore and seven-addon upgrade passed; final verifier invocation wiring failed; cleanup passed;
+- run `35060302526`, job `104679016480`: verifier reached the recovered database but failed inside the combined post-restore assertion boundary; cleanup passed and no workflow artifact was retained;
+- run `35061384154`, job `104682245023`: recovered application facts, database fact capture and privilege seal all passed; only aggregate restored-count verification failed;
+- run `35062507713`, job `104685620618`: ten restored count categories plus durable `ir_cron` passed; only raw `ir_cron_trigger` source-preflight versus post-upgrade equality failed. Source state was not mutated and cleanup passed.
+
+The final mismatch was not treated as a reason to suppress an assertion. Pinned Odoo source at `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf` establishes that `ir_cron_trigger` is a mutable scheduler wake-up queue: trigger APIs insert rows, due triggers are removed during cron startup/processing, and stale/inactive triggers are garbage-collected. Durable schedule definitions are stored in `ir_cron`. Comparing a live source preflight queue count taken before `pg_dump` with a restored target after a seven-addon upgrade was therefore a cross-time comparison of derived scheduler state, not a durable recovery invariant.
+
+Commit `01824eba60dc55382a614178df3edd4d88997f61` anchored the trigger invariant to the archive itself. Immediately after `pg_restore`, before the seven-addon upgrade, the workflow snapshots every restored `{id, cron_id, call_at}` trigger. Post-upgrade it proves that the entire archive-restored trigger set is still present, that there are zero trigger rows whose cron no longer exists, and that the final queue contains at least the archive-restored rows. Legitimate new rows created by the required upgrade are allowed. Exact source-to-target equality remains required for durable `ir_cron` rows. Managed-source postflight also uses `if: !cancelled()` so a target assertion cannot hide source-boundary evidence.
+
+GREEN [run 35068971581](https://github.com/faresmohamed260/fares-uniform/actions/runs/35068971581), job `104705729018`, exact workflow source `01824eba60dc55382a614178df3edd4d88997f61`, completed successfully. Step metadata proves managed-source preflight, PostgreSQL 17.6 export, exact-image/disposable-target recreation, restore plus seven-addon upgrade, recovered application facts, recovered database facts, privilege seal, all attachment/session/business counts, exact durable cron count, archive-trigger continuity/no-orphan proof, managed-source postflight, evidence publication and cleanup all passed. `fetch_workflow_run_artifacts` returned `total_count=0`, so no backup archive or other workflow artifact was retained.
+
+The connector did not expose sealed stdout for the final GREEN job, so the final run's backup byte count, SHA-256 and filtered-list count are intentionally not reconstructed from older runs. Exact run/job/source identity, step conclusions and zero retained artifacts are the verified completion evidence.
+
 ## Cleanup
 
 PROJECT.md owns current handoff; root README and docs index point there. Phase 8 contracts retain scope and historical evidence while current repair results live here. Workflow guide identifies retained and retired entry points. Five obsolete diagnostic/one-time mutation workflows removed from the current tree; history preserved. Generated prototype `node_modules`, `.next` and `tsconfig.tsbuildinfo` removed from the tracked tree, with root ignore rules to prevent recurrence. Source and lockfiles retained. Read-only DB diagnostics omit SQL query text.

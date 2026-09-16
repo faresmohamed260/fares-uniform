@@ -1,6 +1,6 @@
 # Phase 8 — Commercial staging readiness
 
-Status: **LIVE STAGING AUTHORIZED; FIXTURE AND PUBLIC SMOKE GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
+Status: **LIVE STAGING AUTHORIZED; FIXTURE/PUBLIC CONTINUITY/RECOVERY GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -176,7 +176,15 @@ External cron/native locking is GREEN at workflow source `59d9553a1f14b6f4a1136a
 
 Live WebSocket reconnect/cursor replay is GREEN at workflow source `96e456412495f5b0cb1bb6c20ef00422ed633337`, run `35029061502`, job `104583000465`. It proved authenticated delivery, complete evented-runtime destruction, publication during absence, fresh-runtime replay from the saved cursor without duplication, shared PostgreSQL-session continuity, complete synthetic cleanup and zero business/ordinary-cron deltas.
 
-See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current public-smoke results, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep or the resolved ordinary-cron backlog as the current blocker.
+## Managed backup/export and isolated destructive recovery — GREEN
+
+Workflow source `01824eba60dc55382a614178df3edd4d88997f61` is GREEN in run `35068971581`, job `104705729018`. It exported the populated managed `public` schema with PostgreSQL 17.6 tooling, restored only into a disposable hosted PostgreSQL target, repeated the exact seven-addon upgrade, verified recovered application/attachment/session/business facts, exact durable `ir_cron` count, the provider/runtime privilege seal and an unchanged managed source, then cleaned up. GitHub reports zero retained workflow artifacts for the run.
+
+Preserved RED run `35062507713`, job `104685620618`, isolated the only remaining failure to a raw `ir_cron_trigger` count equality after every other recovery boundary passed. Pinned Odoo source confirms `ir_cron_trigger` is a mutable scheduler wake-up queue, while `ir_cron` holds durable schedule definitions. Commit `01824eba60dc55382a614178df3edd4d88997f61` records the exact trigger set directly from the restored archive before the seven-addon upgrade and then proves the full archive-restored set survives, no orphan trigger exists and durable `ir_cron` still matches exactly. Upgrade-created trigger rows are legitimate and may increase the queue. Managed-source postflight also runs independently of target assertion failures.
+
+The connector did not expose sealed stdout for final run `35068971581`; current backup byte/hash/list-count values are intentionally omitted rather than copied from an older run.
+
+See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current evidence, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep, the resolved ordinary-cron backlog, or raw cross-time `ir_cron_trigger` count equality as the current blocker.
 
 ## Secret-management boundary
 
@@ -209,15 +217,17 @@ Currently proven:
 - retirement/manual fail-closed treatment of legacy DB writers;
 - managed schema repopulation under the guarded path;
 - post-deploy runtime privilege seal;
-- isolated Vercel project and public staging SSO policy.
-- bounded live synthetic enquiry intake, idempotent replay/conflict behavior, exact public response allowlist, EN/AR no-price/no-stock rendering and zero operational side effects.
-- database-backed attachment and authenticated-session continuity across complete runtime replacement.
+- isolated Vercel project and public staging SSO policy;
+- bounded live synthetic enquiry intake, idempotent replay/conflict behavior, exact public response allowlist, EN/AR no-price/no-stock rendering and zero operational side effects;
+- database-backed attachment and authenticated-session continuity across complete runtime replacement;
+- bounded external cron/native-locking proof without mutating the ordinary backlog;
+- authenticated WebSocket replacement/reconnect/cursor replay continuity;
+- managed backup/export plus destructive restore only on a disposable target, repeat seven-addon upgrade, recovered state/privilege proof and zero retained workflow artifacts.
 
-Current public-smoke result is recorded in `docs/validation/PHASE_8_HANDOFF_REPAIR.md`.
+Current exact live evidence is recorded in `docs/validation/PHASE_8_HANDOFF_REPAIR.md`.
 
 Still required for Gate C:
 
-- managed backup/export plus destructive restore rehearsal;
 - logs/monitoring/alert ownership and privacy/redaction rules;
 - business UAT path for company → branch → warehouse → POS session → order → payment → posting → stock/cash/evidence, plus reorder/supplier/FIFO/credit-customer and offline/outbox/IPC scenarios.
 
@@ -227,6 +237,6 @@ Still required for Gate C:
 
 ## Immediate continuation
 
-Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Complete all remaining Gate C continuity/realtime/recovery/monitoring/business-flow evidence before staging sign-off. Gate D remains separately authorized.
+Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Establish hosted logs/monitoring/alerts with ownership-role and privacy/redaction rules, then complete live synthetic business-flow evidence before staging sign-off. Gate D remains separately authorized.
 
 Remote GitHub/hosted execution only. No force-push, stale writer rerun, real data, `fu_uat`, direct `/fu/public/**`, transaction pooling, routine provider-admin Odoo, paid upgrade or production cutover.

@@ -12,6 +12,7 @@ Read `PROJECT.md` first and verify the remote active branch HEAD. Workflow files
 | `phase8-live-state-continuity.yml` | Exact-image attachment and authenticated PostgreSQL-session continuity across complete runtime replacement; bounded synthetic state and sealed postflight |
 | `phase8-live-cron-locking.yml` | Exact-image external cron/native `SKIP LOCKED` proof; temporarily transaction-locks the diagnosed ordinary backlog without mutation, then removes all synthetic state |
 | `phase8-live-websocket-replay.yml` | Exact-image authenticated WebSocket delivery, complete evented-runtime replacement, cursor replay/no-duplicate proof and full run-scoped cleanup |
+| `phase8-managed-backup-restore.yml` | Managed PostgreSQL 17.6 export plus destructive restore only into a disposable hosted target; exact deployed image/seven-addon upgrade, provider seal, recovered business/session/attachment/durable-cron proof, archive-anchored trigger continuity, source postflight and no retained backup artifact |
 | `phase8-live-cron-diagnostic.yml` | Read-only Odoo 19 cron inventory and stored-field diagnostics; no mutation |
 | `phase8-live-db-diagnostics.yml` | Read-only runtime/connection facts; no SQL query text in logs |
 | `phase8-public-schema-preflight.yml` | Read-only schema/provider ownership inventory |
@@ -24,6 +25,14 @@ Read `PROJECT.md` first and verify the remote active branch HEAD. Workflow files
 | `phase8-live-db-recovery.yml` | Explicit emergency fail-closed runtime disable; not normal startup |
 
 Phase 0–7 validation workflows remain for their bounded regression/evidence purposes. Source changes require appropriate hosted checks; docs-only changes require remote read-back and links/consistency checks.
+
+## Managed recovery invariant
+
+`phase8-managed-backup-restore.yml` must never destructively restore the populated managed source. It exports the managed `public` schema, recreates only a disposable hosted PostgreSQL target, pre-provisions provider-owned session/extension infrastructure, restores the filtered archive, repeats the exact seven-production-addon upgrade, reseals runtime/provider privileges, verifies the managed source remained unchanged and destroys all runner-local backup state during cleanup. Do not upload the backup as a workflow artifact.
+
+Treat `ir_cron` and `ir_cron_trigger` differently. `ir_cron` is durable schedule definition state and remains an exact source-to-restored-target count invariant. Pinned Odoo treats `ir_cron_trigger` as a mutable scheduler wake-up queue, so a live source count sampled before `pg_dump` is not comparable to a post-upgrade target count. The accepted proof snapshots the exact trigger set immediately after `pg_restore`, before the seven-addon upgrade, and requires that complete archive-restored set to remain afterward with zero orphan triggers. Legitimate upgrade-created trigger rows may increase the queue. Do not replace this with a raw cross-time count equality.
+
+Current recovery authority: workflow source `01824eba60dc55382a614178df3edd4d88997f61`, run `35068971581`, job `104705729018`, result GREEN. GitHub reports zero retained workflow artifacts. Production remains NO-GO; this is staging recovery evidence only.
 
 ## Retired one-off workflows
 
