@@ -1,6 +1,6 @@
 # Phase 8 — Commercial staging readiness
 
-Status: **LIVE STAGING AUTHORIZED; FIXTURE/PUBLIC CONTINUITY/RECOVERY/OBSERVABILITY GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
+Status: **LIVE STAGING AUTHORIZED; FIXTURE/PUBLIC CONTINUITY/RECOVERY/OBSERVABILITY/BUSINESS UAT GREEN; GATE C PASS; PRODUCTION NO-GO.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -8,7 +8,7 @@ Pinned Odoo Community SHA: `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`.
 
 Live execution detail is owned by `docs/phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md`.
 
-Gate A and Gate B are PASS. Gate C remains in progress. Current repair results and next actions are owned by `PROJECT.md` and `docs/validation/PHASE_8_HANDOFF_REPAIR.md`; the checkpoints below preserve their original evidence.
+Gate A, Gate B and Gate C are PASS. Production remains a separate Gate D NO-GO. Current evidence and next actions are owned by `PROJECT.md` and `docs/validation/PHASE_8_HANDOFF_REPAIR.md`.
 
 ## Goal and authorization boundary
 
@@ -214,34 +214,15 @@ The no-value inventory remains `docs/operations/PHASE_8_STAGING_SECRET_INVENTORY
 
 ### Gate C — live staging technical GO
 
-**IN PROGRESS / NO-GO FOR STAGING SIGN-OFF.**
+**PASS — LIVE STAGING TECHNICAL ACCEPTANCE COMPLETE.**
 
-Currently proven:
+Final live business-UAT authority: workflow source `48316711e4939e4a2e99f2708093930d430cf602`, run `35081126154`, job `104745121818`, immutable application `2a74e93b1828c16839ba7cede336caa4ca374306`, epoch `34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`. Fresh authority/baseline, exact-image build, production-model transaction, explicit rollback, independent exact postflight, evidence publication and cleanup all passed; retained artifact count is zero.
 
-- managed Session Pooler/TLS/dotted-user connectivity;
-- least-privilege bootstrap boundary;
-- corrected provider-boundary restore;
-- repeat seven-addon upgrade with `fu_uat` absent;
-- private Next.js→Odoo explicit DB selection;
-- stale-rerun root cause and reset-epoch protection;
-- retirement/manual fail-closed treatment of legacy DB writers;
-- managed schema repopulation under the guarded path;
-- post-deploy runtime privilege seal;
-- isolated Vercel project and public staging SSO policy;
-- bounded live synthetic enquiry intake, idempotent replay/conflict behavior, exact public response allowlist, EN/AR no-price/no-stock rendering and zero operational side effects;
-- database-backed attachment and authenticated-session continuity across complete runtime replacement;
-- bounded external cron/native-locking proof without mutating the ordinary backlog;
-- authenticated WebSocket replacement/reconnect/cursor replay continuity;
-- managed backup/export plus destructive restore only on a disposable target, repeat seven-addon upgrade, recovered state/privilege proof and zero retained workflow artifacts;
-- hosted staging observability, aggregate runtime-error/5xx proof, database/cron/recovery health checks, role-based ownership labels and a tested privacy-safe issue alert transport.
+Coverage includes Store/Storage stock custody and idempotent transfer; native POS session with cashier checkout through `pos.order.sync_from_ui`, cash payment/picking/accounting; role-revocation reconnect denial; business sample/quotation, confirmed InstaPay deposit, unpaid-delivery guard, balance collection, delivery and reporting. Ordinary cron definitions/triggers were not run or rescheduled and exact snapshots stayed unchanged. `fu_uat` stayed absent and the epoch/provider/session/extensions/988-relations/`CREATE=false` seal remained intact.
 
-Current exact live evidence is recorded in `docs/validation/PHASE_8_HANDOFF_REPAIR.md`.
+Preserved RED `35078985169` / job `104738120056` proved the backend `pos.make.payment` wizard was a harness-only shortcut unavailable to cashier. The fix did not widen ACLs; it moved the proof to the real POS UI-sync path.
 
-Still required for Gate C:
-
-- business UAT path for company → branch → warehouse → POS session → order → payment → posting → stock/cash/evidence, plus reorder/supplier/FIFO/credit-customer and offline/outbox/IPC scenarios.
-
-The default-branch activation of recurring GitHub observability is a release-integration concern; named people, production notification recipients, escalation and retention remain Gate D.
+Purchase, MRP, procurement planning, `sale_management` and `stock_valuation_layer` are outside the accepted first-release staging topology and are not Gate C prerequisites. Recurring GitHub observability activation belongs to release integration; named production owners/recipients/retention remain Gate D.
 
 ### Gate D — production
 

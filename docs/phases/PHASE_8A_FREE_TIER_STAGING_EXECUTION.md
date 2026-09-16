@@ -1,6 +1,6 @@
 # Phase 8A — Free-tier staging execution
 
-Status: **LIVE STAGING AUTHORIZED; FIXTURE/PUBLIC CONTINUITY/RECOVERY/OBSERVABILITY GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
+Status: **LIVE STAGING AUTHORIZED; FIXTURE/PUBLIC CONTINUITY/RECOVERY/OBSERVABILITY/BUSINESS UAT GREEN; GATE C PASS; PRODUCTION NO-GO.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -212,11 +212,11 @@ See `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md` for the operational contr
 
 - **Gate A — repository planning: PASS.**
 - **Gate B — authorization/provider ownership: PASS.**
-- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering, bounded live enquiry/no-leak proof, attachment/authenticated-session continuity, cron locking, WebSocket replay, managed backup/isolated destructive recovery and hosted observability/alert transport are GREEN. Business-flow acceptance remains.
+- **Gate C — live staging technical GO: PASS.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering, public enquiry/no-leak proof, attachment/authenticated-session continuity, cron locking, WebSocket replay, managed recovery, observability and live production-model business UAT are GREEN. Final UAT authority: `48316711e4939e4a2e99f2708093930d430cf602`, run `35081126154`, job `104745121818`.
 - **Gate D — production: NO-GO.** Separate operational, device/staff/data-cutover, named monitoring ownership/retention and explicit production authorization are still required.
 
 ## Next authorized execution sequence
 
-Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Complete live synthetic business-flow acceptance before staging sign-off; do not install `fu_uat` in staging. Default-branch observability schedule activation belongs to separately reviewed release integration. Gate D remains separately authorized.
+Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Gate C needs no further business-flow proof under the accepted first-release boundary; Purchase/MRP/procurement planning is out of scope for this staging gate. Next is separately reviewed release integration with no implicit merge authorization. Gate D remains separately authorized.
 
 Remote GitHub/hosted execution only. No force-push, stale writer rerun, real data, `fu_uat`, direct `/fu/public/**`, transaction pooling, routine provider-admin Odoo, paid upgrade or production cutover.

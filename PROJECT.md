@@ -12,7 +12,7 @@ Phases 0–7 are complete within their documented repository/CI scope. This cove
 
 Historical business-application authority: `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`, run `34700625051`: 149 tests, repeatable seven-addon upgrade and 8 public browser tests. Phase 7 final authority: `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`; runtime checkpoint: `24850acc029e0e7bbef898d6598d0d8b3f7ce733`.
 
-**Phase 8A live staging remains in progress. Production remains NO-GO.** The remaining staging acceptance work is not a regression to earlier phase completion.
+**Phase 8 Gate C live staging technical acceptance is PASS. Production remains NO-GO.** Release integration and Gate D remain separate from the completed staging proof.
 
 ## Current staging identity
 
@@ -51,7 +51,13 @@ The final recovery correction replaced an invalid cross-time raw count equality 
 
 The connector did not expose sealed stdout for final recovery run `35068971581`, so current backup byte/hash/list-count values are intentionally not copied from older runs. The successful hosted steps, exact run/job/SHA and zero retained artifacts are the authoritative evidence recorded here.
 
+Live production-model business UAT is GREEN at workflow source `48316711e4939e4a2e99f2708093930d430cf602`, run `35081126154`, job `104745121818`, against immutable deployed application `2a74e93b1828c16839ba7cede336caa4ca374306` and database epoch `34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`. It proved Store/Storage custody and idempotent stock movement; cashier POS through the real `pos.order.sync_from_ui` path with cash payment, picking and posted session accounting; offline authorization revalidation after cashier-role revocation; business sample/quotation, confirmed InstaPay deposit, balance gate/payment, delivery and reporting. Every synthetic fact was rolled back; independent postflight matched business counts and exact ordinary-cron snapshots while retaining the provider/session/extension and least-privilege seals. GitHub reports zero retained artifacts.
+
+Preserved RED run `35078985169`, job `104738120056`, isolated an `AccessError` caused by the harness using Odoo's backend `pos.make.payment` wizard as a cashier. The accepted fix changed the harness to the real POS UI-sync server path; no cashier ACL or production business rule was widened.
+
 Preserved RED evidence:
+- live business-UAT run `35074919114`, job `104724933423`: transaction RED with independent exact rollback/postflight GREEN;
+- live business-UAT run `35078985169`, job `104738120056`: manager-only `pos.make.payment` harness shortcut rejected for cashier; rollback/postflight GREEN;
 - fixture run `34963582581`: runtime database authentication failed before fixture execution, then repeated attempts triggered the pooler's authentication circuit breaker;
 - smoke run `34964093451`: immutable deployment HTTP 200 passed, synthetic catalog entry remained invisible for 48 attempts, later bilingual/exposure checks were skipped;
 - cron run `35023213198`, job `104563848220`: exact-image/deployment/secret/runtime checks passed, then the live preflight stopped before synthetic mutation; subsequent read-only diagnostics isolated the Odoo 19 raw-SQL field issue and the independent 19-job due backlog;
@@ -61,10 +67,9 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 ## Next tasks, in order
 
-1. Public enquiry/no-price-no-stock, attachment/authenticated-session continuity, external cron/native-locking, WebSocket replay, managed backup/isolated destructive recovery and hosted staging observability are GREEN. Observability authority is `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215`, run `35071292407`, job `104713180912`.
-2. Complete live synthetic business-flow acceptance for company → branch → warehouse → POS session → order → payment → posting → stock/cash/evidence, plus reorder/supplier/FIFO/credit-customer and offline/outbox/IPC scenarios. Do not install `fu_uat` in staging; reuse its historical scenarios only as test design input.
-3. Reconcile the branch/PR release stack as a separate reviewable integration task. Only four early-phase draft PRs currently exist. `main` is historical, not the current application. Do not merge or delete phase branches without explicit authorization. Default-branch integration is also the point at which the GitHub observability schedule can become active.
-4. Gate D requires named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, named monitoring owners/recipients/escalation and explicit production GO.
+1. Gate C staging technical acceptance is complete. Business-UAT authority is `48316711e4939e4a2e99f2708093930d430cf602`, run `35081126154`, job `104745121818`. Procurement planning/Purchase/MRP and `stock_valuation_layer` are outside this accepted first-release staging gate.
+2. Reconcile the branch/PR release stack as a separate reviewable integration task. Do not merge or delete phase branches without explicit authorization. Default-branch integration is also when the scheduled GitHub observability workflow can become active.
+3. Gate D remains NO-GO: named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, named monitoring recipients/escalation and explicit production GO remain required.
 
 ## Constraints for every continuation
 

@@ -12,6 +12,7 @@ Read `PROJECT.md` first and verify the remote active branch HEAD. Workflow files
 | `phase8-live-state-continuity.yml` | Exact-image attachment and authenticated PostgreSQL-session continuity across complete runtime replacement; bounded synthetic state and sealed postflight |
 | `phase8-live-cron-locking.yml` | Exact-image external cron/native `SKIP LOCKED` proof; temporarily transaction-locks the diagnosed ordinary backlog without mutation, then removes all synthetic state |
 | `phase8-live-websocket-replay.yml` | Exact-image authenticated WebSocket delivery, complete evented-runtime replacement, cursor replay/no-duplicate proof and full run-scoped cleanup |
+| `phase8-live-business-uat.yml` | Rollback-safe production-model staging UAT: stock custody/idempotency, cashier POS via `sync_from_ui`, offline role revalidation, business deposit/balance/delivery/reporting, exact rollback/postflight and cron/epoch/privilege seals |
 | `phase8-managed-backup-restore.yml` | Managed PostgreSQL 17.6 export plus destructive restore only into a disposable hosted target; exact deployed image/seven-addon upgrade, provider seal, recovered business/session/attachment/durable-cron proof, archive-anchored trigger continuity, source postflight and no retained backup artifact |
 | `phase8-staging-observability.yml` | Read-only staging monitor for exact deployment/public exposure, aggregate Vercel error/5xx counts, sealed database/provider state, known cron backlog/failure visibility, latest recovery health and privacy-safe GitHub issue alerts |
 | `phase8-cron-preflight-diagnostics.yml` | Read-only Odoo 19 cron inventory and stored-field diagnostics; no mutation |
@@ -26,6 +27,12 @@ Read `PROJECT.md` first and verify the remote active branch HEAD. Workflow files
 | `phase8-live-db-recovery.yml` | Explicit emergency fail-closed runtime disable; not normal startup |
 
 Phase 0–7 validation workflows remain for their bounded regression/evidence purposes. Source changes require appropriate hosted checks; docs-only changes require remote read-back and links/consistency checks.
+
+## Live business UAT boundary
+
+`phase8-live-business-uat.yml` is the Gate C production-model proof. Current authority: `48316711e4939e4a2e99f2708093930d430cf602`, run `35081126154`, job `104745121818`, GREEN against immutable application `2a74e93b1828c16839ba7cede336caa4ca374306`. It uses production addons only; `fu_uat` stays absent. Synthetic facts must remain inside one explicit rollback transaction, with an independent exact-count/cron-snapshot postflight and unchanged epoch/provider/least-privilege seal.
+
+Cashier checkout must use the real POS server path through `pos.order.sync_from_ui`. Do not substitute manager-only backend `pos.make.payment` or widen cashier ACLs to make a harness pass. Do not run/reschedule ordinary cron backlog. Purchase/MRP/procurement planning, `sale_management` and `stock_valuation_layer` are outside this staging proof. Production remains Gate D NO-GO.
 
 ## Managed recovery invariant
 

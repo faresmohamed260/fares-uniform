@@ -86,6 +86,16 @@ The workflow proved its source-controlled failure transport on first execution: 
 
 Ownership is role-based (`technical-operations-owner`, `business-operations-owner`) until Gate D supplies named people. `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md` defines the privacy/redaction boundary and current monitored invariants. The workflow contains a twice-hourly schedule but GitHub scheduled workflows execute only from the default branch; because the current workflow remains on the Phase 8 branch, recurring GitHub polling is not yet active. Current staging evidence is push/manual hosted proof plus native Vercel/Supabase observability. This limitation does not authorize early release integration.
 
+## Live production-model business UAT — RED→GREEN
+
+Workflow source `401960c3ead20f511065b22cd3bb0484365015bb` introduced the rollback-safe live production-model harness. Preserved RED run `35074919114`, job `104724933423`, failed in the transaction step while independent exact rollback/postflight passed. After shell invocation repair, preserved RED run `35078985169`, job `104738120056`, reached the POS payment path; recovered hosted evidence identified `odoo.exceptions.AccessError` on cashier creation of backend `pos.make.payment`.
+
+That was a harness defect, not a reason to widen cashier permissions. Commit `48316711e4939e4a2e99f2708093930d430cf602` switched the synthetic cashier checkout to the real POS frontend server path, `pos.order.sync_from_ui`, without changing production ACLs or business rules.
+
+GREEN run `35081126154`, job `104745121818`, exact workflow source `48316711e4939e4a2e99f2708093930d430cf602`, passed fresh deployment authority, managed baseline, restricted secrets, exact deployed image, live transaction, explicit rollback, independent postflight, evidence publication and cleanup. Against application `2a74e93b1828c16839ba7cede336caa4ca374306` and epoch `34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a`, it proved Store/Storage stock custody/idempotency; cash POS payment/picking/accounting; offline role-revocation revalidation; business sample/quotation, confirmed InstaPay deposit, balance/delivery guard, final payment/delivery and owner reporting. Postflight matched all captured business counts and exact ordinary-cron snapshots and retained the provider/session/extensions/988-relations/`CREATE=false`/`fu_uat=0` seals. GitHub reports zero retained artifacts.
+
+This closes Gate C staging technical acceptance. Production remains Gate D NO-GO. Purchase/MRP/procurement planning and `stock_valuation_layer` were not added because they are outside the accepted first-release staging boundary.
+
 ## Cleanup
 
 PROJECT.md owns current handoff; root README and docs index point there. Phase 8 contracts retain scope and historical evidence while current repair results live here. Workflow guide identifies retained and retired entry points. Five obsolete diagnostic/one-time mutation workflows removed from the current tree; history preserved. Generated prototype `node_modules`, `.next` and `tsconfig.tsbuildinfo` removed from the tracked tree, with root ignore rules to prevent recurrence. Source and lockfiles retained. Read-only DB diagnostics omit SQL query text.
