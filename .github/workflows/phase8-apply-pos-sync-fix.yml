@@ -1,4 +1,4 @@
-name: Phase 8 apply cashier POS sync fix
+name: Phase 8 materialize cashier POS sync patch
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  apply:
+  materialize:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -20,19 +20,20 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Replace backend payment wizard with real cashier POS sync path
+      - name: Materialize patched live UAT workflow as ordinary blob
         shell: bash
         run: |
           set -euo pipefail
           remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
           test -n "$remote_head"
-          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale patch: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale materialization: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
 
           python - <<'PY'
           from pathlib import Path
 
-          path = Path('.github/workflows/phase8-live-business-uat.yml')
-          text = path.read_text(encoding='utf-8')
+          source = Path('.github/workflows/phase8-live-business-uat.yml')
+          target = Path('proof/phase8-live-business-uat.patched.yml')
+          text = source.read_text(encoding='utf-8')
           start_marker = '              order = env["pos.order"].with_user(cashier).create({\n'
           end_marker = '              payment_wizard.with_context(**payment_context).check()\n'
           if text.count(start_marker) != 1 or text.count(end_marker) != 1:
@@ -79,19 +80,19 @@ jobs:
               order = env["pos.order"].with_user(cashier).search([("uuid", "=", order_uuid)], limit=1)
               require(order, "cashier POS sync did not create an authoritative order")
           '''
-          path.write_text(text[:start] + replacement + text[end:], encoding='utf-8')
+          target.parent.mkdir(parents=True, exist_ok=True)
+          target.write_text(text[:start] + replacement + text[end:], encoding='utf-8')
           PY
 
-          rm .github/workflows/phase8-apply-pos-sync-fix.yml
-          git diff --check
-          grep -F 'with_user(cashier).sync_from_ui([order_payload])' .github/workflows/phase8-live-business-uat.yml
-          if grep -F 'env["pos.make.payment"].with_user(cashier)' .github/workflows/phase8-live-business-uat.yml; then
-            echo 'Legacy manager-only POS payment wizard path remains' >&2
+          git diff --check -- proof/phase8-live-business-uat.patched.yml
+          grep -F 'with_user(cashier).sync_from_ui([order_payload])' proof/phase8-live-business-uat.patched.yml
+          if grep -F 'env["pos.make.payment"].with_user(cashier)' proof/phase8-live-business-uat.patched.yml; then
+            echo 'Legacy manager-only POS payment wizard path remains in materialized workflow' >&2
             exit 1
           fi
 
           git config user.name 'Fares Uniform CI'
           git config user.email '121525183+faresmohamed260@users.noreply.github.com'
-          git add .github/workflows/phase8-live-business-uat.yml .github/workflows/phase8-apply-pos-sync-fix.yml
-          git commit -m 'ci: exercise cashier POS through UI sync'
+          git add proof/phase8-live-business-uat.patched.yml
+          git commit -m 'ci: materialize cashier POS sync workflow blob'
           git push origin "HEAD:${GITHUB_REF_NAME}"
