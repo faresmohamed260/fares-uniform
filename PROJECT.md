@@ -32,9 +32,17 @@ The client reconfirmed the intended platform split on 2026-09-16:
 - **Supabase** owns managed PostgreSQL/durable database state;
 - **`faresuniform.uk`** is the selected owned public domain.
 
-Public DNS read-back confirms `faresuniform.uk` is delegated to Cloudflare nameservers. The apex currently resolves through Cloudflare and returns HTTP `530`, so domain-to-Vercel origin wiring/TLS acceptance is **not complete**. No DNS, Vercel-domain or Cloudflare setting was changed while recording this decision. See [production domain plan](docs/operations/PRODUCTION_DOMAIN_PLAN.md).
+After explicit client authorization on 2026-09-16, custom-domain wiring completed against the existing Vercel project `fares-uniform` and immutable deployed application `2a74e93b1828c16839ba7cede336caa4ca374306`.
 
-The platform/domain selection closes the identity portion of GD-01/GD-02, but production plan/spending approval, exact DNS records, Cloudflare proxy policy, Vercel domain verification, TLS, private Odoo access ownership and cutover authorization remain open.
+- Cloudflare apex and `www` web records are CNAMEs to Vercel's exact target `35dfccfeeca04397.vercel-dns-017.com`, with proxying disabled.
+- Vercel reports **Valid Configuration** for both hostnames.
+- `https://faresuniform.uk/` returns HTTP `200` from Vercel with HSTS.
+- `https://www.faresuniform.uk/` returns HTTP `308` to the apex.
+- English and Arabic home/catalog/detail rendering passed with no price or stock fields exposed.
+
+The Cloudflare zone remained at 59 records and only the existing apex and `www` web records were changed; mail/TXT and unrelated records were not edited. No application redeploy, database mutation, ordinary-cron execution or production cutover occurred. See [production domain plan](docs/operations/PRODUCTION_DOMAIN_PLAN.md).
+
+This closes the technical DNS/Vercel-verification/TLS portion of GD-02. Production plan/spending, final Cloudflare proxy policy, DNS/certificate and private-access owner roles, remaining Gate D decisions and explicit production GO remain open.
 ## Current staging identity
 
 - Vercel project: `fares-uniform`, `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`, team `team_r09C6RLmb2acHapENECQIn9T`.
@@ -90,8 +98,8 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 1. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, scheduled authority run `35129331378` / job `104906119150`, and all phase branches.
 2. The client declined the proposed GD-10 repository/environment control changes on 2026-09-16. Do not enable branch protection, Dependabot security updates or a GitHub `production` environment unless later explicitly authorized.
-3. Vercel + Cloudflare + Supabase and `faresuniform.uk` are selected, but no domain/provider mutation is authorized yet. Remaining GD-01/GD-02 work is the production Vercel plan/spending boundary, exact Cloudflare DNS/proxy/TLS wiring, private-access ownership and cutover approval. GD-03 through GD-09 still require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
-4. Do not create production resources, purchase services, activate production secrets, migrate real data, change domains/DNS, assign staff, invent hardware results or cut over without the corresponding explicit Gate D decisions and final production GO.
+3. Vercel + Cloudflare + Supabase and `faresuniform.uk` are selected. Apex/`www` DNS, Vercel verification, TLS and the canonical redirect are GREEN. Remaining GD-01/GD-02 work is production Vercel plan/spending, final Cloudflare proxy policy, DNS/certificate and private-access owner roles. GD-03 through GD-09 still require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
+4. Do not create production resources, purchase services, activate production secrets, migrate real data, make further domain/DNS changes, assign staff, invent hardware results or cut over without the corresponding explicit Gate D decisions and final production GO.
 5. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release scope.
 ## Constraints for every continuation
 
