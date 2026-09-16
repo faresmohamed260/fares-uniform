@@ -16,7 +16,7 @@ Historical business-application authority: `cc2656d7529cfd4af396ddd0af6444a0f660
 
 ## Release integration checkpoint
 
-Draft PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) is open from `phase-8/commercial-staging-readiness` to `main` for review only. The branch stack is linear and has no divergence from `main`; no phase branch was merged, closed or deleted.
+PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) is open and ready for review from `phase-8/commercial-staging-readiness` to `main` for review only. The branch stack is linear and has no divergence from `main`; no phase branch was merged, closed or deleted.
 
 Exact integrated candidate `de85450cf1c1774a432c5dfd600b6d4596bc2450` passed the current Phase 5A, Phase 6 and all four Phase 7 hosted workflows. The Phase 5A run passed 149/149 Odoo tests, the repeatable seven-production-addon upgrade and 8/8 public browser tests. Phase 6 passed package, persistence and destructive clean-volume restore. Phase 7 passed stateless runtime, external cron, WebSocket continuity and Vercel project configuration. Exact run/job/artifact evidence is recorded in [release integration validation](docs/validation/RELEASE_INTEGRATION.md).
 
@@ -76,7 +76,7 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 ## Next tasks, in order
 
-1. Review draft release-integration PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) and its exact hosted evidence. Do not merge or delete phase branches without explicit authorization. Default-branch integration is also when the scheduled GitHub observability workflow can become active.
+1. Review release-integration PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) and its exact hosted evidence. Do not merge or delete phase branches without explicit authorization. Default-branch integration is also when the scheduled GitHub observability workflow can become active.
 2. Resolve only review findings against the preserved exact-source and staging contracts; rerun the affected hosted gate for any source change.
 3. Gate D remains NO-GO: named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, named monitoring recipients/escalation and explicit production GO remain required. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release staging gate.
 ## Constraints for every continuation

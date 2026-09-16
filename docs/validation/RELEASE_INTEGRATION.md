@@ -4,7 +4,7 @@
 
 **REVIEW CHECKPOINT GREEN. MERGE NOT AUTHORIZED. PRODUCTION NO-GO.**
 
-Draft PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) presents the complete Phase 0–8 stack from `phase-8/commercial-staging-readiness` to `main`. It is deliberately a draft and has not been merged.
+PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) presents the complete Phase 0–8 stack from `phase-8/commercial-staging-readiness` to `main`. It is ready for review and has not been merged.
 
 ## Identities
 

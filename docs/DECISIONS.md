@@ -331,7 +331,7 @@ Acceptance requires exact pre/post snapshots of all ordinary cron and ordinary t
 
 Status: Evidence-backed project state, 2026-09-16; no merge, branch deletion or production authorization.
 
-The complete Phase 0–8 branch stack is linear through `phase-8/commercial-staging-readiness` and has no divergence from `main`. Draft PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) is the review boundary for that accumulated stack. Opening the draft does not authorize merging it, closing or deleting historical phase branches, enabling paid resources, migrating real data, changing production configuration or cutting over production.
+The complete Phase 0–8 branch stack is linear through `phase-8/commercial-staging-readiness` and has no divergence from `main`. PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) is the ready-for-review boundary for that accumulated stack. Opening the PR does not authorize merging it, closing or deleting historical phase branches, enabling paid resources, migrating real data, changing production configuration or cutting over production.
 
 Integrated candidate `de85450cf1c1774a432c5dfd600b6d4596bc2450` is the exact hosted release-review authority. Phase 5A run `35095651067` passed 149 tests with zero failures/errors, the repeatable seven-production-addon upgrade and 8/8 public browser tests. Phase 6 run `35095654418` passed the provider-neutral deployment and destructive restore proof. Phase 7 runs `35095657711`, `35095660970`, `35095664558` and `35095667977` passed stateless adaptation, external cron, WebSocket continuity and Vercel project configuration respectively.
 
