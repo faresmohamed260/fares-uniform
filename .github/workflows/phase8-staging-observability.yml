@@ -1,0 +1,382 @@
+name: Phase 8 staging observability
+
+# The schedule becomes active only when this workflow exists on the repository default
+# branch. While Phase 8 remains isolated on its phase branch, push/workflow_dispatch
+# runs provide the hosted proof and native provider observability remains live.
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-staging-observability.yml
+  workflow_dispatch:
+  schedule:
+    - cron: '17,47 * * * *'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: phase8-staging-observability-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  EXPECTED_RECOVERY_SHA: 01824eba60dc55382a614178df3edd4d88997f61
+  EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+  EXPECTED_DUE_CRONS: '19'
+  EXPECTED_APP_RELATIONS: '988'
+  VERCEL_CLI_VERSION: 59.17.0
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+  RETAINED_EVIDENCE_DEPLOYMENT_ID: dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu
+  CANONICAL_BASE_URL: https://fares-uniform.vercel.app
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+  SYNTHETIC_SLUG: phase8-synthetic-program
+  ENQUIRY_KEY: phase8-live-enquiry-2a74e93b-v1
+  TECHNICAL_OWNER_ROLE: technical-operations-owner
+  BUSINESS_OWNER_ROLE: business-operations-owner
+  ALERT_TITLE: '[staging alert] Fares Uniform Phase 8 observability'
+
+jobs:
+  monitor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout monitor source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Verify workflow source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          if [[ "$GITHUB_EVENT_NAME" != schedule ]]; then
+            remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+            test -n "$remote_head"
+            test "$remote_head" = "$GITHUB_SHA" || {
+              echo "Refusing stale observability proof: run=$GITHUB_SHA branch_head=$remote_head" >&2
+              exit 1
+            }
+          fi
+          echo "workflow_source_identity=PASS sha=$GITHUB_SHA event=$GITHUB_EVENT_NAME"
+
+      - name: Resolve exact READY deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo 'VERCEL_TOKEN missing' >&2; exit 64; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          status="$(curl -sS -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          test "$status" = 200
+          match_count="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '[.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY")] | length' "$response")"
+          test "$match_count" = 1 || { echo "Expected exactly one READY deployment for $EXPECTED_DEPLOYMENT_SHA; got $match_count" >&2; exit 1; }
+          deployment_id="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY") | (.uid // .id)' "$response")"
+          deployment_host="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY") | .url' "$response")"
+          test -n "$deployment_id"
+          test -n "$deployment_host"
+          echo "DEPLOYMENT_ID=$deployment_id" >> "$GITHUB_ENV"
+          echo "IMMUTABLE_BASE_URL=https://$deployment_host" >> "$GITHUB_ENV"
+          echo "exact_ready_deployment=PASS id=$deployment_id sha=$EXPECTED_DEPLOYMENT_SHA"
+
+      - name: Verify public and private-runtime health without mutation
+        shell: bash
+        run: |
+          set -euo pipefail
+          en="$(mktemp)"
+          ar="$(mktemp)"
+          cron="$(mktemp)"
+          web="$(mktemp)"
+          direct="$(mktemp)"
+          trap 'rm -f "$en" "$ar" "$cron" "$web" "$direct"' EXIT
+
+          immutable_status="$(curl -sS --retry 4 --retry-delay 2 --retry-all-errors --connect-timeout 10 --max-time 30 -o "$en" -w '%{http_code}' "$IMMUTABLE_BASE_URL/?lang=en")"
+          test "$immutable_status" = 200
+          grep -Fq 'Synthetic Staging Uniform Program' "$en"
+
+          canonical_status="$(curl -sS --retry 4 --retry-delay 2 --retry-all-errors --connect-timeout 10 --max-time 30 -o "$ar" -w '%{http_code}' "$CANONICAL_BASE_URL/catalog/$SYNTHETIC_SLUG?lang=ar")"
+          test "$canonical_status" = 200
+          grep -Fq 'برنامج زي تجريبي للبيئة المرحلية' "$ar"
+
+          cron_status="$(curl -sS --connect-timeout 10 --max-time 30 -o "$cron" -w '%{http_code}' "$CANONICAL_BASE_URL/fares/internal/cron/run")"
+          test "$cron_status" = 401
+          web_status="$(curl -sS --connect-timeout 10 --max-time 30 -o "$web" -w '%{http_code}' "$CANONICAL_BASE_URL/web/login")"
+          test "$web_status" != 200
+          direct_status="$(curl -sS --connect-timeout 10 --max-time 30 -o "$direct" -w '%{http_code}' "$CANONICAL_BASE_URL/fu/public/catalog?lang=en")"
+          test "$direct_status" != 200
+          echo "public_runtime_health=PASS immutable=$immutable_status canonical=$canonical_status cron_noauth=$cron_status web_login=$web_status direct_api=$direct_status"
+
+      - name: Verify Vercel runtime error window without printing log payloads
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          NO_COLOR: '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime="$(mktemp)"
+          http5xx="$(mktemp)"
+          trap 'rm -f "$runtime" "$http5xx"' EXIT
+
+          npx --yes "vercel@${VERCEL_CLI_VERSION}" logs \
+            --deployment "$DEPLOYMENT_ID" \
+            --environment production \
+            --level error --level fatal \
+            --since 1h \
+            --json \
+            --scope "$VERCEL_TEAM_ID" \
+            --token "$VERCEL_TOKEN" >"$runtime"
+
+          npx --yes "vercel@${VERCEL_CLI_VERSION}" logs \
+            --deployment "$DEPLOYMENT_ID" \
+            --environment production \
+            --status-code 5xx \
+            --since 1h \
+            --json \
+            --scope "$VERCEL_TEAM_ID" \
+            --token "$VERCEL_TOKEN" >"$http5xx"
+
+          runtime_errors="$(jq -s 'length' "$runtime")"
+          http5xx_count="$(jq -s 'length' "$http5xx")"
+          echo "VERCEL_RUNTIME_ERRORS=$runtime_errors" >> "$GITHUB_ENV"
+          echo "VERCEL_HTTP_5XX=$http5xx_count" >> "$GITHUB_ENV"
+          test "$runtime_errors" = 0 || { echo "Vercel runtime error alert: count=$runtime_errors window=1h" >&2; exit 1; }
+          test "$http5xx_count" = 0 || { echo "Vercel HTTP 5xx alert: count=$http5xx_count window=1h" >&2; exit 1; }
+          echo "vercel_runtime_window=PASS errors=$runtime_errors http_5xx=$http5xx_count window=1h"
+
+      - name: Inspect native Vercel alert-rule support
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          NO_COLOR: '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          alerts="$(mktemp)"
+          err="$(mktemp)"
+          trap 'rm -f "$alerts" "$err"' EXIT
+          set +e
+          npx --yes "vercel@${VERCEL_CLI_VERSION}" alerts rules ls \
+            --project "$VERCEL_PROJECT_ID" \
+            --format json \
+            --scope "$VERCEL_TEAM_ID" \
+            --token "$VERCEL_TOKEN" >"$alerts" 2>"$err"
+          rc=$?
+          set -e
+          if [[ "$rc" = 0 ]]; then
+            count="$(jq 'if type == "array" then length elif has("rules") then (.rules | length) else 0 end' "$alerts")"
+            echo "VERCEL_NATIVE_ALERT_RULES_AVAILABLE=true" >> "$GITHUB_ENV"
+            echo "VERCEL_NATIVE_ALERT_RULE_COUNT=$count" >> "$GITHUB_ENV"
+            echo "vercel_native_alert_rules=AVAILABLE count=$count"
+          else
+            echo "VERCEL_NATIVE_ALERT_RULES_AVAILABLE=false" >> "$GITHUB_ENV"
+            echo "VERCEL_NATIVE_ALERT_RULE_COUNT=unavailable" >> "$GITHUB_ENV"
+            echo "vercel_native_alert_rules=UNAVAILABLE_OR_NOT_AUTHORIZED cli_exit=$rc"
+          fi
+
+      - name: Verify sealed database and cron observability facts
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<SQL || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            (SELECT rolsuper FROM pg_roles WHERE rolname='fares_app') AS rolsuper,
+            (SELECT rolcreatedb FROM pg_roles WHERE rolname='fares_app') AS rolcreatedb,
+            (SELECT rolcreaterole FROM pg_roles WHERE rolname='fares_app') AS rolcreaterole,
+            (SELECT rolreplication FROM pg_roles WHERE rolname='fares_app') AS rolreplication,
+            (SELECT rolinherit FROM pg_roles WHERE rolname='fares_app') AS rolinherit,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND c.relkind IN ('r','p') AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT') AS session_select,
+            has_table_privilege('fares_app','public.fares_http_session','INSERT') AS session_insert,
+            has_table_privilege('fares_app','public.fares_http_session','UPDATE') AS session_update,
+            has_table_privilege('fares_app','public.fares_http_session','DELETE') AS session_delete,
+            (SELECT count(*)::int FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='PUBLIC') AS session_public_grants,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT value FROM ir_config_parameter WHERE key='ir_attachment.location') AS attachment_location,
+            (SELECT count(*)::int FROM fu_public_enquiry WHERE idempotency_key='${ENQUIRY_KEY}') AS enquiry_rows,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now()) AS due_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND coalesce(failure_count,0) > 0) AS failing_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE cron_name LIKE 'Phase 8 live cron locking proof%') AS synthetic_crons,
+            (SELECT count(*)::int FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%') AS synthetic_markers,
+            (SELECT count(*)::int FROM pg_stat_activity WHERE datname='postgres' AND state='idle in transaction' AND state_change < now() - interval '5 minutes') AS stuck_idle_transactions;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { echo "Supabase read-only health query failed: HTTP $status" >&2; exit 1; }
+
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$response")" = true
+          test "$(jq -r '.[0].rolsuper' "$response")" = false
+          test "$(jq -r '.[0].rolcreatedb' "$response")" = false
+          test "$(jq -r '.[0].rolcreaterole' "$response")" = false
+          test "$(jq -r '.[0].rolreplication' "$response")" = false
+          test "$(jq -r '.[0].rolinherit' "$response")" = false
+          test "$(jq -r '.[0].can_create_public' "$response")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$response")" = "$EXPECTED_APP_RELATIONS"
+          test "$(jq -r '.[0].session_table_ok' "$response")" = 1
+          test "$(jq -r '.[0].session_select' "$response")" = true
+          test "$(jq -r '.[0].session_insert' "$response")" = true
+          test "$(jq -r '.[0].session_update' "$response")" = true
+          test "$(jq -r '.[0].session_delete' "$response")" = true
+          test "$(jq -r '.[0].session_public_grants' "$response")" = 0
+          test "$(jq -r '.[0].required_extensions' "$response")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$response")" = 0
+          test "$(jq -r '.[0].attachment_location' "$response")" = db
+          test "$(jq -r '.[0].enquiry_rows' "$response")" = 1
+
+          due_crons="$(jq -r '.[0].due_crons' "$response")"
+          failing_crons="$(jq -r '.[0].failing_crons' "$response")"
+          stuck_idle="$(jq -r '.[0].stuck_idle_transactions' "$response")"
+          echo "DUE_CRONS=$due_crons" >> "$GITHUB_ENV"
+          echo "FAILING_CRONS=$failing_crons" >> "$GITHUB_ENV"
+          echo "STUCK_IDLE_TRANSACTIONS=$stuck_idle" >> "$GITHUB_ENV"
+          test "$due_crons" = "$EXPECTED_DUE_CRONS" || { echo "Cron backlog boundary changed: expected=$EXPECTED_DUE_CRONS actual=$due_crons" >&2; exit 1; }
+          test "$failing_crons" = 0 || { echo "Cron failure alert: active_failed_crons=$failing_crons" >&2; exit 1; }
+          test "$(jq -r '.[0].synthetic_crons' "$response")" = 0
+          test "$(jq -r '.[0].synthetic_markers' "$response")" = 0
+          test "$stuck_idle" = 0 || { echo "Database transaction alert: idle_in_transaction_over_5m=$stuck_idle" >&2; exit 1; }
+          echo "sealed_database_monitor=PASS due_crons=$due_crons known_backlog=true failing_crons=$failing_crons stuck_idle_transactions=$stuck_idle"
+
+      - name: Verify latest managed recovery result
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            --get \
+            --data-urlencode "branch=phase-8/commercial-staging-readiness" \
+            --data-urlencode 'per_page=1' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/phase8-managed-backup-restore.yml/runs" >"$response"
+          test "$(jq -r '.workflow_runs | length' "$response")" = 1
+          latest_sha="$(jq -r '.workflow_runs[0].head_sha' "$response")"
+          latest_status="$(jq -r '.workflow_runs[0].status' "$response")"
+          latest_conclusion="$(jq -r '.workflow_runs[0].conclusion' "$response")"
+          latest_run="$(jq -r '.workflow_runs[0].id' "$response")"
+          test "$latest_sha" = "$EXPECTED_RECOVERY_SHA"
+          test "$latest_status" = completed
+          test "$latest_conclusion" = success || { echo "Managed recovery alert: latest_run=$latest_run conclusion=$latest_conclusion" >&2; exit 1; }
+          echo "RECOVERY_RUN_ID=$latest_run" >> "$GITHUB_ENV"
+          echo "latest_managed_recovery=PASS run=$latest_run sha=$latest_sha conclusion=$latest_conclusion"
+
+      - name: Prove issue alert transport once
+        if: ${{ github.run_number == 1 }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          created="$(mktemp)"
+          closed="$(mktemp)"
+          trap 'rm -f "$created" "$closed"' EXIT
+          body="Synthetic transport self-test only. No runtime logs, customer data, secrets, request bodies, database rows, or staff names are included. Owner role: ${TECHNICAL_OWNER_ROLE}."
+          payload="$(jq -cn --arg title '[staging alert self-test] Phase 8 observability transport' --arg body "$body" '{title:$title,body:$body}')"
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues" >"$created"
+          issue_number="$(jq -r '.number' "$created")"
+          test "$issue_number" != null
+          curl -fsS -X PATCH \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'Content-Type: application/json' \
+            --data '{"state":"closed","state_reason":"completed"}' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${issue_number}" >"$closed"
+          test "$(jq -r '.state' "$closed")" = closed
+          echo "issue_alert_transport=PASS synthetic_issue=$issue_number closed=true"
+
+      - name: Publish privacy-safe observability summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## Phase 8 staging observability'
+            echo
+            echo "- Deployment SHA: \`$EXPECTED_DEPLOYMENT_SHA\`"
+            echo "- Deployment: \`$DEPLOYMENT_ID\`"
+            echo "- Public + Odoo HTTP boundary: PASS"
+            echo "- Vercel runtime errors, last hour: \`${VERCEL_RUNTIME_ERRORS}\`"
+            echo "- Vercel HTTP 5xx, last hour: \`${VERCEL_HTTP_5XX}\`"
+            echo "- Native Vercel alert-rule API: \`${VERCEL_NATIVE_ALERT_RULES_AVAILABLE}\` (rules: \`${VERCEL_NATIVE_ALERT_RULE_COUNT}\`)"
+            echo "- Database/provider privilege seal: PASS"
+            echo "- Known ordinary cron backlog: \`${DUE_CRONS}\` (visible only; not executed/rescheduled)"
+            echo "- Active crons with failure_count > 0: \`${FAILING_CRONS}\`"
+            echo "- Idle-in-transaction >5m: \`${STUCK_IDLE_TRANSACTIONS}\`"
+            echo "- Latest managed recovery: PASS (run \`$RECOVERY_RUN_ID\`)"
+            echo "- Technical owner role: \`$TECHNICAL_OWNER_ROLE\`"
+            echo "- Business owner role: \`$BUSINESS_OWNER_ROLE\`"
+            echo "- Privacy: aggregate counts/status only; no runtime messages, request bodies, customer records, SQL text, secret values or staff names are emitted"
+            if [[ "$GITHUB_EVENT_NAME" = schedule ]]; then
+              echo '- Cadence: scheduled run on default-branch workflow authority'
+            else
+              echo '- Cadence: hosted proof run; GitHub schedule activates only after this workflow reaches the default branch through separately authorized release integration'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo 'phase8_staging_observability=PASS'
+
+      - name: Raise or update privacy-safe alert issue on failure
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          issues="$(mktemp)"
+          response="$(mktemp)"
+          trap 'rm -f "$issues" "$response"' EXIT
+          curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues?state=open&per_page=100" >"$issues"
+          issue_number="$(jq -r --arg title "$ALERT_TITLE" '[.[] | select(.pull_request == null and .title == $title)][0].number // empty' "$issues")"
+          run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          body="Phase 8 staging observability failed. Review the hosted run: ${run_url}. Source SHA: ${GITHUB_SHA}. Technical owner role: ${TECHNICAL_OWNER_ROLE}. Business owner role: ${BUSINESS_OWNER_ROLE}. This alert intentionally contains no raw runtime log messages, request bodies, customer records, SQL text, secret values or staff names. Production remains NO-GO."
+          if [[ -n "$issue_number" ]]; then
+            payload="$(jq -cn --arg body "$body" '{body:$body}')"
+            curl -fsS -X POST \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'Content-Type: application/json' \
+              --data "$payload" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${issue_number}/comments" >"$response"
+            echo "observability_alert_issue=UPDATED issue=$issue_number"
+          else
+            payload="$(jq -cn --arg title "$ALERT_TITLE" --arg body "$body" '{title:$title,body:$body}')"
+            curl -fsS -X POST \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'Content-Type: application/json' \
+              --data "$payload" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues" >"$response"
+            issue_number="$(jq -r '.number' "$response")"
+            echo "observability_alert_issue=CREATED issue=$issue_number"
+          fi
