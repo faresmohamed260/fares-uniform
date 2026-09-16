@@ -1,6 +1,6 @@
 # Deployment readiness — planning checklist
 
-Status: **APPLICATION/UAT READY; PHASE 6 PROVIDER-NEUTRAL DEPLOYMENT/RESTORE VERIFIED; PHASE 7 VERCEL REPOSITORY/CI ADAPTATION COMPLETE / VERIFIED; PHASE 8A SUPABASE + VERCEL CONTROL PLANES PARTIALLY LIVE; PRODUCTION STILL NO-GO.**
+Status: **APPLICATION/UAT READY; PHASE 6/7 VERIFIED; PHASE 8 GATE C LIVE STAGING GREEN; RELEASE INTEGRATED ON `main`; GATE D / PRODUCTION NO-GO.**
 
 Authoritative application/test SHA: Phase 5A `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`.
 
@@ -13,6 +13,12 @@ Phase 7 final runtime checkpoint: `24850acc029e0e7bbef898d6598d0d8b3f7ce733`.
 Phase 8 managed-database/runtime checkpoint: `b7a661bf70c2468b006bf971cba10172cf810e7d`.
 
 Phase 8 Vercel control-plane checkpoint: `884aedc9465122d25639ca24954f154dfa72dc70`.
+
+Current deployed staging application: `2a74e93b1828c16839ba7cede336caa4ca374306`.
+
+Release integration merge: `29a6835f1e542119f50aa800ddec7fe57f1cf704`; current documented `main` checkpoint before this update: `c2a93d8d693f47ebc7b286af5eaebb485895d8c0`.
+
+Native scheduled observability authority: run `35129331378`, job `104906119150`, GREEN.
 
 ## Readiness gates
 
@@ -48,17 +54,19 @@ Final Phase 6 proof: SHA `e337315684c62d69ad75ba56a5867098da17489c`, run `347266
 - [x] Client explicitly authorized new Fares Uniform staging resources on Vercel/Supabase under a hard **stay free** condition.
 - [x] Actual Fares Uniform Supabase project/database/region established in an isolated dedicated project.
 - [x] Actual isolated Fares Uniform Vercel project shell created in the authorized team.
-- [ ] Application-hosting plan/provider path is both suitable for the commercial workload and within the client's spending boundary.
-- [ ] Live application deployment is authorized and technically instantiated on that compliant path.
+- [x] Isolated free-tier staging application deployment is authorized and technically instantiated.
+- [ ] Production application-hosting plan/provider path is suitable for commercial use and within an explicitly approved spending boundary.
+- [ ] Production deployment is separately authorized.
 
-The authorized Vercel team remains on **Hobby**. Current Phase 8A provider policy review records that Hobby is not a valid target for the intended commercial Fares Uniform workload under the current free-only boundary. The empty Vercel project shell is therefore an ownership/control-plane resource, not a live commercial deployment.
+The authorized Vercel team remains on **Hobby**. The isolated synthetic-data staging deployment is live and technically accepted under the explicit free-tier rehearsal authorization, but that does not establish a production-commercial hosting entitlement or spending approval. Gate D must select and authorize the production plan/path explicitly.
 
-Current Vercel shell:
+Current Vercel staging:
 - project: `fares-uniform`;
 - project id: `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`;
 - team id: `team_r09C6RLmb2acHapENECQIn9T`;
-- latest deployment: none at checkpoint;
-- deployment count in control-plane proof: `0`.
+- deployed application SHA: `2a74e93b1828c16839ba7cede336caa4ca374306`;
+- exact READY deployment: `dpl_Ba34KhzW7AZ6aBY7poz1DeaQa3rg`;
+- canonical staging: `https://fares-uniform.vercel.app`.
 
 ### Phase 7 Vercel stateless adaptation
 - [x] Vercel-target Odoo container starts without a durable local-volume dependency.
@@ -97,8 +105,8 @@ Only the project-config CI workflow changed between `24850acc...` and `01ce26d..
 - [x] `unaccent` and `pg_trgm` are installed.
 - [x] Exact runtime image reaches real Supavisor **Session Pooler** on `5432` with `sslmode=require`.
 - [x] Supavisor dotted connection username is supported without weakening database-name validation.
-- [ ] Permanent `fares_app` login/runtime password activated; intentionally deferred until a compliant application host is ready.
-- [ ] Managed backup/destructive restore rehearsal completed against a clean recovery boundary.
+- [x] Staging `fares_app` login/runtime credential activated through the sealed runtime path; values remain secret.
+- [x] Managed backup/export and destructive restore completed only against a disposable recovery target: run `35068971581`, job `104705729018`.
 
 Authoritative live managed-database/runtime proof: commit `b7a661bf70c2468b006bf971cba10172cf810e7d`, run `34787677724`, job `103806024323` — **SUCCESS**.
 
@@ -111,8 +119,8 @@ Authoritative live managed-database/runtime proof: commit `b7a661bf70c2468b006bf
 - [x] Resulting project ownership matches exact authorized team.
 - [x] Project shell verified with zero deployments.
 - [ ] Git repository linked; intentionally deferred to avoid unintended deployment before plan/provider compliance is resolved.
-- [ ] Runtime env injected; intentionally deferred.
-- [ ] First staging deployment completed; blocked by the free Hobby/commercial-use boundary.
+- [x] Staging runtime environment injected through the bounded secret path.
+- [x] Isolated synthetic-data staging deployment completed and Gate C accepted; this is not production authorization.
 
 Authoritative Vercel control-plane proof: commit `884aedc9465122d25639ca24954f154dfa72dc70`, run `34788971298`, job `103809533700` — **SUCCESS**.
 
@@ -126,7 +134,7 @@ The client reported the current Vercel token has full-account control. That is b
 - [x] Vercel-specific repository recovery authority is proven as database-backed application/attachment/session state + exact Fares/Odoo/config authority.
 - [x] Supabase is the selected managed PostgreSQL target for the authorized staging rehearsal.
 - [x] Actual Supabase resource created and real managed Session Pooler connection proven.
-- [ ] Managed staging backup + isolated destructive restore rehearsal completed.
+- [x] Managed staging backup/export + isolated destructive restore rehearsal completed without restoring over the populated source.
 - [ ] Production backup frequency/retention selected.
 - [ ] Production RPO/RTO explicitly decided.
 
@@ -139,7 +147,8 @@ The Phase 6 PostgreSQL+filestore recovery model remains preserved for its verifi
 - [x] Live managed connectivity requires TLS (`sslmode=require` at minimum).
 - [x] Routine Odoo role remains least privileged; managed hosting does not justify superuser/createdb/createrole.
 - [x] Actual staging endpoint/region/provider connection class tested through exact runtime image.
-- [ ] Permanent runtime credential activated only when atomic application-host injection can complete.
+- [x] Staging runtime credential activated atomically with the application host and retained behind the least-privilege seal.
+- [ ] Production runtime credential and custody/rotation ownership separately approved.
 
 ### Environments and secrets
 - [x] Live staging rehearsal authorized under the explicit `$0` spending boundary.
@@ -150,7 +159,8 @@ The Phase 6 PostgreSQL+filestore recovery model remains preserved for its verifi
 - [x] Public-web integration remains the narrow Fares public API through a private service binding in the accepted Vercel topology.
 - [x] Repository deployment templates contain no production credentials.
 - [x] `SUPABASE_ACCESS_TOKEN` and `VERCEL_TOKEN` control-plane credentials are configured as GitHub Actions repository secrets and proven without exposure.
-- [ ] Permanent `ODOO_DB_PASSWORD`, `ODOO_ADMIN_PASSWD` and `CRON_SECRET` generated/injected; intentionally not active while application hosting is unresolved.
+- [x] Staging `ODOO_DB_PASSWORD`, `ODOO_ADMIN_PASSWD` and `CRON_SECRET` are injected without values in source/logs and proven by hosted checks.
+- [ ] Production equivalents, custodians and rotation window explicitly approved.
 - [ ] Production/staging separation confirmed in actual deployed application environments.
 
 ### Public web and routing
@@ -161,9 +171,9 @@ The Phase 6 PostgreSQL+filestore recovery model remains preserved for its verifi
 - [x] Broad Odoo backoffice and direct `/fu/public/**` rewrites are absent.
 - [x] Final public web typecheck/build/browser gate is green.
 - [x] Isolated Fares Uniform Vercel project shell created and owned by the authorized team.
-- [ ] Compliant commercial staging deployment exists.
-- [ ] Domain/DNS/TLS/internal-access ownership decided and configured.
-- [ ] Post-deployment EN/AR public smoke verification on the actual staging URL.
+- [x] Authorized isolated free-tier staging deployment exists; it is not production hosting approval.
+- [ ] Production domain/DNS/TLS/internal-access ownership decided and configured.
+- [x] Post-deployment EN/AR public smoke verification passed on the actual staging URL.
 
 ### Store/device compatibility
 - [ ] Actual checkout computer/browser validated.
@@ -186,13 +196,14 @@ The Phase 6 PostgreSQL+filestore recovery model remains preserved for its verifi
 - [ ] Real-data migration separately authorized.
 
 ### Observability and operations
-- [ ] Application/public-site uptime and error monitoring selected for the eventual compliant host.
-- [ ] Odoo HTTP/WebSocket health and error monitoring selected.
-- [ ] Supabase PostgreSQL availability/connection/storage monitoring ownership recorded.
-- [ ] Cron failure/overdue visibility established.
-- [ ] Managed backup/restore failure alerts have an owner.
-- [ ] Public enquiry delivery/failure monitoring has an owner.
-- [ ] Log retention/privacy policy decided.
+- [x] Staging public/Odoo health, Vercel runtime-error/HTTP-5xx, database-seal, cron and recovery monitoring is active twice hourly on `main`.
+- [x] Native scheduled authority run `35129331378`, job `104906119150`, passed at exact source `c2a93d8d693f47ebc7b286af5eaebb485895d8c0`.
+- [x] Cron backlog/failure and long idle-in-transaction visibility is established without executing or rescheduling ordinary jobs.
+- [ ] Named production monitoring owner and recipients recorded privately.
+- [ ] Production severity thresholds, coverage hours and escalation procedure approved.
+- [ ] Managed backup/restore failure owner and escalation path approved.
+- [ ] Public enquiry delivery/failure owner and escalation path approved.
+- [ ] Production log/alert retention and privacy policy decided.
 - [x] Repository process requires pinned Odoo and exact Fares application authority for update/upgrade evidence.
 
 ## Current architecture direction
@@ -215,23 +226,22 @@ The earlier single-EU-VPS/Hetzner recommendation is historical and superseded bu
 
 ## Go / no-go rule
 
-**Phase 7 technical repository/CI state: GO for separately authorized compliant commercial staging.**
+**Phase 7 technical repository/CI state: PASS.**
 
-**Phase 8A managed database and provider-control-plane state: PARTIAL GO.** Supabase live connectivity/bootstrap and the isolated Vercel project shell are proven. Application hosting/deployment is still NO-GO until the provider/plan boundary is resolved.
+**Phase 8 Gate C isolated staging state: PASS.** Live Supabase/Vercel staging, application deployment, privilege seal, public/no-leak behavior, continuity, cron locking, WebSocket replay, recovery, monitoring and production-model synthetic UAT are GREEN.
+
+**Release integration state: COMPLETE on `main`.**
 
 **Current production state: NO-GO.**
 
-There is no known Phase 7 application engineering blocker. The immediate blocker is provider-level: either a Vercel plan suitable for the commercial workload requires new spending authorization, or the hard `$0` rule requires a separately approved commercial-permitted host. Remaining live Gate C work after that choice includes permanent runtime secrets, seven-addon managed install/upgrade, replacement/session/attachment proof, cron/WebSocket proof, managed backup/restore, monitoring/logging and public EN/AR smoke.
+There is no known application or Gate C engineering blocker. Remaining work is Gate D policy and real-world acceptance: production-suitable hosting/spending, device validation, named staff/training, data cutover/reconciliation, production domains/access/secrets, backup retention/RPO/RTO, named monitoring recipients/escalation, retention/privacy and explicit production GO.
 
 ## Next actions allowed now
 
-1. Preserve Phase 7 implementation authority `01ce26d...` and Phase 8 Supabase/Vercel control-plane evidence.
-2. Do not activate permanent `fares_app` credentials or inject runtime secrets while no compliant application host is ready.
-3. Do not deploy the commercial Fares Uniform workload to Vercel Hobby merely to obtain a free URL.
-4. Resolve the provider choice explicitly:
-   - authorize a commercial-suitable Vercel plan after fresh cost confirmation; **or**
-   - retain `$0` and select/document a commercial-permitted alternative host that preserves the accepted stateless/realtime/security contract.
-5. After a compliant host is selected, resume atomic secret activation + deployment + full Gate C live proof.
-6. Do not use real business data or infer production authorization.
+1. Preserve the integrated application and staging evidence; do not delete phase branches without explicit authorization.
+2. Use `docs/operations/GATE_D_DECISION_REGISTER.md` to collect the unresolved production decisions without putting staff names, secrets or real customer/business data in GitHub.
+3. Continue reversible documentation/CI preparation that does not depend on an unresolved Gate D choice.
+4. Do not purchase a production plan, create production resources, activate production secrets, migrate real data, change DNS/domains or cut over by inference.
+5. Do not run, disable, postpone or drain the known ordinary-cron backlog merely to obtain proof.
 
-Production remains **NO-GO** until Gate C plus physical store hardware acceptance, named staff/training, real-data cutover/reconciliation, backup/RPO/RTO, monitoring, domains/access and a separate client production GO are complete.
+Production remains **NO-GO** until every required Gate D decision/evidence item is explicitly resolved and the client gives a separate production GO.

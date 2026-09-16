@@ -90,6 +90,8 @@ Prefer counts, status codes, booleans, fixed synthetic identifiers, exact source
 
 Manual default-branch run `35099333740`, job `104804477793`, passed at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. It reconfirmed the expected deployment, public/private health, aggregate Vercel error window, native alert-rule visibility, sealed database/cron facts and latest managed-recovery authority without mutation. The existing issue-transport self-test was correctly skipped because it had already been proven.
 
+The first observed native scheduled execution is GREEN: run `35129331378`, job `104906119150`, event `schedule`, exact source `c2a93d8d693f47ebc7b286af5eaebb485895d8c0`. It observed zero Vercel runtime errors and zero HTTP 5xx in the one-hour window, one available native alert rule, the expected 19-job ordinary backlog, zero failing crons, zero idle-in-transaction sessions older than five minutes and latest managed recovery `35068971581` still GREEN. It did not execute/reschedule ordinary cron or mutate business/application state.
+
 Schedule activation does not assign production owners, approve production retention/escalation policy or authorize production cutover.
 
 ## Production boundary

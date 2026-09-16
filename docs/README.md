@@ -59,6 +59,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Release integration validation](validation/RELEASE_INTEGRATION.md) | Linear branch audit, exact integrated hosted evidence and review-only PR boundary |
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result and operator/client inputs still required |
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Go/no-go checklist and remaining live-stage decisions |
+| [Gate D decision register](operations/GATE_D_DECISION_REGISTER.md) | Required production decisions, private evidence handoffs and fail-closed GO boundary |
 
 ## Current work
 
@@ -68,5 +69,6 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 - [Workflow guide](operations/WORKFLOW_GUIDE.md): retained workflows, retired diagnostic entry points and execution precautions.
 - [Staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md): current monitoring/alert/privacy proof and active default-branch schedule and remaining production-owner boundary.
 - [Release integration validation](validation/RELEASE_INTEGRATION.md): exact candidate, hosted gates, stack audit and merged PR #6/default-branch integration boundary.
+- [Gate D decision register](operations/GATE_D_DECISION_REGISTER.md): unresolved production decisions and evidence required before any production action.
 
 Historical phase documents record the state at their closure. Their past authorization/status language does not override the current handoff or later explicit decisions.

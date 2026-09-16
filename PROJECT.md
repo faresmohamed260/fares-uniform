@@ -22,7 +22,7 @@ Exact integrated candidate `de85450cf1c1774a432c5dfd600b6d4596bc2450` passed the
 
 The integration correction only aligned stale pre-deployment workflow source guards with deployed application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`; it did not change application source or deploy anything. Superseded one-off Phase 8 diagnosis/repair/preflight workflows and their patch payload were removed after their immutable RED/GREEN history had been recorded. The permanent proof workflows and documentation remain.
 
-Release integration is complete. The default-branch observability schedule is now active, and manual default-branch run `35099333740`, job `104804477793`, is GREEN. Phase-branch deletion, Gate D and production cutover remain separately authorized boundaries.
+Release integration is complete. The default-branch observability schedule is active. Manual run `35099333740`, job `104804477793`, and the first observed native scheduled run `35129331378`, job `104906119150`, are GREEN. The scheduled run used exact `main` source `c2a93d8d693f47ebc7b286af5eaebb485895d8c0`, observed zero Vercel runtime errors/HTTP 5xx, retained the 19-job known cron backlog with zero failing crons and zero stuck transactions, and required managed recovery `35068971581` to remain GREEN. Phase-branch deletion, Gate D and production cutover remain separately authorized boundaries.
 ## Current staging identity
 
 - Vercel project: `fares-uniform`, `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`, team `team_r09C6RLmb2acHapENECQIn9T`.
@@ -54,7 +54,7 @@ Managed backup/export plus destructive isolated restore is GREEN at workflow sou
 
 Hosted staging observability is GREEN at workflow source `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215`, run `35071292407`, job `104713180912`. It proved the exact READY deployment and EN/AR public surface, retained the narrow Odoo exposure boundary, observed zero Vercel runtime error/fatal records and zero HTTP 5xx in its one-hour window, retained the sealed database/provider facts, kept the known 19-job ordinary cron backlog visible without executing or rescheduling it, observed zero active cron failures and zero idle-in-transaction sessions older than five minutes, and required the latest managed recovery run to remain GREEN. Vercel's project alert-rule API was available and returned one existing rule. The privacy-safe GitHub issue alert transport was self-tested by creating and immediately closing synthetic issue `#5`.
 
-The monitoring contract is documented in `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md`. The source-controlled twice-hourly GitHub schedule is active now that the workflow exists on `main`. Manual default-branch run `35099333740`, job `104804477793`, reconfirmed the exact deployment/public/private boundary, aggregate Vercel error window, provider alert-rule visibility, sealed database/cron facts and latest recovery authority without mutation. Named people, production recipients/escalation and production retention remain Gate D decisions.
+The monitoring contract is documented in `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md`. The source-controlled twice-hourly GitHub schedule is active on `main`. Native scheduled run `35129331378`, job `104906119150`, reconfirmed the exact deployment/public/private boundary, zero aggregate Vercel runtime errors and HTTP 5xx, one available native alert rule, the sealed database/cron facts and latest recovery authority without mutation. Named people, production recipients/escalation and production retention remain Gate D decisions.
 
 The final recovery correction replaced an invalid cross-time raw count equality for `ir_cron_trigger`. Pinned Odoo treats that table as a mutable scheduler wake-up queue, while `ir_cron` is the durable schedule definition. Recovery therefore snapshots the trigger set immediately after `pg_restore`, before the seven-addon upgrade, then proves that complete archive-restored set remains afterward and that no orphan triggers exist; legitimate upgrade-created trigger rows are allowed. This preserves the recovery invariant instead of weakening it.
 
@@ -76,9 +76,10 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 ## Next tasks, in order
 
-1. Release integration is complete at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`; default-branch observability is GREEN at run `35099333740`, job `104804477793`. Keep all phase branches unless deletion is explicitly authorized.
-2. Gate D remains NO-GO: obtain named staff/roles/training acceptance, device acceptance, real-data cutover/reconciliation authorization, production access/domains/secrets, backup retention/RPO/RTO, named monitoring recipients/escalation and explicit production GO before any production action.
-3. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release staging gate. Treat any expansion as separately scoped work.
+1. Release integration and native scheduled staging observability are complete. Preserve merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, scheduled authority run `35129331378` / job `104906119150`, and all phase branches unless deletion is explicitly authorized.
+2. Work through [the Gate D decision register](docs/operations/GATE_D_DECISION_REGISTER.md). Do not infer names, hardware, production host/plan, domains, secret owners, migration method, backup retention/RPO/RTO, monitoring recipients/escalation, launch window or production GO.
+3. Continue only reversible repository/CI preparation that does not require an unresolved Gate D choice. Production remains NO-GO, and real-data/provider spending/cutover actions require separate explicit authorization.
+4. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release staging gate. Treat any expansion as separately scoped work.
 ## Constraints for every continuation
 
 Remote GitHub source edits and hosted execution only. No local/scratch source, builds or artifacts. No force push, broad Odoo exposure, real business data, `fu_uat` in staging/production, transaction pooling, routine provider-admin Odoo, paid upgrades or production cutover.

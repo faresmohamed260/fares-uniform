@@ -198,7 +198,7 @@ The Supabase/PostgreSQL monitor retained the exact epoch, role/provider/session/
 
 A privacy-safe GitHub issue sink is the source-controlled alert transport. Run `35071292407` created and immediately closed synthetic issue `#5`, proving issue creation/closure without raw logs, request bodies, customer/database records, SQL text, secret values or staff names. Owner labels are roles only: `technical-operations-owner` and `business-operations-owner`.
 
-`.github/workflows/phase8-staging-observability.yml` includes a twice-hourly schedule and now exists on default branch `main` after PR #6, so recurring GitHub staging polling is active. Manual default-branch run `35099333740`, job `104804477793`, is GREEN at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. Production human owners, recipients/escalation and retention remain Gate D.
+`.github/workflows/phase8-staging-observability.yml` includes a twice-hourly schedule and now exists on default branch `main` after PR #6, so recurring GitHub staging polling is active. Manual run `35099333740` / job `104804477793` and the first observed native scheduled run `35129331378` / job `104906119150` are GREEN. The scheduled event used exact `main` source `c2a93d8d693f47ebc7b286af5eaebb485895d8c0`. Production human owners, recipients/escalation and retention remain Gate D.
 
 See `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md` for the operational contract and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact hosted evidence.
 

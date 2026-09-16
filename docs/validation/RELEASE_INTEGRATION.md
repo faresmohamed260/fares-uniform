@@ -49,7 +49,7 @@ Because that commit changes only documentation and obsolete workflow/patch files
 
 ## Post-merge default-branch proof
 
-The source-controlled staging observability schedule is active because its workflow now exists on default branch `main`. Manual default-branch run `35099333740`, job `104804477793`, passed at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. It reconfirmed the exact READY deployment, English/Arabic public and narrow private-runtime health, aggregate Vercel error window, native alert-rule visibility, sealed database/provider/cron facts and latest managed-recovery authority without mutating application or business data.
+The source-controlled staging observability schedule is active because its workflow exists on default branch `main`. Manual run `35099333740`, job `104804477793`, passed at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. The first observed native `schedule` event also passed: run `35129331378`, job `104906119150`, exact source `c2a93d8d693f47ebc7b286af5eaebb485895d8c0`. It reconfirmed the exact READY deployment, English/Arabic public and narrow private-runtime health, zero aggregate Vercel runtime errors/HTTP 5xx, one available native alert rule, the sealed database/provider facts, the visible-but-untouched 19-job ordinary cron backlog, zero failing crons/long idle transactions and latest managed-recovery authority without mutating application or business data.
 
 The issue-transport self-test was correctly skipped because it had already been proven; failure alert transport remains configured. This run did not deploy application source, execute ordinary cron, change the database, use real data or perform a production action.
 ## Remaining boundary

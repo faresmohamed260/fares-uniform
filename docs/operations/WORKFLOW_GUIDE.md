@@ -48,7 +48,7 @@ Current recovery authority: workflow source `01824eba60dc55382a614178df3edd4d889
 
 Current observability authority: source `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215`, run `35071292407`, job `104713180912`, result GREEN. The run observed zero Vercel runtime error/fatal records, zero HTTP 5xx, the unchanged 19-job ordinary cron backlog, zero active cron failures, zero long idle transactions and latest managed recovery success. Synthetic issue `#5` proved the GitHub issue alert transport and was closed immediately.
 
-The workflow contains a twice-hourly `schedule`, and PR #6 placed it on default branch `main`; scheduled staging polling is active. Manual default-branch authority is run `35099333740`, job `104804477793`, GREEN at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. Schedule activation does not authorize production monitoring policy or cutover. See `PHASE_8_STAGING_OBSERVABILITY.md`.
+The workflow contains a twice-hourly `schedule`, and PR #6 placed it on default branch `main`; scheduled staging polling is active. Manual default-branch authority is run `35099333740`, job `104804477793`, GREEN at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. Native scheduled authority is run `35129331378`, job `104906119150`, GREEN at exact `main` source `c2a93d8d693f47ebc7b286af5eaebb485895d8c0`. Schedule activation does not authorize production monitoring policy or cutover. See `PHASE_8_STAGING_OBSERVABILITY.md`.
 
 ## Retired one-off workflows
 
