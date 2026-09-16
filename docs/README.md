@@ -61,7 +61,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Go/no-go checklist and remaining live-stage decisions |
 | [Gate D decision register](operations/GATE_D_DECISION_REGISTER.md) | Required production decisions, private evidence handoffs and fail-closed GO boundary |
 | [Gate D release-control plan](operations/GATE_D_RELEASE_CONTROL_PLAN.md) | Audited GitHub control state and proposed protected production-release boundary |
-| [Production domain plan](operations/PRODUCTION_DOMAIN_PLAN.md) | Accepted Vercel/Cloudflare/Supabase split, aresuniform.uk evidence and guarded wiring sequence |
+| [Production domain plan](operations/PRODUCTION_DOMAIN_PLAN.md) | Accepted Vercel/Cloudflare/Supabase split, `faresuniform.uk` evidence and guarded wiring sequence |
 
 ## Current work
 
@@ -73,6 +73,6 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 - [Release integration validation](validation/RELEASE_INTEGRATION.md): exact candidate, hosted gates, stack audit and merged PR #6/default-branch integration boundary.
 - [Gate D decision register](operations/GATE_D_DECISION_REGISTER.md): unresolved production decisions and evidence required before any production action.
 - [Gate D release-control plan](operations/GATE_D_RELEASE_CONTROL_PLAN.md): repository protection and production-environment controls awaiting explicit approval.
-- [Production domain plan](operations/PRODUCTION_DOMAIN_PLAN.md): selected domain/platform split and incomplete Cloudflare-to-Vercel wiring boundary.
+- [Production domain plan](operations/PRODUCTION_DOMAIN_PLAN.md): selected platform/domain split, completed custom-domain technical wiring evidence and remaining Gate D boundary.
 
 Historical phase documents record the state at their closure. Their past authorization/status language does not override the current handoff or later explicit decisions.

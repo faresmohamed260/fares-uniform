@@ -1,51 +1,47 @@
 # Production domain plan — `faresuniform.uk`
 
-Status: **DOMAIN/PLATFORM SELECTED; DNS-TO-VERCEL WIRING NOT AUTHORIZED OR COMPLETE; PRODUCTION NO-GO.**
+Status: **CUSTOM-DOMAIN TECHNICAL WIRING GREEN; PRODUCTION NO-GO.**
 
 ## Accepted architecture
 
-- Public application runtime: Vercel project `fares-uniform`.
+- Public application runtime: Vercel project `fares-uniform`, project id `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`.
 - Authoritative DNS and selected edge/proxy direction: Cloudflare.
 - Durable managed PostgreSQL: Supabase project `urqlxisivowkmsfisjek`.
-- Public domain: `faresuniform.uk`.
+- Canonical public hostname: `faresuniform.uk`; `www.faresuniform.uk` permanently redirects to the apex.
 
-Cloudflare is not a replacement application database or an additional Odoo source of truth. Supabase remains the managed PostgreSQL authority, and Vercel remains the application/runtime direction.
+Cloudflare is not an application database or an additional Odoo source of truth. Supabase remains the managed PostgreSQL authority, and Vercel remains the application/runtime direction.
 
-## Read-only domain evidence
+## Completed technical wiring evidence
 
-Observed on 2026-09-16 without provider mutation:
+After explicit client authorization on 2026-09-16:
 
-- authoritative nameservers: `grant.ns.cloudflare.com` and `paris.ns.cloudflare.com`;
-- apex A/AAAA responses were Cloudflare anycast addresses, indicating the web record is proxied through Cloudflare;
-- HTTPS `HEAD /` returned Cloudflare HTTP `530` with `Server: cloudflare`;
-- existing non-web DNS includes mail/TXT records that must be preserved during any later change.
+1. The existing Cloudflare zone inventory was reviewed before mutation. It contained 59 records.
+2. `faresuniform.uk` and `www.faresuniform.uk` were added to the exact Vercel project/team.
+3. Vercel returned project-specific CNAME target `35dfccfeeca04397.vercel-dns-017.com` for both hostnames.
+4. Only the existing apex and `www` web records were changed in Cloudflare. Both now use that target in DNS-only mode. Mail, TXT and unrelated records were preserved.
+5. Vercel reports **Valid Configuration** for both hostnames and completed TLS certificate issuance.
+6. `https://faresuniform.uk/` returns HTTP `200` from Vercel with HSTS.
+7. `https://www.faresuniform.uk/` returns HTTP `308` to `https://faresuniform.uk/`.
+8. English and Arabic home, catalog and synthetic detail rendering passed on the custom domain with no price or stock fields exposed.
 
-The public TXT/MX values are intentionally not copied into source. The `530` response means the selected domain is not yet serving the accepted Vercel application and cannot be considered production-ready.
+The connected immutable application remains `2a74e93b1828c16839ba7cede336caa4ca374306`. The wiring did not redeploy the application, mutate Supabase/Odoo data, execute ordinary cron, expose broad Odoo routes, use real customer data or authorize production cutover.
 
-## Guarded wiring sequence
+## Operating and rollback boundary
 
-Do not execute these steps without explicit domain/cutover authorization and exact provider access:
+- Keep the `vercel.app` hostname available while the custom-domain path remains under observation.
+- Do not enable the Cloudflare proxy by inference. A later proxy decision must verify TLS mode, dynamic/API/WebSocket cache bypass, client-IP/header behavior and continued Vercel origin health.
+- Before any further apex/`www` change, capture the current two-record state and provider status so it can be restored exactly.
+- Do not publish private Odoo/backoffice access through the public hostname.
 
-1. Capture a fresh Cloudflare DNS inventory and rollback record, including apex, `www`, mail and verification records, without printing sensitive values.
-2. Add `faresuniform.uk` and the chosen `www` behavior to the exact Vercel project/team.
-3. Use current Vercel domain inspection to obtain the project-specific verification and DNS records. Do not blindly hardcode generic A/CNAME targets.
-4. Apply only the minimum required Cloudflare web-record changes while preserving mail/TXT and unrelated records.
-5. Use DNS-only mode for initial ownership/origin verification unless current Vercel inspection and the accepted Cloudflare design explicitly support proxying at that step.
-6. Wait for Vercel domain verification and TLS certificate issuance; verify apex/`www` redirect policy.
-7. Run exact EN/AR catalog/detail/enquiry, no-price/no-stock, broad-Odoo-exposure, authenticated cron, WebSocket and runtime-error checks against the custom domain.
-8. If Cloudflare proxying is enabled, verify TLS mode, cache bypass for dynamic/API/WebSocket routes, client IP/header behavior and that Vercel origin verification remains healthy.
-9. Retain the existing `vercel.app` staging hostname until custom-domain rollback and observation complete.
-10. Record exact DNS/Vercel identities, hosted evidence and rollback results before any production GO.
+## Still required for Gate D
 
-## Still required
+- production Vercel plan/commercial-use suitability, region and spending approval;
+- named Cloudflare account/zone owner, DNS-change approver and certificate owner roles;
+- final Cloudflare DNS-only versus proxied policy;
+- private Odoo/backoffice access method and owner;
+- production secret custody and rotation;
+- remaining GD-03 through GD-09 decisions and evidence;
+- accepted release-control boundary for deferred GD-10;
+- explicit production launch authorization and final GO.
 
-- production Vercel plan/commercial-use suitability and spending approval;
-- Cloudflare account/zone owner role and DNS-change approver;
-- final apex versus `www` canonical choice;
-- final Cloudflare proxied versus DNS-only policy;
-- private Odoo/backoffice access method;
-- production secret custody;
-- explicit DNS mutation and cutover authorization;
-- post-wiring GREEN evidence and final production GO.
-
-No DNS, Cloudflare, Vercel-domain, certificate or Supabase setting was changed while creating this plan.
+Technical custom-domain wiring is GREEN. It is not evidence that the current synthetic staging content is production-ready, and it does not authorize real data or customer use.

@@ -202,6 +202,9 @@ A privacy-safe GitHub issue sink is the source-controlled alert transport. Run `
 
 See `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md` for the operational contract and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact hosted evidence.
 
+## Custom-domain technical checkpoint
+
+Authorized wiring completed on 2026-09-16 without an application redeploy. Cloudflare apex and `www` now use Vercel's exact project target `35dfccfeeca04397.vercel-dns-017.com` in DNS-only mode. Vercel reports Valid Configuration for both; `https://faresuniform.uk/` returns HTTP `200` with HSTS and `https://www.faresuniform.uk/` returns HTTP `308` to the apex. English/Arabic home, catalog and synthetic detail rendering passed without price or stock exposure. The Cloudflare zone retained 59 records and unrelated mail/TXT records were not edited. This is staging technical evidence only; production remains NO-GO.
 ## Secret-management boundary
 
 `docs/operations/PHASE_8_STAGING_SECRET_INVENTORY.md` is authoritative for names/purpose/custody only.

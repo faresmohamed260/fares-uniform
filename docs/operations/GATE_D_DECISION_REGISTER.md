@@ -26,7 +26,7 @@ Client-confirmed on 2026-09-16:
 - managed PostgreSQL/durable state: Supabase;
 - public domain: `faresuniform.uk`.
 
-Public read-only DNS evidence confirms Cloudflare nameservers. The current apex response is Cloudflare HTTP `530`, which proves the DNS/edge path is not yet connected to a healthy accepted Vercel origin. Treat the domain as owned/selected but not production-ready. No provider setting was mutated.
+Authorized technical wiring completed on 2026-09-16. Cloudflare apex and `www` use Vercel's exact project CNAME target in DNS-only mode; Vercel reports Valid Configuration for both; the apex returns HTTP `200` with HSTS and `www` returns HTTP `308` to the apex. The 59-record zone retained its mail/TXT and unrelated records. This proves the custom-domain path, not production readiness or cutover authorization.
 
 See [production domain plan](PRODUCTION_DOMAIN_PLAN.md).
 ## Required decisions
@@ -34,7 +34,7 @@ See [production domain plan](PRODUCTION_DOMAIN_PLAN.md).
 | ID | Decision required from client/operators | Minimum evidence before closure | State |
 | --- | --- | --- | --- |
 | GD-01 | Production hosting provider/plan, region and spending ceiling | Vercel is selected for application hosting and Supabase for managed PostgreSQL. Production Vercel plan/commercial-use suitability, region, approved recurring/one-time cost ceiling and account owner role remain required. | PARTIAL — PLAN/SPENDING OPEN |
-| GD-02 | Production domain, DNS, TLS and private Odoo access ownership | `faresuniform.uk` is selected and delegated to Cloudflare. Exact DNS/proxy records, Vercel verification, TLS acceptance, DNS/certificate owner roles and private/backoffice access method remain required. | PARTIAL — WIRING/OWNERS OPEN |
+| GD-02 | Production domain, DNS, TLS and private Odoo access ownership | `faresuniform.uk` apex/`www` wiring, Vercel verification, TLS and canonical redirect are GREEN. Final Cloudflare proxy policy, DNS/certificate owner roles and private/backoffice access method remain required. | PARTIAL — TECHNICAL WIRING GREEN; POLICY/OWNERS OPEN |
 | GD-03 | Production secret custody and rotation | Custodian roles for database, Odoo admin, cron and provider tokens; injection boundary; rotation/revocation procedure; emergency-access owner | OPEN |
 | GD-04 | Store devices and outage procedure | Checkout browser/device result; scanner result; receipt/label printer dimensions/result; offline persistence result; power/network outage procedure acknowledged | OPEN |
 | GD-05 | Staff roles and training | Private named-user roster; approved role/location mapping; training completion by workflow; recovery/escalation role | OPEN |

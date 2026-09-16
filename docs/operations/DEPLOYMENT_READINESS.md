@@ -53,9 +53,9 @@ Final Phase 6 proof: SHA `e337315684c62d69ad75ba56a5867098da17489c`, run `347266
 - [x] Managed PostgreSQL selected for Phase 8 staging: **Supabase**.
 - [x] Application hosting/runtime direction reconfirmed: **Vercel**.
 - [x] Authoritative DNS/edge direction reconfirmed: **Cloudflare**.
-- [x] Owned public domain selected: **aresuniform.uk**.
+- [x] Owned public domain selected: **`faresuniform.uk`**.
 - [ ] Production Vercel plan/commercial-use and spending boundary approved.
-- [ ] Cloudflare-to-Vercel DNS/proxy/TLS wiring verified for aresuniform.uk.
+- [x] Cloudflare-to-Vercel apex/`www` DNS-only wiring, Vercel verification, TLS and canonical redirect verified for `faresuniform.uk` (2026-09-16).
 - [x] Client explicitly authorized new Fares Uniform staging resources on Vercel/Supabase under a hard **stay free** condition.
 - [x] Actual Fares Uniform Supabase project/database/region established in an isolated dedicated project.
 - [x] Actual isolated Fares Uniform Vercel project shell created in the authorized team.
@@ -178,7 +178,7 @@ The Phase 6 PostgreSQL+filestore recovery model remains preserved for its verifi
 - [x] Isolated Fares Uniform Vercel project shell created and owned by the authorized team.
 - [x] Authorized isolated free-tier staging deployment exists; it is not production hosting approval.
 - [x] Production domain selected: `faresuniform.uk`; authoritative DNS is delegated to Cloudflare.
-- [ ] Exact Cloudflare DNS/proxy records, Vercel domain verification and TLS acceptance completed.
+- [x] Exact apex/`www` DNS-only records, Vercel domain verification, TLS acceptance and canonical redirect completed.
 - [ ] DNS/certificate and private/internal-access owner roles approved.
 - [x] Post-deployment EN/AR public smoke verification passed on the actual staging URL.
 
@@ -230,7 +230,7 @@ Client direction on 2026-09-16: do not apply the proposed branch protection, Dep
 
 Repository-proven target properties:
 - public Next.js surface;
-- aresuniform.uk through Cloudflare authoritative DNS/edge to the Vercel public surface;
+- `faresuniform.uk` through Cloudflare authoritative DNS/edge to the Vercel public surface;
 - private/stateless Odoo HTTP service;
 - separate stateless Odoo evented/WebSocket service;
 - managed Supabase PostgreSQL through session semantics + TLS;
@@ -241,7 +241,7 @@ Repository-proven target properties:
 - no correctness-critical local filesystem state;
 - minimal public Odoo routing.
 
-Vercel remains the selected direction in the repository, but the actual application deployment is paused because the user's hard free-only constraint and the current Hobby commercial-use boundary cannot both be satisfied. A provider change must be explicit and must preserve the above properties rather than silently reverting architecture.
+The isolated synthetic-data staging application is live on Vercel and its custom-domain path is technically GREEN. Production activation remains paused because the free-only staging authorization and the current Hobby commercial-use boundary do not establish an approved commercial production plan. A provider or plan change must be explicit and preserve the proven architecture.
 
 The earlier single-EU-VPS/Hetzner recommendation is historical and superseded but remains a verified fallback through the Phase 6 package.
 

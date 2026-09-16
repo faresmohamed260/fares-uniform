@@ -356,7 +356,7 @@ The read-only Gate D audit found no repository ruleset or `main` branch protecti
 The client declined the proposed changes to enable `main` protection, Dependabot security updates and an empty protected `production` environment, then instructed completion of the remaining authorized tasks. No GitHub setting, environment, secret or deployment was changed. This is a deferral, not acceptance of an unprotected production release process. GD-10 remains NOT APPROVED and production remains NO-GO unless a later explicit decision establishes the release-control boundary.
 ## D-047 — Vercel + Cloudflare + Supabase production direction and `faresuniform.uk`
 
-Status: Client-reconfirmed platform/domain decision, 2026-09-16; wiring and production authorization remain open.
+Status: Platform/domain selected and custom-domain technical wiring GREEN, 2026-09-16; production authorization remains open.
 
 The intended production platform split is:
 
@@ -365,6 +365,6 @@ The intended production platform split is:
 - Supabase for managed PostgreSQL and durable database state;
 - owned public domain `faresuniform.uk`.
 
-This supersedes any current checklist wording that treats the production provider or domain identity as wholly undecided. It does not select or authorize a paid Vercel plan, approve a spending ceiling, authorize DNS mutation, decide the final Cloudflare proxy policy, attach the domain to the Vercel project, approve production secrets/private access, or authorize cutover.
+After explicit client authorization, only the Cloudflare apex and `www` web records were changed to Vercel's exact project target `35dfccfeeca04397.vercel-dns-017.com`, initially DNS-only. The zone retained 59 records; mail/TXT and unrelated records were preserved. Vercel reports Valid Configuration for both hostnames, the apex returns HTTP `200` from Vercel with HSTS, and `www` returns HTTP `308` to the apex. English/Arabic public rendering passed with no price or stock exposure.
 
-Read-only public DNS evidence on 2026-09-16 showed Cloudflare nameservers and Cloudflare-served apex addresses. HTTPS returned Cloudflare status `530`, so the domain is selected/owned but not yet connected to a healthy accepted Vercel origin. Exact wiring must follow current Vercel domain inspection output and preserve existing non-web DNS records. See `docs/operations/PRODUCTION_DOMAIN_PLAN.md`.
+This closes the technical DNS/Vercel-verification/TLS portion of GD-02. It does not approve a production Vercel plan or spending ceiling, decide the final Cloudflare proxy policy, name DNS/certificate/private-access owners, authorize production secrets or real data, approve customer launch, or resolve the remaining Gate D decisions. The immutable deployed application remains `2a74e93b1828c16839ba7cede336caa4ca374306`; no application redeploy or production cutover occurred. See `docs/operations/PRODUCTION_DOMAIN_PLAN.md`.
