@@ -1,6 +1,6 @@
 # Phase 8A — Free-tier staging execution
 
-Status: **LIVE STAGING AUTHORIZED; FIXTURE/PUBLIC CONTINUITY/RECOVERY GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
+Status: **LIVE STAGING AUTHORIZED; FIXTURE/PUBLIC CONTINUITY/RECOVERY/OBSERVABILITY GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -188,7 +188,19 @@ Commit `01824eba60dc55382a614178df3edd4d88997f61` therefore anchors queue contin
 
 The GitHub connector did not expose sealed stdout for final run `35068971581`; current backup byte/hash/list-count values are therefore intentionally not asserted in source documentation from an older run.
 
-See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current live evidence, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep, the resolved ordinary-cron backlog, or raw cross-time `ir_cron_trigger` count equality as a current blocker.
+## Hosted staging observability — GREEN technical proof
+
+Workflow source `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215` is GREEN in run `35071292407`, job `104713180912`, against immutable application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`, deployment `dpl_Ba34KhzW7AZ6aBY7poz1DeaQa3rg` and the current database epoch.
+
+It verified immutable/canonical EN/AR public health, unauthenticated cron `401`, broad Odoo login/direct public API `404`, zero Vercel runtime error/fatal records and zero HTTP 5xx in the one-hour window. Vercel's project alert-rule API was available and returned one existing project rule, but its uninspected semantics/recipients are not relied upon as the staging failure sink.
+
+The Supabase/PostgreSQL monitor retained the exact epoch, role/provider/session/extension/attachment privilege seal, the fixed synthetic enquiry, the known 19 ordinary due crons without executing or rescheduling them, zero active cron failure counts, zero proof residue and zero idle-in-transaction sessions older than five minutes. Latest managed recovery was required to remain run `35068971581` / success.
+
+A privacy-safe GitHub issue sink is the source-controlled alert transport. Run `35071292407` created and immediately closed synthetic issue `#5`, proving issue creation/closure without raw logs, request bodies, customer/database records, SQL text, secret values or staff names. Owner labels are roles only: `technical-operations-owner` and `business-operations-owner`.
+
+`.github/workflows/phase8-staging-observability.yml` includes a twice-hourly schedule, but GitHub scheduled workflows run from the default branch only. Because Phase 8 remains isolated on its phase branch, that recurrence is not active yet; push/manual proof plus native Vercel/Supabase observability is the current staging boundary. Release integration is the correct point to activate the GitHub schedule. Production human owners, recipients/escalation and retention remain Gate D.
+
+See `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md` for the operational contract and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact hosted evidence.
 
 ## Secret-management boundary
 
@@ -200,11 +212,11 @@ See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current live 
 
 - **Gate A — repository planning: PASS.**
 - **Gate B — authorization/provider ownership: PASS.**
-- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering, bounded live enquiry/no-leak proof, attachment/authenticated-session continuity, cron locking, WebSocket replay and managed backup/isolated destructive recovery are GREEN. Monitoring and business-flow acceptance remain.
-- **Gate D — production: NO-GO.** Separate operational, device/staff/data-cutover and explicit production authorization are still required.
+- **Gate C — live staging technical GO: IN PROGRESS / NOT YET GO.** Guarded reset/deploy, provider restore, private DB routing, runtime privilege seal, fixture/public rendering, bounded live enquiry/no-leak proof, attachment/authenticated-session continuity, cron locking, WebSocket replay, managed backup/isolated destructive recovery and hosted observability/alert transport are GREEN. Business-flow acceptance remains.
+- **Gate D — production: NO-GO.** Separate operational, device/staff/data-cutover, named monitoring ownership/retention and explicit production authorization are still required.
 
 ## Next authorized execution sequence
 
-Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Establish hosted logs/monitoring/alerts with ownership-role and privacy/redaction rules, then complete live synthetic business-flow acceptance before staging sign-off. Gate D remains separately authorized.
+Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Complete live synthetic business-flow acceptance before staging sign-off; do not install `fu_uat` in staging. Default-branch observability schedule activation belongs to separately reviewed release integration. Gate D remains separately authorized.
 
 Remote GitHub/hosted execution only. No force-push, stale writer rerun, real data, `fu_uat`, direct `/fu/public/**`, transaction pooling, routine provider-admin Odoo, paid upgrade or production cutover.
