@@ -17,7 +17,6 @@ concurrency:
 
 env:
   EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
-  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
   SUPABASE_API_BASE: https://api.supabase.com/v1
   SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
 
@@ -66,29 +65,36 @@ jobs:
             (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
             has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
             (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
-            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations;
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
 
-          SELECT name, state
-          FROM ir_module_module
-          WHERE name IN (
-            'point_of_sale','stock','stock_account','account','sale_management','sale_stock','crm',
-            'purchase','purchase_stock','mrp',
-            'fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting','fu_uat'
-          )
-          ORDER BY name;
+            (SELECT state FROM ir_module_module WHERE name='point_of_sale') AS module_point_of_sale,
+            (SELECT state FROM ir_module_module WHERE name='stock') AS module_stock,
+            (SELECT state FROM ir_module_module WHERE name='stock_account') AS module_stock_account,
+            (SELECT state FROM ir_module_module WHERE name='account') AS module_account,
+            (SELECT state FROM ir_module_module WHERE name='sale_management') AS module_sale_management,
+            (SELECT state FROM ir_module_module WHERE name='sale_stock') AS module_sale_stock,
+            (SELECT state FROM ir_module_module WHERE name='crm') AS module_crm,
+            (SELECT state FROM ir_module_module WHERE name='purchase') AS module_purchase,
+            (SELECT state FROM ir_module_module WHERE name='purchase_stock') AS module_purchase_stock,
+            (SELECT state FROM ir_module_module WHERE name='mrp') AS module_mrp,
+            (SELECT state FROM ir_module_module WHERE name='fu_core') AS module_fu_core,
+            (SELECT state FROM ir_module_module WHERE name='fu_retail') AS module_fu_retail,
+            (SELECT state FROM ir_module_module WHERE name='fu_preorder') AS module_fu_preorder,
+            (SELECT state FROM ir_module_module WHERE name='fu_production') AS module_fu_production,
+            (SELECT state FROM ir_module_module WHERE name='fu_business') AS module_fu_business,
+            (SELECT state FROM ir_module_module WHERE name='fu_public_api') AS module_fu_public_api,
+            (SELECT state FROM ir_module_module WHERE name='fu_reporting') AS module_fu_reporting,
 
-          SELECT
-            to_regclass('public.pos_config') IS NOT NULL AS pos_config,
-            to_regclass('public.pos_session') IS NOT NULL AS pos_session,
-            to_regclass('public.pos_order') IS NOT NULL AS pos_order,
-            to_regclass('public.pos_payment') IS NOT NULL AS pos_payment,
-            to_regclass('public.stock_warehouse') IS NOT NULL AS stock_warehouse,
-            to_regclass('public.stock_warehouse_orderpoint') IS NOT NULL AS reorder_rule,
-            to_regclass('public.product_supplierinfo') IS NOT NULL AS supplier_info,
-            to_regclass('public.stock_valuation_layer') IS NOT NULL AS valuation_layer,
-            to_regclass('public.purchase_order') IS NOT NULL AS purchase_order;
+            to_regclass('public.pos_config') IS NOT NULL AS table_pos_config,
+            to_regclass('public.pos_session') IS NOT NULL AS table_pos_session,
+            to_regclass('public.pos_order') IS NOT NULL AS table_pos_order,
+            to_regclass('public.pos_payment') IS NOT NULL AS table_pos_payment,
+            to_regclass('public.stock_warehouse') IS NOT NULL AS table_stock_warehouse,
+            to_regclass('public.stock_warehouse_orderpoint') IS NOT NULL AS table_reorder_rule,
+            to_regclass('public.product_supplierinfo') IS NOT NULL AS table_supplier_info,
+            to_regclass('public.stock_valuation_layer') IS NOT NULL AS table_valuation_layer,
+            to_regclass('public.purchase_order') IS NOT NULL AS table_purchase_order,
 
-          SELECT
             (SELECT count(*)::int FROM res_company) AS companies,
             (SELECT count(*)::int FROM stock_warehouse) AS warehouses,
             (SELECT count(*)::int FROM stock_location WHERE fu_location_role='store') AS fares_store_locations,
@@ -96,17 +102,21 @@ jobs:
             (SELECT count(*)::int FROM pos_config) AS pos_configs,
             (SELECT count(*)::int FROM pos_session WHERE state IN ('opening_control','opened','closing_control')) AS open_pos_sessions,
             (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now()) AS due_crons,
-            (SELECT count(*)::int FROM ir_cron WHERE active AND coalesce(failure_count,0) > 0) AS failing_crons;
+            (SELECT count(*)::int FROM ir_cron WHERE active AND coalesce(failure_count,0) > 0) AS failing_crons,
 
-          SELECT model, name
-          FROM ir_model_fields
-          WHERE (model='stock.location' AND name='fu_location_role')
-             OR (model='pos.payment' AND name='fu_manual_confirmed')
-             OR (model='pos.payment.method' AND name='fu_confirmation_mode')
-             OR (model='product.category' AND name IN ('property_cost_method','property_valuation'))
-             OR (model='stock.warehouse.orderpoint' AND name IN ('product_min_qty','product_max_qty','location_id','product_id'))
-             OR (model='product.supplierinfo' AND name IN ('partner_id','product_tmpl_id','price','min_qty'))
-          ORDER BY model, name;
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='stock.location' AND name='fu_location_role') AS field_location_role,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='pos.payment' AND name='fu_manual_confirmed') AS field_pos_manual_confirmed,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='pos.payment.method' AND name='fu_confirmation_mode') AS field_pos_confirmation_mode,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.category' AND name='property_cost_method') AS field_cost_method,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.category' AND name='property_valuation') AS field_valuation,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='stock.warehouse.orderpoint' AND name='location_id') AS field_orderpoint_location,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='stock.warehouse.orderpoint' AND name='product_id') AS field_orderpoint_product,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='stock.warehouse.orderpoint' AND name='product_min_qty') AS field_orderpoint_min,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='stock.warehouse.orderpoint' AND name='product_max_qty') AS field_orderpoint_max,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.supplierinfo' AND name='partner_id') AS field_supplier_partner,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.supplierinfo' AND name='product_tmpl_id') AS field_supplier_template,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.supplierinfo' AND name='price') AS field_supplier_price,
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.supplierinfo' AND name='min_qty') AS field_supplier_min_qty;
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
           status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
@@ -115,65 +125,45 @@ jobs:
             --data "$payload" \
             "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
           assert_eq business_preflight_http "$status" 201
+          assert_eq result_rows "$(jq 'length' "$response")" 1
 
-          # Emit only schema/module/count metadata; no business rows or SQL text.
-          jq -c '.[]' "$response"
+          # Emit one aggregate metadata record only; no business rows or SQL text.
+          jq -c '.[0]' "$response"
 
-          seal_index="$(jq -r 'to_entries | map(select(.value.epoch_id? != null))[0].key // "missing"' "$response")"
-          [[ "$seal_index" != missing ]] || { echo 'seal_row=FAIL missing' >&2; exit 1; }
-          assert_eq epoch "$(jq -r --argjson i "$seal_index" '.[$i].epoch_id' "$response")" "$EXPECTED_DB_EPOCH"
-          assert_eq runtime_login "$(jq -r --argjson i "$seal_index" '.[$i].rolcanlogin' "$response")" true
-          assert_eq schema_create "$(jq -r --argjson i "$seal_index" '.[$i].can_create_public' "$response")" false
-          assert_eq fu_uat_installed "$(jq -r --argjson i "$seal_index" '.[$i].fu_uat_installed' "$response")" 0
-          assert_eq app_owned_relations "$(jq -r --argjson i "$seal_index" '.[$i].app_owned_relations' "$response")" 988
+          assert_eq epoch "$(jq -r '.[0].epoch_id' "$response")" "$EXPECTED_DB_EPOCH"
+          assert_eq runtime_login "$(jq -r '.[0].rolcanlogin' "$response")" true
+          assert_eq schema_create "$(jq -r '.[0].can_create_public' "$response")" false
+          assert_eq fu_uat_installed "$(jq -r '.[0].fu_uat_installed' "$response")" 0
+          assert_eq app_owned_relations "$(jq -r '.[0].app_owned_relations' "$response")" 988
 
           for module in point_of_sale stock stock_account account sale_management sale_stock crm fu_core fu_retail fu_preorder fu_production fu_business fu_public_api fu_reporting; do
-            state="$(jq -r --arg m "$module" '[.[] | select(.name==$m)][0].state // "missing"' "$response")"
-            assert_eq "module_${module}" "$state" installed
+            assert_eq "module_${module}" "$(jq -r --arg key "module_${module}" '.[0][$key] // "missing"' "$response")" installed
           done
 
-          purchase_state="$(jq -r '[.[] | select(.name=="purchase")][0].state // "missing"' "$response")"
-          purchase_stock_state="$(jq -r '[.[] | select(.name=="purchase_stock")][0].state // "missing"' "$response")"
+          purchase_state="$(jq -r '.[0].module_purchase // "missing"' "$response")"
+          purchase_stock_state="$(jq -r '.[0].module_purchase_stock // "missing"' "$response")"
+          mrp_state="$(jq -r '.[0].module_mrp // "missing"' "$response")"
           echo "PURCHASE_STATE=$purchase_state" >> "$GITHUB_ENV"
           echo "PURCHASE_STOCK_STATE=$purchase_stock_state" >> "$GITHUB_ENV"
-          echo "purchase_module_state=INFO purchase=$purchase_state purchase_stock=$purchase_stock_state"
+          echo "MRP_STATE=$mrp_state" >> "$GITHUB_ENV"
+          echo "purchase_module_state=INFO purchase=$purchase_state purchase_stock=$purchase_stock_state mrp=$mrp_state"
 
-          topology_index="$(jq -r 'to_entries | map(select(.value.pos_config? != null))[0].key // "missing"' "$response")"
-          [[ "$topology_index" != missing ]] || { echo 'topology_row=FAIL missing' >&2; exit 1; }
           for key in pos_config pos_session pos_order pos_payment stock_warehouse reorder_rule supplier_info valuation_layer; do
-            assert_eq "table_${key}" "$(jq -r --argjson i "$topology_index" --arg k "$key" '.[$i][$k]' "$response")" true
+            assert_eq "table_${key}" "$(jq -r --arg key "table_${key}" '.[0][$key]' "$response")" true
           done
-          echo "PURCHASE_ORDER_TABLE=$(jq -r --argjson i "$topology_index" '.[$i].purchase_order' "$response")" >> "$GITHUB_ENV"
+          echo "PURCHASE_ORDER_TABLE=$(jq -r '.[0].table_purchase_order' "$response")" >> "$GITHUB_ENV"
 
-          counts_index="$(jq -r 'to_entries | map(select(.value.companies? != null))[0].key // "missing"' "$response")"
-          [[ "$counts_index" != missing ]] || { echo 'counts_row=FAIL missing' >&2; exit 1; }
-          assert_eq fares_store_locations "$(jq -r --argjson i "$counts_index" '.[$i].fares_store_locations' "$response")" 1
-          assert_eq fares_storage_locations "$(jq -r --argjson i "$counts_index" '.[$i].fares_storage_locations' "$response")" 1
-          assert_eq ordinary_due_crons "$(jq -r --argjson i "$counts_index" '.[$i].due_crons' "$response")" 19
-          assert_eq failing_crons "$(jq -r --argjson i "$counts_index" '.[$i].failing_crons' "$response")" 0
-          echo "COMPANIES=$(jq -r --argjson i "$counts_index" '.[$i].companies' "$response")" >> "$GITHUB_ENV"
-          echo "WAREHOUSES=$(jq -r --argjson i "$counts_index" '.[$i].warehouses' "$response")" >> "$GITHUB_ENV"
-          echo "POS_CONFIGS=$(jq -r --argjson i "$counts_index" '.[$i].pos_configs' "$response")" >> "$GITHUB_ENV"
-          echo "OPEN_POS_SESSIONS=$(jq -r --argjson i "$counts_index" '.[$i].open_pos_sessions' "$response")" >> "$GITHUB_ENV"
+          assert_eq fares_store_locations "$(jq -r '.[0].fares_store_locations' "$response")" 1
+          assert_eq fares_storage_locations "$(jq -r '.[0].fares_storage_locations' "$response")" 1
+          assert_eq ordinary_due_crons "$(jq -r '.[0].due_crons' "$response")" 19
+          assert_eq failing_crons "$(jq -r '.[0].failing_crons' "$response")" 0
+          echo "COMPANIES=$(jq -r '.[0].companies' "$response")" >> "$GITHUB_ENV"
+          echo "WAREHOUSES=$(jq -r '.[0].warehouses' "$response")" >> "$GITHUB_ENV"
+          echo "POS_CONFIGS=$(jq -r '.[0].pos_configs' "$response")" >> "$GITHUB_ENV"
+          echo "OPEN_POS_SESSIONS=$(jq -r '.[0].open_pos_sessions' "$response")" >> "$GITHUB_ENV"
 
-          for field_key in \
-            'pos.payment:fu_manual_confirmed' \
-            'pos.payment.method:fu_confirmation_mode' \
-            'product.category:property_cost_method' \
-            'product.category:property_valuation' \
-            'stock.location:fu_location_role' \
-            'stock.warehouse.orderpoint:location_id' \
-            'stock.warehouse.orderpoint:product_id' \
-            'stock.warehouse.orderpoint:product_min_qty' \
-            'stock.warehouse.orderpoint:product_max_qty' \
-            'product.supplierinfo:partner_id' \
-            'product.supplierinfo:product_tmpl_id' \
-            'product.supplierinfo:price' \
-            'product.supplierinfo:min_qty'; do
-            model="${field_key%%:*}"
-            field="${field_key#*:}"
-            count="$(jq -r --arg model "$model" --arg field "$field" '[.[] | select(.model==$model and .name==$field)] | length' "$response")"
-            assert_eq "field_${model}_${field}" "$count" 1
+          for key in location_role pos_manual_confirmed pos_confirmation_mode cost_method valuation orderpoint_location orderpoint_product orderpoint_min orderpoint_max supplier_partner supplier_template supplier_price supplier_min_qty; do
+            assert_eq "field_${key}" "$(jq -r --arg key "field_${key}" '.[0][$key]' "$response")" true
           done
           echo 'business_uat_topology=PASS'
 
@@ -185,15 +175,15 @@ jobs:
             echo '## Phase 8 live business UAT preflight'
             echo
             echo "- Workflow source: \`$GITHUB_SHA\`"
-            echo "- Managed epoch/seal: PASS"
-            echo "- Seven production addons: installed; \`fu_uat\`: absent"
+            echo '- Managed epoch/seal: PASS'
+            echo '- Seven production addons: installed; `fu_uat`: absent'
             echo "- Company records: \`$COMPANIES\`"
             echo "- Warehouse records: \`$WAREHOUSES\`"
-            echo "- Fares physical custody: exactly one Retail Store + one Storage location"
+            echo '- Fares physical custody: exactly one Retail Store + one Storage location'
             echo "- Existing POS configs: \`$POS_CONFIGS\`; open POS sessions: \`$OPEN_POS_SESSIONS\`"
-            echo "- Reorder rule / supplier-info / valuation-layer primitives: present"
-            echo "- Purchase module: \`$PURCHASE_STATE\`; purchase_stock: \`$PURCHASE_STOCK_STATE\`; purchase_order table: \`$PURCHASE_ORDER_TABLE\`"
-            echo "- Known ordinary due-cron backlog: \`19\`, failure_count>0: \`0\` (read-only; not executed/rescheduled)"
+            echo '- Reorder rule / supplier-info / valuation-layer primitives: present'
+            echo "- Purchase: \`$PURCHASE_STATE\`; purchase_stock: \`$PURCHASE_STOCK_STATE\`; MRP: \`$MRP_STATE\`; purchase_order table: \`$PURCHASE_ORDER_TABLE\`"
+            echo '- Known ordinary due-cron backlog: `19`, failure_count>0: `0` (read-only; not executed/rescheduled)'
             echo '- Accepted business-credit policy remains full payment before shipment; pay-after-delivery customer credit terms are not an MVP policy.'
           } >> "$GITHUB_STEP_SUMMARY"
           echo 'phase8_live_business_preflight=PASS'
