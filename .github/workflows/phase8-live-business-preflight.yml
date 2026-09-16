@@ -1,0 +1,164 @@
+name: Phase 8 live business UAT preflight
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-live-business-preflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8-business-uat-preflight-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout workflow source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Verify fresh workflow generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1 || { echo 'Start a fresh preflight run; reruns are not evidence.' >&2; exit 1; }
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test -n "$remote_head"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale preflight: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+          echo "fresh_business_preflight=PASS sha=$GITHUB_SHA"
+
+      - name: Inspect managed business-UAT topology read-only
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations;
+
+          SELECT name, state
+          FROM ir_module_module
+          WHERE name IN (
+            'point_of_sale','stock','stock_account','account','sale_management','sale_stock','crm',
+            'purchase','purchase_stock','mrp',
+            'fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting','fu_uat'
+          )
+          ORDER BY name;
+
+          SELECT
+            to_regclass('public.pos_config') IS NOT NULL AS pos_config,
+            to_regclass('public.pos_session') IS NOT NULL AS pos_session,
+            to_regclass('public.pos_order') IS NOT NULL AS pos_order,
+            to_regclass('public.pos_payment') IS NOT NULL AS pos_payment,
+            to_regclass('public.stock_warehouse') IS NOT NULL AS stock_warehouse,
+            to_regclass('public.stock_warehouse_orderpoint') IS NOT NULL AS reorder_rule,
+            to_regclass('public.product_supplierinfo') IS NOT NULL AS supplier_info,
+            to_regclass('public.stock_valuation_layer') IS NOT NULL AS valuation_layer,
+            to_regclass('public.purchase_order') IS NOT NULL AS purchase_order;
+
+          SELECT
+            (SELECT count(*)::int FROM res_company) AS companies,
+            (SELECT count(*)::int FROM stock_warehouse) AS warehouses,
+            (SELECT count(*)::int FROM stock_location WHERE fu_location_role='store') AS fares_store_locations,
+            (SELECT count(*)::int FROM stock_location WHERE fu_location_role='storage') AS fares_storage_locations,
+            (SELECT count(*)::int FROM pos_config) AS pos_configs,
+            (SELECT count(*)::int FROM pos_session WHERE state IN ('opening_control','opened','closing_control')) AS open_pos_sessions,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND nextcall IS NOT NULL AND nextcall <= now()) AS due_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND coalesce(failure_count,0) > 0) AS failing_crons;
+
+          SELECT model, name
+          FROM ir_model_fields
+          WHERE (model='stock.location' AND name='fu_location_role')
+             OR (model='pos.payment' AND name='fu_manual_confirmed')
+             OR (model='pos.payment.method' AND name='fu_confirmation_mode')
+             OR (model='product.category' AND name IN ('property_cost_method','property_valuation'))
+             OR (model='stock.warehouse.orderpoint' AND name IN ('product_min_qty','product_max_qty','location_id','product_id'))
+             OR (model='product.supplierinfo' AND name IN ('partner_id','product_tmpl_id','price','min_qty'))
+          ORDER BY model, name;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { echo "business preflight query failed: HTTP $status" >&2; exit 1; }
+
+          # Only schema/module/count metadata is emitted; no business rows or SQL text.
+          jq -c '.[]' "$response"
+
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$response")" = true
+          test "$(jq -r '.[0].can_create_public' "$response")" = false
+          test "$(jq -r '.[0].fu_uat_installed' "$response")" = 0
+          test "$(jq -r '.[0].app_owned_relations' "$response")" = 988
+
+          for module in point_of_sale stock stock_account account sale_management sale_stock crm fu_core fu_retail fu_preorder fu_production fu_business fu_public_api fu_reporting; do
+            state="$(jq -r --arg m "$module" '[.[] | select(.name==$m)][0].state // "missing"' "$response")"
+            test "$state" = installed || { echo "required module not installed: $module state=$state" >&2; exit 1; }
+          done
+
+          purchase_state="$(jq -r '[.[] | select(.name=="purchase")][0].state // "missing"' "$response")"
+          purchase_stock_state="$(jq -r '[.[] | select(.name=="purchase_stock")][0].state // "missing"' "$response")"
+          echo "PURCHASE_STATE=$purchase_state" >> "$GITHUB_ENV"
+          echo "PURCHASE_STOCK_STATE=$purchase_stock_state" >> "$GITHUB_ENV"
+
+          topology_index="$(jq -r 'to_entries | map(select(.value.pos_config? != null))[0].key' "$response")"
+          test "$topology_index" != null
+          for key in pos_config pos_session pos_order pos_payment stock_warehouse reorder_rule supplier_info valuation_layer; do
+            test "$(jq -r --argjson i "$topology_index" --arg k "$key" '.[$i][$k]' "$response")" = true || { echo "missing required live model table: $key" >&2; exit 1; }
+          done
+
+          counts_index="$(jq -r 'to_entries | map(select(.value.companies? != null))[0].key' "$response")"
+          test "$(jq -r --argjson i "$counts_index" '.[$i].fares_store_locations' "$response")" = 1
+          test "$(jq -r --argjson i "$counts_index" '.[$i].fares_storage_locations' "$response")" = 1
+          test "$(jq -r --argjson i "$counts_index" '.[$i].due_crons' "$response")" = 19
+          test "$(jq -r --argjson i "$counts_index" '.[$i].failing_crons' "$response")" = 0
+          echo "COMPANIES=$(jq -r --argjson i "$counts_index" '.[$i].companies' "$response")" >> "$GITHUB_ENV"
+          echo "WAREHOUSES=$(jq -r --argjson i "$counts_index" '.[$i].warehouses' "$response")" >> "$GITHUB_ENV"
+          echo "POS_CONFIGS=$(jq -r --argjson i "$counts_index" '.[$i].pos_configs' "$response")" >> "$GITHUB_ENV"
+          echo "OPEN_POS_SESSIONS=$(jq -r --argjson i "$counts_index" '.[$i].open_pos_sessions' "$response")" >> "$GITHUB_ENV"
+          echo 'business_uat_topology=PASS'
+
+      - name: Publish preflight summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## Phase 8 live business UAT preflight'
+            echo
+            echo "- Workflow source: \`$GITHUB_SHA\`"
+            echo "- Managed epoch/seal: PASS"
+            echo "- Seven production addons: installed; \`fu_uat\`: absent"
+            echo "- Company records: \`$COMPANIES\`"
+            echo "- Warehouse records: \`$WAREHOUSES\`"
+            echo "- Fares physical custody: exactly one Retail Store + one Storage location"
+            echo "- Existing POS configs: \`$POS_CONFIGS\`; open POS sessions: \`$OPEN_POS_SESSIONS\`"
+            echo "- Reorder rule / supplier-info / valuation-layer primitives: present"
+            echo "- Purchase module: \`$PURCHASE_STATE\`; purchase_stock: \`$PURCHASE_STOCK_STATE\`"
+            echo "- Known ordinary due-cron backlog: \`19\`, failure_count>0: \`0\` (read-only; not executed/rescheduled)"
+            echo '- Accepted business-credit policy remains full payment before shipment; pay-after-delivery customer credit terms are not an MVP policy.'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo 'phase8_live_business_preflight=PASS'
