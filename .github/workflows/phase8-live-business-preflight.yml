@@ -106,17 +106,7 @@ jobs:
 
             EXISTS (SELECT 1 FROM ir_model_fields WHERE model='stock.location' AND name='fu_location_role') AS field_location_role,
             EXISTS (SELECT 1 FROM ir_model_fields WHERE model='pos.payment' AND name='fu_manual_confirmed') AS field_pos_manual_confirmed,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='pos.payment.method' AND name='fu_confirmation_mode') AS field_pos_confirmation_mode,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.category' AND name='property_cost_method') AS field_cost_method,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.category' AND name='property_valuation') AS field_valuation,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='stock.warehouse.orderpoint' AND name='location_id') AS field_orderpoint_location,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='stock.warehouse.orderpoint' AND name='product_id') AS field_orderpoint_product,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='stock.warehouse.orderpoint' AND name='product_min_qty') AS field_orderpoint_min,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='stock.warehouse.orderpoint' AND name='product_max_qty') AS field_orderpoint_max,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.supplierinfo' AND name='partner_id') AS field_supplier_partner,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.supplierinfo' AND name='product_tmpl_id') AS field_supplier_template,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.supplierinfo' AND name='price') AS field_supplier_price,
-            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='product.supplierinfo' AND name='min_qty') AS field_supplier_min_qty;
+            EXISTS (SELECT 1 FROM ir_model_fields WHERE model='pos.payment.method' AND name='fu_confirmation_mode') AS field_pos_confirmation_mode;
           SQL
           payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
           status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
@@ -136,35 +126,37 @@ jobs:
           assert_eq fu_uat_installed "$(jq -r '.[0].fu_uat_installed' "$response")" 0
           assert_eq app_owned_relations "$(jq -r '.[0].app_owned_relations' "$response")" 988
 
-          for module in point_of_sale stock stock_account account sale_management sale_stock crm fu_core fu_retail fu_preorder fu_production fu_business fu_public_api fu_reporting; do
+          # Exact runtime modules required by the accepted MVP and seven production addons.
+          for module in point_of_sale stock stock_account account sale_stock crm fu_core fu_retail fu_preorder fu_production fu_business fu_public_api fu_reporting; do
             assert_eq "module_${module}" "$(jq -r --arg key "module_${module}" '.[0][$key] // "missing"' "$response")" installed
           done
 
-          purchase_state="$(jq -r '.[0].module_purchase // "missing"' "$response")"
-          purchase_stock_state="$(jq -r '.[0].module_purchase_stock // "missing"' "$response")"
-          mrp_state="$(jq -r '.[0].module_mrp // "missing"' "$response")"
-          echo "PURCHASE_STATE=$purchase_state" >> "$GITHUB_ENV"
-          echo "PURCHASE_STOCK_STATE=$purchase_stock_state" >> "$GITHUB_ENV"
-          echo "MRP_STATE=$mrp_state" >> "$GITHUB_ENV"
-          echo "purchase_module_state=INFO purchase=$purchase_state purchase_stock=$purchase_stock_state mrp=$mrp_state"
+          # Procurement planning, native MRP and sale_management are not required by the accepted MVP.
+          # Keep their absence explicit so Gate C cannot silently expand scope merely to satisfy a stale checklist.
+          for module in sale_management purchase purchase_stock mrp; do
+            assert_eq "module_${module}" "$(jq -r --arg key "module_${module}" '.[0][$key] // "missing"' "$response")" uninstalled
+          done
 
-          for key in pos_config pos_session pos_order pos_payment stock_warehouse reorder_rule supplier_info valuation_layer; do
+          for key in pos_config pos_session pos_order pos_payment stock_warehouse; do
             assert_eq "table_${key}" "$(jq -r --arg key "table_${key}" '.[0][$key]' "$response")" true
           done
-          echo "PURCHASE_ORDER_TABLE=$(jq -r '.[0].table_purchase_order' "$response")" >> "$GITHUB_ENV"
 
           assert_eq fares_store_locations "$(jq -r '.[0].fares_store_locations' "$response")" 1
           assert_eq fares_storage_locations "$(jq -r '.[0].fares_storage_locations' "$response")" 1
           assert_eq ordinary_due_crons "$(jq -r '.[0].due_crons' "$response")" 19
           assert_eq failing_crons "$(jq -r '.[0].failing_crons' "$response")" 0
+          assert_eq field_location_role "$(jq -r '.[0].field_location_role' "$response")" true
+          assert_eq field_pos_manual_confirmed "$(jq -r '.[0].field_pos_manual_confirmed' "$response")" true
+          assert_eq field_pos_confirmation_mode "$(jq -r '.[0].field_pos_confirmation_mode' "$response")" true
+
           echo "COMPANIES=$(jq -r '.[0].companies' "$response")" >> "$GITHUB_ENV"
           echo "WAREHOUSES=$(jq -r '.[0].warehouses' "$response")" >> "$GITHUB_ENV"
           echo "POS_CONFIGS=$(jq -r '.[0].pos_configs' "$response")" >> "$GITHUB_ENV"
           echo "OPEN_POS_SESSIONS=$(jq -r '.[0].open_pos_sessions' "$response")" >> "$GITHUB_ENV"
-
-          for key in location_role pos_manual_confirmed pos_confirmation_mode cost_method valuation orderpoint_location orderpoint_product orderpoint_min orderpoint_max supplier_partner supplier_template supplier_price supplier_min_qty; do
-            assert_eq "field_${key}" "$(jq -r --arg key "field_${key}" '.[0][$key]' "$response")" true
-          done
+          echo "REORDER_TABLE=$(jq -r '.[0].table_reorder_rule' "$response")" >> "$GITHUB_ENV"
+          echo "SUPPLIER_TABLE=$(jq -r '.[0].table_supplier_info' "$response")" >> "$GITHUB_ENV"
+          echo "VALUATION_LAYER_TABLE=$(jq -r '.[0].table_valuation_layer' "$response")" >> "$GITHUB_ENV"
+          echo "PURCHASE_ORDER_TABLE=$(jq -r '.[0].table_purchase_order' "$response")" >> "$GITHUB_ENV"
           echo 'business_uat_topology=PASS'
 
       - name: Publish preflight summary
@@ -176,14 +168,14 @@ jobs:
             echo
             echo "- Workflow source: \`$GITHUB_SHA\`"
             echo '- Managed epoch/seal: PASS'
-            echo '- Seven production addons: installed; `fu_uat`: absent'
-            echo "- Company records: \`$COMPANIES\`"
-            echo "- Warehouse records: \`$WAREHOUSES\`"
+            echo '- Seven production addons and their accepted Odoo dependencies: installed; `fu_uat`: absent'
+            echo '- `sale_management`, Purchase/Purchase Stock and native MRP: intentionally uninstalled under the accepted MVP boundary'
+            echo "- Company records: \`$COMPANIES\`; warehouse records: \`$WAREHOUSES\`"
             echo '- Fares physical custody: exactly one Retail Store + one Storage location'
-            echo "- Existing POS configs: \`$POS_CONFIGS\`; open POS sessions: \`$OPEN_POS_SESSIONS\`"
-            echo '- Reorder rule / supplier-info / valuation-layer primitives: present'
-            echo "- Purchase: \`$PURCHASE_STATE\`; purchase_stock: \`$PURCHASE_STOCK_STATE\`; MRP: \`$MRP_STATE\`; purchase_order table: \`$PURCHASE_ORDER_TABLE\`"
+            echo "- Existing POS configs: \`$POS_CONFIGS\`; open POS sessions: \`$OPEN_POS_SESSIONS\` (live UAT creates its own rollback-safe synthetic POS configuration)"
+            echo "- Incidental native tables — reorder: \`$REORDER_TABLE\`; supplier-info: \`$SUPPLIER_TABLE\`; valuation-layer: \`$VALUATION_LAYER_TABLE\`; purchase-order: \`$PURCHASE_ORDER_TABLE\` — are informational only, not Gate C requirements"
             echo '- Known ordinary due-cron backlog: `19`, failure_count>0: `0` (read-only; not executed/rescheduled)'
-            echo '- Accepted business-credit policy remains full payment before shipment; pay-after-delivery customer credit terms are not an MVP policy.'
+            echo '- Accepted business-client policy is balance tracking with full payment before shipment; pay-after-delivery customer credit is not an MVP policy.'
+            echo '- Offline acceptance is the production `fu_retail` reconciliation/idempotency contract proven in Phase 2A/Phase 5, not a separate outbox/IPC subsystem.'
           } >> "$GITHUB_STEP_SUMMARY"
           echo 'phase8_live_business_preflight=PASS'
