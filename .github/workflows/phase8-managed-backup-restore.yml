@@ -104,7 +104,7 @@ jobs:
           test "$(jq -r '.[0].attachment_location' "$source_state")" = db
           for key in fixture_products enquiry_rows continuity_users db_attachments; do test "$(jq -r ".[0].$key" "$source_state")" = 1; done
           test "$(jq -r '.[0].continuity_sessions' "$source_state")" -ge 1
-          for key in fixture_products enquiry_rows continuity_users db_attachments session_rows continuity_sessions sale_orders payments pickings cron_rows cron_trigger_rows; do
+          for key in fixture_products enquiry_rows continuity_users db_attachments session_rows continuity_sessions sale_orders payments pickings cron_rows; do
             echo "SOURCE_${key^^}=$(jq -r ".[0].$key" "$source_state")" >> "$GITHUB_ENV"
           done
           echo 'managed_source_preflight=PASS epoch=exact relations=988 provider_boundary=sealed'
@@ -213,11 +213,17 @@ jobs:
           set -euo pipefail
           app_password="$(cat "$STATE_DIR/target-app-password")"
           admin_password="$(cat "$STATE_DIR/target-admin-password")"
+          pg_password="$(cat "$STATE_DIR/target-pg-password")"
           echo "::add-mask::$app_password"
           echo "::add-mask::$admin_password"
           docker run --rm --network "$TARGET_NETWORK" -e PGPASSWORD="$app_password" -v "$BACKUP_DIR:/backup:ro" "$POSTGRES_IMAGE" pg_restore             -h "$TARGET_DB_CONTAINER" -p 5432 -U fares_app -d postgres --no-owner --no-privileges --exit-on-error -j 1             -L /backup/restore.list /backup/managed.dump
+          restored_triggers="$STATE_DIR/restored-cron-triggers.json"
+          docker exec -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" psql -U postgres -d postgres -Atc "SELECT COALESCE(jsonb_agg(jsonb_build_object('id',id,'cron_id',cron_id,'call_at',call_at::text) ORDER BY id),'[]'::jsonb)::text FROM ir_cron_trigger;" > "$restored_triggers"
+          jq -e 'type == "array"' "$restored_triggers" >/dev/null
+          restored_trigger_rows="$(jq 'length' "$restored_triggers")"
+          echo "RESTORED_TRIGGER_ROWS_BEFORE_UPGRADE=$restored_trigger_rows" >> "$GITHUB_ENV"
+          echo "archive_cron_trigger_snapshot=PASS rows=$restored_trigger_rows"
           docker run --rm --network "$TARGET_NETWORK"             -e ODOO_DB_HOST="$TARGET_DB_CONTAINER" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres             -e ODOO_DB_USER=fares_app -e ODOO_DB_PASSWORD="$app_password" -e ODOO_DB_SSLMODE=prefer             -e ODOO_ADMIN_PASSWD="$admin_password" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0             -e FARES_SESSION_STORE=postgres -e PORT=8069             "fares-recovery:$EXPECTED_DEPLOYMENT_SHA" --stop-after-init -u "$PRODUCTION_ADDONS"
-          pg_password="$(cat "$STATE_DIR/target-pg-password")"
           docker exec -i -e PGPASSWORD="$pg_password" "$TARGET_DB_CONTAINER" psql -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
           REVOKE CREATE ON SCHEMA public FROM fares_app;
           REVOKE ALL ON TABLE fares_http_session FROM PUBLIC, fares_app;
@@ -289,7 +295,9 @@ jobs:
             'payments',(SELECT count(*)::int FROM account_payment),
             'pickings',(SELECT count(*)::int FROM stock_picking),
             'cron_rows',(SELECT count(*)::int FROM ir_cron),
-            'cron_trigger_rows',(SELECT count(*)::int FROM ir_cron_trigger)
+            'cron_trigger_rows',(SELECT count(*)::int FROM ir_cron_trigger),
+            'cron_trigger_orphans',(SELECT count(*)::int FROM ir_cron_trigger t LEFT JOIN ir_cron c ON c.id=t.cron_id WHERE c.id IS NULL),
+            'cron_triggers',(SELECT COALESCE(jsonb_agg(jsonb_build_object('id',id,'cron_id',cron_id,'call_at',call_at::text) ORDER BY id),'[]'::jsonb) FROM ir_cron_trigger)
           );" > "$target"
           jq -c '.' "$target"
 
@@ -394,24 +402,32 @@ jobs:
           actual="$(jq -r '.cron_rows' "$STATE_DIR/target.json")"
           test "$actual" = "$SOURCE_CRON_ROWS" || { echo "Mismatch cron_rows source=$SOURCE_CRON_ROWS target=$actual" >&2; exit 1; }
 
-      - name: Verify restored cron trigger count
+      - name: Verify restored cron trigger continuity
         if: ${{ !cancelled() }}
         shell: bash
         run: |
           set -euo pipefail
-          actual="$(jq -r '.cron_trigger_rows' "$STATE_DIR/target.json")"
-          test "$actual" = "$SOURCE_CRON_TRIGGER_ROWS" || { echo "Mismatch cron_trigger_rows source=$SOURCE_CRON_TRIGGER_ROWS target=$actual" >&2; exit 1; }
+          archive_triggers="$(jq -c '.' "$STATE_DIR/restored-cron-triggers.json")"
+          target_triggers="$(jq -c '.cron_triggers // []' "$STATE_DIR/target.json")"
+          missing_count="$(jq -cn --argjson archive "$archive_triggers" --argjson target "$target_triggers" '$archive - $target | length')"
+          orphan_count="$(jq -r '.cron_trigger_orphans' "$STATE_DIR/target.json")"
+          target_count="$(jq -r '.cron_trigger_rows' "$STATE_DIR/target.json")"
+          test "$missing_count" = 0 || { echo "Missing $missing_count cron trigger rows from restored archive after seven-addon upgrade" >&2; exit 1; }
+          test "$orphan_count" = 0 || { echo "Recovered cron trigger orphan rows=$orphan_count" >&2; exit 1; }
+          test "$target_count" -ge "$RESTORED_TRIGGER_ROWS_BEFORE_UPGRADE"
+          echo "recovered_cron_triggers=PASS archive_rows=$RESTORED_TRIGGER_ROWS_BEFORE_UPGRADE target_rows=$target_count source_set=preserved orphans=0"
 
       - name: Mark recovered counts verified
         shell: bash
         run: |
           touch "$STATE_DIR/counts-verified"
-          echo 'recovered_restored_counts=PASS attachment_session_business_counts=exact'
+          echo 'recovered_restored_counts=PASS attachment_session_business_counts=exact durable_cron_count=exact archive_trigger_set=preserved'
           if [[ -f "$STATE_DIR/application-verified" && -f "$STATE_DIR/privilege-verified" ]]; then
-            echo 'isolated_recovery_verification=PASS app_relations=988 attachment_session_business_counts=exact provider_seal=preserved'
+            echo 'isolated_recovery_verification=PASS app_relations=988 attachment_session_business_counts=exact durable_cron_count=exact archive_trigger_set=preserved provider_seal=preserved'
           fi
 
       - name: Prove managed source remained unchanged
+        if: ${{ !cancelled() }}
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         shell: bash
@@ -464,9 +480,10 @@ jobs:
             echo "Database epoch: $EXPECTED_DB_EPOCH"
             echo "Managed export: $BACKUP_BYTES bytes; SHA-256 $BACKUP_SHA"
             echo "Filtered restore entries: $RESTORE_ENTRIES"
+            echo "Restored cron triggers before upgrade: $RESTORED_TRIGGER_ROWS_BEFORE_UPGRADE"
             echo 'Sensitive backup retained: no; destroyed with hosted runner'
             echo 'Destructive target: disposable hosted PostgreSQL only'
-            echo 'Recovered exact attachment, shared sessions, public fixtures, business counts and seven addons'
+            echo 'Recovered exact attachment, shared sessions, public fixtures, business counts, durable cron rows, archive trigger set and seven addons'
             echo 'Managed source: unchanged; provider/privilege seal preserved'
           } >> "$GITHUB_STEP_SUMMARY"
           echo 'phase8_managed_backup_isolated_restore=PASS'
