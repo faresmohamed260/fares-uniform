@@ -43,9 +43,13 @@ Live WebSocket reconnect/cursor replay is GREEN at workflow source `96e456412495
 
 Managed backup/export plus destructive isolated restore is GREEN at workflow source `01824eba60dc55382a614178df3edd4d88997f61`, run `35068971581`, job `104705729018`. The hosted run exported the managed `public` schema with PostgreSQL 17.6 tooling, restored only into a disposable PostgreSQL target, repeated the seven-addon upgrade, verified exact application/attachment/session/business facts, retained exact durable `ir_cron` count, preserved every `ir_cron_trigger` row present in the restored archive with zero orphan triggers, resealed provider/runtime privileges, proved the managed source unchanged, published evidence and cleaned up successfully. GitHub reports zero retained workflow artifacts for the run, so no backup archive was retained by Actions.
 
+Hosted staging observability is GREEN at workflow source `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215`, run `35071292407`, job `104713180912`. It proved the exact READY deployment and EN/AR public surface, retained the narrow Odoo exposure boundary, observed zero Vercel runtime error/fatal records and zero HTTP 5xx in its one-hour window, retained the sealed database/provider facts, kept the known 19-job ordinary cron backlog visible without executing or rescheduling it, observed zero active cron failures and zero idle-in-transaction sessions older than five minutes, and required the latest managed recovery run to remain GREEN. Vercel's project alert-rule API was available and returned one existing rule. The privacy-safe GitHub issue alert transport was self-tested by creating and immediately closing synthetic issue `#5`.
+
+The monitoring contract is documented in `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md`. Provider observability is live, but the source-controlled GitHub twice-hourly schedule cannot execute until this workflow exists on the repository default branch. Do not merge early merely to activate it; while the phase remains isolated, the workflow is push/manual proof and native provider observability remains available. Named people, production recipients/escalation and production retention remain Gate D decisions.
+
 The final recovery correction replaced an invalid cross-time raw count equality for `ir_cron_trigger`. Pinned Odoo treats that table as a mutable scheduler wake-up queue, while `ir_cron` is the durable schedule definition. Recovery therefore snapshots the trigger set immediately after `pg_restore`, before the seven-addon upgrade, then proves that complete archive-restored set remains afterward and that no orphan triggers exist; legitimate upgrade-created trigger rows are allowed. This preserves the recovery invariant instead of weakening it.
 
-The connector did not expose sealed stdout for final run `35068971581`, so current backup byte/hash/list-count values are intentionally not copied from older runs. The successful hosted steps, exact run/job/SHA and zero retained artifacts are the authoritative evidence recorded here.
+The connector did not expose sealed stdout for final recovery run `35068971581`, so current backup byte/hash/list-count values are intentionally not copied from older runs. The successful hosted steps, exact run/job/SHA and zero retained artifacts are the authoritative evidence recorded here.
 
 Preserved RED evidence:
 - fixture run `34963582581`: runtime database authentication failed before fixture execution, then repeated attempts triggered the pooler's authentication circuit breaker;
@@ -57,11 +61,10 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 ## Next tasks, in order
 
-1. Live bounded public enquiry/no-price-no-stock, attachment/authenticated-session continuity, external cron/native-locking, WebSocket reconnect/cursor replay, and managed backup/export plus isolated destructive recovery are GREEN. Recovery authority is `01824eba60dc55382a614178df3edd4d88997f61`, run `35068971581`, job `104705729018`.
-2. Establish hosted logs/monitoring/alerts with explicit ownership-role labels and privacy/redaction rules. Do not invent staff names or production escalation policy.
-3. Complete live synthetic business-flow acceptance for company → branch → warehouse → POS session → order → payment → posting → stock/cash/evidence, plus reorder/supplier/FIFO/credit-customer and offline/outbox/IPC scenarios.
-4. Reconcile the branch/PR release stack as a separate reviewable integration task. Only four early-phase draft PRs currently exist. `main` is historical, not the current application. Do not merge or delete phase branches without explicit authorization.
-5. Gate D requires named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, monitoring owners and explicit production GO.
+1. Public enquiry/no-price-no-stock, attachment/authenticated-session continuity, external cron/native-locking, WebSocket replay, managed backup/isolated destructive recovery and hosted staging observability are GREEN. Observability authority is `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215`, run `35071292407`, job `104713180912`.
+2. Complete live synthetic business-flow acceptance for company → branch → warehouse → POS session → order → payment → posting → stock/cash/evidence, plus reorder/supplier/FIFO/credit-customer and offline/outbox/IPC scenarios. Do not install `fu_uat` in staging; reuse its historical scenarios only as test design input.
+3. Reconcile the branch/PR release stack as a separate reviewable integration task. Only four early-phase draft PRs currently exist. `main` is historical, not the current application. Do not merge or delete phase branches without explicit authorization. Default-branch integration is also the point at which the GitHub observability schedule can become active.
+4. Gate D requires named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, named monitoring owners/recipients/escalation and explicit production GO.
 
 ## Constraints for every continuation
 
