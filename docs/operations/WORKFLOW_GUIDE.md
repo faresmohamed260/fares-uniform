@@ -13,7 +13,8 @@ Read `PROJECT.md` first and verify the remote active branch HEAD. Workflow files
 | `phase8-live-cron-locking.yml` | Exact-image external cron/native `SKIP LOCKED` proof; temporarily transaction-locks the diagnosed ordinary backlog without mutation, then removes all synthetic state |
 | `phase8-live-websocket-replay.yml` | Exact-image authenticated WebSocket delivery, complete evented-runtime replacement, cursor replay/no-duplicate proof and full run-scoped cleanup |
 | `phase8-managed-backup-restore.yml` | Managed PostgreSQL 17.6 export plus destructive restore only into a disposable hosted target; exact deployed image/seven-addon upgrade, provider seal, recovered business/session/attachment/durable-cron proof, archive-anchored trigger continuity, source postflight and no retained backup artifact |
-| `phase8-live-cron-diagnostic.yml` | Read-only Odoo 19 cron inventory and stored-field diagnostics; no mutation |
+| `phase8-staging-observability.yml` | Read-only staging monitor for exact deployment/public exposure, aggregate Vercel error/5xx counts, sealed database/provider state, known cron backlog/failure visibility, latest recovery health and privacy-safe GitHub issue alerts |
+| `phase8-cron-preflight-diagnostics.yml` | Read-only Odoo 19 cron inventory and stored-field diagnostics; no mutation |
 | `phase8-live-db-diagnostics.yml` | Read-only runtime/connection facts; no SQL query text in logs |
 | `phase8-public-schema-preflight.yml` | Read-only schema/provider ownership inventory |
 | `phase8-public-db-routing-regression.yml` | Private Odoo database-selection regression |
@@ -34,6 +35,14 @@ Treat `ir_cron` and `ir_cron_trigger` differently. `ir_cron` is durable schedule
 
 Current recovery authority: workflow source `01824eba60dc55382a614178df3edd4d88997f61`, run `35068971581`, job `104705729018`, result GREEN. GitHub reports zero retained workflow artifacts. Production remains NO-GO; this is staging recovery evidence only.
 
+## Staging observability boundary
+
+`phase8-staging-observability.yml` is read-only with respect to the live application/database. It emits aggregate counts/status only and must not persist raw runtime logs, request bodies, customer/staff data, database rows, SQL text or secret values into Actions summaries or GitHub alert issues.
+
+Current observability authority: source `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215`, run `35071292407`, job `104713180912`, result GREEN. The run observed zero Vercel runtime error/fatal records, zero HTTP 5xx, the unchanged 19-job ordinary cron backlog, zero active cron failures, zero long idle transactions and latest managed recovery success. Synthetic issue `#5` proved the GitHub issue alert transport and was closed immediately.
+
+The workflow contains a twice-hourly `schedule`, but GitHub schedules execute only from the repository default branch. While the current workflow exists only on the Phase 8 branch, use push/manual proof and provider-native Vercel/Supabase observability; do not claim scheduled polling is active and do not merge early solely to activate it. See `PHASE_8_STAGING_OBSERVABILITY.md`.
+
 ## Retired one-off workflows
 
 Removed from the current tree after the September 15 cleanup:
@@ -51,4 +60,4 @@ Generated `node_modules`, `.next` and TypeScript build metadata are not source. 
 
 ## Release integration
 
-The default branch and four early draft PRs do not represent the active release. Preserve the phase stack until a separately reviewed integration plan establishes ancestry, scope and exact-head validation. No merge authorization is implied by cleanup.
+The default branch and four early draft PRs do not represent the active release. Preserve the phase stack until a separately reviewed integration plan establishes ancestry, scope and exact-head validation. No merge authorization is implied by cleanup. Default-branch integration is also when the Phase 8 observability schedule can become active.
