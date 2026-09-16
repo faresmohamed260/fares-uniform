@@ -52,3 +52,5 @@ jobs:
           git add .github/workflows/phase8-live-business-uat.yml
           git commit -m 'Fix Phase 8 live UAT Odoo shell invocation'
           git push origin HEAD:refs/heads/phase-8/commercial-staging-readiness
+
+# Rerun marker: corrected unified-diff hunk counts.
