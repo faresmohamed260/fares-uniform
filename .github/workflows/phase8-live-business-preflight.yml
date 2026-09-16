@@ -50,6 +50,16 @@ jobs:
           [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
           response="$(mktemp)"
           trap 'rm -f "$response"' EXIT
+
+          assert_eq() {
+            local label="$1" actual="$2" expected="$3"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "$label=FAIL expected=$expected actual=$actual" >&2
+              exit 1
+            fi
+            echo "$label=PASS value=$actual"
+          }
+
           read -r -d '' query <<'SQL' || true
           SELECT
             (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
@@ -104,42 +114,67 @@ jobs:
             -H 'Content-Type: application/json' \
             --data "$payload" \
             "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
-          test "$status" = 201 || { echo "business preflight query failed: HTTP $status" >&2; exit 1; }
+          assert_eq business_preflight_http "$status" 201
 
-          # Only schema/module/count metadata is emitted; no business rows or SQL text.
+          # Emit only schema/module/count metadata; no business rows or SQL text.
           jq -c '.[]' "$response"
 
-          test "$(jq -r '.[0].epoch_id' "$response")" = "$EXPECTED_DB_EPOCH"
-          test "$(jq -r '.[0].rolcanlogin' "$response")" = true
-          test "$(jq -r '.[0].can_create_public' "$response")" = false
-          test "$(jq -r '.[0].fu_uat_installed' "$response")" = 0
-          test "$(jq -r '.[0].app_owned_relations' "$response")" = 988
+          seal_index="$(jq -r 'to_entries | map(select(.value.epoch_id? != null))[0].key // "missing"' "$response")"
+          [[ "$seal_index" != missing ]] || { echo 'seal_row=FAIL missing' >&2; exit 1; }
+          assert_eq epoch "$(jq -r --argjson i "$seal_index" '.[$i].epoch_id' "$response")" "$EXPECTED_DB_EPOCH"
+          assert_eq runtime_login "$(jq -r --argjson i "$seal_index" '.[$i].rolcanlogin' "$response")" true
+          assert_eq schema_create "$(jq -r --argjson i "$seal_index" '.[$i].can_create_public' "$response")" false
+          assert_eq fu_uat_installed "$(jq -r --argjson i "$seal_index" '.[$i].fu_uat_installed' "$response")" 0
+          assert_eq app_owned_relations "$(jq -r --argjson i "$seal_index" '.[$i].app_owned_relations' "$response")" 988
 
           for module in point_of_sale stock stock_account account sale_management sale_stock crm fu_core fu_retail fu_preorder fu_production fu_business fu_public_api fu_reporting; do
             state="$(jq -r --arg m "$module" '[.[] | select(.name==$m)][0].state // "missing"' "$response")"
-            test "$state" = installed || { echo "required module not installed: $module state=$state" >&2; exit 1; }
+            assert_eq "module_${module}" "$state" installed
           done
 
           purchase_state="$(jq -r '[.[] | select(.name=="purchase")][0].state // "missing"' "$response")"
           purchase_stock_state="$(jq -r '[.[] | select(.name=="purchase_stock")][0].state // "missing"' "$response")"
           echo "PURCHASE_STATE=$purchase_state" >> "$GITHUB_ENV"
           echo "PURCHASE_STOCK_STATE=$purchase_stock_state" >> "$GITHUB_ENV"
+          echo "purchase_module_state=INFO purchase=$purchase_state purchase_stock=$purchase_stock_state"
 
-          topology_index="$(jq -r 'to_entries | map(select(.value.pos_config? != null))[0].key' "$response")"
-          test "$topology_index" != null
+          topology_index="$(jq -r 'to_entries | map(select(.value.pos_config? != null))[0].key // "missing"' "$response")"
+          [[ "$topology_index" != missing ]] || { echo 'topology_row=FAIL missing' >&2; exit 1; }
           for key in pos_config pos_session pos_order pos_payment stock_warehouse reorder_rule supplier_info valuation_layer; do
-            test "$(jq -r --argjson i "$topology_index" --arg k "$key" '.[$i][$k]' "$response")" = true || { echo "missing required live model table: $key" >&2; exit 1; }
+            assert_eq "table_${key}" "$(jq -r --argjson i "$topology_index" --arg k "$key" '.[$i][$k]' "$response")" true
           done
+          echo "PURCHASE_ORDER_TABLE=$(jq -r --argjson i "$topology_index" '.[$i].purchase_order' "$response")" >> "$GITHUB_ENV"
 
-          counts_index="$(jq -r 'to_entries | map(select(.value.companies? != null))[0].key' "$response")"
-          test "$(jq -r --argjson i "$counts_index" '.[$i].fares_store_locations' "$response")" = 1
-          test "$(jq -r --argjson i "$counts_index" '.[$i].fares_storage_locations' "$response")" = 1
-          test "$(jq -r --argjson i "$counts_index" '.[$i].due_crons' "$response")" = 19
-          test "$(jq -r --argjson i "$counts_index" '.[$i].failing_crons' "$response")" = 0
+          counts_index="$(jq -r 'to_entries | map(select(.value.companies? != null))[0].key // "missing"' "$response")"
+          [[ "$counts_index" != missing ]] || { echo 'counts_row=FAIL missing' >&2; exit 1; }
+          assert_eq fares_store_locations "$(jq -r --argjson i "$counts_index" '.[$i].fares_store_locations' "$response")" 1
+          assert_eq fares_storage_locations "$(jq -r --argjson i "$counts_index" '.[$i].fares_storage_locations' "$response")" 1
+          assert_eq ordinary_due_crons "$(jq -r --argjson i "$counts_index" '.[$i].due_crons' "$response")" 19
+          assert_eq failing_crons "$(jq -r --argjson i "$counts_index" '.[$i].failing_crons' "$response")" 0
           echo "COMPANIES=$(jq -r --argjson i "$counts_index" '.[$i].companies' "$response")" >> "$GITHUB_ENV"
           echo "WAREHOUSES=$(jq -r --argjson i "$counts_index" '.[$i].warehouses' "$response")" >> "$GITHUB_ENV"
           echo "POS_CONFIGS=$(jq -r --argjson i "$counts_index" '.[$i].pos_configs' "$response")" >> "$GITHUB_ENV"
           echo "OPEN_POS_SESSIONS=$(jq -r --argjson i "$counts_index" '.[$i].open_pos_sessions' "$response")" >> "$GITHUB_ENV"
+
+          for field_key in \
+            'pos.payment:fu_manual_confirmed' \
+            'pos.payment.method:fu_confirmation_mode' \
+            'product.category:property_cost_method' \
+            'product.category:property_valuation' \
+            'stock.location:fu_location_role' \
+            'stock.warehouse.orderpoint:location_id' \
+            'stock.warehouse.orderpoint:product_id' \
+            'stock.warehouse.orderpoint:product_min_qty' \
+            'stock.warehouse.orderpoint:product_max_qty' \
+            'product.supplierinfo:partner_id' \
+            'product.supplierinfo:product_tmpl_id' \
+            'product.supplierinfo:price' \
+            'product.supplierinfo:min_qty'; do
+            model="${field_key%%:*}"
+            field="${field_key#*:}"
+            count="$(jq -r --arg model "$model" --arg field "$field" '[.[] | select(.model==$model and .name==$field)] | length' "$response")"
+            assert_eq "field_${model}_${field}" "$count" 1
+          done
           echo 'business_uat_topology=PASS'
 
       - name: Publish preflight summary
@@ -157,7 +192,7 @@ jobs:
             echo "- Fares physical custody: exactly one Retail Store + one Storage location"
             echo "- Existing POS configs: \`$POS_CONFIGS\`; open POS sessions: \`$OPEN_POS_SESSIONS\`"
             echo "- Reorder rule / supplier-info / valuation-layer primitives: present"
-            echo "- Purchase module: \`$PURCHASE_STATE\`; purchase_stock: \`$PURCHASE_STOCK_STATE\`"
+            echo "- Purchase module: \`$PURCHASE_STATE\`; purchase_stock: \`$PURCHASE_STOCK_STATE\`; purchase_order table: \`$PURCHASE_ORDER_TABLE\`"
             echo "- Known ordinary due-cron backlog: \`19\`, failure_count>0: \`0\` (read-only; not executed/rescheduled)"
             echo '- Accepted business-credit policy remains full payment before shipment; pay-after-delivery customer credit terms are not an MVP policy.'
           } >> "$GITHUB_STEP_SUMMARY"
