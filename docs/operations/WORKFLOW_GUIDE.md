@@ -48,7 +48,7 @@ Current recovery authority: workflow source `01824eba60dc55382a614178df3edd4d889
 
 Current observability authority: source `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215`, run `35071292407`, job `104713180912`, result GREEN. The run observed zero Vercel runtime error/fatal records, zero HTTP 5xx, the unchanged 19-job ordinary cron backlog, zero active cron failures, zero long idle transactions and latest managed recovery success. Synthetic issue `#5` proved the GitHub issue alert transport and was closed immediately.
 
-The workflow contains a twice-hourly `schedule`, but GitHub schedules execute only from the repository default branch. While the current workflow exists only on the Phase 8 branch, use push/manual proof and provider-native Vercel/Supabase observability; do not claim scheduled polling is active and do not merge early solely to activate it. See `PHASE_8_STAGING_OBSERVABILITY.md`.
+The workflow contains a twice-hourly `schedule`, and PR #6 placed it on default branch `main`; scheduled staging polling is active. Manual default-branch authority is run `35099333740`, job `104804477793`, GREEN at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. Schedule activation does not authorize production monitoring policy or cutover. See `PHASE_8_STAGING_OBSERVABILITY.md`.
 
 ## Retired one-off workflows
 
@@ -67,4 +67,4 @@ Generated `node_modules`, `.next` and TypeScript build metadata are not source. 
 
 ## Release integration
 
-The default branch and four early draft PRs do not represent the active release. Preserve the phase stack until a separately reviewed integration plan establishes ancestry, scope and exact-head validation. No merge authorization is implied by cleanup. Default-branch integration is also when the Phase 8 observability schedule can become active.
+PR #6 completed the reviewed release integration into `main` at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. Preserve all phase branches unless deletion is explicitly authorized. The historical early draft PRs remain evidence only; default branch now owns the integrated release source. Production remains Gate D NO-GO.

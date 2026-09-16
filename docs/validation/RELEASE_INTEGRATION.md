@@ -2,9 +2,9 @@
 
 ## Status
 
-**REVIEW CHECKPOINT GREEN. MERGE NOT AUTHORIZED. PRODUCTION NO-GO.**
+**INTEGRATION GREEN. MERGED TO `main`. PRODUCTION NO-GO.**
 
-PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) presents the complete Phase 0–8 stack from `phase-8/commercial-staging-readiness` to `main`. It is ready for review and has not been merged.
+PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) merged the complete Phase 0–8 stack from `phase-8/commercial-staging-readiness` to `main` at history-preserving merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704` on 2026-09-16. All phase branches remain preserved.
 
 ## Identities
 
@@ -47,9 +47,14 @@ The release-record commit removes the superseded `.github/workflows/phase8-diagn
 
 Because that commit changes only documentation and obsolete workflow/patch files, it does not create a new application authority. Any later change under `addons`, `apps/public-web` or deployment/runtime source must rerun the affected hosted gates before review can remain GREEN.
 
+## Post-merge default-branch proof
+
+The source-controlled staging observability schedule is active because its workflow now exists on default branch `main`. Manual default-branch run `35099333740`, job `104804477793`, passed at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. It reconfirmed the exact READY deployment, English/Arabic public and narrow private-runtime health, aggregate Vercel error window, native alert-rule visibility, sealed database/provider/cron facts and latest managed-recovery authority without mutating application or business data.
+
+The issue-transport self-test was correctly skipped because it had already been proven; failure alert transport remains configured. This run did not deploy application source, execute ordinary cron, change the database, use real data or perform a production action.
 ## Remaining boundary
 
-- PR #6 requires explicit review and explicit merge authorization.
-- Default-branch merge would activate the twice-hourly GitHub observability schedule; do not merge merely to activate it.
+- PR #6 is merged; no phase branch was deleted.
+- The twice-hourly GitHub staging observability schedule is active on `main`; this does not authorize production monitoring policy or cutover.
 - Gate D still requires named staff/role/training acceptance, device acceptance, production access/domain/secret decisions, real-data cutover and reconciliation, production backup retention/RPO/RTO, named monitoring recipients/escalation and explicit production GO.
 - Production remains NO-GO.

@@ -2,7 +2,7 @@
 
 ## Start here
 
-Work remotely in `faresmohamed260/fares-uniform`, branch `phase-8/commercial-staging-readiness`. Read this file, `AGENTS.md`, `docs/README.md`, `docs/DECISIONS.md`, and the active Phase 8/8A contracts. Resolve the branch HEAD through GitHub before each write. Never infer current state from the default branch or an old chat.
+Work remotely in `faresmohamed260/fares-uniform` on default branch `main`. The completed `phase-8/commercial-staging-readiness` branch and all earlier phase branches remain preserved. Read this file, `AGENTS.md`, `docs/README.md`, `docs/DECISIONS.md`, and the Phase 8/8A contracts. Resolve the target branch HEAD through GitHub before each write. Never infer current state from an old chat.
 
 This file owns current status and the next task. Phase contracts own scope and exit criteria; validation documents own historical evidence. Do not copy a second current-status log into the documentation index.
 
@@ -12,17 +12,17 @@ Phases 0–7 are complete within their documented repository/CI scope. This cove
 
 Historical business-application authority: `cc2656d7529cfd4af396ddd0af6444a0f6600dc8`, run `34700625051`: 149 tests, repeatable seven-addon upgrade and 8 public browser tests. Phase 7 final authority: `01ce26d3ef0e16f53aa941b6b5e2318cf797e995`; runtime checkpoint: `24850acc029e0e7bbef898d6598d0d8b3f7ce733`.
 
-**Phase 8 Gate C live staging technical acceptance is PASS. Production remains NO-GO.** Release integration and Gate D remain separate from the completed staging proof.
+**Phase 8 Gate C live staging technical acceptance is PASS and release integration is complete. Production remains NO-GO.** Gate D remains separate from the completed staging proof and default-branch integration.
 
 ## Release integration checkpoint
 
-PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) is open and ready for review from `phase-8/commercial-staging-readiness` to `main` for review only. The branch stack is linear and has no divergence from `main`; no phase branch was merged, closed or deleted.
+PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) merged the complete linear Phase 0–8 stack into `main` with history-preserving merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. All phase branches remain preserved; none was deleted.
 
 Exact integrated candidate `de85450cf1c1774a432c5dfd600b6d4596bc2450` passed the current Phase 5A, Phase 6 and all four Phase 7 hosted workflows. The Phase 5A run passed 149/149 Odoo tests, the repeatable seven-production-addon upgrade and 8/8 public browser tests. Phase 6 passed package, persistence and destructive clean-volume restore. Phase 7 passed stateless runtime, external cron, WebSocket continuity and Vercel project configuration. Exact run/job/artifact evidence is recorded in [release integration validation](docs/validation/RELEASE_INTEGRATION.md).
 
 The integration correction only aligned stale pre-deployment workflow source guards with deployed application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`; it did not change application source or deploy anything. Superseded one-off Phase 8 diagnosis/repair/preflight workflows and their patch payload were removed after their immutable RED/GREEN history had been recorded. The permanent proof workflows and documentation remain.
 
-This checkpoint is review-ready, not merge-ready by inference. Merge, phase-branch deletion, activation of the default-branch observability schedule, Gate D and production cutover all require their existing explicit boundaries.
+Release integration is complete. The default-branch observability schedule is now active, and manual default-branch run `35099333740`, job `104804477793`, is GREEN. Phase-branch deletion, Gate D and production cutover remain separately authorized boundaries.
 ## Current staging identity
 
 - Vercel project: `fares-uniform`, `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`, team `team_r09C6RLmb2acHapENECQIn9T`.
@@ -54,7 +54,7 @@ Managed backup/export plus destructive isolated restore is GREEN at workflow sou
 
 Hosted staging observability is GREEN at workflow source `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215`, run `35071292407`, job `104713180912`. It proved the exact READY deployment and EN/AR public surface, retained the narrow Odoo exposure boundary, observed zero Vercel runtime error/fatal records and zero HTTP 5xx in its one-hour window, retained the sealed database/provider facts, kept the known 19-job ordinary cron backlog visible without executing or rescheduling it, observed zero active cron failures and zero idle-in-transaction sessions older than five minutes, and required the latest managed recovery run to remain GREEN. Vercel's project alert-rule API was available and returned one existing rule. The privacy-safe GitHub issue alert transport was self-tested by creating and immediately closing synthetic issue `#5`.
 
-The monitoring contract is documented in `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md`. Provider observability is live, but the source-controlled GitHub twice-hourly schedule cannot execute until this workflow exists on the repository default branch. Do not merge early merely to activate it; while the phase remains isolated, the workflow is push/manual proof and native provider observability remains available. Named people, production recipients/escalation and production retention remain Gate D decisions.
+The monitoring contract is documented in `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md`. The source-controlled twice-hourly GitHub schedule is active now that the workflow exists on `main`. Manual default-branch run `35099333740`, job `104804477793`, reconfirmed the exact deployment/public/private boundary, aggregate Vercel error window, provider alert-rule visibility, sealed database/cron facts and latest recovery authority without mutation. Named people, production recipients/escalation and production retention remain Gate D decisions.
 
 The final recovery correction replaced an invalid cross-time raw count equality for `ir_cron_trigger`. Pinned Odoo treats that table as a mutable scheduler wake-up queue, while `ir_cron` is the durable schedule definition. Recovery therefore snapshots the trigger set immediately after `pg_restore`, before the seven-addon upgrade, then proves that complete archive-restored set remains afterward and that no orphan triggers exist; legitimate upgrade-created trigger rows are allowed. This preserves the recovery invariant instead of weakening it.
 
@@ -76,9 +76,9 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 ## Next tasks, in order
 
-1. Review release-integration PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) and its exact hosted evidence. Do not merge or delete phase branches without explicit authorization. Default-branch integration is also when the scheduled GitHub observability workflow can become active.
-2. Resolve only review findings against the preserved exact-source and staging contracts; rerun the affected hosted gate for any source change.
-3. Gate D remains NO-GO: named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, named monitoring recipients/escalation and explicit production GO remain required. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release staging gate.
+1. Release integration is complete at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`; default-branch observability is GREEN at run `35099333740`, job `104804477793`. Keep all phase branches unless deletion is explicitly authorized.
+2. Gate D remains NO-GO: obtain named staff/roles/training acceptance, device acceptance, real-data cutover/reconciliation authorization, production access/domains/secrets, backup retention/RPO/RTO, named monitoring recipients/escalation and explicit production GO before any production action.
+3. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release staging gate. Treat any expansion as separately scoped work.
 ## Constraints for every continuation
 
 Remote GitHub source edits and hosted execution only. No local/scratch source, builds or artifacts. No force push, broad Odoo exposure, real business data, `fu_uat` in staging/production, transaction pooling, routine provider-admin Odoo, paid upgrades or production cutover.

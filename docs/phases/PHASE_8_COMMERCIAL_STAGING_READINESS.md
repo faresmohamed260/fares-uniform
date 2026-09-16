@@ -192,7 +192,7 @@ The same run verified the sealed Supabase/PostgreSQL boundary, the exact deploym
 
 Vercel's project alert-rule API was available and returned one existing project rule. The proof does not assume that rule's undisclosed recipients or semantics. The source-controlled privacy-safe failure sink is a GitHub issue; the first run created and immediately closed synthetic issue `#5`, proving transport without retaining raw logs, request bodies, customer/database records, SQL text, secret values or staff names.
 
-The operations contract is `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md`. Its owner labels are roles (`technical-operations-owner`, `business-operations-owner`) rather than invented people. The workflow includes a twice-hourly schedule, but GitHub schedules execute from the default branch only. Because Phase 8 remains isolated on its phase branch, recurring GitHub polling is not active yet; push/manual runs plus native provider observability are the current staging boundary. Release integration, not an early merge solely for scheduling, is where the schedule can become active. Named production owners, recipients/escalation and retention remain Gate D.
+The operations contract is `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md`. Its owner labels are roles (`technical-operations-owner`, `business-operations-owner`) rather than invented people. PR #6 placed the twice-hourly workflow on default branch `main`, so recurring GitHub staging polling is active. Manual default-branch run `35099333740`, job `104804477793`, is GREEN at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. Named production owners, recipients/escalation and retention remain Gate D.
 
 See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current evidence, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep, the resolved ordinary-cron backlog, raw cross-time `ir_cron_trigger` count equality or observability as current blockers.
 
@@ -222,7 +222,7 @@ Coverage includes Store/Storage stock custody and idempotent transfer; native PO
 
 Preserved RED `35078985169` / job `104738120056` proved the backend `pos.make.payment` wizard was a harness-only shortcut unavailable to cashier. The fix did not widen ACLs; it moved the proof to the real POS UI-sync path.
 
-Purchase, MRP, procurement planning, `sale_management` and `stock_valuation_layer` are outside the accepted first-release staging topology and are not Gate C prerequisites. Recurring GitHub observability activation belongs to release integration; named production owners/recipients/retention remain Gate D.
+Purchase, MRP, procurement planning, `sale_management` and `stock_valuation_layer` are outside the accepted first-release staging topology and are not Gate C prerequisites. Recurring GitHub staging observability is active after release integration; named production owners/recipients/retention remain Gate D.
 
 ### Gate D — production
 

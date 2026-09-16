@@ -1,6 +1,6 @@
 # Phase 8 staging observability
 
-Status: **HOSTED TECHNICAL PROOF GREEN; DEFAULT-BRANCH SCHEDULE ACTIVATION DEFERRED TO RELEASE INTEGRATION; PRODUCTION OWNER/RETENTION POLICY OPEN.**
+Status: **HOSTED TECHNICAL PROOF GREEN; DEFAULT-BRANCH SCHEDULE ACTIVE; PRODUCTION OWNER/RETENTION POLICY OPEN.**
 
 Authoritative proof: workflow source `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215`, run `35071292407`, job `104713180912`.
 
@@ -86,11 +86,11 @@ Prefer counts, status codes, booleans, fixed synthetic identifiers, exact source
 
 ## Cadence boundary
 
-`.github/workflows/phase8-staging-observability.yml` contains a twice-hourly schedule plus push/manual triggers. GitHub scheduled workflows execute only from the repository default branch. The active Phase 8 work remains isolated on `phase-8/commercial-staging-readiness`, so **the GitHub recurring schedule is not yet active**.
+`.github/workflows/phase8-staging-observability.yml` contains a twice-hourly schedule plus push/manual triggers. GitHub scheduled workflows execute from the repository default branch. Release integration placed the workflow on `main` through PR #6, so **the GitHub recurring staging schedule is active**.
 
-Until a separately authorized release-integration change places this workflow on the default branch, current evidence is push/manual hosted proof combined with native Vercel/Supabase provider observability. Do not claim that GitHub Actions is continuously polling staging before that integration occurs.
+Manual default-branch run `35099333740`, job `104804477793`, passed at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. It reconfirmed the expected deployment, public/private health, aggregate Vercel error window, native alert-rule visibility, sealed database/cron facts and latest managed-recovery authority without mutation. The existing issue-transport self-test was correctly skipped because it had already been proven.
 
-This limitation does not authorize an early merge merely to activate scheduling. Release-stack reconciliation remains a separate reviewable task.
+Schedule activation does not assign production owners, approve production retention/escalation policy or authorize production cutover.
 
 ## Production boundary
 

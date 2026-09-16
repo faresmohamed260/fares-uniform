@@ -198,7 +198,7 @@ The Supabase/PostgreSQL monitor retained the exact epoch, role/provider/session/
 
 A privacy-safe GitHub issue sink is the source-controlled alert transport. Run `35071292407` created and immediately closed synthetic issue `#5`, proving issue creation/closure without raw logs, request bodies, customer/database records, SQL text, secret values or staff names. Owner labels are roles only: `technical-operations-owner` and `business-operations-owner`.
 
-`.github/workflows/phase8-staging-observability.yml` includes a twice-hourly schedule, but GitHub scheduled workflows run from the default branch only. Because Phase 8 remains isolated on its phase branch, that recurrence is not active yet; push/manual proof plus native Vercel/Supabase observability is the current staging boundary. Release integration is the correct point to activate the GitHub schedule. Production human owners, recipients/escalation and retention remain Gate D.
+`.github/workflows/phase8-staging-observability.yml` includes a twice-hourly schedule and now exists on default branch `main` after PR #6, so recurring GitHub staging polling is active. Manual default-branch run `35099333740`, job `104804477793`, is GREEN at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. Production human owners, recipients/escalation and retention remain Gate D.
 
 See `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md` for the operational contract and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact hosted evidence.
 
@@ -217,6 +217,6 @@ See `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md` for the operational contr
 
 ## Next authorized execution sequence
 
-Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Gate C needs no further business-flow proof under the accepted first-release boundary; Purchase/MRP/procurement planning is out of scope for this staging gate. Next is separately reviewed release integration with no implicit merge authorization. Gate D remains separately authorized.
+Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Gate C needs no further business-flow proof under the accepted first-release boundary; Purchase/MRP/procurement planning is out of scope for this staging gate. Release integration is complete through merged PR #6. Gate D remains separately authorized and production remains NO-GO.
 
 Remote GitHub/hosted execution only. No force-push, stale writer rerun, real data, `fu_uat`, direct `/fu/public/**`, transaction pooling, routine provider-admin Odoo, paid upgrade or production cutover.

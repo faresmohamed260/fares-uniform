@@ -66,7 +66,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 
 - [Staging repair and cleanup evidence](validation/PHASE_8_HANDOFF_REPAIR.md): current repair results and preserved RED evidence.
 - [Workflow guide](operations/WORKFLOW_GUIDE.md): retained workflows, retired diagnostic entry points and execution precautions.
-- [Staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md): current monitoring/alert/privacy proof and default-branch schedule limitation.
-- [Release integration validation](validation/RELEASE_INTEGRATION.md): exact candidate, hosted gates, stack audit and ready-for-review PR #6 boundary.
+- [Staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md): current monitoring/alert/privacy proof and active default-branch schedule and remaining production-owner boundary.
+- [Release integration validation](validation/RELEASE_INTEGRATION.md): exact candidate, hosted gates, stack audit and merged PR #6/default-branch integration boundary.
 
 Historical phase documents record the state at their closure. Their past authorization/status language does not override the current handoff or later explicit decisions.

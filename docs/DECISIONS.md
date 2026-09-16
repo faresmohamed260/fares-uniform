@@ -338,3 +338,12 @@ Integrated candidate `de85450cf1c1774a432c5dfd600b6d4596bc2450` is the exact hos
 The candidate corrects five stale workflow source guards from historical Phase 5A application SHA `cc2656d7529cfd4af396ddd0af6444a0f6600dc8` to immutable deployed application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`. Those workflows had failed before build only because the approved deployed public-web routing changes were newer than the old guard. No application source changed in the correction, and the fresh exact-candidate runs prove the full inherited application/deployment boundary.
 
 The later release-record/cleanup commit removes only superseded one-off Phase 8 diagnosis, repair and preflight entry points plus their patch payload. Immutable Actions history and the authoritative validation documents preserve their evidence. This documentation/cleanup lineage does not replace `de85450cf1c1774a432c5dfd600b6d4596bc2450` as the tested integration candidate and does not change deployed application identity `2a74e93b1828c16839ba7cede336caa4ca374306`.
+## D-045 — Phase 0–8 release integration completed on `main`
+
+Status: Explicitly authorized by the client and completed 2026-09-16; production authorization unchanged.
+
+After PR #6 was ready for review, mergeable and GREEN across all 15 exact-head pull-request checks, the client explicitly instructed the work to proceed at the stated merge boundary. PR #6 was merged with full history preserved at merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`. The source head was `cdc3d3320b446b36c9d9b02f29e74eb0b6d68d69`; all phase branches remain present and none was deleted.
+
+The merge activates the twice-hourly staging observability schedule because the workflow now exists on default branch `main`. Manual default-branch run `35099333740`, job `104804477793`, passed at the merge commit and reconfirmed the live staging health, provider/database/cron seals and recovery authority without mutation.
+
+This integration does not redeploy application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`, alter the staging database, execute or reschedule the ordinary cron backlog, authorize real data or paid resources, resolve Gate D or authorize production cutover. Production remains NO-GO.
