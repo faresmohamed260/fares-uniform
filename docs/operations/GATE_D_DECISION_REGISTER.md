@@ -30,7 +30,24 @@ These technical proofs do not answer the production decisions below.
 | GD-07 | Backup retention, RPO and RTO | Backup frequency and retention; recovery-point objective; recovery-time objective; restore-test cadence; backup/restore owner and escalation | OPEN |
 | GD-08 | Production monitoring and privacy | Named recipients held privately; coverage hours; severity thresholds; escalation path; public enquiry/recovery alert ownership; log/alert retention and redaction policy | OPEN |
 | GD-09 | Launch control and explicit production GO | Change-freeze window; cutover window; GO approver; rollback authority; post-launch observation period; explicit client production GO | OPEN |
+| GD-10 | Repository and deployment release controls | Approved main protection/ruleset policy; required checks/reviews; protected production environment and reviewer role; dependency-alert handling; proof that ordinary pushes cannot deploy production | OPEN |
 
+## Current release-control audit
+
+Read-only GitHub audit at source `3a516288cc8a9b5a65d9a6e529f4ec3d8c8346e4` found:
+
+- public repository; default branch `main`;
+- zero repository rulesets and no branch protection on `main`;
+- zero GitHub deployment environments;
+- default Actions token permission is read-only and Actions cannot approve pull requests;
+- secret scanning and push protection are enabled;
+- Dependabot security updates are disabled;
+- zero open Dependabot, code-scanning or secret-scanning alerts at the audit time;
+- only the existing staging control-plane secret names `SUPABASE_ACCESS_TOKEN` and `VERCEL_TOKEN`; no repository variables or production runtime-secret names.
+
+No setting was changed. Enabling branch protection, selecting required checks/reviewers, creating a production environment or enabling automated dependency updates can affect normal repository work and therefore requires an explicit GD-10 decision.
+
+See [Gate D release-control plan](GATE_D_RELEASE_CONTROL_PLAN.md).
 ## Evidence rules
 
 For each decision:
@@ -43,6 +60,6 @@ For each decision:
 
 ## Fail-closed production boundary
 
-Production remains NO-GO while any GD-01 through GD-09 item is OPEN, while required private evidence is missing, or while a production technical preflight is not GREEN for the exact production candidate.
+Production remains NO-GO while any GD-01 through GD-10 item is OPEN, while required private evidence is missing, or while a production technical preflight is not GREEN for the exact production candidate.
 
 No agent should infer a provider purchase, domain mutation, production secret activation, staff assignment, migration authorization, launch window or production GO from a generic instruction to continue. Request only the minimum specific decision needed when safe repository/CI preparation is exhausted.

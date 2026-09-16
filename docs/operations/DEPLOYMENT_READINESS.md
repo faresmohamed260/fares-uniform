@@ -175,6 +175,17 @@ The Phase 6 PostgreSQL+filestore recovery model remains preserved for its verifi
 - [ ] Production domain/DNS/TLS/internal-access ownership decided and configured.
 - [x] Post-deployment EN/AR public smoke verification passed on the actual staging URL.
 
+### Repository and production release controls
+- [x] Default Actions token permission is read-only; Actions cannot approve pull requests.
+- [x] Secret scanning and push protection are enabled.
+- [x] Read-only audit found zero open Dependabot, code-scanning and secret-scanning alerts.
+- [ ] `main` protection/ruleset policy approved and applied; currently none exists.
+- [ ] Required pull-request checks/review count and bypass policy approved.
+- [ ] Protected GitHub `production` environment created with an approved reviewer role and `main`-only deployment policy; currently no environments exist.
+- [ ] Dependabot security-update policy approved; automatic security updates are currently disabled.
+- [ ] Production deployment workflow proves an ordinary push cannot deploy without the approved environment gate.
+
+See [Gate D release-control plan](GATE_D_RELEASE_CONTROL_PLAN.md). No repository protection or environment setting was changed by the audit.
 ### Store/device compatibility
 - [ ] Actual checkout computer/browser validated.
 - [ ] Scanner capability validated without brand-specific application assumptions.

@@ -60,6 +60,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result and operator/client inputs still required |
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Go/no-go checklist and remaining live-stage decisions |
 | [Gate D decision register](operations/GATE_D_DECISION_REGISTER.md) | Required production decisions, private evidence handoffs and fail-closed GO boundary |
+| [Gate D release-control plan](operations/GATE_D_RELEASE_CONTROL_PLAN.md) | Audited GitHub control state and proposed protected production-release boundary |
 
 ## Current work
 
@@ -70,5 +71,6 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 - [Staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md): current monitoring/alert/privacy proof and active default-branch schedule and remaining production-owner boundary.
 - [Release integration validation](validation/RELEASE_INTEGRATION.md): exact candidate, hosted gates, stack audit and merged PR #6/default-branch integration boundary.
 - [Gate D decision register](operations/GATE_D_DECISION_REGISTER.md): unresolved production decisions and evidence required before any production action.
+- [Gate D release-control plan](operations/GATE_D_RELEASE_CONTROL_PLAN.md): repository protection and production-environment controls awaiting explicit approval.
 
 Historical phase documents record the state at their closure. Their past authorization/status language does not override the current handoff or later explicit decisions.

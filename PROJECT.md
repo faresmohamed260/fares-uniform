@@ -77,7 +77,7 @@ Do not retry database authentication blindly or rotate a working runtime credent
 ## Next tasks, in order
 
 1. Release integration and native scheduled staging observability are complete. Preserve merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, scheduled authority run `35129331378` / job `104906119150`, and all phase branches unless deletion is explicitly authorized.
-2. Work through [the Gate D decision register](docs/operations/GATE_D_DECISION_REGISTER.md). Do not infer names, hardware, production host/plan, domains, secret owners, migration method, backup retention/RPO/RTO, monitoring recipients/escalation, launch window or production GO.
+2. Work through [the Gate D decision register](docs/operations/GATE_D_DECISION_REGISTER.md), beginning with GD-01 production hosting/spending and GD-10 release controls. The read-only audit found no `main` ruleset/branch protection and no GitHub deployment environments; see [the release-control plan](docs/operations/GATE_D_RELEASE_CONTROL_PLAN.md). Do not infer names, hardware, production host/plan, domains, secret owners, migration method, backup retention/RPO/RTO, monitoring recipients/escalation, launch window or production GO.
 3. Continue only reversible repository/CI preparation that does not require an unresolved Gate D choice. Production remains NO-GO, and real-data/provider spending/cutover actions require separate explicit authorization.
 4. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release staging gate. Treat any expansion as separately scoped work.
 ## Constraints for every continuation
