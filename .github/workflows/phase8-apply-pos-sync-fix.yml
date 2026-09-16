@@ -78,7 +78,7 @@ jobs:
               env["pos.order"].with_user(cashier).sync_from_ui([order_payload])
               order = env["pos.order"].with_user(cashier).search([("uuid", "=", order_uuid)], limit=1)
               require(order, "cashier POS sync did not create an authoritative order")
-'''
+          '''
           path.write_text(text[:start] + replacement + text[end:], encoding='utf-8')
           PY
 
