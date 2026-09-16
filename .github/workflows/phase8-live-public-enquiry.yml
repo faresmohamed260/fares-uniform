@@ -1,0 +1,240 @@
+name: Phase 8 live public enquiry
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-live-public-enquiry.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8-managed-db-mutation
+  cancel-in-progress: false
+
+env:
+  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+  RETAINED_EVIDENCE_DEPLOYMENT_ID: dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+  SYNTHETIC_SLUG: phase8-synthetic-program
+  ENQUIRY_KEY: phase8-live-enquiry-2a74e93b-v1
+  HTTP_RETRY_COUNT: 8
+  HTTP_RETRY_DELAY: 3
+  HTTP_RETRY_MAX_TIME: 90
+  HTTP_CONNECT_TIMEOUT: 10
+
+jobs:
+  enquiry:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout workflow source and reject stale execution
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Verify fresh workflow generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1 || { echo "Workflow reruns are forbidden for the live enquiry write; start a fresh workflow run instead. attempt=$GITHUB_RUN_ATTEMPT" >&2; exit 1; }
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test -n "$remote_head"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale enquiry workflow: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+          echo "fresh_workflow_generation=PASS sha=$GITHUB_SHA"
+
+      - name: Resolve exact READY deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo 'VERCEL_TOKEN missing' >&2; exit 64; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          status="$(curl -sS -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          test "$status" = 200
+          match_count="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '[.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY")] | length' "$response")"
+          test "$match_count" = 1 || { echo "Expected exactly one READY deployment for $EXPECTED_DEPLOYMENT_SHA; got $match_count" >&2; exit 1; }
+          deployment_id="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY") | (.uid // .id)' "$response")"
+          deployment_host="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY") | .url' "$response")"
+          test -n "$deployment_id"
+          test -n "$deployment_host"
+          echo "DEPLOYMENT_ID=$deployment_id" >> "$GITHUB_ENV"
+          echo "BASE_URL=https://$deployment_host" >> "$GITHUB_ENV"
+          echo "exact_ready_deployment=PASS id=$deployment_id sha=$EXPECTED_DEPLOYMENT_SHA"
+
+      - name: Capture sealed database preflight
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          read -r -d '' query <<SQL || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT count(*)::int FROM fu_public_enquiry WHERE idempotency_key='${ENQUIRY_KEY}') AS enquiry_rows,
+            (SELECT count(*)::int FROM fu_public_enquiry e LEFT JOIN product_template p ON p.id=e.source_product_id WHERE e.idempotency_key='${ENQUIRY_KEY}' AND e.contact_name='[SYNTHETIC] Enquiry Visitor' AND e.organization_name='[SYNTHETIC] Phase 8 School' AND coalesce(e.phone,'')='' AND e.email='phase8-live-enquiry@example.invalid' AND e.sector='Synthetic education' AND e.message='Synthetic live staging enquiry continuity proof only.' AND e.language='en' AND p.fu_public_slug='${SYNTHETIC_SLUG}') AS enquiry_exact,
+            (SELECT count(*)::int FROM sale_order) AS sale_orders,
+            (SELECT count(*)::int FROM account_payment) AS payments,
+            (SELECT count(*)::int FROM stock_picking) AS pickings;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$db")" = true
+          test "$(jq -r '.[0].can_create_public' "$db")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
+          test "$(jq -r '.[0].session_table_ok' "$db")" = 1
+          test "$(jq -r '.[0].required_extensions' "$db")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
+          enquiry_rows="$(jq -r '.[0].enquiry_rows' "$db")"
+          test "$enquiry_rows" = 0 || test "$enquiry_rows" = 1
+          if [[ "$enquiry_rows" = 1 ]]; then
+            test "$(jq -r '.[0].enquiry_exact' "$db")" = 1
+          fi
+          echo "ENQUIRY_ROWS_BEFORE=$enquiry_rows" >> "$GITHUB_ENV"
+          echo "SALE_ORDERS_BEFORE=$(jq -r '.[0].sale_orders' "$db")" >> "$GITHUB_ENV"
+          echo "PAYMENTS_BEFORE=$(jq -r '.[0].payments' "$db")" >> "$GITHUB_ENV"
+          echo "PICKINGS_BEFORE=$(jq -r '.[0].pickings' "$db")" >> "$GITHUB_ENV"
+          echo "sealed_db_preflight=PASS epoch=$EXPECTED_DB_EPOCH create=false app_relations=988 existing_enquiry=$enquiry_rows"
+
+      - name: Submit, replay and fail closed through the live public boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload="$(jq -cn --arg key "$ENQUIRY_KEY" --arg slug "$SYNTHETIC_SLUG" '{idempotency_key:$key,contact_name:"[SYNTHETIC] Enquiry Visitor",organization_name:"[SYNTHETIC] Phase 8 School",phone:"",email:"phase8-live-enquiry@example.invalid",sector:"Synthetic education",message:"Synthetic live staging enquiry continuity proof only.",source_product_slug:$slug,language:"en"}')"
+          first="$(mktemp)"
+          replay="$(mktemp)"
+          conflict="$(mktemp)"
+          forbidden="$(mktemp)"
+          trap 'rm -f "$first" "$replay" "$conflict" "$forbidden"' EXIT
+
+          first_status="$(curl -sS --retry "$HTTP_RETRY_COUNT" --retry-delay "$HTTP_RETRY_DELAY" --retry-max-time "$HTTP_RETRY_MAX_TIME" --retry-all-errors --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' --data "$payload" -o "$first" -w '%{http_code}' "$BASE_URL/api/enquiries")"
+          if [[ "$ENQUIRY_ROWS_BEFORE" = 0 ]]; then test "$first_status" = 201; else test "$first_status" = 200; fi
+          jq -e 'type == "object" and (keys == ["reference","status"]) and .status == "accepted" and (.reference | type == "string" and test("^ENQ-[A-F0-9]{12}$"))' "$first" >/dev/null
+          reference="$(jq -r '.reference' "$first")"
+          echo "LIVE_REFERENCE=$reference" >> "$GITHUB_ENV"
+
+          replay_status="$(curl -sS --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' --data "$payload" -o "$replay" -w '%{http_code}' "$BASE_URL/api/enquiries")"
+          test "$replay_status" = 200
+          jq -e --arg reference "$reference" 'type == "object" and (keys == ["reference","status"]) and .status == "accepted" and .reference == $reference' "$replay" >/dev/null
+
+          changed="$(jq '.message = "Synthetic conflicting retry must fail closed."' <<<"$payload")"
+          conflict_status="$(curl -sS --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' --data "$changed" -o "$conflict" -w '%{http_code}' "$BASE_URL/api/enquiries")"
+          test "$conflict_status" = 409
+          jq -e 'type == "object" and (keys == ["error"]) and .error == "idempotency_conflict"' "$conflict" >/dev/null
+
+          for field in price stock; do
+            injected="$(jq --arg field "$field" '. + {($field): "forbidden"}' <<<"$payload")"
+            forbidden_status="$(curl -sS --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' --data "$injected" -o "$forbidden" -w '%{http_code}' "$BASE_URL/api/enquiries")"
+            test "$forbidden_status" = 400
+            jq -e 'type == "object" and (keys == ["error"]) and .error == "unexpected_field"' "$forbidden" >/dev/null
+          done
+
+          if grep -Eiq 'price|stock|inventory|quantity|sku|barcode|cost|location' "$first" "$replay" "$conflict" "$forbidden"; then
+            echo 'Forbidden commercial or inventory data appeared in a public enquiry response' >&2
+            exit 1
+          fi
+          echo "live_enquiry_boundary=PASS first=$first_status replay=$replay_status conflict=$conflict_status forbidden_price_stock=400 response_keys=status,reference"
+
+      - name: Verify rendered enquiry surfaces do not leak price or stock
+        shell: bash
+        run: |
+          set -euo pipefail
+          en="$(mktemp)"
+          ar="$(mktemp)"
+          trap 'rm -f "$en" "$ar"' EXIT
+          curl -fsS --retry "$HTTP_RETRY_COUNT" --retry-delay "$HTTP_RETRY_DELAY" --retry-max-time "$HTTP_RETRY_MAX_TIME" --retry-all-errors --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 "$BASE_URL/catalog/$SYNTHETIC_SLUG?lang=en" -o "$en"
+          curl -fsS --retry "$HTTP_RETRY_COUNT" --retry-delay "$HTTP_RETRY_DELAY" --retry-max-time "$HTTP_RETRY_MAX_TIME" --retry-all-errors --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 "$BASE_URL/catalog/$SYNTHETIC_SLUG?lang=ar" -o "$ar"
+          grep -Fq 'Enquire about this program' "$en"
+          grep -Fq 'استفسر عن هذا البرنامج' "$ar"
+          if grep -Eiq '>[^<]*(price|stock|inventory|quantity|sku|barcode|cost|location)[^<]*<' "$en" "$ar"; then
+            echo 'Forbidden commercial or inventory wording appeared on a rendered public enquiry surface' >&2
+            exit 1
+          fi
+          echo 'rendered_enquiry_no_leak=PASS languages=en,ar'
+
+      - name: Prove one enquiry and no operational side effects
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          read -r -d '' query <<SQL || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT count(*)::int FROM fu_public_enquiry WHERE idempotency_key='${ENQUIRY_KEY}') AS enquiry_rows,
+            (SELECT count(*)::int FROM fu_public_enquiry e LEFT JOIN product_template p ON p.id=e.source_product_id WHERE e.idempotency_key='${ENQUIRY_KEY}' AND e.reference='${LIVE_REFERENCE}' AND e.contact_name='[SYNTHETIC] Enquiry Visitor' AND e.organization_name='[SYNTHETIC] Phase 8 School' AND coalesce(e.phone,'')='' AND e.email='phase8-live-enquiry@example.invalid' AND e.sector='Synthetic education' AND e.message='Synthetic live staging enquiry continuity proof only.' AND e.language='en' AND p.fu_public_slug='${SYNTHETIC_SLUG}') AS enquiry_exact,
+            (SELECT count(*)::int FROM sale_order) AS sale_orders,
+            (SELECT count(*)::int FROM account_payment) AS payments,
+            (SELECT count(*)::int FROM stock_picking) AS pickings;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$db")" = true
+          test "$(jq -r '.[0].can_create_public' "$db")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
+          test "$(jq -r '.[0].session_table_ok' "$db")" = 1
+          test "$(jq -r '.[0].required_extensions' "$db")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
+          test "$(jq -r '.[0].enquiry_rows' "$db")" = 1
+          test "$(jq -r '.[0].enquiry_exact' "$db")" = 1
+          test "$(jq -r '.[0].sale_orders' "$db")" = "$SALE_ORDERS_BEFORE"
+          test "$(jq -r '.[0].payments' "$db")" = "$PAYMENTS_BEFORE"
+          test "$(jq -r '.[0].pickings' "$db")" = "$PICKINGS_BEFORE"
+          echo "enquiry_postflight=PASS exact_rows=1 sale_payment_stock_deltas=0 epoch=$EXPECTED_DB_EPOCH create=false fu_uat=absent"
+
+      - name: Publish live enquiry evidence summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## Phase 8 live public enquiry'
+            echo
+            echo "- Workflow source SHA: \`$GITHUB_SHA\`"
+            echo "- Deployed application SHA: \`$EXPECTED_DEPLOYMENT_SHA\`"
+            echo "- Deployment: \`$DEPLOYMENT_ID\`"
+            echo "- Managed DB epoch: \`$EXPECTED_DB_EPOCH\`"
+            echo "- Synthetic enquiry key: \`$ENQUIRY_KEY\`"
+            echo "- Synthetic enquiry reference: \`$LIVE_REFERENCE\`"
+            echo '- First acceptance + exact replay: PASS'
+            echo '- Conflicting replay: 409 / PASS'
+            echo '- Injected price and stock fields: 400 / PASS'
+            echo '- Public response allowlist: `status`, `reference` only'
+            echo '- EN/AR rendered enquiry no-leak check: PASS'
+            echo '- Enquiry persistence: exactly one matching row'
+            echo '- Sale/payment/stock side-effect deltas: zero'
+            echo '- Runtime seal/provider boundary: preserved'
+            echo '- `fu_uat`: absent'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo 'phase8_live_public_enquiry=PASS'

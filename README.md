@@ -1,16 +1,11 @@
 # Fares Uniform
 
-ERP system for the client's father's small clothing factory.
+Bilingual ERP for a clothing and uniform business, using Odoo Community with Fares addons and a separate public Next.js catalog.
 
-**Status:** requirements discovery; application implementation has not started.
+**Current work: Phase 8A live staging validation. Production is not approved.**
 
-## Start here
+Start with [PROJECT.md](PROJECT.md) for current status, exact evidence and the next task. Then read [AGENTS.md](AGENTS.md), the [documentation index](docs/README.md) and [decisions](docs/DECISIONS.md).
 
-- [Agent and development instructions](AGENTS.md)
-- [Project status and handoff](PROJECT.md)
-- [Documentation index](docs/README.md)
-- [Discovery and requirements](docs/requirements/DISCOVERY.md)
-- [Decision log](docs/DECISIONS.md)
-- [Phase 0: discovery contract](docs/phases/PHASE_0_DISCOVERY.md)
+The active development branch is `phase-8/commercial-staging-readiness`. Historical phase branches and draft PRs remain unmerged. Do not treat the default branch as the latest application.
 
-All project work is remote. This public repository is the persistent source of truth for code and documentation. Vercel is the initial deployment target; Supabase and Cloudflare are available. No application or infrastructure has been provisioned by this documentation change.
+All development and verification is remote through GitHub and hosted CI. No real business data or secrets belong in this public repository.

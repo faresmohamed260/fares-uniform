@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fu_product_variant_list" model="ir.ui.view">
+        <field name="name">fu.product.product.list</field>
+        <field name="model">product.product</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="string">Fares Product Lookup</attribute>
+                <attribute name="create">false</attribute>
+                <attribute name="edit">false</attribute>
+                <attribute name="delete">false</attribute>
+                <attribute name="multi_edit">false</attribute>
+            </xpath>
+            <field name="default_code" position="attributes">
+                <attribute name="string">Item Code</attribute>
+                <attribute name="optional">show</attribute>
+            </field>
+            <field name="barcode" position="attributes">
+                <attribute name="optional">show</attribute>
+            </field>
+            <field name="lst_price" position="attributes">
+                <attribute name="column_invisible">True</attribute>
+            </field>
+            <field name="standard_price" position="attributes">
+                <attribute name="column_invisible">True</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="fu_product_variant_form" model="ir.ui.view">
+        <field name="name">fu.product.product.form</field>
+        <field name="model">product.product</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <form position="attributes">
+                <attribute name="string">Fares Product Lookup</attribute>
+                <attribute name="create">false</attribute>
+                <attribute name="edit">false</attribute>
+                <attribute name="delete">false</attribute>
+            </form>
+            <xpath expr="//page[@name='general_information']/group[1]" position="before">
+                <group name="fu_identity" string="Permanent Item Identity">
+                    <group>
+                        <field name="default_code" string="Item Code" readonly="1"/>
+                        <field name="barcode" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="product_template_variant_value_ids" widget="many2many_tags" readonly="1" groups="product.group_product_variant"/>
+                        <field name="categ_id" readonly="1"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='group_standard_price']/field[@name='default_code']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='group_standard_price']/field[@name='barcode']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <field name="lst_price" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <xpath expr="//label[@for='lst_price']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//div[@name='standard_price_uom']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//label[@id='standard_price_label']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_fu_products" model="ir.actions.act_window">
+        <field name="name">Fares Product Lookup</field>
+        <field name="res_model">product.product</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="product.product_search_form_view"/>
+        <field name="domain">[('is_storable', '=', True)]</field>
+        <field name="context">{'create': False}</field>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('fu_product_variant_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('fu_product_variant_form')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No finished-stock products yet</p>
+            <p>Create product master data from the authorized native Odoo product-management screen.</p>
+        </field>
+    </record>
+
+    <record id="action_fu_on_hand" model="ir.actions.act_window">
+        <field name="name">Fares On-hand Stock</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="stock.view_stock_quant_tree_simple"/>
+        <field name="search_view_id" ref="stock.quant_search_view"/>
+        <field name="domain">[('location_id.fu_location_role', 'in', ['store', 'storage'])]</field>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No finished stock in your assigned locations</p>
+        </field>
+    </record>
+
+    <record id="fu_stock_movement_request_list" model="ir.ui.view">
+        <field name="name">fu.stock.movement.request.list</field>
+        <field name="model">fu.stock.movement.request</field>
+        <field name="arch" type="xml">
+            <list string="Movement History" create="false" edit="false" delete="false" decoration-success="state == 'done'">
+                <field name="state" widget="badge"/>
+                <field name="operation" widget="badge"/>
+                <field name="product_id"/>
+                <field name="quantity"/>
+                <field name="source_location_id" string="From" optional="show"/>
+                <field name="destination_location_id" string="To"/>
+                <field name="reason"/>
+                <field name="batch_ref" string="Batch Reference" optional="hide"/>
+                <field name="actor_id" string="Requested by" optional="show"/>
+                <field name="executed_by_id" string="Executed by" optional="hide"/>
+                <field name="create_date" string="Date" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="fu_stock_movement_request_form" model="ir.ui.view">
+        <field name="name">fu.stock.movement.request.form</field>
+        <field name="model">fu.stock.movement.request</field>
+        <field name="arch" type="xml">
+            <form string="Stock Movement" create="false" edit="false" delete="false">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="request_key" string="Request Key"/>
+                        <h1><field name="request_key"/></h1>
+                    </div>
+                    <group>
+                        <group string="Movement">
+                            <field name="operation"/>
+                            <field name="product_id"/>
+                            <field name="quantity"/>
+                            <field name="source_location_id" string="From" invisible="operation != 'internal'"/>
+                            <field name="destination_location_id" string="To"/>
+                        </group>
+                        <group string="Audit Trail">
+                            <field name="reason"/>
+                            <field name="batch_ref" string="Batch Reference" invisible="not batch_ref"/>
+                            <field name="actor_id" string="Requested by"/>
+                            <field name="executed_by_id" string="Executed by"/>
+                            <field name="create_date" string="Requested at"/>
+                            <field name="picking_id" groups="stock.group_stock_user"/>
+                            <field name="stock_move_id" groups="stock.group_stock_user"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="fu_stock_movement_request_search" model="ir.ui.view">
+        <field name="name">fu.stock.movement.request.search</field>
+        <field name="model">fu.stock.movement.request</field>
+        <field name="arch" type="xml">
+            <search string="Movement History">
+                <field name="request_key"/>
+                <field name="product_id"/>
+                <field name="source_location_id"/>
+                <field name="destination_location_id"/>
+                <field name="actor_id"/>
+                <filter string="Receipts" name="receipt" domain="[('operation', '=', 'receipt')]"/>
+                <filter string="Transfers" name="internal" domain="[('operation', '=', 'internal')]"/>
+                <filter string="Opening Counts" name="opening" domain="[('operation', '=', 'opening')]"/>
+                <group>
+                    <filter string="Operation" name="group_operation" context="{'group_by': 'operation'}"/>
+                    <filter string="Destination" name="group_destination" context="{'group_by': 'destination_location_id'}"/>
+                    <filter string="Requested by" name="group_actor" context="{'group_by': 'actor_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fu_stock_movement_history" model="ir.actions.act_window">
+        <field name="name">Movement History</field>
+        <field name="res_model">fu.stock.movement.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="fu_stock_movement_request_search"/>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('fu_stock_movement_request_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('fu_stock_movement_request_form')})]"/>
+        <field name="context">{'create': False}</field>
+    </record>
+
+    <record id="fu_stock_movement_wizard_form" model="ir.ui.view">
+        <field name="name">fu.stock.movement.wizard.form</field>
+        <field name="model">fu.stock.movement.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Stock Operation">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Stock Operation</h1>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        Use this controlled operation so location scope, reason, actor and retry protection stay attached to the native Odoo stock effect.
+                    </div>
+                    <group>
+                        <group string="Operation">
+                            <field name="operation" widget="radio" options="{'horizontal': true}"/>
+                            <field name="product_id" options="{'no_create': True, 'no_quick_create': True}"/>
+                            <field name="quantity"/>
+                        </group>
+                        <group string="Inventory Custody">
+                            <field name="allowed_location_ids" invisible="1"/>
+                            <field name="source_location_id" domain="[('id', 'in', allowed_location_ids)]" invisible="operation != 'internal'" required="operation == 'internal'" options="{'no_create': True, 'no_quick_create': True}"/>
+                            <field name="destination_location_id" domain="[('id', 'in', allowed_location_ids)]" options="{'no_create': True, 'no_quick_create': True}"/>
+                        </group>
+                    </group>
+                    <group string="Audit Trail">
+                        <field name="reason" placeholder="Why is this stock movement being recorded?"/>
+                        <field name="batch_ref" invisible="operation != 'opening'" required="operation == 'opening'" placeholder="e.g. OPEN-2026-09"/>
+                        <field name="request_key" readonly="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_submit" type="object" string="Execute Stock Operation" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fu_stock_movement_wizard" model="ir.actions.act_window">
+        <field name="name">New Stock Operation</field>
+        <field name="res_model">fu.stock.movement.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="fu_stock_movement_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_fu_root" name="Fares Uniform" sequence="85" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier,fu_core.group_fu_inventory_staff,fu_core.group_fu_production_manager,fu_core.group_fu_sales_bd"/>
+    <menuitem id="menu_fu_product_lookup" name="Product Lookup" parent="menu_fu_root" action="action_fu_products" sequence="10" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_store_manager,fu_core.group_fu_cashier,fu_core.group_fu_inventory_staff,fu_core.group_fu_production_manager,fu_core.group_fu_sales_bd"/>
+    <menuitem id="menu_fu_stock" name="Stock" parent="menu_fu_root" sequence="20" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_stock_location_scoped"/>
+    <menuitem id="menu_fu_on_hand" name="On-hand Stock" parent="menu_fu_stock" action="action_fu_on_hand" sequence="10" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_stock_location_scoped"/>
+    <menuitem id="menu_fu_stock_operation" name="New Stock Operation" parent="menu_fu_stock" action="action_fu_stock_movement_wizard" sequence="20" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_inventory_staff"/>
+    <menuitem id="menu_fu_movement_history" name="Movement History" parent="menu_fu_stock" action="action_fu_stock_movement_history" sequence="30" groups="fu_core.group_fu_owner_admin,fu_core.group_fu_inventory_staff,fu_core.group_fu_store_manager"/>
+</odoo>

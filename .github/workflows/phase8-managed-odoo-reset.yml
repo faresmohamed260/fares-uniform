@@ -1,0 +1,278 @@
+name: Phase 8 managed Odoo schema reset
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-managed-odoo-reset.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8-managed-db-mutation
+  cancel-in-progress: false
+
+jobs:
+  reset:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SUPABASE_API_BASE: https://api.supabase.com/v1
+      SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+      SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify fail-closed starting state
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            (SELECT count(*)::int FROM pg_stat_activity WHERE datname='postgres' AND usename='fares_app') AS sessions,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_owned_by_postgres,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[0]' "$response"
+          test "$(jq -r '.[0].rolcanlogin' "$response")" = false
+          test "$(jq -r '.[0].sessions' "$response")" = 0
+          test "$(jq -r '.[0].session_table_owned_by_postgres' "$response")" = 1
+          relations="$(jq -r '.[0].app_owned_relations' "$response")"
+          if (( relations > 0 )); then
+            echo "managed_odoo_reset_precondition=PASS mode=populated relations=$relations"
+          else
+            # A previous reset may have completed owner cleanup and bootstrap but
+            # failed before sealing the clean boundary. Only that exact stranded
+            # state is recoverable: clean graph, role disabled, CREATE still open.
+            test "$relations" = 0
+            test "$(jq -r '.[0].can_create_public' "$response")" = true
+            echo 'managed_odoo_reset_precondition=PASS mode=interrupted-reset-recovery relations=0 create=true'
+          fi
+
+      - name: Generate masked temporary reset credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          reset_password="$(openssl rand -hex 32)"
+          echo "::add-mask::$reset_password"
+          echo "RESET_DB_PASSWORD=$reset_password" >> "$GITHUB_ENV"
+
+      - name: Temporarily enable fares_app for owner-scoped cleanup
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          query="ALTER ROLE fares_app LOGIN PASSWORD '${RESET_DB_PASSWORD}';"
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
+          echo 'temporary_cleanup_login=PASS'
+
+      - name: Drop only objects owned by fares_app through Session Pooler
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PGPASSWORD="$RESET_DB_PASSWORD"
+          conn="host=${SUPABASE_POOLER_HOST} port=5432 dbname=postgres user=fares_app.${SUPABASE_PROJECT_REF} sslmode=require connect_timeout=10"
+          current="$(psql "$conn" -v ON_ERROR_STOP=1 -Atc 'SELECT current_user;')"
+          test "$current" = fares_app
+
+          drop_sql="$(mktemp)"
+          trap 'rm -f "$drop_sql"' EXIT
+          psql "$conn" -v ON_ERROR_STOP=1 -Atc "
+            SELECT format(
+              CASE c.relkind
+                WHEN 'v' THEN 'DROP VIEW IF EXISTS %I.%I CASCADE;'
+                WHEN 'm' THEN 'DROP MATERIALIZED VIEW IF EXISTS %I.%I CASCADE;'
+                WHEN 'r' THEN 'DROP TABLE IF EXISTS %I.%I CASCADE;'
+                WHEN 'p' THEN 'DROP TABLE IF EXISTS %I.%I CASCADE;'
+                WHEN 'f' THEN 'DROP FOREIGN TABLE IF EXISTS %I.%I CASCADE;'
+                WHEN 'S' THEN 'DROP SEQUENCE IF EXISTS %I.%I CASCADE;'
+              END,
+              n.nspname,
+              c.relname
+            )
+            FROM pg_class c
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = 'public'
+              AND pg_get_userbyid(c.relowner) = current_user
+              AND c.relkind IN ('v','m','r','p','f','S')
+            ORDER BY CASE c.relkind
+              WHEN 'v' THEN 1
+              WHEN 'm' THEN 2
+              WHEN 'f' THEN 3
+              WHEN 'r' THEN 4
+              WHEN 'p' THEN 4
+              WHEN 'S' THEN 5
+              ELSE 9
+            END, c.relname;
+          " > "$drop_sql"
+          if [[ -s "$drop_sql" ]]; then
+            PGOPTIONS='-c client_min_messages=warning' psql "$conn" -v ON_ERROR_STOP=1 -f "$drop_sql"
+          else
+            echo 'owner_scoped_relation_cleanup=SKIP already_clean=true'
+          fi
+
+          psql "$conn" -v ON_ERROR_STOP=1 -c 'DROP OWNED BY CURRENT_USER CASCADE;'
+          remaining="$(psql "$conn" -v ON_ERROR_STOP=1 -Atc "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND pg_get_userbyid(c.relowner)=current_user;")"
+          test "$remaining" = 0
+          echo 'owner_scoped_partial_odoo_cleanup=PASS tls=require bounded_locks=true'
+
+      - name: Disable cleanup login before bootstrap
+        if: ${{ always() }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT pg_terminate_backend(pid)
+          FROM pg_stat_activity
+          WHERE datname='postgres' AND usename='fares_app' AND pid <> pg_backend_pid();
+          ALTER ROLE fares_app NOLOGIN PASSWORD NULL;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
+          echo 'temporary_cleanup_login_disabled=PASS'
+
+      - name: Reapply idempotent managed bootstrap
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          query="$(cat deploy/supabase/bootstrap.sql)"
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { echo "bootstrap failed HTTP $status" >&2; jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
+          echo 'managed_bootstrap_reapplied=PASS'
+
+      - name: Seal clean target and advance deployment epoch
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          epoch_id="${GITHUB_RUN_ID}:${GITHUB_RUN_ATTEMPT}:${GITHUB_SHA}"
+          read -r -d '' query <<SQL || true
+          SELECT pg_terminate_backend(pid)
+          FROM pg_stat_activity
+          WHERE datname='postgres' AND usename='fares_app' AND pid <> pg_backend_pid();
+          ALTER ROLE fares_app NOLOGIN PASSWORD NULL;
+          REVOKE CREATE ON SCHEMA public FROM fares_app;
+
+          CREATE SCHEMA IF NOT EXISTS fares_control AUTHORIZATION postgres;
+          ALTER SCHEMA fares_control OWNER TO postgres;
+          REVOKE ALL ON SCHEMA fares_control FROM PUBLIC;
+
+          CREATE TABLE IF NOT EXISTS fares_control.deployment_epoch (
+            singleton boolean PRIMARY KEY DEFAULT TRUE CHECK (singleton),
+            epoch_id text NOT NULL,
+            reset_run_id bigint NOT NULL,
+            reset_run_attempt integer NOT NULL,
+            reset_sha text NOT NULL CHECK (length(reset_sha) = 40),
+            reset_completed_at timestamptz NOT NULL
+          );
+          ALTER TABLE fares_control.deployment_epoch OWNER TO postgres;
+          REVOKE ALL ON TABLE fares_control.deployment_epoch FROM PUBLIC, fares_app, anon, authenticated, service_role;
+
+          INSERT INTO fares_control.deployment_epoch (
+            singleton, epoch_id, reset_run_id, reset_run_attempt, reset_sha, reset_completed_at
+          ) VALUES (
+            TRUE, '${epoch_id}', ${GITHUB_RUN_ID}, ${GITHUB_RUN_ATTEMPT}, '${GITHUB_SHA}', clock_timestamp()
+          )
+          ON CONFLICT (singleton) DO UPDATE SET
+            epoch_id = EXCLUDED.epoch_id,
+            reset_run_id = EXCLUDED.reset_run_id,
+            reset_run_attempt = EXCLUDED.reset_run_attempt,
+            reset_sha = EXCLUDED.reset_sha,
+            reset_completed_at = EXCLUDED.reset_completed_at;
+
+          SELECT
+            epoch_id,
+            reset_run_id,
+            reset_run_attempt,
+            reset_sha,
+            reset_completed_at,
+            pg_get_userbyid((SELECT relowner FROM pg_class WHERE oid='fares_control.deployment_epoch'::regclass)) AS epoch_owner,
+            has_schema_privilege('fares_app','public','CREATE') AS fares_app_can_create
+          FROM fares_control.deployment_epoch
+          WHERE singleton = TRUE;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { echo "deployment epoch seal failed HTTP $status" >&2; jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
+          jq -c '.[0]' "$response"
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$epoch_id"
+          test "$(jq -r '.[0].reset_run_id' "$response")" = "$GITHUB_RUN_ID"
+          test "$(jq -r '.[0].reset_run_attempt' "$response")" = "$GITHUB_RUN_ATTEMPT"
+          test "$(jq -r '.[0].reset_sha' "$response")" = "$GITHUB_SHA"
+          test "$(jq -r '.[0].epoch_owner' "$response")" = postgres
+          test "$(jq -r '.[0].fares_app_can_create' "$response")" = false
+          echo "managed_deployment_epoch=PASS epoch=$epoch_id fares_app_create=false"
+
+      - name: Verify clean Odoo target and preserved provider bootstrap
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          expected_epoch="${GITHUB_RUN_ID}:${GITHUB_RUN_ATTEMPT}:${GITHUB_SHA}"
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            (SELECT count(*)::int FROM pg_stat_activity WHERE datname='postgres' AND usename='fares_app') AS sessions,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            has_database_privilege('fares_app','postgres','CONNECT') AS can_connect,
+            has_schema_privilege('fares_app','public','USAGE') AS can_use_public,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            to_regclass('fares_control.deployment_epoch') IS NOT NULL AS epoch_table_exists,
+            (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='fares_control' AND c.relname='deployment_epoch') AS epoch_owner,
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[0]' "$response"
+          test "$(jq -r '.[0].rolcanlogin' "$response")" = false
+          test "$(jq -r '.[0].sessions' "$response")" = 0
+          test "$(jq -r '.[0].app_owned_relations' "$response")" = 0
+          test "$(jq -r '.[0].session_table_ok' "$response")" = 1
+          test "$(jq -r '.[0].required_extensions' "$response")" = 2
+          test "$(jq -r '.[0].can_connect' "$response")" = true
+          test "$(jq -r '.[0].can_use_public' "$response")" = true
+          test "$(jq -r '.[0].can_create_public' "$response")" = false
+          test "$(jq -r '.[0].epoch_table_exists' "$response")" = true
+          test "$(jq -r '.[0].epoch_owner' "$response")" = postgres
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$expected_epoch"
+          echo "managed_odoo_target_reset=PASS role=NOLOGIN app_owned_relations=0 create=false epoch=$expected_epoch bootstrap=preserved"

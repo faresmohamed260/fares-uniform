@@ -1,0 +1,180 @@
+# Phase 5A Arabic launch-quality translation supplements.
+# Loaded after i18n/ar.po by pinned Odoo 19 through i18n_extra.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#. module: fu_retail
+#. odoo-javascript
+#: code:addons/fu_retail/static/src/return_online_guard.js:0
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Online connection required."
+msgstr "يتطلب اتصالًا بالإنترنت."
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__source_order_id
+msgid "Source Order"
+msgstr "عملية البيع الأصلية"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__store_location_id
+msgid "Store Location"
+msgstr "موقع المتجر"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__operation
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_search
+msgid "Operation"
+msgstr "العملية"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__eligibility_path
+msgid "Eligibility Path"
+msgstr "مسار الأهلية"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__reason
+msgid "Reason"
+msgstr "السبب"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__state
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_search
+msgid "State"
+msgstr "الحالة"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_request__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_request__state__requested
+msgid "Requested"
+msgstr "مُرسل للمراجعة"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_request__state__approved
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_search
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_request__state__done
+msgid "Done"
+msgstr "مكتمل"
+
+#. module: fu_retail
+#: model:ir.model.fields.selection,name:fu_retail.selection__fu_retail_return_request__state__rejected
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__requested_by_id
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_list
+msgid "Requested By"
+msgstr "طلبه"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__requested_at
+msgid "Requested At"
+msgstr "وقت الطلب"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__approved_by_id
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_list
+msgid "Approved By"
+msgstr "اعتمده"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__approved_at
+msgid "Approved At"
+msgstr "وقت الاعتماد"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__executed_by_id
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_list
+msgid "Executed By"
+msgstr "نفّذه"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__executed_at
+msgid "Executed At"
+msgstr "وقت التنفيذ"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__rejected_by_id
+msgid "Rejected By"
+msgstr "رفضه"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__rejected_at
+msgid "Rejected At"
+msgstr "وقت الرفض"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__line_ids
+msgid "Returned items"
+msgstr "الأصناف المرتجعة"
+
+#. module: fu_retail
+#: model:ir.model.fields,field_description:fu_retail.field_fu_retail_return_request__bank_refund_confirmed
+msgid "Outbound InstaPay confirmed"
+msgstr "تم تأكيد تحويل إنستاباي الصادر"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Positive means collect from the customer; negative means refund to the customer. Final settlement is recomputed by the server."
+msgstr "القيمة الموجبة تعني تحصيل مبلغ من العميل، والسالبة تعني رد مبلغ للعميل. يعيد الخادم حساب التسوية النهائية."
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Returned garments remain outside sellable stock until each line is explicitly accepted."
+msgstr "تظل الملابس المرتجعة خارج المخزون القابل للبيع حتى يتم قبول كل بند صراحةً."
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Execution"
+msgstr "التنفيذ"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_list
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_form
+msgid "Request"
+msgstr "الطلب"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_list
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_search
+msgid "Store"
+msgstr "المتجر"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_list
+msgid "Eligibility"
+msgstr "الأهلية"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_search
+msgid "Needs Approval"
+msgstr "بحاجة إلى اعتماد"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_search
+msgid "Completed"
+msgstr "مكتمل"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_search
+msgid "Refunds"
+msgstr "الاستردادات"
+
+#. module: fu_retail
+#: model_terms:ir.ui.view,arch_db:fu_retail.fu_retail_return_request_search
+msgid "Size Exchanges"
+msgstr "استبدال المقاسات"

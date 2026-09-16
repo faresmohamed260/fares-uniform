@@ -1,0 +1,191 @@
+name: Phase 7 Vercel project configuration
+
+on:
+  push:
+    branches:
+      - phase-7/vercel-deployment-adaptation
+    paths:
+      - 'vercel.json'
+      - 'Dockerfile.vercel'
+      - 'deploy/vercel/**'
+      - 'deploy/ci/phase7_verify_vercel_project.py'
+      - '.github/workflows/phase7-vercel-project-config.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase7-vercel-project-config-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  project-config-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify exact checkout
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          mkdir -p evidence
+          echo "candidate_sha=$GITHUB_SHA" | tee evidence/source-authority.txt
+
+      - name: Validate against current Vercel project schema
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            https://openapi.vercel.sh/vercel.json \
+            --output /tmp/vercel.schema.json
+          python -m pip install --disable-pip-version-check --quiet 'jsonschema>=4.23,<5'
+          python - <<'PY' | tee evidence/vercel-schema.txt
+          import json
+          from pathlib import Path
+          from jsonschema import Draft7Validator
+
+          config = json.loads(Path('vercel.json').read_text(encoding='utf-8'))
+          schema = json.loads(Path('/tmp/vercel.schema.json').read_text(encoding='utf-8'))
+
+          # Vercel's live schema currently declares draft-04 while also using
+          # newer JSON-Schema keywords/shapes (for example `const` and numeric
+          # `exclusiveMinimum`). Meta-validating it strictly as draft-04 fails
+          # on Vercel's schema itself before our config is examined. Use a
+          # modern-compatible validator for the provider document and retain a
+          # separate exact semantic contract check below for service constants.
+          declared_draft = schema.get('$schema', '<unset>')
+          errors = sorted(Draft7Validator(schema).iter_errors(config), key=lambda error: list(error.path))
+          print(f'VERCEL_SCHEMA_SOURCE=https://openapi.vercel.sh/vercel.json declared={declared_draft}')
+          print('VERCEL_SCHEMA_VALIDATOR=draft7-compatible mixed-draft provider schema')
+          if errors:
+              for error in errors:
+                  path = '.'.join(str(part) for part in error.path) or '<root>'
+                  print(f'VERCEL_SCHEMA_ERROR path={path} message={error.message}')
+              raise SystemExit(1)
+          print('VERCEL_SCHEMA_OK source=https://openapi.vercel.sh/vercel.json')
+          PY
+
+      - name: Verify service bindings and public exposure contract
+        run: |
+          set -euo pipefail
+          python deploy/ci/phase7_verify_vercel_project.py \
+            | tee evidence/vercel-topology.txt
+
+      - name: Execute service-local runtime mode resolution
+        run: |
+          set -euo pipefail
+          RESOLVER="$PWD/deploy/vercel/runtime-mode.sh"
+
+          DEFAULT_MODE="$(env -u ODOO_RUNTIME_MODE -u VERCEL -u FARES_ODOO_HTTP_INTERNAL_URL \
+            bash -c 'source "$1"; fares_resolve_odoo_runtime_mode' _ "$RESOLVER")"
+          test "$DEFAULT_MODE" = http
+
+          VERCEL_HTTP_MODE="$(env -u ODOO_RUNTIME_MODE -u FARES_ODOO_HTTP_INTERNAL_URL VERCEL=1 \
+            bash -c 'source "$1"; fares_resolve_odoo_runtime_mode' _ "$RESOLVER")"
+          test "$VERCEL_HTTP_MODE" = http
+
+          VERCEL_WS_MODE="$(env -u ODOO_RUNTIME_MODE VERCEL=1 FARES_ODOO_HTTP_INTERNAL_URL=https://internal.invalid \
+            bash -c 'source "$1"; fares_resolve_odoo_runtime_mode' _ "$RESOLVER")"
+          test "$VERCEL_WS_MODE" = websocket
+
+          EXPLICIT_MODE="$(env ODOO_RUNTIME_MODE=http VERCEL=1 FARES_ODOO_HTTP_INTERNAL_URL=https://internal.invalid \
+            bash -c 'source "$1"; fares_resolve_odoo_runtime_mode' _ "$RESOLVER")"
+          test "$EXPLICIT_MODE" = http
+
+          {
+            echo "default_mode=$DEFAULT_MODE"
+            echo "vercel_http_without_binding=$VERCEL_HTTP_MODE"
+            echo "vercel_websocket_with_binding=$VERCEL_WS_MODE"
+            echo "explicit_override=$EXPLICIT_MODE"
+            echo 'runtime_mode_resolution=PASS'
+          } | tee evidence/runtime-mode.txt
+
+      - name: Verify application authority remains unchanged
+        env:
+          BASE_APP_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$BASE_APP_SHA"
+          git diff --quiet "$BASE_APP_SHA" HEAD -- addons apps/public-web
+          echo 'application_source_diff=none' | tee evidence/application-authority.txt
+
+      - name: Upload Vercel project evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase7-vercel-project-${{ github.sha }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 7
+
+  public-web-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FU_PUBLIC_PROVIDER: fixture
+    defaults:
+      run:
+        working-directory: apps/public-web
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify exact checkout
+        run: test "$(git -C ../.. rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/public-web/package-lock.json
+
+      - name: Install locked web dependencies
+        run: npm ci
+
+      - name: Typecheck public web
+        run: npm run typecheck
+
+      - name: Build public web
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run public browser gate
+        run: npm run test:e2e
+
+      - name: Record public web regression evidence
+        if: always()
+        run: |
+          mkdir -p evidence/phase7
+          {
+            echo "candidate_sha=$GITHUB_SHA"
+            echo "provider=$FU_PUBLIC_PROVIDER"
+            node --version
+            npm --version
+            npx next --version
+            npx playwright --version
+          } | tee evidence/phase7/runtime.txt
+
+      - name: Upload public web evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase7-public-web-${{ github.sha }}
+          path: |
+            apps/public-web/evidence/phase7
+            apps/public-web/playwright-report
+            apps/public-web/test-results
+          if-no-files-found: error
+          retention-days: 7

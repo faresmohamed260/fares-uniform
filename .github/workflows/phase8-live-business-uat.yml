@@ -1,0 +1,593 @@
+name: Phase 8 live business UAT
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-live-business-uat.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase8-managed-db-mutation
+  cancel-in-progress: false
+
+env:
+  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+  ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+  SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+
+jobs:
+  live-business-uat:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - name: Checkout workflow generation
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Verify fresh workflow generation and exact staging authority
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo 'VERCEL_TOKEN missing' >&2; exit 64; }
+          test "$GITHUB_RUN_ATTEMPT" = 1 || { echo 'Workflow reruns are forbidden for live business UAT; start a fresh run instead.' >&2; exit 1; }
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test -n "$remote_head"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale live UAT: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+
+          deployments="$(mktemp)"
+          trap 'rm -f "$deployments"' EXIT
+          status="$(curl -sS -o "$deployments" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          test "$status" = 200
+          match_count="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" '[.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.state // .readyState // "") == "READY")] | length' "$deployments")"
+          test "$match_count" -ge 1
+          echo "fresh_live_business_uat=PASS workflow_sha=$GITHUB_SHA deployed_sha=$EXPECTED_DEPLOYMENT_SHA"
+
+      - name: Capture managed preflight and zero-side-effect baseline
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT,INSERT,UPDATE,DELETE') AS session_dml,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT count(*)::int FROM stock_location WHERE fu_location_role='store') AS store_locations,
+            (SELECT count(*)::int FROM stock_location WHERE fu_location_role='storage') AS storage_locations,
+            (SELECT count(*)::int FROM res_users) AS users_count,
+            (SELECT count(*)::int FROM res_partner) AS partners_count,
+            (SELECT count(*)::int FROM product_template) AS product_templates_count,
+            (SELECT count(*)::int FROM product_product) AS products_count,
+            (SELECT count(*)::int FROM pos_config) AS pos_configs_count,
+            (SELECT count(*)::int FROM pos_session) AS pos_sessions_count,
+            (SELECT count(*)::int FROM pos_order) AS pos_orders_count,
+            (SELECT count(*)::int FROM pos_payment) AS pos_payments_count,
+            (SELECT count(*)::int FROM sale_order) AS sale_orders_count,
+            (SELECT count(*)::int FROM account_payment) AS account_payments_count,
+            (SELECT count(*)::int FROM stock_picking) AS pickings_count,
+            (SELECT count(*)::int FROM stock_move) AS stock_moves_count,
+            (SELECT count(*)::int FROM crm_lead) AS crm_leads_count,
+            (SELECT count(*)::int FROM fu_stock_movement_request) AS movement_requests_count,
+            (SELECT count(*)::int FROM fu_production_task) AS production_tasks_count,
+            (SELECT count(*)::int FROM fu_retail_return_request) AS return_requests_count,
+            (SELECT count(*)::int FROM ir_cron) AS cron_rows,
+            (SELECT count(*)::int FROM ir_cron_trigger) AS cron_trigger_rows,
+            (SELECT md5(coalesce(string_agg(concat_ws('|',id::text,active::text,coalesce(nextcall::text,''),coalesce(failure_count::text,''),coalesce(write_date::text,'')), E'\n' ORDER BY id),'')) FROM ir_cron) AS cron_snapshot,
+            (SELECT md5(coalesce(string_agg(concat_ws('|',id::text,cron_id::text,coalesce(call_at::text,'')), E'\n' ORDER BY id),'')) FROM ir_cron_trigger) AS cron_trigger_snapshot;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          test "$(jq -r 'length' "$response")" = 1
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$response")" = true
+          test "$(jq -r '.[0].can_create_public' "$response")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$response")" = 988
+          test "$(jq -r '.[0].session_table_ok' "$response")" = 1
+          test "$(jq -r '.[0].session_dml' "$response")" = true
+          test "$(jq -r '.[0].required_extensions' "$response")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$response")" = 0
+          test "$(jq -r '.[0].store_locations' "$response")" = 1
+          test "$(jq -r '.[0].storage_locations' "$response")" = 1
+
+          for key in users_count partners_count product_templates_count products_count pos_configs_count pos_sessions_count pos_orders_count pos_payments_count sale_orders_count account_payments_count pickings_count stock_moves_count crm_leads_count movement_requests_count production_tasks_count return_requests_count cron_rows cron_trigger_rows cron_snapshot cron_trigger_snapshot; do
+            value="$(jq -r --arg key "$key" '.[0][$key]' "$response")"
+            echo "BASE_${key^^}=$value" >> "$GITHUB_ENV"
+          done
+          echo "managed_business_uat_preflight=PASS epoch=$EXPECTED_DB_EPOCH create=false app_relations=988 fu_uat=absent"
+
+      - name: Resolve runtime secrets without disclosure
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          secrets_dir="$(mktemp -d)"
+          chmod 700 "$secrets_dir"
+          echo "SECRETS_DIR=$secrets_dir" >> "$GITHUB_ENV"
+          envs="$secrets_dir/vercel-env.json"
+          status="$(curl -sS -o "$envs" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v10/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          for key in ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD; do
+            env_id="$(jq -er --arg key "$key" '[.envs[] | select(.key==$key and (((.target // []) | index("production")) != null))] | if length == 1 then .[0].id else error("expected exactly one production variable") end' "$envs")"
+            response="$secrets_dir/$key.json"
+            status="$(curl -sS -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v1/projects/${VERCEL_PROJECT_ID}/env/${env_id}?teamId=${VERCEL_TEAM_ID}")"
+            test "$status" = 200
+            value="$(jq -er --arg key "$key" 'select(.key==$key and .decrypted==true) | .value | select(type=="string" and length>0)' "$response")"
+            echo "::add-mask::$value"
+            printf '%s' "$value" > "$secrets_dir/$key"
+            chmod 600 "$secrets_dir/$key"
+            unset value
+          done
+          rm -f "$envs" "$secrets_dir"/*.json
+          echo 'runtime_secret_resolution=PASS files=restricted'
+
+      - name: Checkout exact deployed application source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_DEPLOYMENT_SHA }}
+          fetch-depth: 1
+
+      - name: Build exact deployed stateless image
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_DEPLOYMENT_SHA"
+          docker build --pull -f Dockerfile.vercel \
+            --build-arg ODOO_SHA="$ODOO_SHA" \
+            --build-arg FARES_SHA="$EXPECTED_DEPLOYMENT_SHA" \
+            -t "fares-uniform-phase8-business:$EXPECTED_DEPLOYMENT_SHA" .
+          test "$(docker image inspect -f '{{json .Config.Volumes}}' "fares-uniform-phase8-business:$EXPECTED_DEPLOYMENT_SHA")" = null
+          docker run --rm --entrypoint bash "fares-uniform-phase8-business:$EXPECTED_DEPLOYMENT_SHA" -lc '
+            set -euo pipefail
+            test "$(id -u)" = 10001
+            test "$ODOO_SHA" = "1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf"
+            test "$FARES_SHA" = "2a74e93b1828c16839ba7cede336caa4ca374306"
+            test ! -e /mnt/extra-addons/fu_uat
+          '
+          echo 'exact_business_uat_image=PASS persistent_volumes=none fu_uat=absent'
+
+      - name: Execute rollback-safe production-model business journeys
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_PASSWORD="$(cat "$SECRETS_DIR/ODOO_DB_PASSWORD")"
+          ADMIN_PASSWD="$(cat "$SECRETS_DIR/ODOO_ADMIN_PASSWD")"
+          echo "::add-mask::$DB_PASSWORD"
+          echo "::add-mask::$ADMIN_PASSWD"
+          script="$(mktemp)"
+          trap 'rm -f "$script"' EXIT
+          cat > "$script" <<'PY'
+          import os
+          from datetime import timedelta
+
+          from odoo import Command, fields
+          from odoo.exceptions import AccessError, ValidationError
+
+          run_id = os.environ["PHASE8_UAT_RUN_ID"]
+          prefix = f"P8UAT-{run_id}"
+          ok = False
+
+          def require(condition, message):
+              if not condition:
+                  raise AssertionError(message)
+
+          def quantity(product, location):
+              return env["stock.quant"].sudo()._get_available_quantity(product, location, strict=True)
+
+          def make_user(suffix, group_xmlid, locations=()):
+              values = {
+                  "name": f"{prefix} {suffix}",
+                  "login": f"{prefix.lower()}-{suffix}@example.invalid",
+                  "email": f"{prefix.lower()}-{suffix}@example.invalid",
+                  "group_ids": [Command.set([env.ref(group_xmlid).id])],
+              }
+              if locations:
+                  values["fu_stock_location_ids"] = [Command.set([location.id for location in locations])]
+              return env["res.users"].with_context(no_reset_password=True).create(values)
+
+          try:
+              company = env.company
+              warehouse = env["stock.warehouse"].search([("company_id", "=", company.id), ("active", "=", True)], limit=1)
+              store = env["stock.location"].search([("company_id", "=", company.id), ("fu_location_role", "=", "store")], limit=1)
+              storage = env["stock.location"].search([("company_id", "=", company.id), ("fu_location_role", "=", "storage")], limit=1)
+              require(warehouse and store and storage, "company/warehouse/store/storage topology missing")
+              require(store == warehouse.lot_stock_id, "Retail Store must be the warehouse stock location")
+
+              cashier = make_user("cashier", "fu_core.group_fu_cashier", [store])
+              manager = make_user("manager", "fu_core.group_fu_store_manager", [store])
+              inventory = make_user("inventory", "fu_core.group_fu_inventory_staff", [store, storage])
+              sales = make_user("sales", "fu_core.group_fu_sales_bd")
+              former_cashier = make_user("former-cashier", "fu_core.group_fu_cashier", [store])
+              require(cashier.has_group("point_of_sale.group_pos_user"), "cashier missing native POS user role")
+              require(not cashier.has_group("point_of_sale.group_pos_manager"), "cashier unexpectedly has POS manager role")
+
+              template = env["product.template"].create({
+                  "name": f"{prefix} Synthetic Uniform",
+                  "is_storable": True,
+                  "available_in_pos": True,
+                  "list_price": 120.0,
+                  "taxes_id": [Command.clear()],
+              })
+              product = template.product_variant_id
+              require(product.default_code and product.default_code.startswith("FU-"), "storable product missing permanent FU code")
+              require(product.barcode == product.default_code, "storable product barcode/code identity mismatch")
+
+              Movement = env["fu.stock.movement.request"].with_user(inventory)
+              opening = Movement.process_idempotent(
+                  f"{prefix}-opening", "opening", product_id=product.id, quantity=5,
+                  destination_location_id=storage.id, reason="Phase 8 live synthetic UAT", batch_ref=prefix,
+              )
+              require(opening.state == "done", "opening count did not complete")
+              transfer = Movement.process_idempotent(
+                  f"{prefix}-transfer", "internal", product_id=product.id, quantity=4,
+                  source_location_id=storage.id, destination_location_id=store.id,
+                  reason="Phase 8 live synthetic UAT", batch_ref=prefix,
+              )
+              require(transfer.state == "done" and transfer.picking_id.state == "done", "store transfer did not complete")
+              replay = Movement.process_idempotent(
+                  f"{prefix}-transfer", "internal", product_id=product.id, quantity=4,
+                  source_location_id=storage.id, destination_location_id=store.id,
+                  reason="Phase 8 live synthetic UAT", batch_ref=prefix,
+              )
+              require(replay == transfer, "stock movement idempotency replay created another request")
+              require(abs(quantity(product, storage) - 1.0) < 1e-6, "storage quantity mismatch after transfer")
+              require(abs(quantity(product, store) - 4.0) < 1e-6, "store quantity mismatch after transfer")
+              print("phase8_uat_stock=PASS opening=5 transfer=4 replay=idempotent")
+
+              # Create a synthetic native POS configuration using pinned Odoo's own
+              # journal/payment bootstrap. Everything remains inside this transaction.
+              pos_journal, payment_method_ids = env["pos.config"]._create_journal_and_payment_methods(
+                  cash_journal_vals={"name": f"{prefix} Cash", "show_on_dashboard": False}
+              )
+              config = env["pos.config"].create({
+                  "name": f"{prefix} POS",
+                  "company_id": company.id,
+                  "warehouse_id": warehouse.id,
+                  "journal_id": pos_journal.id,
+                  "payment_method_ids": [Command.set(payment_method_ids)],
+              })
+              cash_pm = config.payment_method_ids.filtered("is_cash_count")[:1]
+              require(cash_pm, "synthetic POS bootstrap produced no cash payment method")
+              config.with_user(cashier).open_ui()
+              session = env["pos.session"].sudo().search([("config_id", "=", config.id), ("state", "!=", "closed")], limit=1)
+              require(session, "synthetic POS session did not open")
+              require(session.user_id == cashier, "POS session is not attributable to synthetic cashier")
+
+              # Exercise the same server path used by the real POS frontend. The
+              # backend pos.make.payment wizard is intentionally POS-manager-only in
+              # pinned Odoo; cashiers persist orders and payments through sync_from_ui.
+              order_uuid = f"{prefix}-cash-sale"
+              order_payload = {
+                  "amount_paid": product.lst_price,
+                  "amount_return": 0,
+                  "amount_tax": 0,
+                  "amount_total": product.lst_price,
+                  "date_order": fields.Datetime.to_string(fields.Datetime.now()),
+                  "fiscal_position_id": config.default_fiscal_position_id.id,
+                  "pricelist_id": config.pricelist_id.id,
+                  "name": f"Order {order_uuid}",
+                  "last_order_preparation_change": "{}",
+                  "lines": [(0, 0, {
+                      "id": 1,
+                      "pack_lot_ids": [],
+                      "price_unit": product.lst_price,
+                      "product_id": product.id,
+                      "price_subtotal": product.lst_price,
+                      "price_subtotal_incl": product.lst_price,
+                      "qty": 1,
+                      "tax_ids": [(6, 0, [])],
+                      "discount": 0.0,
+                  })],
+                  "partner_id": False,
+                  "session_id": session.id,
+                  "payment_ids": [(0, 0, {
+                      "amount": product.lst_price,
+                      "name": fields.Datetime.now(),
+                      "payment_method_id": cash_pm.id,
+                  })],
+                  "uuid": order_uuid,
+                  "user_id": cashier.id,
+                  "to_invoice": False,
+              }
+              env["pos.order"].with_user(cashier).sync_from_ui([order_payload])
+              order = env["pos.order"].with_user(cashier).search([("uuid", "=", order_uuid)], limit=1)
+              require(order, "cashier POS sync did not create an authoritative order")
+              order.invalidate_recordset()
+              require(order.state in ("paid", "done"), "POS order did not become paid")
+              require(len(order.payment_ids) == 1, "POS order must have exactly one payment")
+              require(len(order.picking_ids) == 1 and order.picking_ids.state == "done", "POS stock picking must complete exactly once")
+              sold_moves = order.picking_ids.move_ids.filtered(lambda move: move.product_id == product)
+              require(len(sold_moves) == 1 and abs(sold_moves.quantity - 1.0) < 1e-6, "POS stock effect must be exactly one unit")
+              require(abs(quantity(product, store) - 3.0) < 1e-6, "POS sale did not reduce Retail Store stock exactly once")
+
+              cash_total = sum(session.order_ids.payment_ids.filtered(lambda payment: payment.payment_method_id.is_cash_count).mapped("amount"))
+              session.with_user(manager).post_closing_cash_details(cash_total)
+              session.with_user(manager).close_session_from_ui()
+              session.invalidate_recordset()
+              require(session.state == "closed", "POS session did not close")
+              require(session.move_id and session.move_id.state == "posted", "POS session accounting evidence was not posted")
+              print("phase8_uat_pos=PASS session=closed order=paid payment=cash picking=done accounting=posted")
+
+              # Current-server authorization is revalidated when queued POS work reconnects.
+              env["pos.order"].with_user(former_cashier)._fu_assert_retail_sync_authorized()
+              former_cashier.group_ids = [Command.set([env.ref("base.group_user").id, env.ref("point_of_sale.group_pos_user").id])]
+              require(not former_cashier.has_group("fu_core.group_fu_cashier"), "former cashier role revocation failed")
+              revoked_uuid = f"{prefix}-revoked-offline"
+              try:
+                  env["pos.order"].with_user(former_cashier).sync_from_ui([{"uuid": revoked_uuid}])
+                  raise AssertionError("revoked cashier offline replay was accepted")
+              except AccessError:
+                  pass
+              require(not env["pos.order"].sudo().search([("uuid", "=", revoked_uuid)]), "rejected offline replay created an authoritative order")
+              print("phase8_uat_offline_auth=PASS revoked_role=review_required no_server_order=true")
+
+              business_customer = env["res.partner"].create({
+                  "name": f"{prefix} Synthetic Academy",
+                  "company_type": "company",
+                  "email": f"{prefix.lower()}@example.invalid",
+              })
+              lead = env["crm.lead"].with_user(sales).create({
+                  "name": f"{prefix} Business Enquiry",
+                  "fu_business_client": True,
+                  "partner_id": business_customer.id,
+                  "partner_name": business_customer.name,
+                  "contact_name": "Synthetic Procurement",
+                  "email_from": f"{prefix.lower()}@example.invalid",
+                  "fu_design_requirements": "Synthetic live UAT uniform sample",
+              })
+              lead.action_fu_prepare_sample()
+              lead.action_fu_mark_sample_sent()
+              lead.action_fu_approve_sample()
+              order_id = lead.action_fu_create_business_quotation()["res_id"]
+              business_order = env["sale.order"].browse(order_id)
+              editor = env["fu.business.quotation.wizard"].with_user(sales).create({
+                  "quotation_id": business_order.id,
+                  "client_order_ref": prefix,
+                  "commitment_date": fields.Datetime.now() + timedelta(days=21),
+                  "line_ids": [Command.create({
+                      "product_id": product.id,
+                      "quantity": 2,
+                      "unit_price": 180.0,
+                  })],
+              })
+              editor.action_save_draft()
+              business_order = business_order.sudo()
+              require(abs(business_order.amount_total - 360.0) < 1e-6, "business quotation total mismatch")
+
+              bank_journal = env["account.journal"].search([("company_id", "=", company.id), ("type", "=", "bank")], limit=1)
+              if not bank_journal:
+                  bank_journal = env["account.journal"].create({
+                      "name": f"{prefix} InstaPay",
+                      "type": "bank",
+                      "code": ("U" + run_id[-4:])[:5],
+                      "company_id": company.id,
+                  })
+              bank_journal.write({"fu_confirmation_mode": "bank_notification"})
+              bank_method = bank_journal.inbound_payment_method_line_ids[:1]
+              require(bank_method, "InstaPay journal has no inbound payment method")
+              try:
+                  business_order.with_user(cashier).fu_record_business_payment(
+                      100.0, bank_journal.id, bank_method.id, f"{prefix}-deposit-unconfirmed", manual_confirmed=False
+                  )
+                  raise AssertionError("unconfirmed InstaPay business deposit was accepted")
+              except ValidationError:
+                  pass
+              deposit_id = business_order.with_user(cashier).fu_record_business_payment(
+                  100.0, bank_journal.id, bank_method.id, f"{prefix}-deposit", manual_confirmed=True
+              )
+              deposit = env["account.payment"].sudo().browse(deposit_id)
+              require(deposit.state == "in_process" or deposit.move_id.state == "posted", "business deposit was not posted")
+              require(deposit.fu_manual_confirmed, "InstaPay manual confirmation evidence missing")
+              business_order.with_user(sales).action_fu_confirm_business_order()
+              business_order.invalidate_recordset()
+              require(business_order.state == "sale", "business order did not confirm after deposit")
+              require(business_order._fu_live_business_balance_due() > 0, "deposit unexpectedly settled whole business order")
+
+              customer_picking = business_order.picking_ids.filtered(lambda picking: picking.location_dest_id.usage == "customer")
+              require(len(customer_picking) == 1, "business order must produce one customer delivery")
+              try:
+                  customer_picking.with_user(inventory).fu_release_business_delivery()
+                  raise AssertionError("business delivery released with balance due")
+              except ValidationError:
+                  pass
+
+              cash_journal = cash_pm.journal_id
+              cash_method = cash_journal.inbound_payment_method_line_ids[:1]
+              require(cash_journal.type == "cash" and cash_method, "POS cash journal cannot record business balance")
+              balance = business_order._fu_live_business_balance_due()
+              balance_payment_id = business_order.with_user(cashier).fu_record_business_payment(
+                  balance, cash_journal.id, cash_method.id, f"{prefix}-balance", manual_confirmed=False
+              )
+              balance_payment = env["account.payment"].sudo().browse(balance_payment_id)
+              require(balance_payment.move_id.state == "posted", "business balance payment was not posted")
+              require(business_order.currency_id.is_zero(business_order._fu_live_business_balance_due()), "business balance did not reach zero")
+              customer_picking.with_user(inventory).fu_release_business_delivery()
+              customer_picking.invalidate_recordset()
+              require(customer_picking.state == "done", "fully paid whole business delivery did not complete")
+              require(abs(quantity(product, store) - 1.0) < 1e-6, "business delivery stock consequence mismatch")
+
+              snapshot = env["fu.reporting.service"].sudo().fu_get_snapshot()
+              require(business_order.id not in {row["order_id"] for row in snapshot["balances"]["rows"]}, "fully paid business order remains in customer balances")
+              require("offline POS" in snapshot["meta"]["sync_notice"], "owner report lost offline-sync disclosure")
+              print("phase8_uat_business=PASS sample=approved deposit=instapay-confirmed balance_gate=blocked full_payment=posted delivery=done")
+              print("phase8_uat_reporting=PASS balance_cleared=true offline_disclosure=true")
+
+              ok = True
+          finally:
+              # This is a live managed-database rehearsal, not data migration. Every
+              # synthetic business fact is deliberately rolled back in one transaction.
+              env.cr.rollback()
+
+          if ok:
+              print("phase8_live_business_uat=PASS rollback=explicit production_models_only=true")
+          PY
+
+          bootstrap="$(mktemp)"
+          trap 'rm -f "$script" "$bootstrap"' EXIT
+          cat > "$bootstrap" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          test "$(id -u)" = 10001
+          umask 077
+          cat > /tmp/fares-phase8-uat.conf <<EOF
+          [options]
+          addons_path = /mnt/runtime-addons,/mnt/extra-addons,/opt/odoo/addons
+          data_dir = /tmp/odoo-data
+          server_wide_modules = base,web,fares_vercel_runtime
+          admin_passwd = ${ODOO_ADMIN_PASSWD}
+          db_host = ${ODOO_DB_HOST}
+          db_port = ${ODOO_DB_PORT}
+          db_user = ${ODOO_DB_USER}
+          db_password = ${ODOO_DB_PASSWORD}
+          db_sslmode = ${ODOO_DB_SSLMODE}
+          db_name = ${ODOO_DB_NAME}
+          dbfilter = ^${ODOO_DB_NAME}$
+          list_db = False
+          proxy_mode = True
+          workers = 0
+          max_cron_threads = 0
+          log_level = info
+          without_demo = all
+          EOF
+          chmod 0600 /tmp/fares-phase8-uat.conf
+          exec /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-phase8-uat.conf -d "$ODOO_DB_NAME" < /mnt/phase8-uat.py
+          SH
+          chmod 0444 "$script" "$bootstrap"
+          docker run --rm -i \
+            -e PHASE8_UAT_RUN_ID="$GITHUB_RUN_ID" \
+            -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres \
+            -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require \
+            -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0 \
+            -e FARES_SESSION_STORE=postgres \
+            -v "$script:/mnt/phase8-uat.py:ro" \
+            -v "$bootstrap:/mnt/phase8-bootstrap.sh:ro" \
+            --entrypoint /bin/bash \
+            "fares-uniform-phase8-business:$EXPECTED_DEPLOYMENT_SHA" /mnt/phase8-bootstrap.sh \
+            2>&1 | tee /tmp/phase8-business-uat.log
+          grep -F 'phase8_uat_stock=PASS' /tmp/phase8-business-uat.log
+          grep -F 'phase8_uat_pos=PASS' /tmp/phase8-business-uat.log
+          grep -F 'phase8_uat_offline_auth=PASS' /tmp/phase8-business-uat.log
+          grep -F 'phase8_uat_business=PASS' /tmp/phase8-business-uat.log
+          grep -F 'phase8_uat_reporting=PASS' /tmp/phase8-business-uat.log
+          grep -F 'phase8_live_business_uat=PASS rollback=explicit production_models_only=true' /tmp/phase8-business-uat.log
+          rm -f /tmp/phase8-business-uat.log
+
+      - name: Verify managed postflight and exact rollback
+        if: ${{ !cancelled() }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT,INSERT,UPDATE,DELETE') AS session_dml,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT count(*)::int FROM res_users) AS users_count,
+            (SELECT count(*)::int FROM res_partner) AS partners_count,
+            (SELECT count(*)::int FROM product_template) AS product_templates_count,
+            (SELECT count(*)::int FROM product_product) AS products_count,
+            (SELECT count(*)::int FROM pos_config) AS pos_configs_count,
+            (SELECT count(*)::int FROM pos_session) AS pos_sessions_count,
+            (SELECT count(*)::int FROM pos_order) AS pos_orders_count,
+            (SELECT count(*)::int FROM pos_payment) AS pos_payments_count,
+            (SELECT count(*)::int FROM sale_order) AS sale_orders_count,
+            (SELECT count(*)::int FROM account_payment) AS account_payments_count,
+            (SELECT count(*)::int FROM stock_picking) AS pickings_count,
+            (SELECT count(*)::int FROM stock_move) AS stock_moves_count,
+            (SELECT count(*)::int FROM crm_lead) AS crm_leads_count,
+            (SELECT count(*)::int FROM fu_stock_movement_request) AS movement_requests_count,
+            (SELECT count(*)::int FROM fu_production_task) AS production_tasks_count,
+            (SELECT count(*)::int FROM fu_retail_return_request) AS return_requests_count,
+            (SELECT count(*)::int FROM ir_cron) AS cron_rows,
+            (SELECT count(*)::int FROM ir_cron_trigger) AS cron_trigger_rows,
+            (SELECT md5(coalesce(string_agg(concat_ws('|',id::text,active::text,coalesce(nextcall::text,''),coalesce(failure_count::text,''),coalesce(write_date::text,'')), E'\n' ORDER BY id),'')) FROM ir_cron) AS cron_snapshot,
+            (SELECT md5(coalesce(string_agg(concat_ws('|',id::text,cron_id::text,coalesce(call_at::text,'')), E'\n' ORDER BY id),'')) FROM ir_cron_trigger) AS cron_trigger_snapshot;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$response")" = true
+          test "$(jq -r '.[0].can_create_public' "$response")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$response")" = 988
+          test "$(jq -r '.[0].session_table_ok' "$response")" = 1
+          test "$(jq -r '.[0].session_dml' "$response")" = true
+          test "$(jq -r '.[0].required_extensions' "$response")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$response")" = 0
+
+          for key in users_count partners_count product_templates_count products_count pos_configs_count pos_sessions_count pos_orders_count pos_payments_count sale_orders_count account_payments_count pickings_count stock_moves_count crm_leads_count movement_requests_count production_tasks_count return_requests_count cron_rows cron_trigger_rows cron_snapshot cron_trigger_snapshot; do
+            actual="$(jq -r --arg key "$key" '.[0][$key]' "$response")"
+            env_name="BASE_${key^^}"
+            expected="${!env_name}"
+            test "$actual" = "$expected" || { echo "rollback mismatch key=$key expected=$expected actual=$actual" >&2; exit 1; }
+          done
+          echo "managed_business_uat_postflight=PASS rollback=exact cron_unchanged=true epoch=$EXPECTED_DB_EPOCH create=false"
+
+      - name: Publish live business UAT evidence summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## Phase 8 live synthetic business UAT'
+            echo
+            echo "- Workflow source SHA: \`$GITHUB_SHA\`"
+            echo "- Immutable application SHA: \`$EXPECTED_DEPLOYMENT_SHA\`"
+            echo "- Managed database epoch: \`$EXPECTED_DB_EPOCH\`"
+            echo '- Production addons only; `fu_uat` absent'
+            echo '- Company/warehouse → Retail Store/Storage custody: PASS'
+            echo '- Attributable opening stock + idempotent Store/Storage transfer: PASS'
+            echo '- Native POS config/session → Cash order → payment → picking → posted session accounting: PASS'
+            echo '- Offline reconnect authorization revalidation after Fares cashier-role revocation: PASS / no authoritative order created'
+            echo '- Business enquiry → sample approval → quotation → positively confirmed InstaPay deposit → confirmation: PASS'
+            echo '- Shipment while balance due: blocked; exact balance payment posted; whole customer delivery then completed: PASS'
+            echo '- Owner reporting: cleared business balance + offline-sync disclosure retained: PASS'
+            echo '- All synthetic users/products/config/orders/payments/stock/business records: explicit transaction rollback; independent postflight exact-count proof: PASS'
+            echo '- Ordinary cron definitions/triggers: exact snapshots unchanged; no backlog execution/reschedule'
+            echo '- Runtime/provider seal: exact epoch, 988 app-owned relations, provider session ownership/DML, extensions and revoked schema CREATE retained'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo 'phase8_live_business_uat_evidence=PASS'
+
+      - name: Cleanup restricted runtime material
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${SECRETS_DIR:-}" && -d "$SECRETS_DIR" ]]; then
+            find "$SECRETS_DIR" -type f -exec shred -u {} + 2>/dev/null || find "$SECRETS_DIR" -type f -delete
+            rmdir "$SECRETS_DIR" 2>/dev/null || true
+          fi
+          echo 'restricted_runtime_cleanup=PASS'

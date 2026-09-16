@@ -1,6 +1,6 @@
 # Business discovery
 
-Status: In progress. Initial business model and priority areas are client-confirmed; detailed workflows and release scope remain open.
+Status: PHASE 0 COMPLETE, 2026-09-07. Rounds 1–9 preserve the discovery history; remaining targeted policies are explicitly deferred to the implementation phase they affect.
 
 ## Confirmed facts
 
@@ -18,30 +18,25 @@ Status: In progress. Initial business model and priority areas are client-confir
 | B-005 | Also manufactures men's and women's casual wear. |
 | B-006 | Uses both manufacture-to-order and manufacture-for-stock models. Large-client workflow is described in W-002 below. |
 | B-007 | Some business clients, for example restaurants, buy available stock. Do not assume every business order is custom manufacturing. |
-| B-008 | Has one retail store serving individual customers and one storage location (count clarified in round 2). |
+| B-008 | Has one retail store serving individual customers and one storage location. |
 | B-009 | School uniforms are manufactured for stock and sold through the retail store; preorders are taken when stock runs out. |
 
-Source for B-004–B-009: client's discovery round 1 answers. Legal entity details and location remain unconfirmed.
+Source for B-004–B-009: client's discovery round 1 answers. Legal entity details and exact location identity remain unconfirmed and are deployment/onboarding concerns rather than Phase 0 blockers.
 
 ### Stated priorities
 
-| ID | Client priority area | Discovery still needed |
+| ID | Client priority area | Result |
 | --- | --- | --- |
-| R-001 | Inventory and order tracking | Stock scope, locations, movements, reservations, order stages and current problems |
-| R-002 | Point of sale | Checkout, payments, receipts, returns, hardware, users and connectivity |
-| R-003 | Marketing and exposure | Target audiences, acquisition goals, current channels and desired public-facing experience |
-
-These are confirmed needs, not approved feature specifications or a committed release order. Marketing/exposure ranking is clarified below; a website implementation, CRM, campaigns and integrations are not yet selected. Online purchasing is lower-priority future work.
+| R-001 | Inventory and order tracking | Included in MVP; finished-stock boundary and Phase 1 product/stock rules now confirmed |
+| R-002 | Point of sale | Included in MVP; payments, offline checkout and later refund/exchange policy separated by phase |
+| R-003 | Marketing and exposure | Large-client acquisition highest within marketing; catalog second; online purchasing future |
 
 ## Round 2 — client-confirmed, 2026-09-06
 
-- B-010: One retail store and one storage location. Their relationship to the factory and whether factory work-in-progress needs separate location tracking remain open.
+- B-010: One retail store and one storage location.
 - B-011: Current stock, sales and order records are on paper.
 
 ### W-001 — School-uniform preorder to production
-
-Status: current practice client-confirmed through production entry; completion/collection details remain open.
-Source: client discovery round 2, 2026-09-06.
 
 1. When the requested school-uniform item is unavailable, staff write a paper receipt with items, sizes and details.
 2. The customer pays the full price or sometimes a deposit.
@@ -50,36 +45,31 @@ Source: client discovery round 2, 2026-09-06.
 5. The factory collects and sorts orders.
 6. An item enters production when orders for it accumulate, or when the pickup date is close.
 
-Rounds 3–4 request user-tunable automatic task creation per item size, with a configurable seven-day pickup-date override; staff mark actual production start. See R-005 and round 4. The quantity threshold remains unspecified.
+Later rounds clarify the digital target: size-specific demand, a configurable quantity trigger or configurable seven-day pickup lead-time trigger, automatic task creation, staff-recorded actual production start, factory Finished state, retail-store Ready for collection state, and full remaining-balance settlement before any partial collection.
 
-Open: receipt identifiers and customer/contact data; product/variant grouping; who sets pickup dates and starts production; quantities; stock reservations; partially available orders; production stages; allocation of completed units to receipts; transfer to store; readiness notification; balance collection; partial pickup; cancellations/returns.
-
-Candidate system implications (developer analysis, not approved specifications): preserve individual customer orders and payment balances while aggregating outstanding item demand for production planning; retain promised pickup dates when batching demand. Automation is requested in round 3; its precise behavior and acceptance criteria remain to be agreed.
+Still deferred to the affected retail/production phases: customer/contact field details, reservation/allocation, cancellations, refund/exchange eligibility and some production exception semantics.
 
 ### Marketing/exposure priorities
 
 Client-confirmed ranking within marketing/exposure:
-1. Highest: attract large clients such as international schools and franchise restaurants that order shipments under contracts and pay upfront.
+1. Highest: attract large clients such as international schools and franchise restaurants that order shipments under contracts.
 2. Second: customers browsing the product catalog.
-3. Lower priority / future work: other discussed exposure outcomes, including online purchasing and store discovery.
+3. Lower priority / future: other exposure outcomes including online purchasing and store discovery.
 
-This ranking is within marketing/exposure; it does not rank marketing above inventory/order tracking or POS. Upfront payment describes the priority target client profile, not a universal rule for every business customer. Round 6 confirms no public prices/stock and combined website-form, WhatsApp and phone enquiries. Other website features and contract management remain undecided.
+This ranking does not place marketing above inventory/order tracking or POS. The large-client current workflow uses a deposit after sample approval rather than mandatory full prepayment.
 
 ## Round 3 — client-confirmed, 2026-09-06
 
 ### R-004 — Initial inventory boundary
-Track finished clothes initially. Raw materials, trims and work-in-progress inventory are outside this initial inventory scope. Tracking an order's production status remains in scope; it does not imply material inventory or detailed manufacturing accounting.
+Track finished clothes initially. Raw materials, trims and work-in-progress inventory are outside initial inventory scope. Production status tracking remains in scope without implying material accounting.
 
-### R-005 — Production automation and initial statuses
-The client requests automatic triggering using a preset value that users can tune. Initial tracked statuses: **In production**, **Finished**, **Ready for collection**.
+### R-005 — Production automation and statuses
+The client requests automatic triggering using a preset value users can tune. Initial tracked statuses: **In production**, **Finished**, **Ready for collection**.
 
-The trigger request is desired system behavior; the existing paper process remains described in W-001. Round 4 confirms counting pieces per item size separately, a configurable seven-day pickup lead time and automatic task creation rather than marking physical work started. Open: quantity threshold default, color/design separation, global versus per-item configuration, configuration permissions, repeated-run duplicate prevention, manual overrides and treatment of short-notice/overdue orders.
-
-Round 4 confirms Finished means completed at the factory and Ready for collection means received at the store. Staff mark In production when work starts. Specific roles for transitions and partial completion remain open. Pre-production and post-collection states have not been specified. Do not apply the retail collection terminology to business shipments without defining that workflow.
+Round 4 confirms counting pieces per item size separately, a configurable seven-day pickup lead time and automatic task creation rather than marking physical work started. The quantity threshold is configurable but has no accepted starting value yet.
 
 ### W-002 — Large-client order
 Status: current practice client-confirmed at a high level.
-Source: client discovery round 3, 2026-09-06.
 
 1. Client contacts the business.
 2. A meeting gathers design details.
@@ -88,96 +78,87 @@ Source: client discovery round 3, 2026-09-06.
 5. Production starts with a delivery date.
 6. Goods are shipped and the remaining payment is collected.
 
-The final payment's precise timing relative to shipment/delivery is unconfirmed. This clarifies that the described workflow uses a deposit and remaining balance, not necessarily full payment upfront. The marketing preference for contracted large clients remains; do not encode full prepayment as a universal requirement.
-
-Open: inquiry channels/ownership, quotation and pricing, sizes/quantities, sample revisions and approval evidence, contract contents/signing, deposit rules, delivery scheduling, partial shipments, final payment timing, order changes and cancellation.
+Final-payment timing, partial shipments and change/cancellation rules remain deferred to the business-order implementation phase.
 
 ## Round 4 — client-confirmed, 2026-09-06
 
 ### Production rule clarification
-- Aggregate the piece threshold separately for each size of an item, not across sizes.
-- Trigger even below the quantity threshold seven days before pickup; this lead time must be user-configurable.
-- Automatically create a production task; staff mark **In production** when work actually begins.
+- Aggregate the piece threshold separately for each size of an item.
+- Trigger even below the quantity threshold seven days before pickup; the lead time is configurable.
+- Automatically create a production task; staff mark **In production** when work begins.
 - **Finished** means completed at the factory.
 - **Ready for collection** means received at the retail store.
-- The quantity threshold is also user-tunable under the earlier requirement, but its starting value has not been selected.
+- The quantity threshold is user-tunable; initial default still unselected.
 
 ### R-006 — Product identification
-There are currently no item codes or barcodes; staff identify products manually. The client confirms establishing product codes/barcodes is needed.
-Code format, barcode symbology, label printing, scanner hardware, product/variant attributes and size conventions remain to be designed or clarified. Do not infer an external retail barcode registration requirement.
+There are currently no item codes or barcodes; staff identify products manually. The client confirms product codes/barcodes are needed.
 
-### Proposed acceptance examples — pending detailed phase contract
-- Demand in different sizes does not combine to satisfy one size's threshold.
-- Demand below the quantity threshold can produce a task at the configured pickup lead time (initial default: seven days).
-- Creating a task does not itself mark work In production.
-- Factory completion and store readiness remain distinct.
-
-These examples restate accepted behavior; schedule timing, short-notice orders, duplicate prevention, allocation and authorization still need specifications.
+Round 9 resolves product/design identity, size-system variability and sequential item-code format. Barcode symbology, label layout and actual hardware remain technical/hardware validation decisions rather than Phase 0 blockers.
 
 ## Round 5 — client-confirmed, 2026-09-06
 
-- R-007: Initially record cash and InstaPay payments. Card and wallet methods are future additions. Payment recording does not imply an approved live payment integration or automatic InstaPay verification; staff confirm using bank mobile transaction notifications (round 7); recording/reconciliation details remain open.
-- R-008: Refunds and size exchanges are allowed. Partial preorder collection is allowed. Eligibility windows, refund amounts/methods, approval rules and returned-stock disposition remain to be specified.
-- R-009: The client delegates design of conventional roles and access permissions to the developer. The selected initial design is in [Roles and permissions](ROLES_AND_PERMISSIONS.md); it is a developer decision under delegated authority, not an assertion about actual staffing.
-- R-010: Hardware support must not hardcode scanner/printer brands. Specify capabilities and compatible interfaces instead; do not promise universal device compatibility. Actual device types and connectivity remain unknown.
-- R-011: Support English and Arabic for the interface and receipts. Arabic requires right-to-left presentation; exact bilingual receipt layout and product-content translation workflow remain design work.
+- R-007: Initially record cash and InstaPay payments. Card and wallet methods are future additions.
+- R-008: Refunds and size exchanges are allowed. Partial preorder collection is allowed; detailed eligibility/settlement rules remain deferred.
+- R-009: The client delegates conventional roles/access design to the developer. See `ROLES_AND_PERMISSIONS.md`.
+- R-010: Hardware support must not hardcode scanner/printer brands. Specify capabilities/interfaces instead.
+- R-011: Support English and Arabic for interface and receipts, including RTL.
 
 ## Round 6 — client-confirmed, 2026-09-06
 
 ### R-012 — Offline checkout is mandatory
-Checkout must continue during internet outages; paper fallback is not sufficient to meet this requirement.
-This is customer-facing runtime behavior and does not relax the remote-only development rule.
+Checkout must continue during internet outages; paper fallback is insufficient.
 
-Developer-derived requirements for the architecture phase: durable device-side pending transactions, explicit sync status, retry-safe synchronization without duplicate sales/payments/stock movements, and recoverable conflicts. Server records remain authoritative after reconciliation. Do not promise live shared stock, immediate remote role revocation or online payment confirmation while disconnected.
-
-Confirmed in round 7: one checkout device per store and outages lasting a few hours at most. Open: treatment of delayed/missing bank notifications during outages, offline preorder/collection/refund scope, device enrollment/authentication expiry, locally retained data, price/stock conflict rules, and recovery from device loss. No storage library or synchronization architecture selected.
+Architecture implications: durable device-side pending transactions, explicit sync state, retry-safe synchronization without duplicate sales/payments/stock effects and recoverable conflicts. Server records are authoritative after reconciliation.
 
 ### R-013 — Full payment before partial collection
-A customer collecting any part of a preorder must settle the entire remaining order balance, not merely pay for collected items. Uncollected items remain owed to that customer; payment completion must not mark all items collected.
-Exceptions/manager overrides have not been requested. Business shipment settlement remains a separate workflow.
+A customer collecting any part of a preorder must settle the entire remaining order balance. Uncollected items remain owed independently from payment completion.
 
 ### R-014 — Public catalog and contact channels
-Do not show prices or stock availability in the public catalog. Private POS/staff views still need authorized commercial and stock data.
-Use a combination of website enquiry form, WhatsApp and phone for prospective clients. This authorizes planning these contact routes, not outbound messaging, WhatsApp API automation, or a paid integration. Contact details, form fields and enquiry handling remain to be defined.
+Do not show prices or stock availability publicly. Use website enquiry form, WhatsApp and phone contact routes. This does not authorize automated outbound messaging or a paid WhatsApp integration.
 
 ## Round 7 — client-confirmed, 2026-09-06
 
-- B-012: One checkout device per store. The current business has one store; do not infer additional existing stores.
-- B-013: Internet outages last a few hours at most. This is a current operating estimate, not permission to discard pending transactions after that time.
-- W-003: Staff receive mobile notifications from the bank for InstaPay transactions and use them for payment confirmation. The application does not automatically verify bank settlement. Whether notifications are SMS or app notifications, and what happens if one is delayed/missing, remain unspecified.
-- R-015: Customer readiness notifications are manual initially; automation is planned for future work. No automated sending or messaging integration is in initial scope.
+- B-012: One checkout device per store; current business has one store.
+- B-013: Internet outages last a few hours at most.
+- W-003: Staff use bank mobile transaction notifications to confirm InstaPay manually. No bank API is selected.
+- R-015: Customer readiness notifications are manual initially; automation is future work.
 
-Developer implications: design initial offline POS for one active checkout per store, persist pending work across application restarts, and synchronize after connectivity returns. Other online stock changes may still conflict with an offline device; single-checkout operation does not eliminate reconciliation requirements.
+Delayed/missing bank notification handling and offline preorder/collection/refund behavior remain deferred to the retail/offline phase.
 
 ## Round 8 — client-confirmed, 2026-09-06
 
-- B-014: The client describes a small business, not a large enterprise. Product and transaction counts are unavailable. Do not invent measured volumes or infer a hosting tier from this description.
+- B-014: The business is small; product/transaction counts are unavailable. Do not invent measured volumes.
 - R-016: MVP reports include daily sales, cash/InstaPay totals, low stock, upcoming/overdue orders and customer balances.
-- R-017: Decision-making data analytics is wanted as a future feature, not a core MVP feature. Basic operational reporting remains in MVP.
-- C-001: No target launch date or monthly services budget is fixed. The client will determine these before deployment. Do not block requirements/design on missing estimates or authorize spending by inference.
+- R-017: Decision-making analytics is future work, not core MVP; operational reporting remains MVP.
+- C-001: No launch date/monthly services budget is fixed; decide before deployment.
+
+## Round 9 — product/stock foundation confirmed, 2026-09-07
+
+The client answered the four blocking Phase 0B product/stock questions:
+
+- **R-018 — School/client design identity:** garments for different schools/clients are stocked as different products. Do not model a generic base garment that later receives branding as the normal stock identity.
+- **R-019 — Factory-finished custody:** tracking how many finished pieces are still physically at the factory is not useful. Do not create a `Factory Finished / Awaiting Transfer` stock location. `Finished` stays a workflow state; on-hand stock begins when Store or Storage records receipt.
+- **R-020 — Size systems:** different size systems are used depending on the garment. Size values/attribute sets therefore remain configurable per product family; no global hardcoded size enum.
+- **R-021 — Item codes:** simple permanent sequential variant codes such as `FU-000001` are accepted. School/design/size/color remain separate fields rather than encoded into the SKU.
+
+These are authoritative in `PRODUCT_AND_STOCK_RULES.md` and decisions D-028/D-029.
 
 ## Discovery consolidation
 
-A [first-release proposal](MVP_SCOPE.md) consolidates the confirmed needs and explicitly identifies developer proposals and remaining decisions. Status: awaiting client review of the release boundary; Phase 0 is not complete.
-Next: review this concrete scope, then resolve only the workflow/architecture questions needed for the immediate next phase. Avoid repeating answered questions or demanding unavailable volume/budget estimates.
+The first-release boundary in `MVP_SCOPE.md` is broadly accepted and all Phase 0 exit criteria are now satisfied. Phase 0 is closed under D-030.
 
-## Follow-up discovery agenda
+Remaining policy questions are intentionally assigned to later phases rather than treated as unfinished generic discovery:
+- production threshold default/configuration exceptions and reservation/allocation;
+- offline scope beyond ordinary checkout and conflict/recovery policy;
+- missing/delayed InstaPay confirmation handling;
+- refund/exchange eligibility and returned-stock treatment;
+- business-order final-payment/partial-shipment details;
+- receipt/tax identity and exact report formulas;
+- real hardware/label compatibility;
+- deployment resources, budget, launch timing, backups and staff onboarding.
 
-Ask relevant questions progressively rather than sending this entire agenda as a questionnaire.
+Do not repeat already answered questions unless the client changes a decision or implementation evidence exposes a concrete conflict.
 
-- Walk through a typical order: request, quotation, specifications, approvals, materials, production, delivery, invoicing and payment. These are prompts to verify, not assumed existing steps.
-- Identify current tools, paper records and duplicate data entry.
-- Identify workers/users, responsibilities, permissions and approval boundaries.
-- Map products, sizes, colors, units, materials, stock movements and outsourced work if applicable.
-- Understand partial deliveries, changes, returns, waste, rework and cancellations where applicable.
-- Establish costing, purchases, receivables/payables, payroll and accounting needs without assuming all belong in the first release.
-- Confirm locations, approximate transaction volume, seasonality and concurrent usage.
-- Confirm language, currency, devices, printers/barcodes, connectivity and offline needs.
-- Confirm reports and measurable outcomes needed by the owner and other roles.
-- Establish data migration, integrations, budget, timeline, backup/recovery and operational ownership.
+## Requirement recording rule
 
-## Requirement recording format
-
-For each discovered workflow record: ID; client source/date; current process; pain point; desired outcome; actors; steps and exceptions; records; permissions; priority; acceptance examples; status (open/proposed/client-confirmed).
-
-No answers, priorities, metrics or deadlines have been inferred. Use synthetic examples in this public document.
+For new targeted discovery, record: ID; client source/date; current process; desired outcome; actors; steps/exceptions; records; permissions; priority; acceptance examples; status. New targeted questions do not reopen Phase 0 unless they change the accepted first-release boundary.

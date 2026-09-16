@@ -1,0 +1,56 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["fra1"],
+  "services": {
+    "public_web": {
+      "root": "apps/public-web/",
+      "framework": "nextjs",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "odoo_http",
+          "format": "url",
+          "env": "ODOO_BASE_URL"
+        }
+      ]
+    },
+    "odoo_http": {
+      "root": ".",
+      "runtime": "container",
+      "entrypoint": "Dockerfile.vercel"
+    },
+    "odoo_websocket": {
+      "root": ".",
+      "runtime": "container",
+      "entrypoint": "Dockerfile.vercel",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "odoo_http",
+          "format": "url",
+          "env": "FARES_ODOO_HTTP_INTERNAL_URL"
+        }
+      ]
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/websocket",
+      "destination": {
+        "service": "odoo_websocket"
+      }
+    },
+    {
+      "source": "/fares/internal/cron/run",
+      "destination": {
+        "service": "odoo_http"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "public_web"
+      }
+    }
+  ]
+}

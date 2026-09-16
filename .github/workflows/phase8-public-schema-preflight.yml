@@ -1,0 +1,79 @@
+name: Phase 8 public schema reset preflight
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-public-schema-preflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SUPABASE_API_BASE: https://api.supabase.com/v1
+      SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+    steps:
+      - name: Inspect public schema ownership and extensions
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || exit 64
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT 'schema' AS kind, n.nspname AS name, pg_get_userbyid(n.nspowner) AS owner, NULL::text AS detail
+          FROM pg_namespace n WHERE n.nspname='public'
+          UNION ALL
+          SELECT 'extension', e.extname, pg_get_userbyid(e.extowner), n.nspname
+          FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace
+          WHERE n.nspname='public'
+          UNION ALL
+          SELECT 'relation_owner', pg_get_userbyid(c.relowner), pg_get_userbyid(c.relowner), count(*)::text
+          FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+          WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S')
+          GROUP BY c.relowner
+          ORDER BY 1,2;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[]' "$response"
+
+      - name: Verify reset is confined to dedicated public staging schema
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT count(*)::int FROM pg_stat_activity WHERE datname='postgres' AND usename='fares_app') AS fares_app_sessions,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS fares_app_login,
+            (SELECT count(*)::int FROM information_schema.tables WHERE table_schema='public') AS public_tables,
+            (SELECT count(*)::int FROM pg_namespace WHERE nspname NOT IN ('pg_catalog','information_schema','public') AND nspname NOT LIKE 'pg_toast%') AS non_public_schema_count;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[0]' "$response"
+          test "$(jq -r '.[0].fares_app_sessions' "$response")" = 0
+          test "$(jq -r '.[0].fares_app_login' "$response")" = false
+          echo 'public_schema_reset_preflight=PASS role=NOLOGIN sessions=0'

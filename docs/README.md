@@ -1,19 +1,72 @@
 # Documentation index
 
+Read these documents from GitHub at the beginning of work. Repository code/docs are authoritative; chat memory is secondary.
+
 | Document | Owns |
 | --- | --- |
 | [AGENTS.md](../AGENTS.md) | Mandatory work, continuity and validation rules |
 | [PROJECT.md](../PROJECT.md) | Current state, roadmap and session handoff |
-| [Decision log](DECISIONS.md) | Accepted decisions and their rationale |
-| [Discovery](requirements/DISCOVERY.md) | Confirmed business requirements and open questions |
-| [First-release proposal](requirements/MVP_SCOPE.md) | Draft MVP boundary, acceptance scenarios, delivery order and remaining decisions |
-| [Roles and permissions](requirements/ROLES_AND_PERMISSIONS.md) | Developer-selected role and access design under client delegation |
-| [Phase 0](phases/PHASE_0_DISCOVERY.md) | Immediate discovery scope and exit criteria |
+| [Decision log](DECISIONS.md) | Accepted decisions, recommendations and supersession |
+| [Discovery](requirements/DISCOVERY.md) | Confirmed business requirements and historical discovery |
+| [First-release scope](requirements/MVP_SCOPE.md) | Accepted MVP boundary and deferred decisions |
+| [Roles and permissions](requirements/ROLES_AND_PERMISSIONS.md) | Role/access design |
+| [Product and finished-stock rules](requirements/PRODUCT_AND_STOCK_RULES.md) | Product/design/size/code/location/movement foundation |
+| [Foundation architecture](architecture/FOUNDATION_ARCHITECTURE.md) | System ownership/data/offline/integration contracts |
+| [Design system](ui/DESIGN_SYSTEM.md) | UI/RTL/accessibility direction |
+| [Phase 0](phases/PHASE_0_DISCOVERY.md) | Discovery closure |
+| [Phase 0A hosted proof](phases/PHASE_0A_ODOO_PROOF.md) | Odoo proof contract |
+| [Odoo proof evidence](validation/ODOO_PROOF.md) | Hosted proof evidence |
+| [Phase 0B foundation](phases/PHASE_0B_FOUNDATION.md) | Foundation contract |
+| [Phase 0B UI evidence](validation/UI_FOUNDATION.md) | Hosted frontend evidence |
+| [Phase 1 contract](phases/PHASE_1_PRODUCTS_STOCK_ACCESS.md) | Products/stock/access |
+| [Phase 1 validation](validation/PHASE_1_PRODUCTS_STOCK.md) | Phase 1 evidence |
+| [Phase 2A contract](phases/PHASE_2A_RETAIL_CHECKOUT_OFFLINE.md) | Retail checkout/offline |
+| [Phase 2A validation](validation/PHASE_2A_RETAIL_CHECKOUT.md) | Phase 2A evidence |
+| [Phase 2B contract](phases/PHASE_2B_PREORDER_COLLECTION.md) | Preorder/balance/collection |
+| [Phase 2B architecture](architecture/PHASE_2B_PREORDER_MODEL.md) | Preorder model boundary |
+| [Phase 2B policy](requirements/PHASE_2B_POLICY_DECISIONS.md) | Accepted Phase 2B policy |
+| [Phase 2B validation](validation/PHASE_2B_PREORDER_COLLECTION.md) | Phase 2B evidence |
+| [Phase 2C contract](phases/PHASE_2C_REFUNDS_EXCHANGES.md) | Retail refunds/exchanges |
+| [Phase 2C policy](requirements/PHASE_2C_POLICY_DECISIONS.md) | Accepted Phase 2C policy |
+| [Phase 2C architecture](architecture/PHASE_2C_REFUND_RETURN_MODEL.md) | Refund/return model |
+| [Phase 2C validation](validation/PHASE_2C_REFUNDS_EXCHANGES.md) | Refund/exchange evidence |
+| [Phase 3A contract](phases/PHASE_3A_PREORDER_PRODUCTION.md) | Production workflow |
+| [Phase 3A architecture](architecture/PHASE_3A_PRODUCTION_MODEL.md) | Production model |
+| [Phase 3A validation](validation/PHASE_3A_PREORDER_PRODUCTION.md) | Production evidence |
+| [Phase 3B contract](phases/PHASE_3B_BUSINESS_CLIENT_ORDERS.md) | Business-client workflow |
+| [Phase 3B architecture](architecture/PHASE_3B_BUSINESS_ORDER_MODEL.md) | CRM/Sales/payment/stock ownership |
+| [Phase 3B policy](requirements/PHASE_3B_POLICY_DECISIONS.md) | Accepted commercial policy |
+| [Phase 3B validation](validation/PHASE_3B_BUSINESS_CLIENT_ORDERS.md) | Business-client evidence |
+| [Phase 4A public catalog/enquiry](phases/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Completed public catalog/enquiry scope |
+| [Phase 4A public integration](architecture/PHASE_4A_PUBLIC_INTEGRATION.md) | Odoo/Next.js DTO/enquiry boundary |
+| [Phase 4A validation](validation/PHASE_4A_PUBLIC_CATALOG_ENQUIRY.md) | Public server/web authority and evidence |
+| [Phase 4B operational reporting](phases/PHASE_4B_OPERATIONAL_REPORTING.md) | Completed reporting definitions/security |
+| [Phase 4B reporting architecture](architecture/PHASE_4B_REPORTING_MODEL.md) | Reporting source/service/config boundary |
+| [Phase 4B validation](validation/PHASE_4B_OPERATIONAL_REPORTING.md) | Reporting authority/manual evidence |
+| [Phase 5 integrated UAT/onboarding](phases/PHASE_5_INTEGRATED_UAT_ONBOARDING.md) | Joined release acceptance/exit criteria |
+| [Phase 5 validation](validation/PHASE_5_INTEGRATED_UAT.md) | Exact-head UAT/manual evidence and defect register |
+| [Phase 5A Arabic launch polish](phases/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | Arabic launch-quality closure |
+| [Phase 5A validation](validation/PHASE_5A_ARABIC_LAUNCH_POLISH.md) | 149-test/public/manual evidence and localization closure |
+| [Phase 6 deployment-readiness](phases/PHASE_6_DEPLOYMENT_READINESS.md) | Provider-neutral packaging/persistence/restore proof |
+| [Phase 6 deployment architecture](architecture/PHASE_6_DEPLOYMENT_ARCHITECTURE.md) | Provider-neutral baseline and Vercel supersession/history |
+| [Phase 6 validation](validation/PHASE_6_DEPLOYMENT_READINESS.md) | Exact RED-to-green deployment-package evidence |
+| [Phase 7 Vercel adaptation](phases/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | Completed stateless Vercel/Odoo repository/CI contract |
+| [Phase 7 validation](validation/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | State/session/cron/WebSocket/project-map RED-to-green evidence |
+| [Phase 8 commercial staging readiness](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) | Staging ownership, live-proof and GO/NO-GO parent contract |
+| [Phase 8A free-tier staging execution](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md) | Live Supabase/Vercel execution status, RED-to-green provider evidence and remaining Gate C work |
+| [Phase 8 staging secret inventory](operations/PHASE_8_STAGING_SECRET_INVENTORY.md) | Staging secret names/purpose/custody/rotation without secret values |
+| [Phase 8 staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md) | Staging monitor signals, alert transport, role ownership, privacy/redaction and schedule boundary |
+| [Release integration validation](validation/RELEASE_INTEGRATION.md) | Linear branch audit, exact integrated hosted evidence and review-only PR boundary |
+| [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result and operator/client inputs still required |
+| [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Go/no-go checklist and remaining live-stage decisions |
 
-Read these documents from GitHub at the beginning of work. Add new documents here when needed, with a clear ownership boundary.
+## Current work
 
-Process reference: [RenderLab AGENTS.md](https://github.com/faresmohamed260/renderlab/blob/main/AGENTS.md), consulted during project initiation on 2026-09-06 (observed file blob a8fed7b82e2f0968125f32982613b62e5ae10f54). Adopted principles are written into this repository; future RenderLab changes do not silently change this project's rules.
+[PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. Active contracts: [Phase 8](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) and [Phase 8A](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md).
 
-- [Platform evaluation and UI direction](architecture/PLATFORM_EVALUATION.md): completed documentation/source fit assessment, requirement matrix, architecture recommendation, sources and proof-of-fit gates.
+- [Staging repair and cleanup evidence](validation/PHASE_8_HANDOFF_REPAIR.md): current repair results and preserved RED evidence.
+- [Workflow guide](operations/WORKFLOW_GUIDE.md): retained workflows, retired diagnostic entry points and execution precautions.
+- [Staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md): current monitoring/alert/privacy proof and default-branch schedule limitation.
+- [Release integration validation](validation/RELEASE_INTEGRATION.md): exact candidate, hosted gates, stack audit and ready-for-review PR #6 boundary.
 
-- [Phase 0A hosted proof contract](phases/PHASE_0A_ODOO_PROOF.md): authorized synthetic Odoo runtime and visual spike.
+Historical phase documents record the state at their closure. Their past authorization/status language does not override the current handoff or later explicit decisions.

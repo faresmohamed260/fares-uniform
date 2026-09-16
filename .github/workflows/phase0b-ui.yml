@@ -1,0 +1,70 @@
+name: Phase 0B UI review
+
+on:
+  push:
+    branches:
+      - foundation/phase-0b
+    paths:
+      - "prototype/review-ui/**"
+      - ".github/workflows/phase0b-ui.yml"
+  pull_request:
+    paths:
+      - "prototype/review-ui/**"
+      - ".github/workflows/phase0b-ui.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  review-ui:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: prototype/review-ui
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Record toolchain
+        run: |
+          node --version
+          npm --version
+
+      - name: Install exact top-level dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Render and interaction tests
+        run: npm run test:e2e
+
+      - name: Upload render evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase0b-ui-${{ github.sha }}
+          path: |
+            prototype/review-ui/artifacts
+            prototype/review-ui/playwright-report
+            prototype/review-ui/test-results
+          if-no-files-found: warn
+          retention-days: 7

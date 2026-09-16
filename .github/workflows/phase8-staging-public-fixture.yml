@@ -1,0 +1,298 @@
+name: Phase 8 staging public synthetic fixture
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-staging-public-fixture.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase8-managed-db-mutation
+  cancel-in-progress: false
+
+env:
+  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+  ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+  SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+  RETAINED_EVIDENCE_DEPLOYMENT_ID: dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu
+  SYNTHETIC_SLUG: phase8-synthetic-program
+
+jobs:
+  seed:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact deployed application source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_DEPLOYMENT_SHA }}
+          fetch-depth: 1
+
+      - name: Verify fresh workflow generation and exact staging boundary
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo 'VERCEL_TOKEN missing' >&2; exit 64; }
+          test "$GITHUB_RUN_ATTEMPT" = 1 || { echo "Workflow reruns are forbidden for staging fixture mutation; start a fresh workflow run instead. attempt=$GITHUB_RUN_ATTEMPT" >&2; exit 1; }
+          test "$(git rev-parse HEAD)" = "$EXPECTED_DEPLOYMENT_SHA"
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test -n "$remote_head"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale fixture workflow: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+
+          db="$(mktemp)"
+          deployments="$(mktemp)"
+          trap 'rm -f "$db" "$deployments"' EXIT
+
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT count(*)::int FROM product_template WHERE fu_public_published IS TRUE) AS published_catalog_items,
+            (SELECT count(*)::int FROM product_template WHERE fu_public_slug='phase8-synthetic-program') AS target_slug_count;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$db")" = true
+          test "$(jq -r '.[0].can_create_public' "$db")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
+          test "$(jq -r '.[0].session_table_ok' "$db")" = 1
+          test "$(jq -r '.[0].required_extensions' "$db")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
+          echo "fixture_preflight_db=PASS epoch=$EXPECTED_DB_EPOCH create=false app_relations=988 published_catalog_items=$(jq -r '.[0].published_catalog_items' "$db") target_slug_count=$(jq -r '.[0].target_slug_count' "$db")"
+
+          status="$(curl -sS -o "$deployments" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          test "$status" = 200
+          match_count="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '[.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY")] | length' "$deployments")"
+          test "$match_count" = 1 || { echo "Expected exactly one READY staging deployment for $EXPECTED_DEPLOYMENT_SHA; got $match_count" >&2; exit 1; }
+          echo "fixture_preflight_deployment=PASS sha=$EXPECTED_DEPLOYMENT_SHA"
+
+      - name: Build exact deployed Odoo runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build --pull -f Dockerfile.vercel \
+            --build-arg ODOO_SHA="$ODOO_SHA" \
+            --build-arg FARES_SHA="$EXPECTED_DEPLOYMENT_SHA" \
+            -t "fares-uniform-phase8-fixture:$EXPECTED_DEPLOYMENT_SHA" .
+          docker run --rm --entrypoint bash "fares-uniform-phase8-fixture:$EXPECTED_DEPLOYMENT_SHA" -lc '
+            set -euo pipefail
+            test "$(id -u)" = 10001
+            test "$ODOO_SHA" = "1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf"
+            test "$FARES_SHA" = "2a74e93b1828c16839ba7cede336caa4ca374306"
+            test ! -e /mnt/extra-addons/fu_uat
+          '
+          echo 'exact_deployed_runtime=PASS fu_uat=absent'
+
+      - name: Apply only the bounded synthetic public fixture
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo 'VERCEL_TOKEN missing' >&2; exit 64; }
+          envs="$(mktemp)"
+          fixture="$(mktemp)"
+          trap 'rm -f "$envs" "$fixture"' EXIT
+          chmod 0600 "$envs" "$fixture"
+
+          status="$(curl -sS -o "$envs" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v10/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          # The list endpoint's decrypt flag is deprecated. Resolve each exact
+          # production variable through the dedicated decrypted-value endpoint.
+          for key in ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD; do
+            env_id="$(jq -er --arg key "$key" '[.envs[] | select(.key==$key and (((.target // []) | index("production")) != null))] | if length == 1 then .[0].id else error("expected exactly one production variable") end' "$envs")"
+            secret_response="$(mktemp)"
+            chmod 600 "$secret_response"
+            status="$(curl -sS -o "$secret_response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v1/projects/${VERCEL_PROJECT_ID}/env/${env_id}?teamId=${VERCEL_TEAM_ID}")"
+            test "$status" = 200 || { rm -f "$secret_response"; echo "Secret retrieval failed for $key (HTTP $status)" >&2; exit 1; }
+            value="$(jq -er --arg key "$key" 'select(.key==$key and .decrypted==true) | .value | select(type=="string" and length>0)' "$secret_response")"
+            echo "::add-mask::$value"
+            printf -v "$key" '%s' "$value"
+            rm -f "$secret_response"
+            unset value
+          done
+          rm -f "$envs"
+
+          # Revalidate branch after the image build, immediately before execution.
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo 'Refusing stale fixture mutation' >&2; exit 1; }
+
+          cat > "$fixture" <<'PY'
+          INTERNAL_NAME = "[SYNTHETIC] Phase 8 Public Catalog Program"
+          SLUG = "phase8-synthetic-program"
+          XML_MODULE = "phase8_staging"
+          XML_NAME = "public_catalog_program"
+          VALUES = {
+              "name": INTERNAL_NAME,
+              "active": True,
+              "sale_ok": False,
+              "purchase_ok": False,
+              "company_id": False,
+              "fu_public_published": True,
+              "fu_public_slug": SLUG,
+              "fu_public_name_en": "Synthetic Staging Uniform Program",
+              "fu_public_name_ar": "برنامج زي تجريبي للبيئة المرحلية",
+              "fu_public_summary_en": "Synthetic staging fixture for bilingual public catalog validation only.",
+              "fu_public_summary_ar": "بيانات تجريبية للبيئة المرحلية مخصصة فقط للتحقق من الكتالوج العام باللغتين.",
+              "fu_public_sector": "Synthetic staging",
+              "fu_public_sequence": 1,
+          }
+
+          Product = env["product.template"].sudo()
+          ModelData = env["ir.model.data"].sudo()
+          xmlids = ModelData.search([("module", "=", XML_MODULE), ("name", "=", XML_NAME)])
+          if len(xmlids) > 1:
+              raise RuntimeError("duplicate synthetic fixture external id")
+          slug_records = Product.search([("fu_public_slug", "=", SLUG)])
+          if len(slug_records) > 1:
+              raise RuntimeError("duplicate synthetic fixture slug")
+
+          created = False
+          if xmlids:
+              xmlid = xmlids[0]
+              if xmlid.model != "product.template":
+                  raise RuntimeError("synthetic fixture external id points to wrong model")
+              product = Product.browse(xmlid.res_id).exists()
+              if not product:
+                  raise RuntimeError("synthetic fixture external id is dangling")
+              if product.name != INTERNAL_NAME:
+                  raise RuntimeError("refusing to modify non-synthetic product behind fixture external id")
+              if slug_records and slug_records != product:
+                  raise RuntimeError("synthetic slug belongs to a different product")
+          elif slug_records:
+              product = slug_records[0]
+              if product.name != INTERNAL_NAME:
+                  raise RuntimeError("refusing to adopt non-synthetic product with reserved fixture slug")
+              ModelData.create({
+                  "module": XML_MODULE,
+                  "name": XML_NAME,
+                  "model": "product.template",
+                  "res_id": product.id,
+                  "noupdate": True,
+              })
+          else:
+              product = Product.create(VALUES)
+              ModelData.create({
+                  "module": XML_MODULE,
+                  "name": XML_NAME,
+                  "model": "product.template",
+                  "res_id": product.id,
+                  "noupdate": True,
+              })
+              created = True
+
+          if not created:
+              product.write(VALUES)
+
+          expected_keys = {"slug", "name", "summary", "sector", "image_url"}
+          en_payload = product._fu_public_payload("en")
+          ar_payload = product._fu_public_payload("ar")
+          if set(en_payload) != expected_keys or set(ar_payload) != expected_keys:
+              raise RuntimeError("public payload schema changed")
+          if en_payload["slug"] != SLUG or ar_payload["slug"] != SLUG:
+              raise RuntimeError("synthetic slug mismatch")
+          if en_payload["name"] != VALUES["fu_public_name_en"]:
+              raise RuntimeError("English synthetic name mismatch")
+          if ar_payload["name"] != VALUES["fu_public_name_ar"]:
+              raise RuntimeError("Arabic synthetic name mismatch")
+          if en_payload["summary"] != VALUES["fu_public_summary_en"]:
+              raise RuntimeError("English synthetic summary mismatch")
+          if ar_payload["summary"] != VALUES["fu_public_summary_ar"]:
+              raise RuntimeError("Arabic synthetic summary mismatch")
+          env.cr.commit()
+          print(f"phase8_public_fixture=PASS slug={SLUG} action={'created' if created else 'updated'}")
+          PY
+
+          export ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD
+          docker run --rm -i --entrypoint bash \
+            -e ODOO_RUNTIME_MODE=http \
+            -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" \
+            -e ODOO_DB_PORT=5432 \
+            -e ODOO_DB_NAME=postgres \
+            -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" \
+            -e ODOO_DB_PASSWORD \
+            -e ODOO_DB_SSLMODE=require \
+            -e ODOO_ADMIN_PASSWD \
+            -e ODOO_WORKERS=0 \
+            -e ODOO_MAX_CRON_THREADS=0 \
+            -e FARES_SESSION_STORE=postgres \
+            -e PORT=8069 \
+            "fares-uniform-phase8-fixture:$EXPECTED_DEPLOYMENT_SHA" \
+            -c '/usr/local/bin/fares-vercel-odoo-entrypoint --stop-after-init --no-http </dev/null && exec /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http' < "$fixture"
+
+          unset ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD
+
+      - name: Prove fixture and privilege boundary after mutation
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT count(*)::int FROM product_template WHERE fu_public_slug='phase8-synthetic-program' AND fu_public_published IS TRUE AND sale_ok IS FALSE AND purchase_ok IS FALSE AND company_id IS NULL) AS fixture_product_ok,
+            (SELECT count(*)::int FROM ir_model_data WHERE module='phase8_staging' AND name='public_catalog_program' AND model='product.template') AS fixture_xmlid_ok;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$db")" = true
+          test "$(jq -r '.[0].can_create_public' "$db")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
+          test "$(jq -r '.[0].session_table_ok' "$db")" = 1
+          test "$(jq -r '.[0].required_extensions' "$db")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
+          test "$(jq -r '.[0].fixture_product_ok' "$db")" = 1
+          test "$(jq -r '.[0].fixture_xmlid_ok' "$db")" = 1
+          echo "fixture_postflight=PASS epoch=$EXPECTED_DB_EPOCH create=false app_relations=988 fixture=exact fu_uat=absent"
+
+      - name: Publish fixture evidence summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## Phase 8 staging public synthetic fixture'
+            echo
+            echo "- Deployed application SHA: \`$EXPECTED_DEPLOYMENT_SHA\`"
+            echo "- Managed DB epoch: \`$EXPECTED_DB_EPOCH\`"
+            echo "- Synthetic slug: \`$SYNTHETIC_SLUG\`"
+            echo '- Data classification: synthetic staging only'
+            echo '- Runtime role: LOGIN retained, schema CREATE remains revoked'
+            echo '- Provider table/extensions: preserved'
+            echo '- `fu_uat`: absent'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo 'phase8_staging_public_fixture=PASS'

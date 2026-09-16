@@ -1,6 +1,6 @@
 # Phase 0 — Business discovery and scope
 
-Status: IN PROGRESS. Discovery is authorized by the client's project brief; the detailed product scope is not yet agreed.
+Status: COMPLETE, 2026-09-07.
 
 ## Goal and user value
 
@@ -8,41 +8,47 @@ Understand how the factory works and agree the smallest useful first release aro
 
 ## Verified starting point
 
-New public GitHub repository with an initial README; client supplied the ERP goal, project name, remote-only workflow and initial hosting direction. No business workflow has been specified.
+The project began as a new public repository with an ERP goal, project name, remote-only workflow and initial hosting direction but no documented business workflows.
 
-## In scope
+## Completed scope
 
-- Establish repository instructions and documentation ownership.
-- Interview the client progressively.
-- Capture confirmed current workflows and desired outcomes.
-- Identify roles, records, exceptions, scale and operating constraints.
-- Propose a prioritized initial release with acceptance criteria for client review.
-- Record unknowns, dependencies and material risks grounded in answers.
+- Established repository instructions and documentation ownership.
+- Interviewed the client through progressive discovery rounds rather than a generic ERP checklist.
+- Captured current school-retail, production, large-client, payment, stock and communication practices.
+- Identified roles, operating constraints, one-store/one-storage topology, one checkout per store and the few-hours offline envelope.
+- Defined a broadly accepted first-release boundary and representative acceptance scenarios.
+- Separated advanced analytics, raw-material/WIP accounting and other future work from the MVP.
+- Recorded remaining business-policy decisions explicitly and assigned them to the implementation phase they affect.
+- Confirmed the product/design, size-system, item-code and factory-finished custody rules needed by the first production-grade slice.
 
 ## Outside this phase
 
-Application implementation, schema migrations, provisioning, resource reuse, purchases and deployment. No generic ERP module checklist becomes scope without client confirmation.
+Application implementation, schema migrations, provisioning, resource purchases and production deployment remained outside discovery.
 
 ## Architecture, UI, data and security outputs
 
-Capture requirements that constrain architecture and UI, including devices, language, permissions and connectivity. Determine which data types the system needs without committing private records. Infrastructure and concrete schemas remain undecided.
+Discovery established the requirements that constrain architecture and UI: bilingual English/Arabic + RTL, role-based access, offline checkout, brand-independent scanner/printer support, finished-stock scope, public no-price/no-stock catalog behavior and the required operational records.
+
+Architecture/platform validation then continued in Phase 0A/0B without reopening the business-discovery boundary.
 
 ## Validation
 
-Read back documentation from GitHub and check internal links and consistency. Confirm business understanding with the client using representative examples. No build or application test is applicable to this documentation-only foundation.
+Repository documentation was read back and reconciled as discovery progressed. Client answers were recorded as accepted decisions rather than inferred from session memory.
 
-## Exit criteria
+## Exit criteria result
 
-- Representative business workflows and important exceptions are documented.
-- Users, main records and practical operating constraints are understood.
-- Client agrees priorities, first-release boundaries and success/acceptance criteria.
-- Unresolved questions are explicit, with blocking questions identified.
-- The next immediate phase contract can be written from evidence.
+- **Representative workflows/exceptions documented:** PASS. See `docs/requirements/DISCOVERY.md` and focused requirement documents.
+- **Users, records and operating constraints understood:** PASS to the level needed for the accepted MVP; actual staff assignments and numeric volumes remain intentionally unknown.
+- **Priorities, first-release boundary and acceptance scenarios agreed:** PASS at the documented broad-MVP level under D-020; targeted implementation details are resolved phase-by-phase.
+- **Unresolved questions explicit:** PASS. Remaining payment/refund/offline/business-shipment/tax/report details are listed against affected later phases.
+- **Next immediate phase can be written from evidence:** PASS. The products/finished-stock/access implementation contract is prepared in `docs/phases/PHASE_1_PRODUCTS_STOCK_ACCESS.md`.
+
+Phase 0 is therefore closed. Later targeted discovery does not reopen it unless new client information changes the accepted release boundary.
 
 ## Documentation outputs
 
-PROJECT.md, docs/requirements/DISCOVERY.md and docs/DECISIONS.md remain current. Add more focused requirement documents only when discovery justifies them.
+`PROJECT.md`, `docs/requirements/DISCOVERY.md`, `docs/requirements/MVP_SCOPE.md`, focused requirement documents and `docs/DECISIONS.md` hold the durable result.
 
 ## Next dependency
 
-The architecture/design phase depends on accepted initial release scope. Do not mark Phase 0 complete merely because the repository documentation structure exists.
+Phase 0B remains the active foundation/design gate because client visual acceptance is still open. Phase 1 implementation starts only after the Phase 0B visual gate is explicitly resolved.

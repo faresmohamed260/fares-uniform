@@ -1,0 +1,170 @@
+name: Phase 8 public staging smoke
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-public-staging-smoke.yml
+  workflow_dispatch:
+
+concurrency:
+  group: phase8-public-smoke-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  RETAINED_EVIDENCE_DEPLOYMENT_ID: dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu
+  SYNTHETIC_SLUG: phase8-synthetic-program
+  HTTP_RETRY_COUNT: 8
+  HTTP_RETRY_DELAY: 3
+  HTTP_RETRY_MAX_TIME: 90
+  HTTP_CONNECT_TIMEOUT: 10
+  FIXTURE_VISIBILITY_ATTEMPTS: 48
+  FIXTURE_VISIBILITY_DELAY: 5
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Resolve exact READY deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo 'VERCEL_TOKEN missing' >&2; exit 64; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          status="$(curl -sS -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          test "$status" = 200
+          match_count="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '[.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY")] | length' "$response")"
+          test "$match_count" = 1 || { echo "Expected exactly one READY deployment for $EXPECTED_DEPLOYMENT_SHA; got $match_count" >&2; jq -c '.deployments[] | {uid,id,url,state,readyState,sha:(.meta.githubCommitSha // "")}' "$response" >&2; exit 1; }
+          deployment_id="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY") | (.uid // .id)' "$response")"
+          deployment_host="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY") | .url' "$response")"
+          test -n "$deployment_id"
+          test -n "$deployment_host"
+          echo "DEPLOYMENT_ID=$deployment_id" >> "$GITHUB_ENV"
+          echo "BASE_URL=https://$deployment_host" >> "$GITHUB_ENV"
+          echo "exact_ready_deployment=PASS id=$deployment_id sha=$EXPECTED_DEPLOYMENT_SHA host=$deployment_host"
+
+      - name: Wait for immutable deployment HTTP readiness
+        id: readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(mktemp)"
+          trap 'rm -f "$body"' EXIT
+          status="$(curl -sS \
+            --retry "$HTTP_RETRY_COUNT" \
+            --retry-delay "$HTTP_RETRY_DELAY" \
+            --retry-max-time "$HTTP_RETRY_MAX_TIME" \
+            --retry-all-errors \
+            --connect-timeout "$HTTP_CONNECT_TIMEOUT" \
+            --max-time 30 \
+            -o "$body" -w '%{http_code}' \
+            "$BASE_URL/?lang=en")"
+          test "$status" = 200 || { echo "Immutable deployment did not become HTTP-ready; status=$status url=$BASE_URL" >&2; exit 1; }
+          test -s "$body" || { echo "Immutable deployment returned an empty readiness response" >&2; exit 1; }
+          echo "immutable_http_readiness=PASS status=$status url=$BASE_URL"
+
+      - name: Wait for exact synthetic fixture visibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(mktemp)"
+          trap 'rm -f "$body"' EXIT
+          expected_href="href=\"/catalog/${SYNTHETIC_SLUG}?lang=en\""
+          for attempt in $(seq 1 "$FIXTURE_VISIBILITY_ATTEMPTS"); do
+            status="$(curl -sS \
+              --connect-timeout "$HTTP_CONNECT_TIMEOUT" \
+              --max-time 30 \
+              -o "$body" -w '%{http_code}' \
+              "$BASE_URL/?lang=en" || true)"
+            if [[ "$status" = 200 ]] && grep -Fq "$expected_href" "$body"; then
+              echo "synthetic_fixture_visibility=PASS slug=$SYNTHETIC_SLUG attempt=$attempt"
+              exit 0
+            fi
+            echo "Synthetic fixture not visible yet: slug=$SYNTHETIC_SLUG attempt=$attempt/$FIXTURE_VISIBILITY_ATTEMPTS status=${status:-curl_error}"
+            if [[ "$attempt" -lt "$FIXTURE_VISIBILITY_ATTEMPTS" ]]; then
+              sleep "$FIXTURE_VISIBILITY_DELAY"
+            fi
+          done
+          echo "Synthetic fixture did not become visible within the bounded wait: slug=$SYNTHETIC_SLUG" >&2
+          exit 1
+
+      - name: Verify English and Arabic home/catalog rendering
+        shell: bash
+        run: |
+          set -euo pipefail
+          en="$(mktemp)"
+          ar="$(mktemp)"
+          trap 'rm -f "$en" "$ar"' EXIT
+          curl -fsS --retry "$HTTP_RETRY_COUNT" --retry-delay "$HTTP_RETRY_DELAY" --retry-max-time "$HTTP_RETRY_MAX_TIME" --retry-all-errors --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 "$BASE_URL/?lang=en" -o "$en"
+          curl -fsS --retry "$HTTP_RETRY_COUNT" --retry-delay "$HTTP_RETRY_DELAY" --retry-max-time "$HTTP_RETRY_MAX_TIME" --retry-all-errors --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 "$BASE_URL/?lang=ar" -o "$ar"
+          grep -Fq 'Built to look like your team' "$en"
+          grep -Fq 'Selected programs' "$en"
+          grep -Fq 'Synthetic Staging Uniform Program' "$en"
+          grep -Fq "href=\"/catalog/${SYNTHETIC_SLUG}?lang=en\"" "$en"
+          grep -Fq 'زي يعكس هوية فريقك' "$ar"
+          grep -Fq 'برامج مختارة' "$ar"
+          grep -Fq 'برنامج زي تجريبي للبيئة المرحلية' "$ar"
+          echo "CATALOG_DETAIL_PATH=/catalog/$SYNTHETIC_SLUG" >> "$GITHUB_ENV"
+          echo "bilingual_home_catalog=PASS detail_path=/catalog/$SYNTHETIC_SLUG"
+
+      - name: Verify exact synthetic English and Arabic catalog detail
+        shell: bash
+        run: |
+          set -euo pipefail
+          en="$(mktemp)"
+          ar="$(mktemp)"
+          trap 'rm -f "$en" "$ar"' EXIT
+          curl -fsS --retry "$HTTP_RETRY_COUNT" --retry-delay "$HTTP_RETRY_DELAY" --retry-max-time "$HTTP_RETRY_MAX_TIME" --retry-all-errors --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 "$BASE_URL${CATALOG_DETAIL_PATH}?lang=en" -o "$en"
+          curl -fsS --retry "$HTTP_RETRY_COUNT" --retry-delay "$HTTP_RETRY_DELAY" --retry-max-time "$HTTP_RETRY_MAX_TIME" --retry-all-errors --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 "$BASE_URL${CATALOG_DETAIL_PATH}?lang=ar" -o "$ar"
+          grep -Fq 'Synthetic Staging Uniform Program' "$en"
+          grep -Fq 'برنامج زي تجريبي للبيئة المرحلية' "$ar"
+          grep -Fq 'Enquire about this program' "$en"
+          grep -Fq 'استفسر عن هذا البرنامج' "$ar"
+          grep -Fq 'Back to catalog' "$en"
+          grep -Fq 'العودة للكتالوج' "$ar"
+          echo "bilingual_catalog_detail=PASS path=$CATALOG_DETAIL_PATH"
+
+      - name: Verify public exposure boundaries
+        if: ${{ always() && steps.readiness.outcome == 'success' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cron_status="$(curl -sS --retry "$HTTP_RETRY_COUNT" --retry-delay "$HTTP_RETRY_DELAY" --retry-max-time "$HTTP_RETRY_MAX_TIME" --retry-all-errors --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 -o /tmp/cron-noauth.json -w '%{http_code}' "$BASE_URL/fares/internal/cron/run")"
+          test "$cron_status" = 401
+          web_status="$(curl -sS --retry "$HTTP_RETRY_COUNT" --retry-delay "$HTTP_RETRY_DELAY" --retry-max-time "$HTTP_RETRY_MAX_TIME" --retry-all-errors --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 -o /tmp/web-login.html -w '%{http_code}' "$BASE_URL/web/login")"
+          test "$web_status" != 200
+          direct_status="$(curl -sS --retry "$HTTP_RETRY_COUNT" --retry-delay "$HTTP_RETRY_DELAY" --retry-max-time "$HTTP_RETRY_MAX_TIME" --retry-all-errors --connect-timeout "$HTTP_CONNECT_TIMEOUT" --max-time 30 -o /tmp/direct-catalog.json -w '%{http_code}' "$BASE_URL/fu/public/catalog?lang=en")"
+          test "$direct_status" != 200
+          echo "public_exposure_boundary=PASS cron_noauth=$cron_status web_login=$web_status direct_odoo_catalog=$direct_status"
+
+      - name: Publish smoke evidence summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## Phase 8 public staging smoke'
+            echo
+            echo "- Deployment: \`$DEPLOYMENT_ID\`"
+            echo "- Candidate SHA: \`$EXPECTED_DEPLOYMENT_SHA\`"
+            echo "- URL: \`$BASE_URL\`"
+            echo "- Immutable HTTP readiness: PASS"
+            echo "- Synthetic fixture visibility: PASS (\`$SYNTHETIC_SLUG\`)"
+            echo "- EN/AR home + catalog: PASS"
+            echo "- EN/AR detail: PASS (\`$CATALOG_DETAIL_PATH\`)"
+            echo "- Cron unauthenticated: 401"
+            echo "- Broad Odoo login: not 200"
+            echo "- Direct Odoo public API: not 200"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo 'phase8_public_staging_smoke=PASS'

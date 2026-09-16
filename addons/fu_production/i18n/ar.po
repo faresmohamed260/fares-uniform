@@ -1,0 +1,175 @@
+# Translation of Fares Uniform Production.
+# This file contains the translation of the following modules:
+# * fu_production
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#. module: fu_production
+#: model:ir.actions.act_window,name:fu_production.action_fu_production_tasks
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_list
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_search
+msgid "Production Queue"
+msgstr "قائمة الإنتاج"
+
+#. module: fu_production
+#: model:ir.ui.menu,name:fu_production.menu_fu_production
+msgid "Production"
+msgstr "الإنتاج"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_form
+msgid "Production Task"
+msgstr "مهمة إنتاج"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_form
+msgid "Start Production"
+msgstr "بدء الإنتاج"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_form
+msgid "Mark Finished"
+msgstr "تحديد كمكتمل"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_form
+msgid "Cancel Queued Task"
+msgstr "إلغاء المهمة المجدولة"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_form
+msgid "Production Demand"
+msgstr "طلب الإنتاج"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_form
+msgid "Workflow"
+msgstr "سير العمل"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_form
+msgid "Source Preorders"
+msgstr "الطلبات المسبقة المصدر"
+
+#. module: fu_production
+#: model:ir.actions.act_window,name:fu_production.action_fu_production_config
+#: model:ir.ui.menu,name:fu_production.menu_fu_production_settings
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_config_list
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_config_form
+msgid "Production Settings"
+msgstr "إعدادات الإنتاج"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_config_form
+msgid "Evaluate Demand Now"
+msgstr "تقييم الطلب الآن"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_config_form
+msgid "Production Triggers"
+msgstr "محفزات الإنتاج"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_config_form
+msgid "Audit"
+msgstr "سجل التدقيق"
+
+#. module: fu_production
+#: model:ir.model.fields,field_description:fu_production.field_fu_production_config__quantity_threshold
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_search
+msgid "Quantity trigger"
+msgstr "محفز الكمية"
+
+#. module: fu_production
+#: model:ir.model.fields,field_description:fu_production.field_fu_production_config__lead_time_days
+msgid "Pickup lead time (days)"
+msgstr "مهلة الاستلام (أيام)"
+
+#. module: fu_production
+#: model:ir.model.fields,field_description:fu_production.field_fu_production_task__product_id
+#: model:ir.model.fields,field_description:fu_production.field_fu_production_task_line__product_id
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_search
+msgid "Product / size"
+msgstr "المنتج / المقاس"
+
+#. module: fu_production
+#: model:ir.model.fields,field_description:fu_production.field_fu_production_task__quantity
+msgid "Production quantity"
+msgstr "كمية الإنتاج"
+
+#. module: fu_production
+#: model:ir.model.fields,field_description:fu_production.field_fu_production_task__earliest_commitment_date
+msgid "Earliest pickup"
+msgstr "أقرب موعد استلام"
+
+#. module: fu_production
+#: model:ir.model.fields,field_description:fu_production.field_fu_production_task_line__preorder_reference
+msgid "Preorder reference"
+msgstr "مرجع الطلب المسبق"
+
+#. module: fu_production
+#: model:ir.model.fields,field_description:fu_production.field_fu_production_task_line__quantity
+msgid "Covered quantity"
+msgstr "الكمية المغطاة"
+
+#. module: fu_production
+#: model:ir.model.fields,field_description:fu_production.field_fu_production_task_line__commitment_date
+msgid "Pickup date"
+msgstr "موعد الاستلام"
+
+#. module: fu_production
+#: model:ir.model.fields.selection,name:fu_production.selection__fu_production_task__state__queued
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_search
+msgid "Queued"
+msgstr "مجدول"
+
+#. module: fu_production
+#: model:ir.model.fields.selection,name:fu_production.selection__fu_production_task__state__in_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_search
+msgid "In production"
+msgstr "قيد الإنتاج"
+
+#. module: fu_production
+#: model:ir.model.fields.selection,name:fu_production.selection__fu_production_task__state__finished
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_search
+msgid "Finished"
+msgstr "مكتمل"
+
+#. module: fu_production
+#: model:ir.model.fields.selection,name:fu_production.selection__fu_production_task__state__cancelled
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_search
+msgid "Cancelled"
+msgstr "ملغى"
+
+#. module: fu_production
+#: model:ir.model.fields.selection,name:fu_production.selection__fu_production_task__trigger_reason__quantity
+msgid "Quantity threshold"
+msgstr "حد الكمية"
+
+#. module: fu_production
+#: model:ir.model.fields.selection,name:fu_production.selection__fu_production_task__trigger_reason__deadline
+msgid "Pickup deadline"
+msgstr "موعد الاستلام"
+
+#. module: fu_production
+#: model:ir.model.fields.selection,name:fu_production.selection__fu_production_task__trigger_reason__quantity_deadline
+msgid "Quantity + deadline"
+msgstr "الكمية + الموعد"
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_task_form
+msgid "Factory Finished is workflow status only. Ready for collection still requires physical Retail Store receipt and preorder allocation."
+msgstr "حالة الاكتمال في المصنع هي حالة لسير العمل فقط. الجاهزية للاستلام تتطلب وصولًا فعليًا إلى متجر التجزئة وتخصيص الطلب المسبق."
+
+#. module: fu_production
+#: model_terms:ir.ui.view,arch_db:fu_production.fu_production_config_form
+msgid "Quantity trigger is inactive at zero. Pickup deadline triggering remains active using the configured lead time."
+msgstr "يكون محفز الكمية غير نشط عند الصفر. ويظل محفز موعد الاستلام نشطًا باستخدام المهلة المحددة."

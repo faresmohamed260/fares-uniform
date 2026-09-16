@@ -1,0 +1,426 @@
+name: Phase 7 Vercel websocket continuity
+
+on:
+  push:
+    branches:
+      - phase-7/vercel-deployment-adaptation
+    paths:
+      - 'Dockerfile.vercel'
+      - 'deploy/vercel/**'
+      - 'deploy/ci/phase7_websocket_*.py'
+      - 'deploy/ci/phase7_seed_state.py'
+      - 'deploy/postgres/**'
+      - '.github/workflows/phase7-vercel-websocket.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase7-vercel-websocket-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BASE_APP_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+  ODOO_DB_NAME: fares
+  ODOO_DB_USER: fares_app
+  PRODUCTION_ADDONS: fu_core,fu_retail,fu_preorder,fu_production,fu_business,fu_public_api,fu_reporting
+  REALTIME_ADDON: bus
+  PHASE7_NETWORK: fares-phase7-websocket
+  PHASE7_DB_CONTAINER: fares-phase7-websocket-db
+  PHASE7_HTTP_CONTAINER: fares-phase7-websocket-http
+  PHASE7_WS_CONTAINER: fares-phase7-websocket-evented
+  PHASE7_HTTP_PORT: '18069'
+  PHASE7_WS_PORT: '18072'
+  PHASE7_WS_CHANNEL: phase7-vercel-websocket-continuity
+  PHASE7_WS_VERSION: 19.0-2
+
+jobs:
+  websocket-continuity-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify exact head and inherited application source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags --depth=1 origin "$BASE_APP_SHA"
+          git diff --quiet "$BASE_APP_SHA" HEAD -- addons apps/public-web
+          mkdir -p evidence deploy/.phase7-secrets
+          {
+            echo "fares_sha=$GITHUB_SHA"
+            echo "base_application_sha=$BASE_APP_SHA"
+            echo "odoo_sha=$ODOO_SHA"
+            echo "application_source_diff=none"
+            echo "pinned_websocket_worker_version=$PHASE7_WS_VERSION"
+            echo "realtime_database_addon=$REALTIME_ADDON"
+          } | tee evidence/source-authority.txt
+
+      - name: Prepare synthetic credentials
+        run: |
+          set -euo pipefail
+          openssl rand -hex 32 | sudo tee deploy/.phase7-secrets/postgres_superuser_password >/dev/null
+          openssl rand -hex 32 | sudo tee deploy/.phase7-secrets/odoo_db_password >/dev/null
+          openssl rand -hex 32 > deploy/.phase7-secrets/odoo_admin_passwd
+          openssl rand -hex 24 > deploy/.phase7-secrets/login_password
+          sudo chown root:root deploy/.phase7-secrets/postgres_superuser_password
+          sudo chmod 0400 deploy/.phase7-secrets/postgres_superuser_password
+          sudo chown root:10001 deploy/.phase7-secrets/odoo_db_password
+          sudo chmod 0440 deploy/.phase7-secrets/odoo_db_password
+          chmod 0600 deploy/.phase7-secrets/odoo_admin_passwd deploy/.phase7-secrets/login_password
+          echo "::add-mask::$(cat deploy/.phase7-secrets/login_password)"
+
+      - name: Build exact database and dual-mode Odoo image
+        run: |
+          set -euo pipefail
+          docker build --pull \
+            -f deploy/postgres/Dockerfile \
+            -t "fares-uniform-postgres:$GITHUB_SHA" .
+          docker build --pull \
+            -f Dockerfile.vercel \
+            --build-arg ODOO_SHA="$ODOO_SHA" \
+            --build-arg FARES_SHA="$GITHUB_SHA" \
+            -t "fares-uniform-vercel:$GITHUB_SHA" .
+
+          test "$(docker image inspect -f '{{json .Config.Volumes}}' "fares-uniform-vercel:$GITHUB_SHA")" = 'null'
+          docker run --rm --entrypoint bash "fares-uniform-vercel:$GITHUB_SHA" -lc '
+            test "$(id -u)" = "10001"
+            test "$(id -g)" = "10001"
+            test "$ODOO_SHA" = "1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf"
+            test "$FARES_SHA" = "'"$GITHUB_SHA"'"
+            /opt/odoo-venv/bin/python -c "import gevent, websocket"
+            grep -q "ODOO_RUNTIME_MODE" /usr/local/bin/fares-vercel-odoo-entrypoint
+            grep -q "odoo-bin gevent" /usr/local/bin/fares-vercel-odoo-entrypoint
+            grep -q "_VERSION = \"19.0-2\"" /opt/odoo/addons/bus/websocket.py
+            test ! -e /mnt/extra-addons/fu_uat
+          '
+          echo 'dual_mode_image=PASS stateless=true' | tee evidence/runtime-image.txt
+
+      - name: Start PostgreSQL and bootstrap shared session state
+        run: |
+          set -euo pipefail
+          docker network create "$PHASE7_NETWORK"
+          docker run -d \
+            --name "$PHASE7_DB_CONTAINER" \
+            --network "$PHASE7_NETWORK" \
+            -e POSTGRES_USER=postgres \
+            -e POSTGRES_DB=postgres \
+            -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_superuser_password \
+            -e FARES_DB_NAME="$ODOO_DB_NAME" \
+            -e FARES_DB_USER="$ODOO_DB_USER" \
+            -e FARES_DB_PASSWORD_FILE=/run/secrets/odoo_db_password \
+            -v "$PWD/deploy/.phase7-secrets/postgres_superuser_password:/run/secrets/postgres_superuser_password:ro" \
+            -v "$PWD/deploy/.phase7-secrets/odoo_db_password:/run/secrets/odoo_db_password:ro" \
+            -v "$PWD/deploy/postgres/init/10-fares.sh:/docker-entrypoint-initdb.d/10-fares.sh:ro" \
+            "fares-uniform-postgres:$GITHUB_SHA"
+
+          for attempt in $(seq 1 60); do
+            INIT_READY="$(docker exec "$PHASE7_DB_CONTAINER" \
+              psql -U postgres -d "$ODOO_DB_NAME" -Atc \
+              "SELECT CASE WHEN
+                 EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '$ODOO_DB_USER')
+                 AND (SELECT count(*) FROM pg_extension WHERE extname IN ('pg_trgm', 'unaccent')) = 2
+                 AND has_schema_privilege('$ODOO_DB_USER', 'public', 'USAGE')
+                 AND has_schema_privilege('$ODOO_DB_USER', 'public', 'CREATE')
+               THEN 'ready' ELSE 'waiting' END;" 2>/dev/null || true)"
+            if [[ "$INIT_READY" == 'ready' ]]; then break; fi
+            if [[ "$attempt" == 60 ]]; then docker logs "$PHASE7_DB_CONTAINER"; exit 1; fi
+            sleep 2
+          done
+
+          cat deploy/vercel/bootstrap-session-store.sh | docker exec -i \
+            -e FARES_DB_NAME="$ODOO_DB_NAME" \
+            -e FARES_DB_USER="$ODOO_DB_USER" \
+            -e POSTGRES_USER=postgres \
+            "$PHASE7_DB_CONTAINER" bash
+
+          ROLE_FLAGS="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d postgres -Atc "SELECT rolsuper, rolcreatedb, rolcreaterole FROM pg_roles WHERE rolname = '$ODOO_DB_USER';")"
+          test "$ROLE_FLAGS" = 'f|f|f'
+          DB_OWNER="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d postgres -Atc "SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname = '$ODOO_DB_NAME';")"
+          test "$DB_OWNER" = 'postgres'
+          {
+            echo "app_role_flags=$ROLE_FLAGS"
+            echo "database_owner=$DB_OWNER"
+          } | tee evidence/database-boundary.txt
+
+      - name: Initialize and upgrade production addons plus realtime bus
+        run: |
+          set -euo pipefail
+          DB_PASSWORD="$(sudo cat deploy/.phase7-secrets/odoo_db_password)"
+          ADMIN_PASSWD="$(cat deploy/.phase7-secrets/odoo_admin_passwd)"
+          for MODE in install upgrade; do
+            if [[ "$MODE" == install ]]; then ACTION=-i; else ACTION=-u; fi
+            docker run --rm \
+              --network "$PHASE7_NETWORK" \
+              -e ODOO_DB_HOST="$PHASE7_DB_CONTAINER" \
+              -e ODOO_DB_PORT=5432 \
+              -e ODOO_DB_NAME="$ODOO_DB_NAME" \
+              -e ODOO_DB_USER="$ODOO_DB_USER" \
+              -e ODOO_DB_PASSWORD="$DB_PASSWORD" \
+              -e ODOO_DB_SSLMODE=prefer \
+              -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" \
+              -e PORT=8069 \
+              -e ODOO_RUNTIME_MODE=http \
+              -e ODOO_WORKERS=0 \
+              -e ODOO_MAX_CRON_THREADS=0 \
+              "fares-uniform-vercel:$GITHUB_SHA" \
+              --stop-after-init "$ACTION" "$PRODUCTION_ADDONS,$REALTIME_ADDON"
+          done
+          BUS_STATE="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d "$ODOO_DB_NAME" -Atc "SELECT state FROM ir_module_module WHERE name = '$REALTIME_ADDON';")"
+          test "$BUS_STATE" = 'installed'
+          {
+            echo 'production_addons_init_upgrade=PASS'
+            echo "realtime_addon_state=$REALTIME_ADDON:$BUS_STATE"
+          } | tee evidence/addon-init.txt
+
+      - name: Start normal HTTP runtime and create shared authenticated session
+        run: |
+          set -euo pipefail
+          DB_PASSWORD="$(sudo cat deploy/.phase7-secrets/odoo_db_password)"
+          ADMIN_PASSWD="$(cat deploy/.phase7-secrets/odoo_admin_passwd)"
+          LOGIN_PASSWORD="$(cat deploy/.phase7-secrets/login_password)"
+          echo "::add-mask::$LOGIN_PASSWORD"
+
+          docker run -d \
+            --name "$PHASE7_HTTP_CONTAINER" \
+            --network "$PHASE7_NETWORK" \
+            -p "$PHASE7_HTTP_PORT:8069" \
+            -e ODOO_DB_HOST="$PHASE7_DB_CONTAINER" \
+            -e ODOO_DB_PORT=5432 \
+            -e ODOO_DB_NAME="$ODOO_DB_NAME" \
+            -e ODOO_DB_USER="$ODOO_DB_USER" \
+            -e ODOO_DB_PASSWORD="$DB_PASSWORD" \
+            -e ODOO_DB_SSLMODE=prefer \
+            -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" \
+            -e PHASE7_LOGIN_PASSWORD="$LOGIN_PASSWORD" \
+            -e PORT=8069 \
+            -e ODOO_RUNTIME_MODE=http \
+            -e ODOO_WORKERS=0 \
+            -e ODOO_MAX_CRON_THREADS=0 \
+            "fares-uniform-vercel:$GITHUB_SHA"
+
+          for attempt in $(seq 1 40); do
+            if curl -fsS "http://127.0.0.1:$PHASE7_HTTP_PORT/web/login" >/dev/null; then break; fi
+            if [[ "$attempt" == 40 ]]; then docker logs "$PHASE7_HTTP_CONTAINER"; exit 1; fi
+            sleep 2
+          done
+
+          cat deploy/ci/phase7_seed_state.py | docker exec -i "$PHASE7_HTTP_CONTAINER" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d "$ODOO_DB_NAME" --workers=0 \
+            | tee evidence/seed-state.txt
+          grep -q 'PHASE7_SEED_OK' evidence/seed-state.txt
+
+          AUTH_PAYLOAD="$(jq -cn \
+            --arg db "$ODOO_DB_NAME" \
+            --arg login admin \
+            --arg password "$LOGIN_PASSWORD" \
+            '{jsonrpc:"2.0",method:"call",params:{db:$db,login:$login,password:$password},id:1}')"
+          curl -fsS \
+            -c deploy/.phase7-secrets/session.cookies \
+            -H 'Content-Type: application/json' \
+            --data "$AUTH_PAYLOAD" \
+            "http://127.0.0.1:$PHASE7_HTTP_PORT/web/session/authenticate" \
+            > deploy/.phase7-secrets/login-response.json
+          LOGIN_UID="$(jq -er '.result.uid' deploy/.phase7-secrets/login-response.json)"
+          SESSION_ID="$(awk '$6 == "session_id" {print $7}' deploy/.phase7-secrets/session.cookies | tail -n1)"
+          test -n "$SESSION_ID"
+          echo "::add-mask::$SESSION_ID"
+          printf '%s' "$SESSION_ID" > deploy/.phase7-secrets/session_id
+          printf '%s' "$LOGIN_UID" > deploy/.phase7-secrets/login_uid
+          chmod 0600 deploy/.phase7-secrets/session_id deploy/.phase7-secrets/login_uid
+          rm -f deploy/.phase7-secrets/session.cookies deploy/.phase7-secrets/login-response.json
+
+          docker cp deploy/ci/phase7_websocket_client.py "$PHASE7_HTTP_CONTAINER:/tmp/phase7_websocket_client.py"
+          docker cp deploy/ci/phase7_websocket_send.py "$PHASE7_HTTP_CONTAINER:/tmp/phase7_websocket_send.py"
+          {
+            echo "authenticated_session=PASS uid=$LOGIN_UID"
+            echo 'session_storage=postgres'
+            echo 'http_runtime_mode=http'
+          } | tee evidence/http-session.txt
+
+      - name: Start evented websocket service on its Vercel service port
+        run: |
+          set -euo pipefail
+          DB_PASSWORD="$(sudo cat deploy/.phase7-secrets/odoo_db_password)"
+          ADMIN_PASSWD="$(cat deploy/.phase7-secrets/odoo_admin_passwd)"
+
+          docker run -d \
+            --name "$PHASE7_WS_CONTAINER" \
+            --network "$PHASE7_NETWORK" \
+            -p "$PHASE7_WS_PORT:8069" \
+            -e ODOO_DB_HOST="$PHASE7_DB_CONTAINER" \
+            -e ODOO_DB_PORT=5432 \
+            -e ODOO_DB_NAME="$ODOO_DB_NAME" \
+            -e ODOO_DB_USER="$ODOO_DB_USER" \
+            -e ODOO_DB_PASSWORD="$DB_PASSWORD" \
+            -e ODOO_DB_SSLMODE=prefer \
+            -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" \
+            -e PORT=8069 \
+            -e ODOO_RUNTIME_MODE=websocket \
+            -e ODOO_WORKERS=0 \
+            -e ODOO_MAX_CRON_THREADS=0 \
+            "fares-uniform-vercel:$GITHUB_SHA"
+
+          test "$(docker inspect -f '{{json .Mounts}}' "$PHASE7_WS_CONTAINER")" = '[]'
+          for attempt in $(seq 1 40); do
+            if curl -fsS -H "X-Odoo-Database: $ODOO_DB_NAME" "http://127.0.0.1:$PHASE7_WS_PORT/websocket/health" >/dev/null; then break; fi
+            if [[ "$attempt" == 40 ]]; then docker logs "$PHASE7_WS_CONTAINER"; exit 1; fi
+            sleep 2
+          done
+          docker exec "$PHASE7_WS_CONTAINER" grep -Fx 'gevent_port = 8069' /tmp/fares-odoo.conf
+          docker exec "$PHASE7_WS_CONTAINER" grep -Fx 'max_cron_threads = 0' /tmp/fares-odoo.conf
+          echo 'evented_websocket_service=PASS port=PORT stateless=true' | tee evidence/websocket-service.txt
+
+      - name: Receive first notification over authenticated websocket
+        run: |
+          set -euo pipefail
+          SESSION_ID="$(cat deploy/.phase7-secrets/session_id)"
+          echo "::add-mask::$SESSION_ID"
+          MARKER_ONE=phase7-before-runtime-replacement
+
+          docker exec \
+            -e PHASE7_WS_URL="ws://$PHASE7_WS_CONTAINER:8069/websocket?version=$PHASE7_WS_VERSION" \
+            -e PHASE7_SESSION_ID="$SESSION_ID" \
+            -e PHASE7_WS_CHANNEL="$PHASE7_WS_CHANNEL" \
+            -e PHASE7_EXPECT_MARKER="$MARKER_ONE" \
+            -e PHASE7_LAST_NOTIFICATION_ID=0 \
+            "$PHASE7_HTTP_CONTAINER" \
+            /opt/odoo-venv/bin/python /tmp/phase7_websocket_client.py \
+            > evidence/websocket-first.txt 2>&1 &
+          CLIENT_PID=$!
+          sleep 2
+
+          docker exec -i \
+            -e PHASE7_WS_CHANNEL="$PHASE7_WS_CHANNEL" \
+            -e PHASE7_NOTIFICATION_MARKER="$MARKER_ONE" \
+            "$PHASE7_HTTP_CONTAINER" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d "$ODOO_DB_NAME" --workers=0 \
+            < deploy/ci/phase7_websocket_send.py \
+            | tee evidence/websocket-first-send.txt
+          wait "$CLIENT_PID"
+          grep -q "PHASE7_WEBSOCKET_NOTIFICATION_OK marker=$MARKER_ONE" evidence/websocket-first.txt
+          FIRST_ID="$(sed -n 's/.*notification_id=\([0-9][0-9]*\).*/\1/p' evidence/websocket-first.txt | tail -n1)"
+          test -n "$FIRST_ID"
+          printf '%s' "$FIRST_ID" > deploy/.phase7-secrets/websocket_last_id
+          chmod 0600 deploy/.phase7-secrets/websocket_last_id
+          echo "first_websocket_notification=PASS notification_id=$FIRST_ID" | tee evidence/websocket-first-result.txt
+
+      - name: Replace websocket runtime and publish while it is absent
+        run: |
+          set -euo pipefail
+          DB_PASSWORD="$(sudo cat deploy/.phase7-secrets/odoo_db_password)"
+          ADMIN_PASSWD="$(cat deploy/.phase7-secrets/odoo_admin_passwd)"
+          MARKER_TWO=phase7-during-runtime-replacement
+
+          docker rm -f "$PHASE7_WS_CONTAINER"
+          if curl -fsS --max-time 2 "http://127.0.0.1:$PHASE7_WS_PORT/websocket/health" >/dev/null 2>&1; then
+            echo 'Websocket service unexpectedly remained reachable after container destruction' >&2
+            exit 1
+          fi
+
+          docker exec -i \
+            -e PHASE7_WS_CHANNEL="$PHASE7_WS_CHANNEL" \
+            -e PHASE7_NOTIFICATION_MARKER="$MARKER_TWO" \
+            "$PHASE7_HTTP_CONTAINER" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d "$ODOO_DB_NAME" --workers=0 \
+            < deploy/ci/phase7_websocket_send.py \
+            | tee evidence/websocket-downtime-send.txt
+          grep -q "PHASE7_WEBSOCKET_SEND_OK marker=$MARKER_TWO" evidence/websocket-downtime-send.txt
+
+          docker run -d \
+            --name "$PHASE7_WS_CONTAINER" \
+            --network "$PHASE7_NETWORK" \
+            -p "$PHASE7_WS_PORT:8069" \
+            -e ODOO_DB_HOST="$PHASE7_DB_CONTAINER" \
+            -e ODOO_DB_PORT=5432 \
+            -e ODOO_DB_NAME="$ODOO_DB_NAME" \
+            -e ODOO_DB_USER="$ODOO_DB_USER" \
+            -e ODOO_DB_PASSWORD="$DB_PASSWORD" \
+            -e ODOO_DB_SSLMODE=prefer \
+            -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" \
+            -e PORT=8069 \
+            -e ODOO_RUNTIME_MODE=websocket \
+            -e ODOO_WORKERS=0 \
+            -e ODOO_MAX_CRON_THREADS=0 \
+            "fares-uniform-vercel:$GITHUB_SHA"
+
+          test "$(docker inspect -f '{{json .Mounts}}' "$PHASE7_WS_CONTAINER")" = '[]'
+          for attempt in $(seq 1 40); do
+            if curl -fsS -H "X-Odoo-Database: $ODOO_DB_NAME" "http://127.0.0.1:$PHASE7_WS_PORT/websocket/health" >/dev/null; then break; fi
+            if [[ "$attempt" == 40 ]]; then docker logs "$PHASE7_WS_CONTAINER"; exit 1; fi
+            sleep 2
+          done
+          echo 'websocket_runtime_replacement=PASS downtime_notification_committed=true' | tee evidence/websocket-replacement.txt
+
+      - name: Reconnect with shared session and cursor and replay only unseen notification
+        run: |
+          set -euo pipefail
+          SESSION_ID="$(cat deploy/.phase7-secrets/session_id)"
+          LOGIN_UID="$(cat deploy/.phase7-secrets/login_uid)"
+          LAST_ID="$(cat deploy/.phase7-secrets/websocket_last_id)"
+          MARKER_TWO=phase7-during-runtime-replacement
+          echo "::add-mask::$SESSION_ID"
+
+          docker exec \
+            -e PHASE7_WS_URL="ws://$PHASE7_WS_CONTAINER:8069/websocket?version=$PHASE7_WS_VERSION" \
+            -e PHASE7_SESSION_ID="$SESSION_ID" \
+            -e PHASE7_WS_CHANNEL="$PHASE7_WS_CHANNEL" \
+            -e PHASE7_EXPECT_MARKER="$MARKER_TWO" \
+            -e PHASE7_LAST_NOTIFICATION_ID="$LAST_ID" \
+            "$PHASE7_HTTP_CONTAINER" \
+            /opt/odoo-venv/bin/python /tmp/phase7_websocket_client.py \
+            | tee evidence/websocket-after-replacement.txt
+          grep -q "PHASE7_WEBSOCKET_NOTIFICATION_OK marker=$MARKER_TWO" evidence/websocket-after-replacement.txt
+          SECOND_ID="$(sed -n 's/.*notification_id=\([0-9][0-9]*\).*/\1/p' evidence/websocket-after-replacement.txt | tail -n1)"
+          test -n "$SECOND_ID"
+          test "$SECOND_ID" -gt "$LAST_ID"
+
+          INFO_PAYLOAD='{"jsonrpc":"2.0","method":"call","params":{},"id":2}'
+          curl -fsS \
+            -H 'Content-Type: application/json' \
+            -H "Cookie: session_id=$SESSION_ID" \
+            --data "$INFO_PAYLOAD" \
+            "http://127.0.0.1:$PHASE7_HTTP_PORT/web/session/get_session_info" \
+            > deploy/.phase7-secrets/session-after-websocket-replacement.json
+          jq -e --argjson expected "$LOGIN_UID" '.result.uid == $expected' deploy/.phase7-secrets/session-after-websocket-replacement.json >/dev/null
+          rm -f deploy/.phase7-secrets/session-after-websocket-replacement.json
+
+          SESSION_ROWS="$(docker exec "$PHASE7_DB_CONTAINER" psql -U postgres -d "$ODOO_DB_NAME" -Atc 'SELECT count(*) FROM public.fares_http_session;')"
+          test "$SESSION_ROWS" -ge 1
+          {
+            echo 'phase7_websocket_reconnect_proof=PASS'
+            echo 'http_runtime_mode=http'
+            echo 'websocket_runtime_mode=websocket_gevent'
+            echo 'shared_session_storage=postgres'
+            echo "first_notification_id=$LAST_ID"
+            echo "post_replacement_notification_id=$SECOND_ID"
+            echo 'notification_committed_while_websocket_service_absent=true'
+            echo 'notification_replayed_after_reconnect=true'
+            echo 'prior_notification_duplicated=false'
+            echo 'builtin_odoo_cron_threads=0'
+            echo 'websocket_runtime_mounts=none'
+          } | tee evidence/result.txt
+
+      - name: Upload Phase 7 websocket evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase7-vercel-websocket-${{ github.sha }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f "$PHASE7_WS_CONTAINER" "$PHASE7_HTTP_CONTAINER" "$PHASE7_DB_CONTAINER" 2>/dev/null || true
+          docker network rm "$PHASE7_NETWORK" 2>/dev/null || true
+          sudo rm -rf deploy/.phase7-secrets

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fu_production_task_owner,Fares production task owner,model_fu_production_task,fu_core.group_fu_owner_admin,1,1,0,0
+access_fu_production_task_manager,Fares production task manager,model_fu_production_task,fu_core.group_fu_production_manager,1,1,0,0
+access_fu_production_task_line_owner,Fares production task line owner,model_fu_production_task_line,fu_core.group_fu_owner_admin,1,0,0,0
+access_fu_production_task_line_manager,Fares production task line manager,model_fu_production_task_line,fu_core.group_fu_production_manager,1,0,0,0
+access_fu_production_config_owner,Fares production config owner,model_fu_production_config,fu_core.group_fu_owner_admin,1,1,1,0
+access_fu_production_config_manager,Fares production config manager,model_fu_production_config,fu_core.group_fu_production_manager,1,1,1,0

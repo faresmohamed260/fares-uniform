@@ -1,0 +1,99 @@
+name: Phase 8 live database recovery
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8-managed-db-mutation
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SUPABASE_API_BASE: https://api.supabase.com/v1
+      SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+    steps:
+      - name: Verify control-plane credential
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+
+      - name: Terminate runtime sessions and seal role
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT pg_terminate_backend(pid)
+          FROM pg_stat_activity
+          WHERE datname='postgres'
+            AND usename='fares_app'
+            AND pid <> pg_backend_pid();
+          ALTER ROLE fares_app NOLOGIN PASSWORD NULL;
+          REVOKE CREATE ON SCHEMA public FROM fares_app;
+          SELECT
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            (SELECT count(*)::int FROM pg_stat_activity WHERE datname='postgres' AND usename='fares_app') AS sessions,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT rolsuper FROM pg_roles WHERE rolname='fares_app') AS rolsuper,
+            (SELECT rolcreatedb FROM pg_roles WHERE rolname='fares_app') AS rolcreatedb,
+            (SELECT rolcreaterole FROM pg_roles WHERE rolname='fares_app') AS rolcreaterole,
+            (SELECT rolreplication FROM pg_roles WHERE rolname='fares_app') AS rolreplication,
+            (SELECT rolinherit FROM pg_roles WHERE rolname='fares_app') AS rolinherit;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { echo "recovery SQL failed: HTTP $status" >&2; jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
+          jq -c '.[0]' "$response"
+          test "$(jq -r '.[0].rolcanlogin' "$response")" = false
+          test "$(jq -r '.[0].sessions' "$response")" = 0
+          test "$(jq -r '.[0].can_create_public' "$response")" = false
+          test "$(jq -r '.[0].rolsuper' "$response")" = false
+          test "$(jq -r '.[0].rolcreatedb' "$response")" = false
+          test "$(jq -r '.[0].rolcreaterole' "$response")" = false
+          test "$(jq -r '.[0].rolreplication' "$response")" = false
+          test "$(jq -r '.[0].rolinherit' "$response")" = false
+          echo 'fares_app_fail_closed=PASS login=false password=null create=false sessions=0'
+
+      - name: Inspect preserved managed boundary
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            to_regclass('fares_control.deployment_epoch') IS NOT NULL AS epoch_table_exists,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[0]' "$response"
+          test "$(jq -r '.[0].session_table_ok' "$response")" = 1
+          test "$(jq -r '.[0].required_extensions' "$response")" = 2
+          test "$(jq -r '.[0].epoch_table_exists' "$response")" = true
+          echo 'managed_boundary_preserved=PASS'

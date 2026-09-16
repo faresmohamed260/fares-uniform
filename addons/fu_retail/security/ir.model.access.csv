@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fu_retail_return_request_cashier,fu.retail.return.request cashier,model_fu_retail_return_request,fu_core.group_fu_cashier,1,1,1,0
+access_fu_retail_return_request_manager,fu.retail.return.request manager,model_fu_retail_return_request,fu_core.group_fu_store_manager,1,1,1,0
+access_fu_retail_return_request_owner,fu.retail.return.request owner,model_fu_retail_return_request,fu_core.group_fu_owner_admin,1,1,1,0
+access_fu_retail_return_request_inventory,fu.retail.return.request inventory,model_fu_retail_return_request,fu_core.group_fu_inventory_staff,1,0,0,0
+access_fu_retail_return_line_cashier,fu.retail.return.line cashier,model_fu_retail_return_line,fu_core.group_fu_cashier,1,1,1,0
+access_fu_retail_return_line_manager,fu.retail.return.line manager,model_fu_retail_return_line,fu_core.group_fu_store_manager,1,1,1,0
+access_fu_retail_return_line_owner,fu.retail.return.line owner,model_fu_retail_return_line,fu_core.group_fu_owner_admin,1,1,1,0
+access_fu_retail_return_line_inventory,fu.retail.return.line inventory,model_fu_retail_return_line,fu_core.group_fu_inventory_staff,1,0,0,0

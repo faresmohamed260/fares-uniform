@@ -1,0 +1,177 @@
+name: Phase 8 Vercel control plane
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-vercel-control-plane.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8-vercel-control-plane
+  cancel-in-progress: false
+
+env:
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_TEAM_SLUG: faresmohamed260-6733s-projects
+  VERCEL_PROJECT_NAME: fares-uniform
+
+jobs:
+  control-plane:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify Vercel token is present
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${VERCEL_TOKEN:-}" ]]; then
+            echo "VERCEL_TOKEN is not configured for this repository." >&2
+            exit 64
+          fi
+          echo "VERCEL_TOKEN is configured."
+
+      - name: Verify exact Vercel team access
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          status="$(curl --silent --show-error --output "$response" --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${VERCEL_TOKEN}" \
+            "${VERCEL_API_BASE}/v2/teams/${VERCEL_TEAM_ID}")"
+          if [[ "$status" != "200" ]]; then
+            echo "Vercel team lookup failed with HTTP ${status}." >&2
+            exit 1
+          fi
+          jq -e --arg id "$VERCEL_TEAM_ID" --arg slug "$VERCEL_TEAM_SLUG" \
+            'select(.id == $id) | select(.slug == $slug) | {id,slug,name}' "$response"
+          echo "vercel_exact_team_access=PASS"
+
+      - name: Inspect project namespace and preserve unrelated projects
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          status="$(curl --silent --show-error --output "$response" --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${VERCEL_TOKEN}" \
+            "${VERCEL_API_BASE}/v9/projects?teamId=${VERCEL_TEAM_ID}&limit=50")"
+          if [[ "$status" != "200" ]]; then
+            echo "Vercel project list failed with HTTP ${status}." >&2
+            exit 1
+          fi
+
+          for protected in studio saga renderlab; do
+            count="$(jq -r --arg name "$protected" '[.projects[] | select(.name == $name)] | length' "$response")"
+            if [[ "$count" != "1" ]]; then
+              echo "Expected protected project ${protected} exactly once; found ${count}." >&2
+              exit 1
+            fi
+          done
+
+          fares_count="$(jq -r --arg name "$VERCEL_PROJECT_NAME" '[.projects[] | select(.name == $name)] | length' "$response")"
+          if [[ "$fares_count" -gt 1 ]]; then
+            echo "Multiple Fares Uniform projects already exist; refusing to choose one." >&2
+            exit 1
+          fi
+          echo "fares_uniform_existing_project_count=${fares_count}"
+          echo "protected_project_namespace=PASS"
+
+      - name: Create isolated Fares Uniform project shell if absent
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          lookup="$(mktemp)"
+          created="$(mktemp)"
+          trap 'rm -f "$lookup" "$created"' EXIT
+
+          status="$(curl --silent --show-error --output "$lookup" --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${VERCEL_TOKEN}" \
+            "${VERCEL_API_BASE}/v9/projects/${VERCEL_PROJECT_NAME}?teamId=${VERCEL_TEAM_ID}")"
+
+          if [[ "$status" == "404" ]]; then
+            payload="$(jq -cn --arg name "$VERCEL_PROJECT_NAME" '{name:$name}')"
+            create_status="$(curl --silent --show-error --request POST --output "$created" --write-out '%{http_code}' \
+              --header "Authorization: Bearer ${VERCEL_TOKEN}" \
+              --header 'Content-Type: application/json' \
+              --data "$payload" \
+              "${VERCEL_API_BASE}/v11/projects?teamId=${VERCEL_TEAM_ID}")"
+            if [[ "$create_status" != "200" && "$create_status" != "201" ]]; then
+              echo "Vercel project creation failed with HTTP ${create_status}." >&2
+              jq -c '{error:(.error // .)}' "$created" >&2 || true
+              exit 1
+            fi
+            jq -e --arg name "$VERCEL_PROJECT_NAME" --arg team "$VERCEL_TEAM_ID" \
+              'select(.name == $name) | select(.accountId == $team) | {id,name,accountId,framework}' "$created"
+            echo "fares_uniform_project_created=PASS"
+          elif [[ "$status" == "200" ]]; then
+            jq -e --arg name "$VERCEL_PROJECT_NAME" --arg team "$VERCEL_TEAM_ID" \
+              'select(.name == $name) | select(.accountId == $team) | {id,name,accountId,framework}' "$lookup"
+            echo "fares_uniform_project_already_exists=PASS"
+          else
+            echo "Vercel project lookup failed with HTTP ${status}." >&2
+            exit 1
+          fi
+
+      - name: Verify isolated project shell and no deployment mutation
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          project="$(mktemp)"
+          deployments="$(mktemp)"
+          trap 'rm -f "$project" "$deployments"' EXIT
+
+          project_status="$(curl --silent --show-error --output "$project" --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${VERCEL_TOKEN}" \
+            "${VERCEL_API_BASE}/v9/projects/${VERCEL_PROJECT_NAME}?teamId=${VERCEL_TEAM_ID}")"
+          if [[ "$project_status" != "200" ]]; then
+            echo "Final Vercel project lookup failed with HTTP ${project_status}." >&2
+            exit 1
+          fi
+
+          project_id="$(jq -er --arg name "$VERCEL_PROJECT_NAME" --arg team "$VERCEL_TEAM_ID" \
+            'select(.name == $name and .accountId == $team) | .id' "$project")"
+          case "$project_id" in
+            prj_*) ;;
+            *) echo "Unexpected Vercel project id format." >&2; exit 1 ;;
+          esac
+
+          deployment_status="$(curl --silent --show-error --output "$deployments" --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${VERCEL_TOKEN}" \
+            "${VERCEL_API_BASE}/v6/deployments?projectId=${project_id}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          if [[ "$deployment_status" != "200" ]]; then
+            echo "Vercel deployment list failed with HTTP ${deployment_status}." >&2
+            exit 1
+          fi
+          deployment_count="$(jq -r '.deployments | length' "$deployments")"
+          if [[ "$deployment_count" != "0" ]]; then
+            echo "Unexpected deployment already exists for the new Fares Uniform shell; refusing further mutation." >&2
+            exit 1
+          fi
+
+          jq -c '{id,name,accountId,framework,createdAt}' "$project"
+          echo "fares_uniform_project_shell=PASS"
+          echo "fares_uniform_deployment_count=0"

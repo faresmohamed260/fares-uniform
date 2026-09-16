@@ -1,0 +1,83 @@
+name: Phase 8 seal runtime database privileges
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-seal-runtime-privileges.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8-managed-db-mutation
+  cancel-in-progress: false
+
+jobs:
+  seal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SUPABASE_API_BASE: https://api.supabase.com/v1
+      SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+    steps:
+      - name: Verify populated runtime boundary
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            to_regclass('fares_control.deployment_epoch') IS NOT NULL AS epoch_table_exists,
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[0]' "$response"
+          test "$(jq -r '.[0].rolcanlogin' "$response")" = true
+          test "$(jq -r '.[0].app_owned_relations' "$response")" -gt 0
+          test "$(jq -r '.[0].session_table_ok' "$response")" = 1
+          test "$(jq -r '.[0].required_extensions' "$response")" = 2
+          test "$(jq -r '.[0].epoch_table_exists' "$response")" = true
+          test -n "$(jq -r '.[0].epoch_id' "$response")"
+          echo 'runtime_privilege_seal_precondition=PASS'
+
+      - name: Revoke deployment-only schema CREATE lease
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          REVOKE CREATE ON SCHEMA public FROM fares_app;
+          SELECT
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { echo "privilege seal failed HTTP $status" >&2; jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
+          jq -c '.[0]' "$response"
+          test "$(jq -r '.[0].rolcanlogin' "$response")" = true
+          test "$(jq -r '.[0].can_create_public' "$response")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$response")" -gt 0
+          test "$(jq -r '.[0].session_table_ok' "$response")" = 1
+          test -n "$(jq -r '.[0].epoch_id' "$response")"
+          echo 'runtime_privilege_seal=PASS login=true create=false populated=true provider_boundary=preserved'

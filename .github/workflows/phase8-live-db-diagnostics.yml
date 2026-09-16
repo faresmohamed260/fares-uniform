@@ -1,0 +1,188 @@
+name: Phase 8 live database diagnostics
+# Safe to run while a staging restore is active; all provider queries are read-only.
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-live-db-diagnostics.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SUPABASE_API_BASE: https://api.supabase.com/v1
+      SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+    steps:
+      - name: Inspect runtime role and active database work
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || exit 64
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT rolname, rolcanlogin, rolsuper, rolcreatedb, rolcreaterole, rolreplication, rolinherit
+          FROM pg_roles WHERE rolname='fares_app';
+          SELECT
+            pid, usename, state, wait_event_type, wait_event,
+            backend_xid IS NOT NULL AS has_xid,
+            now() - query_start AS query_age
+          FROM pg_stat_activity
+          WHERE datname='postgres' AND usename='fares_app'
+          ORDER BY query_start;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[]' "$response"
+
+      - name: Inspect post-failure public schema residue and ownership
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            'schema' AS kind,
+            n.nspname AS name,
+            pg_get_userbyid(n.nspowner) AS owner,
+            coalesce(n.nspacl::text, '') AS detail
+          FROM pg_namespace n
+          WHERE n.nspname = 'public'
+          UNION ALL
+          SELECT
+            'extension',
+            e.extname,
+            pg_get_userbyid(e.extowner),
+            n.nspname || ':' || e.extversion
+          FROM pg_extension e
+          JOIN pg_namespace n ON n.oid = e.extnamespace
+          WHERE e.extname IN ('unaccent','pg_trgm')
+          UNION ALL
+          SELECT
+            'relation',
+            c.relname,
+            pg_get_userbyid(c.relowner),
+            c.relkind::text
+          FROM pg_class c
+          JOIN pg_namespace n ON n.oid = c.relnamespace
+          WHERE n.nspname = 'public'
+            AND c.relkind IN ('r','p','v','m','S')
+          UNION ALL
+          SELECT
+            'function',
+            p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')',
+            pg_get_userbyid(p.proowner),
+            p.prokind::text
+          FROM pg_proc p
+          JOIN pg_namespace n ON n.oid = p.pronamespace
+          WHERE n.nspname = 'public'
+            AND pg_get_userbyid(p.proowner) = 'fares_app'
+          UNION ALL
+          SELECT
+            'type',
+            t.typname,
+            pg_get_userbyid(t.typowner),
+            t.typtype::text
+          FROM pg_type t
+          JOIN pg_namespace n ON n.oid = t.typnamespace
+          WHERE n.nspname = 'public'
+            AND pg_get_userbyid(t.typowner) = 'fares_app'
+          ORDER BY 1,2;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { echo "residue inventory failed: HTTP $status" >&2; jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
+          jq -c '.[]' "$response"
+
+      - name: Inspect bootstrap ACL and default privilege boundary
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            has_database_privilege('fares_app','postgres','CONNECT') AS can_connect,
+            has_schema_privilege('fares_app','public','USAGE') AS can_use_public,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND c.relkind IN ('r','p') LIMIT 1) AS session_owner,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT') AS session_select,
+            has_table_privilege('fares_app','public.fares_http_session','INSERT') AS session_insert,
+            has_table_privilege('fares_app','public.fares_http_session','UPDATE') AS session_update,
+            has_table_privilege('fares_app','public.fares_http_session','DELETE') AS session_delete;
+          SELECT
+            pg_get_userbyid(d.defaclrole) AS owner,
+            coalesce(n.nspname, '<all>') AS schema_name,
+            d.defaclobjtype,
+            d.defaclacl::text AS acl
+          FROM pg_default_acl d
+          LEFT JOIN pg_namespace n ON n.oid=d.defaclnamespace
+          WHERE pg_get_userbyid(d.defaclrole) IN ('postgres','fares_app')
+          ORDER BY 1,2,3;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { echo "ACL inventory failed: HTTP $status" >&2; jq -c '{error:(.error // .)}' "$response" >&2 || true; exit 1; }
+          jq -c '.[]' "$response"
+
+      - name: Inspect committed Odoo module state
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          existence_query="SELECT EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='ir_module_module' AND c.relkind IN ('r','p')) AS module_table_exists;"
+          payload="$(jq -cn --arg query "$existence_query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          exists="$(jq -r '.[0].module_table_exists' "$response")"
+          echo "module_table_exists=$exists"
+          if [[ "$exists" != true ]]; then exit 0; fi
+
+          read -r -d '' query <<'SQL' || true
+          SELECT name, state
+          FROM ir_module_module
+          WHERE name IN ('base','web','point_of_sale','stock','sale_management','crm','account','fu_core','fu_retail','fu_preorder','fu_production','fu_business','fu_public_api','fu_reporting','fu_uat')
+          ORDER BY name;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[] | {name,state}' "$response"

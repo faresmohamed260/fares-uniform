@@ -1,0 +1,462 @@
+# Translation of Fares Uniform Business Clients.
+# This file contains the translation of the following modules:
+# * fu_business
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#. module: fu_business
+#: model:ir.actions.act_window,name:fu_business.action_fu_business_clients
+#: model:ir.ui.menu,name:fu_business.menu_fu_business_root
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_list
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_search
+msgid "Business Clients"
+msgstr "عملاء الشركات"
+
+#. module: fu_business
+#: model:ir.ui.menu,name:fu_business.menu_fu_business_clients
+msgid "Enquiries & Samples"
+msgstr "الاستفسارات والعينات"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Business Enquiry"
+msgstr "استفسار عميل شركة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Business enquiry"
+msgstr "استفسار عميل شركة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Start Sample"
+msgstr "بدء تجهيز العينة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Mark Sample Sent"
+msgstr "تحديد العينة كمرسلة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Request Revision"
+msgstr "طلب تعديل"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Approve Sample"
+msgstr "اعتماد العينة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Reject Sample"
+msgstr "رفض العينة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Prepare Business Order"
+msgstr "إعداد طلب شركة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Client and contact"
+msgstr "العميل وبيانات الاتصال"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Design and sample"
+msgstr "التصميم والعينة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Meeting / enquiry notes"
+msgstr "ملاحظات الاجتماع / الاستفسار"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Business orders"
+msgstr "طلبات الشركات"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Record design discussion, requirements and follow-up notes..."
+msgstr "سجّل مناقشة التصميم والمتطلبات وملاحظات المتابعة..."
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_form
+msgid "Commercial execution follows the accepted Phase 3B deposit, full-balance-before-shipment and no-partial-shipment rules. B2B refunds and credits remain excluded."
+msgstr "التنفيذ التجاري يتبع قواعد المرحلة 3B المعتمدة للعربون وسداد كامل الرصيد قبل الشحن ومنع الشحن الجزئي. تظل مرتجعات وإشعارات ائتمان عملاء الشركات مستبعدة."
+
+#. module: fu_business
+#: model:ir.actions.act_window,name:fu_business.action_fu_business_quotations
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_list
+msgid "Business Orders"
+msgstr "طلبات الشركات"
+
+#. module: fu_business
+#: code:addons/fu_business/models/business.py:0
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+msgid "Business Order"
+msgstr "طلب شركة"
+
+#. module: fu_business
+#: model:ir.ui.menu,name:fu_business.menu_fu_business_quotations
+msgid "Business Orders & Payments"
+msgstr "طلبات ومدفوعات الشركات"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+msgid "Commercial terms"
+msgstr "الشروط التجارية"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+msgid "Payment and release"
+msgstr "الدفع والتسليم"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+msgid "Commercial audit"
+msgstr "تدقيق التغييرات التجارية"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+msgid "Edit Draft Details"
+msgstr "تعديل تفاصيل المسودة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+msgid "Edit / Approve Draft Change"
+msgstr "تعديل / اعتماد تغيير المسودة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_payment_wizard_form
+msgid "Record Payment"
+msgstr "تسجيل دفعة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+msgid "Confirm Business Order"
+msgstr "تأكيد طلب الشركة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+msgid "Cancel Unpaid Draft"
+msgstr "إلغاء المسودة غير المدفوعة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_sale_order_form
+msgid "A positive negotiated deposit is required before confirmation. The full remaining balance is required before complete shipment release. Partial shipment and cancellation after payment are blocked in this MVP."
+msgstr "يلزم عربون إيجابي متفق عليه قبل التأكيد. ويلزم سداد كامل الرصيد المتبقي قبل تسليم الشحنة بالكامل. الشحن الجزئي والإلغاء بعد الدفع محجوبان في هذا الإصدار الأولي."
+
+#. module: fu_business
+#: code:addons/fu_business/models/business.py:0
+#: model:ir.actions.act_window,name:fu_business.action_fu_business_quotation_editor
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Draft Quotation Details"
+msgstr "تفاصيل عرض السعر المبدئي"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Before payment, assigned Sales/BD may edit the draft. After payment, only Owner/Admin may approve a draft commercial change. Saving never authorizes shipment."
+msgstr "قبل الدفع، يمكن لمسؤول المبيعات وتطوير الأعمال المعيّن تعديل المسودة. بعد الدفع، يمكن للمالك/المسؤول فقط اعتماد تغيير تجاري في المسودة. الحفظ لا يصرح بالشحن مطلقًا."
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Commercial details"
+msgstr "التفاصيل التجارية"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard__line_ids
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Candidate items"
+msgstr "الأصناف المقترحة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+msgid "Save Draft"
+msgstr "حفظ المسودة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_quotation_wizard_form
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_payment_wizard_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard__quotation_id
+msgid "Business quotation"
+msgstr "عرض سعر الشركة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard__client_order_ref
+msgid "Customer Reference"
+msgstr "مرجع العميل"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard__commitment_date
+msgid "Delivery Date"
+msgstr "تاريخ التسليم"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard_line__product_id
+msgid "Product"
+msgstr "المنتج"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard_line__quantity
+msgid "Quantity"
+msgstr "الكمية"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_quotation_wizard_line__unit_price
+msgid "Unit Price"
+msgstr "سعر الوحدة"
+
+#. module: fu_business
+#: model:ir.actions.act_window,name:fu_business.action_fu_business_payment_wizard
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_payment_wizard_form
+msgid "Record Business Payment"
+msgstr "تسجيل دفعة طلب شركة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_payment_wizard_form
+msgid "Enter the negotiated positive deposit or later balance payment. No deposit percentage is preselected. Payments cannot exceed the remaining balance."
+msgstr "أدخل العربون الإيجابي المتفق عليه أو دفعة لاحقة من الرصيد. لا توجد نسبة عربون محددة مسبقًا. لا يجوز أن تتجاوز المدفوعات الرصيد المتبقي."
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_payment_wizard__balance_due
+msgid "Balance Due"
+msgstr "الرصيد المتبقي"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_payment_wizard__amount
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_payment_wizard__journal_key
+msgid "Payment Method"
+msgstr "طريقة الدفع"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_payment_wizard__manual_confirmed
+msgid "I confirm the bank notification was observed"
+msgstr "أؤكد أن إشعار البنك تمت ملاحظته"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_fu_business_payment_wizard__payment_uuid
+msgid "Payment Reference"
+msgstr "مرجع الدفع"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_sale_order__fu_business_payment_state
+msgid "Business payment state"
+msgstr "حالة دفع طلب الشركة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_sale_order__fu_business_amount_paid
+msgid "Business amount paid"
+msgstr "المبلغ المدفوع لطلب الشركة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_sale_order__fu_business_balance_due
+msgid "Business balance due"
+msgstr "الرصيد المتبقي لطلب الشركة"
+
+#. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__sale_order__fu_business_payment_state__unpaid
+msgid "No payment"
+msgstr "لا توجد دفعة"
+
+#. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__sale_order__fu_business_payment_state__deposit
+msgid "Deposit / balance due"
+msgstr "عربون / رصيد متبقٍ"
+
+#. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__sale_order__fu_business_payment_state__paid
+msgid "Fully paid"
+msgstr "مدفوع بالكامل"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_sale_order__fu_business_confirmed_by_id
+msgid "Business order confirmed by"
+msgstr "مؤكد طلب الشركة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_sale_order__fu_business_confirmed_at
+msgid "Business order confirmed at"
+msgstr "وقت تأكيد طلب الشركة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_sale_order__fu_business_change_approved_by_id
+msgid "Last commercial change approved by"
+msgstr "آخر من اعتمد تغييرًا تجاريًا"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_sale_order__fu_business_change_approved_at
+msgid "Last commercial change approved at"
+msgstr "وقت آخر اعتماد لتغيير تجاري"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_crm_lead__fu_business_client
+msgid "Fares business client"
+msgstr "عميل شركة لدى فارس"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_crm_lead__fu_design_requirements
+msgid "Design requirements"
+msgstr "متطلبات التصميم"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_crm_lead__fu_sample_state
+msgid "Sample status"
+msgstr "حالة العينة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_crm_lead__fu_sample_reference
+msgid "Sample reference"
+msgstr "مرجع العينة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_crm_lead__fu_sample_notes
+msgid "Sample notes"
+msgstr "ملاحظات العينة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_crm_lead__fu_sample_sent_by_id
+msgid "Sample sent by"
+msgstr "مرسل العينة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_crm_lead__fu_sample_sent_at
+msgid "Sample sent at"
+msgstr "وقت إرسال العينة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_crm_lead__fu_sample_decided_by_id
+msgid "Sample decided by"
+msgstr "صاحب قرار العينة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_crm_lead__fu_sample_decided_at
+msgid "Sample decided at"
+msgstr "وقت قرار العينة"
+
+#. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__not_started
+msgid "Not started"
+msgstr "لم تبدأ"
+
+#. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__preparing
+msgid "Preparing"
+msgstr "قيد التجهيز"
+
+#. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__sent
+msgid "Sent"
+msgstr "مرسلة"
+
+#. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__revision
+msgid "Revision requested"
+msgstr "مطلوب تعديل"
+
+#. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__approved
+msgid "Approved"
+msgstr "معتمدة"
+
+#. module: fu_business
+#: model:ir.model.fields.selection,name:fu_business.selection__crm_lead__fu_sample_state__rejected
+msgid "Rejected"
+msgstr "مرفوضة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_sale_order__fu_business_order
+#: model:ir.model.fields,field_description:fu_business.field_account_payment__fu_business_order_id
+msgid "Fares business order"
+msgstr "طلب شركة لدى فارس"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_account_payment__fu_business_payment_uuid
+msgid "Fares business payment reference"
+msgstr "مرجع دفعة طلب الشركة لدى فارس"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_account_payment__fu_business_recorded_by_user_id
+msgid "Business payment recorded by"
+msgstr "مسجل دفعة طلب الشركة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_search
+msgid "Sample Approved"
+msgstr "العينة معتمدة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_search
+msgid "Revision Requested"
+msgstr "مطلوب تعديل"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_search
+msgid "Salesperson"
+msgstr "مسؤول المبيعات"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_lead_search
+msgid "Sample Status"
+msgstr "حالة العينة"
+
+#. module: fu_business
+#: model:ir.actions.act_window,name:fu_business.action_fu_business_deliveries
+#: model:ir.ui.menu,name:fu_business.menu_fu_business_deliveries
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_delivery_list
+msgid "Business Deliveries"
+msgstr "شحنات الشركات"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_delivery_form
+msgid "Business Delivery"
+msgstr "شحنة شركة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_delivery_form
+msgid "Release Complete Shipment"
+msgstr "تسليم الشحنة كاملة"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_delivery_form
+msgid "Release is allowed only when the whole business-order balance is paid and every ordered item is available in this single delivery. Partial shipment is disabled."
+msgstr "لا يسمح بالتسليم إلا بعد سداد كامل رصيد طلب الشركة وتوفر كل الأصناف المطلوبة في هذه الشحنة الواحدة. الشحن الجزئي معطل."
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_delivery_form
+msgid "Delivery"
+msgstr "التسليم"
+
+#. module: fu_business
+#: model_terms:ir.ui.view,arch_db:fu_business.fu_business_delivery_form
+msgid "Stock scope"
+msgstr "نطاق المخزون"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_stock_picking__fu_business_released_by_id
+msgid "Business shipment released by"
+msgstr "منفذ تسليم شحنة الشركة"
+
+#. module: fu_business
+#: model:ir.model.fields,field_description:fu_business.field_stock_picking__fu_business_released_at
+msgid "Business shipment released at"
+msgstr "وقت تسليم شحنة الشركة"

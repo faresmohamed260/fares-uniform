@@ -1,13 +1,13 @@
 # Phase 0A — Hosted Odoo proof of fit
 
-Status: AUTHORIZED / IN PROGRESS, 2026-09-06.
+Status: TECHNICAL PROOF PASS / CLIENT VISUAL REVIEW OPEN, 2026-09-07.
 Authorization: client "I approve, go ahead" to the proposed hosted proof and preceding contract. This technical spike runs alongside remaining Phase 0 discovery; it does not declare discovery complete or authorize production deployment.
 
 ## Goal
 Prove whether pinned Odoo Community can support the factory's offline POS and small custom workflows while preserving its native mechanics and meeting a premium bilingual UI direction.
 
 ## Verified starting point
-Documentation-only project main; source assessment at Odoo commit 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf. No existing application or runtime tests. GitHub writes/read access verified; Actions execution availability remains to be established.
+Documentation-only project main; source assessment at Odoo commit 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf. No existing application or runtime tests. GitHub writes/read access verified; hosted Actions execution was subsequently proven.
 
 ## Scope
 1. Disposable hosted GitHub Actions runner with PostgreSQL and pinned Odoo Community; no customer resources.
@@ -33,8 +33,17 @@ Pin upstream source; record interpreter/browser and container/runtime versions i
 - Visual: native POS and custom order/task screens in English/Arabic with desktop/narrow screenshots; keyboard/reduced-motion checks.
 - Publication: no screenshot equals user approval. Client review is the final visual checkpoint.
 
+## Technical outcome
+The exact proof implementation at commit `1ad528e02ed1a709d34620731d182c5e1cbdebe9` passed all 15 bounded tests in hosted run `34068805602`. Cash and generic Bank offline checkouts survived API-offline payment, browser reload while still offline, reconnect and repeated synchronization; backend assertions required exactly one paid order, exactly one payment and full settlement.
+
+The proof exposed an Odoo 19.0 restore defect: paid orders are persisted to IndexedDB, but `PosData.missingRecursive()` returns an empty accumulator when startup is offline before adding the already-read local records, so they are not hydrated into the in-memory POS model. The proof addon contains an isolated compatibility patch at `proof/addons/fu_proof/static/src/offline_restore_patch.js`. It changes only that offline path and delegates online behavior to upstream Odoo. Odoo core remains unmodified.
+
+Verdict for the tested scope: **conditional GO for Odoo Community as the ERP/domain core**, with Fares-owned addons/UX and a maintained offline compatibility layer. This is not a claim that stock Odoo is sufficient unchanged, nor that production offline reliability is proven.
+
 ## Exit and decisions
-Complete only after exact-head checks and reviewable outputs exist. Document red/blocked gates explicitly. If remote execution is unavailable, preserve concrete implementation and report the exact blocker without local fallback. Final platform adoption remains conditional on the findings and client UI review.
+The technical spike has exact-head checks and reviewable outputs. Platform adoption remains conditional on the documented limitations and client UI review. The current proof UI demonstrates compatibility only and is not the final premium interface.
+
+Before production, real network isolation, multi-hour/device-loss behavior, browser-storage loss handling, conflict/retry behavior, actual InstaPay/payment verification, inventory/financial integration, returns, hardware and deployment architecture still require dedicated validation.
 
 ## Next dependencies
-Production foundation contracts depend on this proof. Host costs, business rule details, production-grade payment/stock integration and onboarding remain future scoped work.
+Production foundation contracts depend on this proof plus remaining Phase 0 discovery. Host costs, business rule details, production-grade payment/stock integration and onboarding remain future scoped work.

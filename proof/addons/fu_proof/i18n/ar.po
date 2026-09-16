@@ -1,0 +1,84 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Fares Uniform proof\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: fu_proof
+#: model_terms:ir.ui.view,arch_db:fu_proof.task_form
+msgid "Advance demonstration"
+msgstr "بدء المرحلة التالية"
+
+#. module: fu_proof
+#: model_terms:ir.ui.view,arch_db:fu_proof.task_form
+msgid "Synthetic workflow proof. Payment and stock integration are not implemented."
+msgstr "بيانات تجريبية لاختبار سير العمل. لم يتم ربط المدفوعات والمخزون بعد."
+
+#. module: fu_proof
+#: model:ir.actions.act_window,name:fu_proof.tasks
+msgid "Fares Uniform proof tasks"
+msgstr "مهام إنتاج فارس — تجربة"
+
+#. module: fu_proof
+#: model:ir.ui.menu,name:fu_proof.root_menu
+msgid "Fares Uniform proof"
+msgstr "فارس — تجربة"
+
+#. module: fu_proof
+#: model:ir.ui.menu,name:fu_proof.task_menu
+msgid "Production tasks"
+msgstr "مهام الإنتاج"
+
+#. module: fu_proof
+#: model:ir.model.fields.selection,name:fu_proof.selection__fu_proof_task__state__queued
+msgid "Queued"
+msgstr "في الانتظار"
+
+#. module: fu_proof
+#: model:ir.model.fields.selection,name:fu_proof.selection__fu_proof_task__state__production
+msgid "In production"
+msgstr "قيد الإنتاج"
+
+#. module: fu_proof
+#: model:ir.model.fields.selection,name:fu_proof.selection__fu_proof_task__state__finished
+msgid "Finished"
+msgstr "مكتمل"
+
+#. module: fu_proof
+#: model:ir.model.fields.selection,name:fu_proof.selection__fu_proof_task__state__ready
+msgid "Ready for collection"
+msgstr "جاهز للاستلام"
+
+#. module: fu_proof
+#: model:ir.model.fields,field_description:fu_proof.field_fu_proof_task__product_id
+#: model:ir.model.fields,field_description:fu_proof.field_fu_proof_line__product_id
+msgid "Product"
+msgstr "المنتج"
+
+
+#. module: fu_proof
+#: model:ir.model.fields,field_description:fu_proof.field_fu_proof_task__state
+msgid "State"
+msgstr "الحالة"
+
+#. module: fu_proof
+#: model:ir.model.fields,field_description:fu_proof.field_fu_proof_line__order_id
+msgid "Order"
+msgstr "الطلب"
+
+#. module: fu_proof
+#: model:ir.model.fields,field_description:fu_proof.field_fu_proof_line__quantity
+msgid "Quantity"
+msgstr "الكمية"
+
+#. module: fu_proof
+#: model:ir.model.fields,field_description:fu_proof.field_fu_proof_line__collected
+msgid "Collected"
+msgstr "تم استلامه"
+
+#. module: fu_proof
+#: model:ir.model.fields,field_description:fu_proof.field_fu_proof_line__pickup_date
+msgid "Pickup Date"
+msgstr "موعد الاستلام"

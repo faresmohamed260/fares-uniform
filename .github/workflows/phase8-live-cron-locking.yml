@@ -1,0 +1,690 @@
+name: Phase 8 live external cron locking
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-live-cron-locking.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase8-managed-db-mutation
+  cancel-in-progress: false
+
+env:
+  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  EXPECTED_DEPLOYMENT_ID: dpl_Ba34KhzW7AZ6aBY7poz1DeaQa3rg
+  EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+  ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+  SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+  RUNTIME_A: fares-phase8-cron-a
+  RUNTIME_B: fares-phase8-cron-b
+  QUARANTINE_RUNTIME: fares-phase8-cron-quarantine
+  RUNTIME_PORT_A: '18069'
+  RUNTIME_PORT_B: '18070'
+
+jobs:
+  external-cron-locking:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout exact deployed application source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_DEPLOYMENT_SHA }}
+          fetch-depth: 1
+
+      - name: Verify fresh workflow generation and deployed identity
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo 'VERCEL_TOKEN missing' >&2; exit 64; }
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          test "$GITHUB_RUN_ATTEMPT" = 1 || { echo "Workflow reruns are forbidden for live cron mutation; start a fresh workflow run instead. attempt=$GITHUB_RUN_ATTEMPT" >&2; exit 1; }
+          test "$(git rev-parse HEAD)" = "$EXPECTED_DEPLOYMENT_SHA"
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test -n "$remote_head"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale cron workflow: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+
+          deployments="$(mktemp)"
+          trap 'rm -f "$deployments"' EXIT
+          status="$(curl -sS -o "$deployments" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          test "$status" = 200
+          match_count="$(jq -r --arg id "$EXPECTED_DEPLOYMENT_ID" --arg sha "$EXPECTED_DEPLOYMENT_SHA" '[.deployments[] | select((.uid // .id // "") == $id and (.meta.githubCommitSha // "") == $sha and (.state // .readyState // "") == "READY")] | length' "$deployments")"
+          test "$match_count" = 1
+          {
+            echo "workflow_sha=$GITHUB_SHA"
+            echo "deployed_application_sha=$EXPECTED_DEPLOYMENT_SHA"
+            echo "deployment_id=$EXPECTED_DEPLOYMENT_ID"
+            echo "database_epoch_expected=$EXPECTED_DB_EPOCH"
+          } | tee evidence/source-authority.txt
+
+      - name: Validate the known ordinary cron backlog before build
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND cron_name NOT LIKE 'Phase 8 live cron locking proof%' AND nextcall IS NOT NULL AND nextcall <= now()) AS ordinary_due_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND cron_name NOT LIKE 'Phase 8 live cron locking proof%' AND nextcall IS NOT NULL AND nextcall <= now() AND lastcall IS NULL) AS ordinary_due_never_run,
+            (SELECT count(*)::int FROM ir_cron WHERE cron_name LIKE 'Phase 8 live cron locking proof%') AS synthetic_crons,
+            (SELECT count(*)::int FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%') AS synthetic_markers;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201 || { jq -c '{error:(.message // .error // .)}' "$db" >&2 || true; exit 1; }
+          jq -c '.[0]' "$db" | tee evidence/early-cron-guard.json
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].ordinary_due_crons' "$db")" = 19 || { echo 'Refusing proof: ordinary cron backlog no longer matches the diagnosed 19-job boundary' >&2; exit 1; }
+          test "$(jq -r '.[0].ordinary_due_never_run' "$db")" = 19 || { echo 'Refusing proof: an ordinary due cron has changed execution state' >&2; exit 1; }
+          test "$(jq -r '.[0].synthetic_crons' "$db")" = 0
+          test "$(jq -r '.[0].synthetic_markers' "$db")" = 0
+          echo 'ordinary_cron_backlog=VALIDATED due=19 lastcall_null=19 mutation=none' | tee evidence/early-cron-policy.txt
+
+      - name: Build exact deployed stateless runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build --pull -f Dockerfile.vercel \
+            --build-arg ODOO_SHA="$ODOO_SHA" \
+            --build-arg FARES_SHA="$EXPECTED_DEPLOYMENT_SHA" \
+            -t "fares-uniform-phase8-cron:$EXPECTED_DEPLOYMENT_SHA" .
+          test "$(docker image inspect -f '{{json .Config.Volumes}}' "fares-uniform-phase8-cron:$EXPECTED_DEPLOYMENT_SHA")" = null
+          docker run --rm --entrypoint bash "fares-uniform-phase8-cron:$EXPECTED_DEPLOYMENT_SHA" -lc '
+            set -euo pipefail
+            test "$(id -u)" = 10001
+            test "$ODOO_SHA" = "1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf"
+            test "$FARES_SHA" = "2a74e93b1828c16839ba7cede336caa4ca374306"
+            test -f /mnt/runtime-addons/fares_vercel_runtime/cron_controller.py
+            test ! -e /mnt/extra-addons/fu_uat
+            grep -F "IrCron._process_jobs(db_name)" /mnt/runtime-addons/fares_vercel_runtime/cron_controller.py >/dev/null
+            grep -F "SKIP LOCKED" /opt/odoo/odoo/addons/base/models/ir_cron.py >/dev/null
+          '
+          echo 'exact_deployed_runtime=PASS persistent_volumes=none controller=native_ir_cron locking=skip_locked fu_uat=absent' | tee evidence/runtime-image.txt
+
+      - name: Resolve configured runtime secrets without disclosure
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          secrets_dir="$(mktemp -d)"
+          chmod 700 "$secrets_dir"
+          echo "SECRETS_DIR=$secrets_dir" >> "$GITHUB_ENV"
+          envs="$secrets_dir/vercel-env.json"
+          status="$(curl -sS -o "$envs" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v10/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          for key in ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD CRON_SECRET; do
+            env_id="$(jq -er --arg key "$key" '[.envs[] | select(.key==$key and (((.target // []) | index("production")) != null))] | if length == 1 then .[0].id else error("expected exactly one production variable") end' "$envs")"
+            response="$secrets_dir/$key.json"
+            status="$(curl -sS -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v1/projects/${VERCEL_PROJECT_ID}/env/${env_id}?teamId=${VERCEL_TEAM_ID}")"
+            test "$status" = 200
+            value="$(jq -er --arg key "$key" 'select(.key==$key and .decrypted==true) | .value | select(type=="string" and length>0)' "$response")"
+            echo "::add-mask::$value"
+            printf '%s' "$value" > "$secrets_dir/$key"
+            chmod 600 "$secrets_dir/$key"
+            unset value
+          done
+          rm -f "$envs" "$secrets_dir"/*.json
+          openssl rand -hex 32 > "$secrets_dir/invalid-cron-secret"
+          chmod 600 "$secrets_dir/invalid-cron-secret"
+          echo "::add-mask::$(cat "$secrets_dir/invalid-cron-secret")"
+          test "$(cat "$secrets_dir/invalid-cron-secret")" != "$(cat "$secrets_dir/CRON_SECRET")"
+          echo 'runtime_secret_resolution=PASS configured_cron_bearer=true decrypted=true files=restricted' | tee evidence/secret-contract.txt
+
+      - name: Start two disposable exact-image runtimes with built-in cron disabled
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_PASSWORD="$(cat "$SECRETS_DIR/ODOO_DB_PASSWORD")"
+          ADMIN_PASSWD="$(cat "$SECRETS_DIR/ODOO_ADMIN_PASSWD")"
+          CRON_SECRET="$(cat "$SECRETS_DIR/CRON_SECRET")"
+          echo "::add-mask::$DB_PASSWORD"
+          echo "::add-mask::$ADMIN_PASSWD"
+          echo "::add-mask::$CRON_SECRET"
+
+          start_runtime() {
+            local name="$1"
+            local port="$2"
+            docker run -d --name "$name" -p "$port:8069" \
+              -e ODOO_RUNTIME_MODE=http \
+              -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres \
+              -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require \
+              -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e CRON_SECRET="$CRON_SECRET" \
+              -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0 -e FARES_SESSION_STORE=postgres -e PORT=8069 \
+              "fares-uniform-phase8-cron:$EXPECTED_DEPLOYMENT_SHA"
+          }
+
+          start_runtime "$RUNTIME_A" "$RUNTIME_PORT_A"
+          start_runtime "$RUNTIME_B" "$RUNTIME_PORT_B"
+          for port in "$RUNTIME_PORT_A" "$RUNTIME_PORT_B"; do
+            for attempt in $(seq 1 60); do
+              if curl -fsS -H 'X-Odoo-Database: postgres' "http://127.0.0.1:$port/web/login" >/dev/null; then break; fi
+              if [[ "$attempt" = 60 ]]; then
+                docker logs "$RUNTIME_A" >&2 || true
+                docker logs "$RUNTIME_B" >&2 || true
+                exit 1
+              fi
+              sleep 2
+            done
+          done
+          for runtime in "$RUNTIME_A" "$RUNTIME_B"; do
+            test "$(docker inspect -f '{{json .Mounts}}' "$runtime")" = '[]'
+            docker exec "$runtime" grep -Fx 'workers = 0' /tmp/fares-odoo.conf >/dev/null
+            docker exec "$runtime" grep -Fx 'max_cron_threads = 0' /tmp/fares-odoo.conf >/dev/null
+          done
+          echo 'runtime_pair=PASS count=2 local_mounts=none workers=0 max_cron_threads=0' | tee evidence/runtime-pair.txt
+
+      - name: Revalidate branch and database boundary immediately before synthetic mutation
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale cron mutation: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND c.relkind IN ('r','p')) AS session_owner,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT') AS session_select,
+            has_table_privilege('fares_app','public.fares_http_session','INSERT') AS session_insert,
+            has_table_privilege('fares_app','public.fares_http_session','UPDATE') AS session_update,
+            has_table_privilege('fares_app','public.fares_http_session','DELETE') AS session_delete,
+            (SELECT count(*)::int FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='PUBLIC') AS session_public_grants,
+            (SELECT string_agg(e.extname || ':' || pg_get_userbyid(e.extowner), ',' ORDER BY e.extname) FROM pg_extension e WHERE e.extname IN ('pg_trgm','unaccent')) AS extension_signature,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT value FROM ir_config_parameter WHERE key='ir_attachment.location') AS attachment_location,
+            (SELECT count(*)::int FROM fares_http_session) AS session_rows,
+            (SELECT count(*)::int FROM sale_order) AS sale_orders,
+            (SELECT count(*)::int FROM account_payment) AS payments,
+            (SELECT count(*)::int FROM stock_picking) AS pickings,
+            (SELECT count(*)::int FROM ir_cron) AS cron_rows,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND cron_name NOT LIKE 'Phase 8 live cron locking proof%') AS ordinary_active_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND cron_name NOT LIKE 'Phase 8 live cron locking proof%' AND nextcall IS NOT NULL AND nextcall <= now()) AS ordinary_due_crons,
+            (SELECT count(*)::int FROM ir_cron WHERE active AND cron_name NOT LIKE 'Phase 8 live cron locking proof%' AND nextcall IS NOT NULL AND nextcall <= now() AND lastcall IS NULL) AS ordinary_due_never_run,
+            (SELECT md5(COALESCE(string_agg(id::text || '|' || COALESCE(cron_name,'') || '|' || active::text || '|' || COALESCE(nextcall::text,'') || '|' || COALESCE(lastcall::text,'') || '|' || failure_count::text, E'\n' ORDER BY id),'')) FROM ir_cron WHERE cron_name NOT LIKE 'Phase 8 live cron locking proof%') AS ordinary_cron_snapshot,
+            (SELECT md5(COALESCE(string_agg(t.id::text || '|' || t.cron_id::text || '|' || t.call_at::text, E'\n' ORDER BY t.id),'')) FROM ir_cron_trigger t JOIN ir_cron c ON c.id=t.cron_id WHERE c.cron_name NOT LIKE 'Phase 8 live cron locking proof%') AS ordinary_trigger_snapshot,
+            (SELECT count(*)::int FROM ir_cron WHERE cron_name LIKE 'Phase 8 live cron locking proof%') AS synthetic_crons,
+            (SELECT count(*)::int FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%') AS synthetic_markers;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[0] | {epoch_id,rolcanlogin,can_create_public,app_owned_relations,session_owner,session_select,session_insert,session_update,session_delete,session_public_grants,extension_signature,fu_uat_installed,attachment_location,session_rows,sale_orders,payments,pickings,cron_rows,ordinary_active_crons,ordinary_due_crons,ordinary_due_never_run,ordinary_cron_snapshot,ordinary_trigger_snapshot,synthetic_crons,synthetic_markers}' "$db" | tee evidence/preflight.json
+
+          echo "SESSION_ROWS_BEFORE=$(jq -r '.[0].session_rows' "$db")" >> "$GITHUB_ENV"
+          echo "SALE_ORDERS_BEFORE=$(jq -r '.[0].sale_orders' "$db")" >> "$GITHUB_ENV"
+          echo "PAYMENTS_BEFORE=$(jq -r '.[0].payments' "$db")" >> "$GITHUB_ENV"
+          echo "PICKINGS_BEFORE=$(jq -r '.[0].pickings' "$db")" >> "$GITHUB_ENV"
+          echo "CRON_ROWS_BEFORE=$(jq -r '.[0].cron_rows' "$db")" >> "$GITHUB_ENV"
+          echo "EXTENSION_SIGNATURE_BEFORE=$(jq -r '.[0].extension_signature' "$db")" >> "$GITHUB_ENV"
+          ordinary_snapshot="$(jq -r '.[0].ordinary_cron_snapshot' "$db")"
+          ordinary_trigger_snapshot="$(jq -r '.[0].ordinary_trigger_snapshot' "$db")"
+          echo "ORDINARY_CRON_SNAPSHOT_BEFORE=$ordinary_snapshot" >> "$GITHUB_ENV"
+          echo "ORDINARY_TRIGGER_SNAPSHOT_BEFORE=$ordinary_trigger_snapshot" >> "$GITHUB_ENV"
+
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$db")" = true
+          test "$(jq -r '.[0].can_create_public' "$db")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
+          test "$(jq -r '.[0].session_owner' "$db")" = postgres
+          test "$(jq -r '.[0].session_select' "$db")" = true
+          test "$(jq -r '.[0].session_insert' "$db")" = true
+          test "$(jq -r '.[0].session_update' "$db")" = true
+          test "$(jq -r '.[0].session_delete' "$db")" = true
+          test "$(jq -r '.[0].session_public_grants' "$db")" = 0
+          test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
+          test "$(jq -r '.[0].attachment_location' "$db")" = db
+          test "$(jq -r '.[0].synthetic_crons' "$db")" = 0
+          test "$(jq -r '.[0].synthetic_markers' "$db")" = 0
+          test "$(jq -r '.[0].ordinary_due_crons' "$db")" = 19 || { echo 'Refusing mutation: ordinary due cron count changed from the diagnosed boundary' >&2; exit 1; }
+          test "$(jq -r '.[0].ordinary_due_never_run' "$db")" = 19 || { echo 'Refusing mutation: ordinary due cron execution state changed' >&2; exit 1; }
+
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing mutation after preflight: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+
+          DB_PASSWORD="$(cat "$SECRETS_DIR/ODOO_DB_PASSWORD")"
+          echo "::add-mask::$DB_PASSWORD"
+          read -r -d '' lock_script <<'PY' || true
+          import os
+          import signal
+          import sys
+          import time
+          import psycopg2
+
+          conn = psycopg2.connect(
+              host=os.environ["ODOO_DB_HOST"],
+              port=int(os.environ["ODOO_DB_PORT"]),
+              dbname=os.environ["ODOO_DB_NAME"],
+              user=os.environ["ODOO_DB_USER"],
+              password=os.environ["ODOO_DB_PASSWORD"],
+              sslmode=os.environ["ODOO_DB_SSLMODE"],
+              connect_timeout=15,
+              application_name="phase8_cron_quarantine",
+          )
+          conn.autocommit = False
+          cur = conn.cursor()
+          cur.execute("""
+              SELECT id
+              FROM ir_cron
+              WHERE active AND cron_name NOT LIKE 'Phase 8 live cron locking proof%%'
+              ORDER BY id
+              FOR NO KEY UPDATE
+          """)
+          locked_count = len(cur.fetchall())
+          cur.execute("""
+              SELECT
+                count(*) FILTER (WHERE active AND cron_name NOT LIKE 'Phase 8 live cron locking proof%%' AND nextcall IS NOT NULL AND nextcall <= now()),
+                count(*) FILTER (WHERE active AND cron_name NOT LIKE 'Phase 8 live cron locking proof%%' AND nextcall IS NOT NULL AND nextcall <= now() AND lastcall IS NULL),
+                (SELECT md5(COALESCE(string_agg(id::text || '|' || COALESCE(cron_name,'') || '|' || active::text || '|' || COALESCE(nextcall::text,'') || '|' || COALESCE(lastcall::text,'') || '|' || failure_count::text, E'\n' ORDER BY id),'')) FROM ir_cron WHERE cron_name NOT LIKE 'Phase 8 live cron locking proof%%')
+              FROM ir_cron
+          """)
+          due_count, never_run_count, snapshot = cur.fetchone()
+          expected = os.environ["PHASE8_EXPECTED_CRON_SNAPSHOT"]
+          if due_count != 19 or never_run_count != 19 or snapshot != expected:
+              print(f"phase8_ordinary_cron_quarantine=FAIL locked={locked_count} due={due_count} never_run={never_run_count} snapshot_match={snapshot == expected}", flush=True)
+              conn.rollback()
+              sys.exit(1)
+          print(f"phase8_ordinary_cron_quarantine=READY locked={locked_count} due=19 never_run=19 snapshot={snapshot}", flush=True)
+
+          def stop(_signum, _frame):
+              conn.rollback()
+              conn.close()
+              sys.exit(0)
+          signal.signal(signal.SIGTERM, stop)
+          signal.signal(signal.SIGINT, stop)
+          while True:
+              time.sleep(30)
+          PY
+          docker run -d --name "$QUARANTINE_RUNTIME" \
+            --entrypoint /opt/odoo-venv/bin/python \
+            -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres \
+            -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require \
+            -e PHASE8_EXPECTED_CRON_SNAPSHOT="$ordinary_snapshot" \
+            "fares-uniform-phase8-cron:$EXPECTED_DEPLOYMENT_SHA" -c "$lock_script" >/dev/null
+          unset DB_PASSWORD lock_script
+          quarantine_ready=false
+          for attempt in $(seq 1 30); do
+            docker logs "$QUARANTINE_RUNTIME" > evidence/ordinary-cron-quarantine.txt 2>&1 || true
+            if grep -q 'phase8_ordinary_cron_quarantine=READY' evidence/ordinary-cron-quarantine.txt; then
+              quarantine_ready=true
+              break
+            fi
+            if [[ "$(docker inspect -f '{{.State.Running}}' "$QUARANTINE_RUNTIME" 2>/dev/null || true)" != true ]]; then
+              cat evidence/ordinary-cron-quarantine.txt >&2
+              exit 1
+            fi
+            sleep 1
+          done
+          test "$quarantine_ready" = true || { cat evidence/ordinary-cron-quarantine.txt >&2; exit 1; }
+          echo 'ordinary_cron_quarantine=PASS lock=FOR_NO_KEY_UPDATE scope=all_active_ordinary mutation=none' | tee evidence/ordinary-cron-quarantine-policy.txt
+
+          seed="$SECRETS_DIR/cron-seed.py"
+          cat > "$seed" <<'PY'
+          import os
+          from datetime import timedelta
+          from odoo import fields
+
+          token = os.environ["PHASE8_RUN_TOKEN"]
+          cron_name = f"Phase 8 live cron locking proof {token}"
+          marker_name = f"phase8-live-cron-locking-{token}.txt"
+          marker_bytes = f"fares-uniform-phase8-live-cron-locking:{token}\n".encode()
+
+          crons = env["ir.cron"].sudo()
+          attachments = env["ir.attachment"].sudo()
+          if crons.search([("name", "=", cron_name)]):
+              raise RuntimeError("synthetic cron already exists")
+          if attachments.search([("name", "=", marker_name)]):
+              raise RuntimeError("synthetic marker already exists")
+          if env["ir.config_parameter"].sudo().get_param("ir_attachment.location") != "db":
+              raise RuntimeError("attachment storage is not database-backed")
+
+          code = f'''\nenv.cr.execute("SELECT pg_sleep(3)")\nenv["ir.attachment"].sudo().create({{\n    "name": {marker_name!r},\n    "type": "binary",\n    "raw": {marker_bytes!r},\n    "mimetype": "text/plain",\n}})\n'''
+          cron = crons.create({
+              "name": cron_name,
+              "user_id": env.ref("base.user_root").id,
+              "active": True,
+              "interval_number": 1,
+              "interval_type": "days",
+              "nextcall": fields.Datetime.now() - timedelta(minutes=1),
+              "model_id": env["ir.model"]._get_id("ir.attachment"),
+              "state": "code",
+              "code": code,
+          })
+          env.cr.commit()
+          if not cron.active or cron.nextcall > fields.Datetime.now():
+              raise RuntimeError("synthetic cron is not due after seed")
+          print(f"phase8_cron_seed=PASS cron_id={cron.id} due=true")
+          PY
+          chmod 600 "$seed"
+          run_token="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          docker exec -i -e PHASE8_RUN_TOKEN="$run_token" "$RUNTIME_A" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http < "$seed" \
+            | tee evidence/cron-seed.txt
+          grep -q 'phase8_cron_seed=PASS' evidence/cron-seed.txt
+          echo "phase8_live_cron_preflight_and_seed=PASS epoch=$EXPECTED_DB_EPOCH branch=$GITHUB_SHA ordinary_due=19 quarantine=FOR_NO_KEY_UPDATE" | tee evidence/mutation-guard.txt
+
+      - name: Prove built-in scheduler remains idle and rejected credentials do not execute the job
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_token="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          verify="$SECRETS_DIR/cron-verify.py"
+          cat > "$verify" <<'PY'
+          import os
+          from odoo import fields
+
+          token = os.environ["PHASE8_RUN_TOKEN"]
+          expected = int(os.environ["PHASE8_EXPECTED_EXECUTIONS"])
+          cron_name = f"Phase 8 live cron locking proof {token}"
+          marker_name = f"phase8-live-cron-locking-{token}.txt"
+          marker_bytes = f"fares-uniform-phase8-live-cron-locking:{token}\n".encode()
+
+          crons = env["ir.cron"].sudo().search([("name", "=", cron_name)])
+          if len(crons) != 1:
+              raise RuntimeError(f"expected one synthetic cron, found {len(crons)}")
+          cron = crons[0]
+          markers = env["ir.attachment"].sudo().search([("name", "=", marker_name)])
+          if len(markers) != expected:
+              raise RuntimeError(f"expected {expected} markers, found {len(markers)}")
+          for marker in markers:
+              if marker.store_fname or not marker.db_datas or marker.raw != marker_bytes:
+                  raise RuntimeError("synthetic marker is not exact database-backed content")
+          now = fields.Datetime.now()
+          if expected == 0:
+              if not cron.active or cron.nextcall > now:
+                  raise RuntimeError("synthetic cron stopped being due before trigger")
+          else:
+              if not cron.lastcall or cron.nextcall <= now:
+                  raise RuntimeError("synthetic cron did not execute and reschedule exactly once")
+          print(f"phase8_cron_verify=PASS expected={expected} markers={len(markers)} cron_id={cron.id}")
+          PY
+          chmod 600 "$verify"
+
+          sleep 5
+          docker exec -i -e PHASE8_RUN_TOKEN="$run_token" -e PHASE8_EXPECTED_EXECUTIONS=0 "$RUNTIME_B" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http < "$verify" \
+            | tee evidence/cron-before-auth-tests.txt
+          grep -q 'phase8_cron_verify=PASS expected=0' evidence/cron-before-auth-tests.txt
+
+          no_auth_status="$(curl -sS -o evidence/cron-no-auth.json -w '%{http_code}' \
+            -H 'X-Odoo-Database: postgres' \
+            "http://127.0.0.1:$RUNTIME_PORT_A/fares/internal/cron/run")"
+          test "$no_auth_status" = 401
+          invalid_secret="$(cat "$SECRETS_DIR/invalid-cron-secret")"
+          invalid_status="$(curl -sS -o evidence/cron-invalid-auth.json -w '%{http_code}' \
+            -H 'X-Odoo-Database: postgres' \
+            -H "Authorization: Bearer $invalid_secret" \
+            "http://127.0.0.1:$RUNTIME_PORT_B/fares/internal/cron/run")"
+          unset invalid_secret
+          test "$invalid_status" = 401
+
+          docker exec -i -e PHASE8_RUN_TOKEN="$run_token" -e PHASE8_EXPECTED_EXECUTIONS=0 "$RUNTIME_A" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http < "$verify" \
+            | tee evidence/cron-after-auth-tests.txt
+          grep -q 'phase8_cron_verify=PASS expected=0' evidence/cron-after-auth-tests.txt
+          {
+            echo "missing_auth_http_status=$no_auth_status"
+            echo "invalid_auth_http_status=$invalid_status"
+            echo 'rejected_auth_execution_count=0'
+            echo 'builtin_cron_threads=0'
+          } | tee evidence/auth-and-idle-proof.txt
+
+      - name: Prove concurrent external triggers execute exactly once and repeat is idempotent
+        shell: bash
+        run: |
+          set -euo pipefail
+          cron_secret="$(cat "$SECRETS_DIR/CRON_SECRET")"
+          echo "::add-mask::$cron_secret"
+          run_token="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          verify="$SECRETS_DIR/cron-verify.py"
+
+          (
+            curl -sS -o evidence/cron-trigger-a.json -w '%{http_code}' \
+              -H 'X-Odoo-Database: postgres' \
+              -H "Authorization: Bearer $cron_secret" \
+              "http://127.0.0.1:$RUNTIME_PORT_A/fares/internal/cron/run" \
+              > evidence/cron-trigger-a.status
+          ) &
+          pid_a=$!
+          (
+            curl -sS -o evidence/cron-trigger-b.json -w '%{http_code}' \
+              -H 'X-Odoo-Database: postgres' \
+              -H "Authorization: Bearer $cron_secret" \
+              "http://127.0.0.1:$RUNTIME_PORT_B/fares/internal/cron/run" \
+              > evidence/cron-trigger-b.status
+          ) &
+          pid_b=$!
+          wait "$pid_a"
+          wait "$pid_b"
+          test "$(cat evidence/cron-trigger-a.status)" = 200
+          test "$(cat evidence/cron-trigger-b.status)" = 200
+          jq -e '.status == "ok"' evidence/cron-trigger-a.json >/dev/null
+          jq -e '.status == "ok"' evidence/cron-trigger-b.json >/dev/null
+
+          docker exec -i -e PHASE8_RUN_TOKEN="$run_token" -e PHASE8_EXPECTED_EXECUTIONS=1 "$RUNTIME_A" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http < "$verify" \
+            | tee evidence/cron-after-concurrent-trigger.txt
+          grep -q 'phase8_cron_verify=PASS expected=1' evidence/cron-after-concurrent-trigger.txt
+
+          repeat_status="$(curl -sS -o evidence/cron-trigger-repeat.json -w '%{http_code}' \
+            -H 'X-Odoo-Database: postgres' \
+            -H "Authorization: Bearer $cron_secret" \
+            "http://127.0.0.1:$RUNTIME_PORT_A/fares/internal/cron/run")"
+          test "$repeat_status" = 200
+          jq -e '.status == "ok"' evidence/cron-trigger-repeat.json >/dev/null
+          docker exec -i -e PHASE8_RUN_TOKEN="$run_token" -e PHASE8_EXPECTED_EXECUTIONS=1 "$RUNTIME_B" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http < "$verify" \
+            | tee evidence/cron-after-repeat-trigger.txt
+          grep -q 'phase8_cron_verify=PASS expected=1' evidence/cron-after-repeat-trigger.txt
+          unset cron_secret
+
+          {
+            echo 'phase8_external_cron_locking=PASS'
+            echo 'concurrent_valid_trigger_http_status_a=200'
+            echo 'concurrent_valid_trigger_http_status_b=200'
+            echo "repeat_valid_trigger_http_status=$repeat_status"
+            echo 'due_job_execution_count=1'
+            echo 'repeat_trigger_duplicate_count=0'
+            echo 'native_odoo_locking=SKIP_LOCKED'
+            echo 'builtin_odoo_cron_threads=0'
+          } | tee evidence/result.txt
+
+      - name: Remove synthetic cron and marker
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${SECRETS_DIR:-}" || ! -d "$SECRETS_DIR" ]]; then
+            echo 'synthetic_cleanup=SKIP no_runtime_secrets'
+            exit 0
+          fi
+          cleanup="$SECRETS_DIR/cron-cleanup.py"
+          cat > "$cleanup" <<'PY'
+          import os
+
+          token = os.environ["PHASE8_RUN_TOKEN"]
+          cron_name = f"Phase 8 live cron locking proof {token}"
+          marker_name = f"phase8-live-cron-locking-{token}.txt"
+          crons = env["ir.cron"].sudo().search([("name", "=", cron_name)])
+          markers = env["ir.attachment"].sudo().search([("name", "=", marker_name)])
+          cron_count = len(crons)
+          marker_count = len(markers)
+          if crons:
+              crons.unlink()
+          if markers:
+              markers.unlink()
+          if cron_count or marker_count:
+              env.cr.commit()
+          print(f"phase8_cron_cleanup=PASS removed_crons={cron_count} removed_markers={marker_count}")
+          PY
+          chmod 600 "$cleanup"
+          run_token="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          cleanup_done=false
+          for runtime in "$RUNTIME_A" "$RUNTIME_B"; do
+            if docker ps --format '{{.Names}}' | grep -Fx "$runtime" >/dev/null; then
+              if docker exec -i -e PHASE8_RUN_TOKEN="$run_token" "$runtime" \
+                /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http < "$cleanup" \
+                | tee evidence/cron-cleanup.txt; then
+                cleanup_done=true
+                break
+              fi
+            fi
+          done
+          if [[ "$cleanup_done" != true ]]; then
+            DB_PASSWORD="$(cat "$SECRETS_DIR/ODOO_DB_PASSWORD")"
+            ADMIN_PASSWD="$(cat "$SECRETS_DIR/ODOO_ADMIN_PASSWD")"
+            docker run --rm -i \
+              -e ODOO_RUNTIME_MODE=http \
+              -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres \
+              -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require \
+              -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0 -e FARES_SESSION_STORE=postgres -e PORT=8069 \
+              -e PHASE8_RUN_TOKEN="$run_token" \
+              "fares-uniform-phase8-cron:$EXPECTED_DEPLOYMENT_SHA" shell -d postgres --no-http < "$cleanup" \
+              | tee evidence/cron-cleanup.txt
+          fi
+          grep -q 'phase8_cron_cleanup=PASS' evidence/cron-cleanup.txt
+
+      - name: Release ordinary cron quarantine without mutation
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if docker ps -a --format '{{.Names}}' | grep -Fx "$QUARANTINE_RUNTIME" >/dev/null; then
+            docker rm -f "$QUARANTINE_RUNTIME" >/dev/null
+            echo 'phase8_ordinary_cron_quarantine=RELEASED transaction=rolled_back ordinary_mutation=none' | tee evidence/ordinary-cron-quarantine-release.txt
+          else
+            echo 'phase8_ordinary_cron_quarantine=SKIP not_started' | tee evidence/ordinary-cron-quarantine-release.txt
+          fi
+
+      - name: Verify cleanup, zero business deltas, and preserved privilege seal
+        if: always()
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${SESSION_ROWS_BEFORE:-}" ]]; then
+            echo 'phase8_cron_postflight=SKIP mutation_never_armed' | tee evidence/postflight-summary.txt
+            exit 0
+          fi
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND c.relkind IN ('r','p')) AS session_owner,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT') AS session_select,
+            has_table_privilege('fares_app','public.fares_http_session','INSERT') AS session_insert,
+            has_table_privilege('fares_app','public.fares_http_session','UPDATE') AS session_update,
+            has_table_privilege('fares_app','public.fares_http_session','DELETE') AS session_delete,
+            (SELECT count(*)::int FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='PUBLIC') AS session_public_grants,
+            (SELECT string_agg(e.extname || ':' || pg_get_userbyid(e.extowner), ',' ORDER BY e.extname) FROM pg_extension e WHERE e.extname IN ('pg_trgm','unaccent')) AS extension_signature,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT value FROM ir_config_parameter WHERE key='ir_attachment.location') AS attachment_location,
+            (SELECT count(*)::int FROM fares_http_session) AS session_rows,
+            (SELECT count(*)::int FROM sale_order) AS sale_orders,
+            (SELECT count(*)::int FROM account_payment) AS payments,
+            (SELECT count(*)::int FROM stock_picking) AS pickings,
+            (SELECT count(*)::int FROM ir_cron) AS cron_rows,
+            (SELECT md5(COALESCE(string_agg(id::text || '|' || COALESCE(cron_name,'') || '|' || active::text || '|' || COALESCE(nextcall::text,'') || '|' || COALESCE(lastcall::text,'') || '|' || failure_count::text, E'\n' ORDER BY id),'')) FROM ir_cron WHERE cron_name NOT LIKE 'Phase 8 live cron locking proof%') AS ordinary_cron_snapshot,
+            (SELECT md5(COALESCE(string_agg(t.id::text || '|' || t.cron_id::text || '|' || t.call_at::text, E'\n' ORDER BY t.id),'')) FROM ir_cron_trigger t JOIN ir_cron c ON c.id=t.cron_id WHERE c.cron_name NOT LIKE 'Phase 8 live cron locking proof%') AS ordinary_trigger_snapshot,
+            (SELECT count(*)::int FROM ir_cron WHERE cron_name LIKE 'Phase 8 live cron locking proof%') AS synthetic_crons,
+            (SELECT count(*)::int FROM ir_attachment WHERE name LIKE 'phase8-live-cron-locking-%') AS synthetic_markers;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[0] | {epoch_id,rolcanlogin,can_create_public,app_owned_relations,session_owner,session_select,session_insert,session_update,session_delete,session_public_grants,extension_signature,fu_uat_installed,attachment_location,session_rows,sale_orders,payments,pickings,cron_rows,ordinary_cron_snapshot,ordinary_trigger_snapshot,synthetic_crons,synthetic_markers}' "$db" | tee evidence/postflight.json
+
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$db")" = true
+          test "$(jq -r '.[0].can_create_public' "$db")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
+          test "$(jq -r '.[0].session_owner' "$db")" = postgres
+          test "$(jq -r '.[0].session_select' "$db")" = true
+          test "$(jq -r '.[0].session_insert' "$db")" = true
+          test "$(jq -r '.[0].session_update' "$db")" = true
+          test "$(jq -r '.[0].session_delete' "$db")" = true
+          test "$(jq -r '.[0].session_public_grants' "$db")" = 0
+          test "$(jq -r '.[0].extension_signature' "$db")" = "$EXTENSION_SIGNATURE_BEFORE"
+          test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
+          test "$(jq -r '.[0].attachment_location' "$db")" = db
+          test "$(jq -r '.[0].session_rows' "$db")" = "$SESSION_ROWS_BEFORE"
+          test "$(jq -r '.[0].sale_orders' "$db")" = "$SALE_ORDERS_BEFORE"
+          test "$(jq -r '.[0].payments' "$db")" = "$PAYMENTS_BEFORE"
+          test "$(jq -r '.[0].pickings' "$db")" = "$PICKINGS_BEFORE"
+          test "$(jq -r '.[0].cron_rows' "$db")" = "$CRON_ROWS_BEFORE"
+          test "$(jq -r '.[0].ordinary_cron_snapshot' "$db")" = "$ORDINARY_CRON_SNAPSHOT_BEFORE"
+          test "$(jq -r '.[0].ordinary_trigger_snapshot' "$db")" = "$ORDINARY_TRIGGER_SNAPSHOT_BEFORE"
+          test "$(jq -r '.[0].synthetic_crons' "$db")" = 0
+          test "$(jq -r '.[0].synthetic_markers' "$db")" = 0
+          echo "phase8_cron_postflight=PASS epoch=$EXPECTED_DB_EPOCH session_delta=0 sale_delta=0 payment_delta=0 stock_delta=0 ordinary_cron_delta=0 ordinary_trigger_delta=0 synthetic_cleanup=complete create=false app_relations=988 session_owner=postgres public_session_grants=0" | tee evidence/postflight-summary.txt
+
+      - name: Publish proof summary
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## Phase 8 bounded live external cron/native-locking proof'
+            echo
+            echo "- Workflow source SHA: \`$GITHUB_SHA\`"
+            echo "- Deployed application SHA: \`$EXPECTED_DEPLOYMENT_SHA\`"
+            echo "- Database epoch: \`$EXPECTED_DB_EPOCH\`"
+            echo '- Two disposable exact-image runtimes: PASS; no mounts; built-in cron threads = 0.'
+            echo '- Missing and invalid bearer credentials: rejected with HTTP 401; due job remained unexecuted.'
+            echo '- The diagnosed 19-job ordinary backlog was transaction-locked without mutation and skipped by native Odoo locking.'
+            echo '- Concurrent valid triggers: PASS; native Odoo locking produced exactly one database-backed marker.'
+            echo '- Repeat valid trigger: PASS; marker count remained exactly one.'
+            echo '- Cleanup: PASS; synthetic cron and marker removed; ordinary-cron quarantine rolled back.'
+            echo '- Session/sale/payment/stock deltas: all zero; privilege/provider seal preserved.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload cron proof evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-live-cron-locking-${{ github.sha }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Cleanup disposable runtimes and secret files
+        if: always()
+        shell: bash
+        run: |
+          docker rm -f "$RUNTIME_A" "$RUNTIME_B" "$QUARANTINE_RUNTIME" 2>/dev/null || true
+          if [[ -n "${SECRETS_DIR:-}" && -d "$SECRETS_DIR" ]]; then
+            rm -rf "$SECRETS_DIR"
+          fi

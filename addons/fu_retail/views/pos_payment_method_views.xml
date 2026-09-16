@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fu_pos_payment_method_view_form" model="ir.ui.view">
+        <field name="name">fu.pos.payment.method.form</field>
+        <field name="model">pos.payment.method</field>
+        <field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form"/>
+        <field name="arch" type="xml">
+            <field name="payment_method_type" position="after">
+                <field
+                    name="fu_confirmation_mode"
+                    groups="point_of_sale.group_pos_manager"
+                    help="Manual cashier confirmation only. This setting does not connect to or verify with a bank."
+                />
+            </field>
+        </field>
+    </record>
+</odoo>

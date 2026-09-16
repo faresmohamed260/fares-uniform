@@ -1,0 +1,500 @@
+name: Phase 8 live state continuity
+
+on:
+  push:
+    branches:
+      - phase-8/commercial-staging-readiness
+    paths:
+      - .github/workflows/phase8-live-state-continuity.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase8-managed-db-mutation
+  cancel-in-progress: false
+
+env:
+  EXPECTED_DEPLOYMENT_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
+  EXPECTED_DB_EPOCH: 34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a
+  ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+  SUPABASE_API_BASE: https://api.supabase.com/v1
+  SUPABASE_PROJECT_REF: urqlxisivowkmsfisjek
+  SUPABASE_POOLER_HOST: aws-0-eu-central-1.pooler.supabase.com
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_PROJECT_ID: prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS
+  RETAINED_EVIDENCE_DEPLOYMENT_ID: dpl_9dq5Fnmetypvih4QeeCEMPZQhgdu
+  RUNTIME_CONTAINER: fares-phase8-state-runtime
+  RUNTIME_PORT: '18069'
+  SYNTHETIC_LOGIN: phase8-state-continuity@example.invalid
+  ATTACHMENT_NAME: phase8-db-attachment-marker.txt
+
+jobs:
+  continuity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact deployed application source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_DEPLOYMENT_SHA }}
+          fetch-depth: 1
+
+      - name: Verify fresh workflow generation and exact staging boundary
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] || { echo 'SUPABASE_ACCESS_TOKEN missing' >&2; exit 64; }
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo 'VERCEL_TOKEN missing' >&2; exit 64; }
+          test "$GITHUB_RUN_ATTEMPT" = 1 || { echo "Workflow reruns are forbidden for continuity fixture mutation; start a fresh workflow run instead. attempt=$GITHUB_RUN_ATTEMPT" >&2; exit 1; }
+          test "$(git rev-parse HEAD)" = "$EXPECTED_DEPLOYMENT_SHA"
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test -n "$remote_head"
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale continuity workflow: run=$GITHUB_SHA branch_head=$remote_head" >&2; exit 1; }
+
+          deployments="$(mktemp)"
+          trap 'rm -f "$deployments"' EXIT
+          status="$(curl -sS -o "$deployments" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_TEAM_ID}&limit=20")"
+          test "$status" = 200
+          match_count="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '[.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY")] | length' "$deployments")"
+          test "$match_count" = 1
+          deployment_id="$(jq -r --arg sha "$EXPECTED_DEPLOYMENT_SHA" --arg retained "$RETAINED_EVIDENCE_DEPLOYMENT_ID" '.deployments[] | select((.meta.githubCommitSha // "") == $sha and (.uid // .id // "") != $retained and (.state // .readyState // "") == "READY") | (.uid // .id)' "$deployments")"
+          test -n "$deployment_id"
+          echo "DEPLOYMENT_ID=$deployment_id" >> "$GITHUB_ENV"
+          echo "fresh_continuity_generation=PASS workflow_sha=$GITHUB_SHA deployed_sha=$EXPECTED_DEPLOYMENT_SHA deployment=$deployment_id"
+
+      - name: Capture sealed managed-state preflight
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          read -r -d '' query <<'SQL' || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            (SELECT count(*)::int FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='fares_http_session' AND grantee='fares_app' AND privilege_type IN ('SELECT','INSERT','UPDATE','DELETE')) AS session_dml_grants,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+            (SELECT value FROM ir_config_parameter WHERE key='ir_attachment.location') AS attachment_location,
+            (SELECT count(*)::int FROM res_users WHERE login='phase8-state-continuity@example.invalid') AS synthetic_users,
+            (SELECT count(*)::int FROM ir_attachment WHERE name='phase8-db-attachment-marker.txt') AS synthetic_attachments,
+            (SELECT count(*)::int FROM sale_order) AS sale_orders,
+            (SELECT count(*)::int FROM account_payment) AS payments,
+            (SELECT count(*)::int FROM stock_picking) AS pickings;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          jq -c '.[0] | {epoch_id,rolcanlogin,can_create_public,app_owned_relations,session_table_ok,session_dml_grants,required_extensions,fu_uat_installed,attachment_location,synthetic_users,synthetic_attachments}' "$db"
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$db")" = true
+          test "$(jq -r '.[0].can_create_public' "$db")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
+          test "$(jq -r '.[0].session_table_ok' "$db")" = 1
+          session_dml_grants="$(jq -r '.[0].session_dml_grants' "$db")"
+          test "$session_dml_grants" = 0 || test "$session_dml_grants" = 4
+          test "$(jq -r '.[0].required_extensions' "$db")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
+          attachment_location="$(jq -r '.[0].attachment_location' "$db")"
+          test "$attachment_location" = null || test "$attachment_location" = db
+          echo "SESSION_DML_GRANTS_BEFORE=$session_dml_grants" >> "$GITHUB_ENV"
+          echo "ATTACHMENT_LOCATION_BEFORE=$attachment_location" >> "$GITHUB_ENV"
+          test "$(jq -r '.[0].synthetic_users' "$db")" -le 1
+          test "$(jq -r '.[0].synthetic_attachments' "$db")" -le 1
+          echo "SALE_ORDERS_BEFORE=$(jq -r '.[0].sale_orders' "$db")" >> "$GITHUB_ENV"
+          echo "PAYMENTS_BEFORE=$(jq -r '.[0].payments' "$db")" >> "$GITHUB_ENV"
+          echo "PICKINGS_BEFORE=$(jq -r '.[0].pickings' "$db")" >> "$GITHUB_ENV"
+          echo "state_preflight=PASS epoch=$EXPECTED_DB_EPOCH create=false app_relations=988 session_owner=postgres session_dml=$session_dml_grants attachment_location=$attachment_location"
+
+      - name: Activate exact provider-owned session DML boundary
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_head="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || { echo 'Refusing stale state-boundary mutation' >&2; exit 1; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          read -r -d '' query <<SQL || true
+          DO \$\$
+          BEGIN
+            IF (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) IS DISTINCT FROM '${EXPECTED_DB_EPOCH}' THEN
+              RAISE EXCEPTION 'deployment epoch changed';
+            END IF;
+            IF (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') IS DISTINCT FROM TRUE THEN
+              RAISE EXCEPTION 'fares_app runtime login is not active';
+            END IF;
+            IF has_schema_privilege('fares_app','public','CREATE') THEN
+              RAISE EXCEPTION 'schema CREATE seal is open';
+            END IF;
+            IF (SELECT pg_get_userbyid(c.relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND c.relkind IN ('r','p')) IS DISTINCT FROM 'postgres' THEN
+              RAISE EXCEPTION 'session table owner boundary changed';
+            END IF;
+          END
+          \$\$;
+          REVOKE ALL ON TABLE public.fares_http_session FROM PUBLIC;
+          REVOKE ALL ON TABLE public.fares_http_session FROM fares_app;
+          GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.fares_http_session TO fares_app;
+          SELECT
+            has_table_privilege('fares_app','public.fares_http_session','SELECT') AS session_select,
+            has_table_privilege('fares_app','public.fares_http_session','INSERT') AS session_insert,
+            has_table_privilege('fares_app','public.fares_http_session','UPDATE') AS session_update,
+            has_table_privilege('fares_app','public.fares_http_session','DELETE') AS session_delete,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query}')"
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          test "$status" = 201
+          test "$(jq -r '.[0].session_select' "$response")" = true
+          test "$(jq -r '.[0].session_insert' "$response")" = true
+          test "$(jq -r '.[0].session_update' "$response")" = true
+          test "$(jq -r '.[0].session_delete' "$response")" = true
+          test "$(jq -r '.[0].can_create_public' "$response")" = false
+          test "$(jq -r '.[0].epoch_id' "$response")" = "$EXPECTED_DB_EPOCH"
+          echo "session_dml_activation=PASS before=$SESSION_DML_GRANTS_BEFORE after=exact owner=postgres public=revoked create=false"
+
+      - name: Build exact deployed stateless runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build --pull -f Dockerfile.vercel \
+            --build-arg ODOO_SHA="$ODOO_SHA" \
+            --build-arg FARES_SHA="$EXPECTED_DEPLOYMENT_SHA" \
+            -t "fares-uniform-phase8-state:$EXPECTED_DEPLOYMENT_SHA" .
+          test "$(docker image inspect -f '{{json .Config.Volumes}}' "fares-uniform-phase8-state:$EXPECTED_DEPLOYMENT_SHA")" = null
+          docker run --rm --entrypoint bash "fares-uniform-phase8-state:$EXPECTED_DEPLOYMENT_SHA" -lc '
+            set -euo pipefail
+            test "$(id -u)" = 10001
+            test "$ODOO_SHA" = "1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf"
+            test "$FARES_SHA" = "2a74e93b1828c16839ba7cede336caa4ca374306"
+            test ! -e /mnt/extra-addons/fu_uat
+          '
+          echo 'exact_stateless_runtime=PASS persistent_volumes=none fu_uat=absent'
+
+      - name: Resolve runtime secrets without disclosure
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          secrets_dir="$(mktemp -d)"
+          chmod 700 "$secrets_dir"
+          echo "SECRETS_DIR=$secrets_dir" >> "$GITHUB_ENV"
+          envs="$secrets_dir/vercel-env.json"
+          status="$(curl -sS -o "$envs" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v10/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}")"
+          test "$status" = 200
+          for key in ODOO_DB_PASSWORD ODOO_ADMIN_PASSWD; do
+            env_id="$(jq -er --arg key "$key" '[.envs[] | select(.key==$key and (((.target // []) | index("production")) != null))] | if length == 1 then .[0].id else error("expected exactly one production variable") end' "$envs")"
+            response="$secrets_dir/$key.json"
+            status="$(curl -sS -o "$response" -w '%{http_code}' -H "Authorization: Bearer ${VERCEL_TOKEN}" "${VERCEL_API_BASE}/v1/projects/${VERCEL_PROJECT_ID}/env/${env_id}?teamId=${VERCEL_TEAM_ID}")"
+            test "$status" = 200
+            value="$(jq -er --arg key "$key" 'select(.key==$key and .decrypted==true) | .value | select(type=="string" and length>0)' "$response")"
+            echo "::add-mask::$value"
+            printf '%s' "$value" > "$secrets_dir/$key"
+            chmod 600 "$secrets_dir/$key"
+            unset value
+          done
+          rm -f "$envs" "$secrets_dir"/*.json
+          openssl rand -hex 32 > "$secrets_dir/login-password"
+          chmod 600 "$secrets_dir/login-password"
+          echo "::add-mask::$(cat "$secrets_dir/login-password")"
+          echo 'runtime_secret_resolution=PASS decrypted=true files=restricted'
+
+      - name: Start first runtime and seed bounded database-backed state
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_PASSWORD="$(cat "$SECRETS_DIR/ODOO_DB_PASSWORD")"
+          ADMIN_PASSWD="$(cat "$SECRETS_DIR/ODOO_ADMIN_PASSWD")"
+          LOGIN_PASSWORD="$(cat "$SECRETS_DIR/login-password")"
+          seed="$SECRETS_DIR/seed.py"
+          cat > "$seed" <<'PY'
+          import base64
+          import os
+
+          from odoo import Command
+
+          LOGIN = "phase8-state-continuity@example.invalid"
+          USER_NAME = "[SYNTHETIC] Phase 8 State Continuity"
+          ATTACHMENT_NAME = "phase8-db-attachment-marker.txt"
+          ATTACHMENT_BYTES = b"fares-uniform-phase8-live-db-attachment-v1\n"
+          XML_MODULE = "phase8_staging"
+          USER_XML_NAME = "state_continuity_user"
+          ATTACHMENT_XML_NAME = "state_continuity_attachment"
+          password = os.environ.get("PHASE8_LOGIN_PASSWORD")
+          if not password:
+              raise RuntimeError("synthetic login password missing")
+
+          params = env["ir.config_parameter"].sudo()
+          params.set_param("ir_attachment.location", "db")
+          if params.get_param("ir_attachment.location") != "db":
+              raise RuntimeError("database attachment location activation failed")
+
+          Users = env["res.users"].sudo()
+          Attachments = env["ir.attachment"].sudo()
+          ModelData = env["ir.model.data"].sudo()
+
+          user_xmlids = ModelData.search([("module", "=", XML_MODULE), ("name", "=", USER_XML_NAME)])
+          if len(user_xmlids) > 1:
+              raise RuntimeError("duplicate synthetic user external id")
+          login_users = Users.search([("login", "=", LOGIN)])
+          if len(login_users) > 1:
+              raise RuntimeError("duplicate synthetic continuity login")
+          if user_xmlids:
+              user = Users.browse(user_xmlids[0].res_id).exists()
+              if not user or user.login != LOGIN or user.name != USER_NAME:
+                  raise RuntimeError("synthetic user external id boundary mismatch")
+              if login_users and login_users != user:
+                  raise RuntimeError("synthetic login belongs to another user")
+          elif login_users:
+              user = login_users[0]
+              if user.name != USER_NAME:
+                  raise RuntimeError("refusing to adopt non-synthetic user")
+              ModelData.create({"module": XML_MODULE, "name": USER_XML_NAME, "model": "res.users", "res_id": user.id, "noupdate": True})
+          else:
+              user = Users.with_context(no_reset_password=True).create({
+                  "name": USER_NAME,
+                  "login": LOGIN,
+                  "email": LOGIN,
+                  "active": True,
+                  "company_id": env.company.id,
+                  "company_ids": [(6, 0, [env.company.id])],
+              })
+              ModelData.create({"module": XML_MODULE, "name": USER_XML_NAME, "model": "res.users", "res_id": user.id, "noupdate": True})
+          user.write({
+              "password": password,
+              "active": True,
+              "group_ids": [Command.set([env.ref("base.group_user").id])],
+          })
+
+          attachment_xmlids = ModelData.search([("module", "=", XML_MODULE), ("name", "=", ATTACHMENT_XML_NAME)])
+          if len(attachment_xmlids) > 1:
+              raise RuntimeError("duplicate synthetic attachment external id")
+          named = Attachments.search([("name", "=", ATTACHMENT_NAME)])
+          if len(named) > 1:
+              raise RuntimeError("duplicate synthetic attachment name")
+          values = {"name": ATTACHMENT_NAME, "type": "binary", "datas": base64.b64encode(ATTACHMENT_BYTES), "mimetype": "text/plain"}
+          if attachment_xmlids:
+              attachment = Attachments.browse(attachment_xmlids[0].res_id).exists()
+              if not attachment or attachment.name != ATTACHMENT_NAME:
+                  raise RuntimeError("synthetic attachment external id boundary mismatch")
+              if named and named != attachment:
+                  raise RuntimeError("synthetic attachment name belongs to another record")
+              attachment.write(values)
+          elif named:
+              attachment = named[0]
+              ModelData.create({"module": XML_MODULE, "name": ATTACHMENT_XML_NAME, "model": "ir.attachment", "res_id": attachment.id, "noupdate": True})
+              attachment.write(values)
+          else:
+              attachment = Attachments.create(values)
+              ModelData.create({"module": XML_MODULE, "name": ATTACHMENT_XML_NAME, "model": "ir.attachment", "res_id": attachment.id, "noupdate": True})
+          if env["ir.config_parameter"].sudo().get_param("ir_attachment.location") != "db":
+              raise RuntimeError("attachment storage is not database-backed")
+          if attachment.store_fname or not attachment.db_datas or attachment.raw != ATTACHMENT_BYTES:
+              raise RuntimeError("synthetic attachment is not exact database-backed content")
+          env.cr.commit()
+          print("phase8_state_seed=PASS user=synthetic attachment_storage=db config_activated=true")
+          PY
+          chmod 600 "$seed"
+
+          docker run -d --name "$RUNTIME_CONTAINER" -p "$RUNTIME_PORT:8069" \
+            -e ODOO_RUNTIME_MODE=http \
+            -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres \
+            -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require \
+            -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0 \
+            -e FARES_SESSION_STORE=postgres -e PORT=8069 \
+            "fares-uniform-phase8-state:$EXPECTED_DEPLOYMENT_SHA"
+          for attempt in $(seq 1 60); do
+            if curl -fsS -H 'X-Odoo-Database: postgres' "http://127.0.0.1:$RUNTIME_PORT/web/login" >/dev/null; then break; fi
+            if [[ "$attempt" = 60 ]]; then docker logs "$RUNTIME_CONTAINER"; exit 1; fi
+            sleep 2
+          done
+          docker exec -i -e PHASE8_LOGIN_PASSWORD="$LOGIN_PASSWORD" "$RUNTIME_CONTAINER" \
+            /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http < "$seed" \
+            | grep -F 'phase8_state_seed=PASS'
+
+          auth="$SECRETS_DIR/auth.json"
+          cookies="$SECRETS_DIR/cookies.txt"
+          headers="$SECRETS_DIR/auth-headers.txt"
+          jq -cn --arg login "$SYNTHETIC_LOGIN" --arg password "$LOGIN_PASSWORD" '{jsonrpc:"2.0",method:"call",params:{db:"postgres",login:$login,password:$password},id:1}' > "$auth"
+          auth_epoch="$(date +%s)"
+          curl -fsS -D "$headers" -c "$cookies" -H 'Content-Type: application/json' --data @"$auth" "http://127.0.0.1:$RUNTIME_PORT/web/session/authenticate" > "$SECRETS_DIR/auth-response.json"
+          if ! jq -e '.result.uid | select(type=="number" and .>0)' "$SECRETS_DIR/auth-response.json" >/dev/null; then
+            jq -c '{jsonrpc,id,has_result:(.result != null),error_name:(.error.data.name // null),error_message:(.error.message // null)}' "$SECRETS_DIR/auth-response.json" >&2
+            docker logs --tail 120 "$RUNTIME_CONTAINER" >&2
+            exit 1
+          fi
+          uid="$(jq -r '.result.uid' "$SECRETS_DIR/auth-response.json")"
+          sid="$(awk '$6 == "session_id" {print $7}' "$cookies" | tail -n1)"
+          cookie_source=jar
+          if [[ -z "$sid" ]]; then
+            sid="$(tr -d '\r' < "$headers" | sed -n 's/^set-cookie:[[:space:]]*session_id=\([^;]*\).*/\1/ip' | tail -n1)"
+            cookie_source=header
+          fi
+          if [[ -z "$sid" ]]; then
+            session_row="$SECRETS_DIR/session-row.json"
+            read -r -d '' session_query <<SQL || true
+          SELECT sid
+          FROM public.fares_http_session
+          WHERE data->>'uid' = '${uid}'
+            AND updated_at >= to_timestamp(${auth_epoch} - 10)
+          ORDER BY updated_at DESC
+          LIMIT 1;
+          SQL
+            session_payload="$(jq -cn --arg query "$session_query" '{query:$query,read_only:true}')"
+            session_status="$(curl -sS -X POST -o "$session_row" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$session_payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+            test "$session_status" = 201
+            sid="$(jq -er 'if length == 1 then .[0].sid else error("expected one fresh authenticated session") end' "$session_row")"
+            cookie_source=postgres
+          fi
+          [[ "$sid" =~ ^[A-Za-z0-9_-]{84}$ ]]
+          echo "::add-mask::$sid"
+          echo "session_cookie_capture=PASS source=$cookie_source length=${#sid}"
+          printf '%s' "$uid" > "$SECRETS_DIR/uid"
+          printf '%s' "$sid" > "$SECRETS_DIR/sid"
+          chmod 600 "$SECRETS_DIR/uid" "$SECRETS_DIR/sid"
+
+          info='{"jsonrpc":"2.0","method":"call","params":{},"id":2}'
+          curl -fsS -H 'Content-Type: application/json' -H "Cookie: session_id=$sid" --data "$info" "http://127.0.0.1:$RUNTIME_PORT/web/session/get_session_info" > "$SECRETS_DIR/session-before-replacement.json"
+          jq -e --argjson expected "$uid" '.result.uid == $expected' "$SECRETS_DIR/session-before-replacement.json" >/dev/null
+          rm -f "$SECRETS_DIR/session-before-replacement.json" "$SECRETS_DIR/session-row.json"
+          rm -f "$auth" "$cookies" "$headers" "$SECRETS_DIR/auth-response.json"
+          echo "first_runtime_authenticated=PASS uid=$uid attachment_storage=db"
+
+      - name: Replace runtime completely and prove shared continuity
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_PASSWORD="$(cat "$SECRETS_DIR/ODOO_DB_PASSWORD")"
+          ADMIN_PASSWD="$(cat "$SECRETS_DIR/ODOO_ADMIN_PASSWD")"
+          uid="$(cat "$SECRETS_DIR/uid")"
+          sid="$(cat "$SECRETS_DIR/sid")"
+          echo "::add-mask::$sid"
+          docker rm -f "$RUNTIME_CONTAINER"
+          docker run -d --name "$RUNTIME_CONTAINER" -p "$RUNTIME_PORT:8069" \
+            -e ODOO_RUNTIME_MODE=http \
+            -e ODOO_DB_HOST="$SUPABASE_POOLER_HOST" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres \
+            -e ODOO_DB_USER="fares_app.${SUPABASE_PROJECT_REF}" -e ODOO_DB_PASSWORD="$DB_PASSWORD" -e ODOO_DB_SSLMODE=require \
+            -e ODOO_ADMIN_PASSWD="$ADMIN_PASSWD" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0 \
+            -e FARES_SESSION_STORE=postgres -e PORT=8069 \
+            "fares-uniform-phase8-state:$EXPECTED_DEPLOYMENT_SHA"
+          test "$(docker inspect -f '{{json .Mounts}}' "$RUNTIME_CONTAINER")" = '[]'
+          for attempt in $(seq 1 60); do
+            if curl -fsS -H 'X-Odoo-Database: postgres' "http://127.0.0.1:$RUNTIME_PORT/web/login" >/dev/null; then break; fi
+            if [[ "$attempt" = 60 ]]; then docker logs "$RUNTIME_CONTAINER"; exit 1; fi
+            sleep 2
+          done
+          info='{"jsonrpc":"2.0","method":"call","params":{},"id":2}'
+          curl -fsS -H 'Content-Type: application/json' -H "Cookie: session_id=$sid" --data "$info" "http://127.0.0.1:$RUNTIME_PORT/web/session/get_session_info" > "$SECRETS_DIR/session-after-replacement.json"
+          jq -e --argjson expected "$uid" '.result.uid == $expected' "$SECRETS_DIR/session-after-replacement.json" >/dev/null
+          rm -f "$SECRETS_DIR/session-after-replacement.json"
+
+          verify="$SECRETS_DIR/verify.py"
+          cat > "$verify" <<'PY'
+          ATTACHMENT_NAME = "phase8-db-attachment-marker.txt"
+          ATTACHMENT_BYTES = b"fares-uniform-phase8-live-db-attachment-v1\n"
+          attachment = env["ir.attachment"].sudo().search([("name", "=", ATTACHMENT_NAME)], limit=1)
+          if not attachment or attachment.store_fname or not attachment.db_datas or attachment.raw != ATTACHMENT_BYTES:
+              raise RuntimeError("database-backed attachment did not survive runtime replacement")
+          if env["ir.config_parameter"].sudo().get_param("ir_attachment.location") != "db":
+              raise RuntimeError("attachment storage mode changed")
+          print("phase8_state_verify=PASS attachment_storage=db")
+          PY
+          docker exec -i "$RUNTIME_CONTAINER" /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http < "$verify" | grep -F 'phase8_state_verify=PASS'
+          echo "runtime_replacement_continuity=PASS session_uid=$uid attachment_storage=db local_mounts=none"
+
+      - name: Prove managed postflight and zero operational side effects
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          uid="$(cat "$SECRETS_DIR/uid")"
+          sid="$(cat "$SECRETS_DIR/sid")"
+          echo "::add-mask::$sid"
+          db="$(mktemp)"
+          trap 'rm -f "$db"' EXIT
+          read -r -d '' query <<SQL || true
+          SELECT
+            (SELECT epoch_id FROM fares_control.deployment_epoch WHERE singleton=TRUE) AS epoch_id,
+            (SELECT rolcanlogin FROM pg_roles WHERE rolname='fares_app') AS rolcanlogin,
+            has_schema_privilege('fares_app','public','CREATE') AS can_create_public,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S') AND pg_get_userbyid(c.relowner)='fares_app') AS app_owned_relations,
+            (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='fares_http_session' AND pg_get_userbyid(c.relowner)='postgres') AS session_table_ok,
+            has_table_privilege('fares_app','public.fares_http_session','SELECT,INSERT,UPDATE,DELETE') AS session_dml,
+            (SELECT count(*)::int FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname IN ('unaccent','pg_trgm') AND n.nspname='public') AS required_extensions,
+            (SELECT count(*)::int FROM ir_module_module WHERE name='fu_uat' AND state='installed') AS fu_uat_installed,
+
+            (SELECT count(*)::int FROM sale_order) AS sale_orders,
+            (SELECT count(*)::int FROM account_payment) AS payments,
+            (SELECT count(*)::int FROM stock_picking) AS pickings;
+          SQL
+          payload="$(jq -cn --arg query "$query" '{query:$query,read_only:true}')"
+          status="$(curl -sS -X POST -o "$db" -w '%{http_code}' -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H 'Content-Type: application/json' --data "$payload" "${SUPABASE_API_BASE}/projects/${SUPABASE_PROJECT_REF}/database/query")"
+          if [[ "$status" != 201 ]]; then
+            echo "managed_state_postflight_query=FAIL http_status=$status" >&2
+            exit 1
+          fi
+          jq -c '.[0] | {epoch_matches:(.epoch_id == "34892811053:1:2fc625f45bcc6c4bbc3ffc47e3efa58bc8089d7a"),rolcanlogin,can_create_public,app_owned_relations,session_table_ok,session_dml,required_extensions,fu_uat_installed,sale_orders,payments,pickings}' "$db"
+          test "$(jq -r '.[0].epoch_id' "$db")" = "$EXPECTED_DB_EPOCH"
+          test "$(jq -r '.[0].rolcanlogin' "$db")" = true
+          test "$(jq -r '.[0].can_create_public' "$db")" = false
+          test "$(jq -r '.[0].app_owned_relations' "$db")" = 988
+          test "$(jq -r '.[0].session_table_ok' "$db")" = 1
+          test "$(jq -r '.[0].session_dml' "$db")" = true
+          test "$(jq -r '.[0].required_extensions' "$db")" = 2
+          test "$(jq -r '.[0].fu_uat_installed' "$db")" = 0
+
+          test "$(jq -r '.[0].sale_orders' "$db")" = "$SALE_ORDERS_BEFORE"
+          test "$(jq -r '.[0].payments' "$db")" = "$PAYMENTS_BEFORE"
+          test "$(jq -r '.[0].pickings' "$db")" = "$PICKINGS_BEFORE"
+          echo "managed_state_postflight=PASS exact_user=1 attachment=db session=postgres sale_payment_stock_deltas=0 epoch=$EXPECTED_DB_EPOCH create=false"
+
+      - name: Publish continuity evidence summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## Phase 8 live attachment/session continuity'
+            echo
+            echo "- Workflow source SHA: \`$GITHUB_SHA\`"
+            echo "- Deployed application SHA: \`$EXPECTED_DEPLOYMENT_SHA\`"
+            echo "- Deployment identity: \`$DEPLOYMENT_ID\`"
+            echo "- Managed DB epoch: \`$EXPECTED_DB_EPOCH\`"
+            echo '- Runtime instances: two fresh exact-image containers, no mounts'
+            echo "- Session DML activation: before \`$SESSION_DML_GRANTS_BEFORE\`, after exact four grants"
+            echo "- Attachment setting activation: before \`$ATTACHMENT_LOCATION_BEFORE\`, after \`db\`"
+            echo '- Attachment: exact synthetic bytes, PostgreSQL-backed, survived replacement'
+            echo '- Authenticated session: same UID after complete runtime replacement'
+            echo '- Shared session table: provider-owned with exact runtime DML grants'
+            echo '- Sale/payment/stock side-effect deltas: zero'
+            echo '- Runtime schema CREATE: remains revoked'
+            echo '- `fu_uat`: absent'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo 'phase8_live_state_continuity=PASS'
+
+      - name: Cleanup disposable hosted runtime
+        if: always()
+        shell: bash
+        run: |
+          docker rm -f "$RUNTIME_CONTAINER" 2>/dev/null || true
+          if [[ -n "${SECRETS_DIR:-}" && -d "$SECRETS_DIR" ]]; then
+            find "$SECRETS_DIR" -type f -exec shred -u {} + 2>/dev/null || true
+            rmdir "$SECRETS_DIR" 2>/dev/null || true
+          fi

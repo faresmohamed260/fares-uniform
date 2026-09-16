@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fu_public_enquiry_owner,Fares public enquiry owner,model_fu_public_enquiry,fu_core.group_fu_owner_admin,1,0,0,0
+access_fu_public_enquiry_sales,Fares public enquiry sales,model_fu_public_enquiry,fu_core.group_fu_sales_bd,1,0,0,0

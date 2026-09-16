@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fu_reporting_stock_rule_owner,fu.reporting.stock.rule owner,model_fu_reporting_stock_rule,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_reporting_dashboard_owner,fu.reporting.dashboard owner,model_fu_reporting_dashboard,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_reporting_dashboard_manager,fu.reporting.dashboard manager,model_fu_reporting_dashboard,fu_core.group_fu_store_manager,1,1,1,1
+access_fu_reporting_low_stock_owner,fu.reporting.low.stock.line owner,model_fu_reporting_low_stock_line,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_reporting_low_stock_manager,fu.reporting.low.stock.line manager,model_fu_reporting_low_stock_line,fu_core.group_fu_store_manager,1,1,1,1
+access_fu_reporting_deadline_owner,fu.reporting.deadline.line owner,model_fu_reporting_deadline_line,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_reporting_deadline_manager,fu.reporting.deadline.line manager,model_fu_reporting_deadline_line,fu_core.group_fu_store_manager,1,1,1,1
+access_fu_reporting_balance_owner,fu.reporting.balance.line owner,model_fu_reporting_balance_line,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_reporting_balance_manager,fu.reporting.balance.line manager,model_fu_reporting_balance_line,fu_core.group_fu_store_manager,1,1,1,1

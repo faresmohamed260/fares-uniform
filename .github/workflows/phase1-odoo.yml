@@ -1,0 +1,117 @@
+name: Phase 1 Odoo foundation
+
+on:
+  push:
+    branches: ["phase-1/products-stock-access"]
+    paths:
+      - "addons/**"
+      - ".github/workflows/phase1-odoo.yml"
+  pull_request:
+    paths:
+      - "addons/**"
+      - ".github/workflows/phase1-odoo.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase1-odoo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  product-stock-foundation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: phase1-only
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      PGPASSWORD: phase1-only
+      ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+      CHROME_BIN: /usr/bin/google-chrome
+    steps:
+      - name: Checkout Fares exact head
+        uses: actions/checkout@v5
+
+      - name: Checkout pinned Odoo Community 19
+        uses: actions/checkout@v5
+        with:
+          repository: odoo/odoo
+          ref: ${{ env.ODOO_SHA }}
+          path: upstream
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Odoo dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev zlib1g-dev
+          python -m pip install -r upstream/requirements.txt
+          python -m pip install websocket-client
+          sudo npm install --global rtlcss@4.3.0
+          mkdir -p evidence/screenshots
+          printf 'fares_head=%s\n' "$GITHUB_SHA" > evidence/runtime.txt
+          printf 'odoo_head=%s\n' "$(git -C upstream rev-parse HEAD)" >> evidence/runtime.txt
+          python --version >> evidence/runtime.txt
+          google-chrome --version >> evidence/runtime.txt
+          rtlcss --version >> evidence/runtime.txt
+
+      - name: Install fu_core and run Phase 1 tests
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase1-only \
+            -d fares_phase1 \
+            -i fu_core \
+            --test-enable --test-tags='/fu_core' \
+            --screenshots=evidence/screenshots \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/install-and-tests.log
+
+      - name: Prove repeatable addon upgrade
+        run: |
+          set -o pipefail
+          python upstream/odoo-bin \
+            --addons-path=upstream/addons,addons \
+            --db_host=127.0.0.1 --db_user=odoo --db_password=phase1-only \
+            -d fares_phase1 \
+            -u fu_core \
+            --stop-after-init --http-interface=127.0.0.1 \
+            2>&1 | tee evidence/upgrade.log
+
+      - name: Summarize evidence
+        if: always()
+        run: |
+          {
+            echo '## Phase 1 product + stock + access + bilingual UI foundation'
+            echo
+            cat evidence/runtime.txt 2>/dev/null || true
+            echo
+            echo '### Test summary lines'
+            grep -E 'tests? in|failures|errors|fu_core|Chrome|screenshot' evidence/install-and-tests.log 2>/dev/null | tail -n 60 || true
+            echo
+            echo '### Hosted screenshots'
+            find evidence/screenshots -type f -maxdepth 2 -printf '%P\n' 2>/dev/null | sort || true
+          } | tee evidence/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase1-product-stock-${{ github.sha }}
+          path: evidence/
+          retention-days: 7
