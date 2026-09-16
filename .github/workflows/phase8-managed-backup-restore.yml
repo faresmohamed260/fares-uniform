@@ -314,18 +314,97 @@ jobs:
           touch "$STATE_DIR/privilege-verified"
           echo 'recovered_privilege_seal=PASS app_relations=988 provider_seal=preserved'
 
-      - name: Verify recovered restored counts
+      - name: Verify restored fixture product count
         if: ${{ !cancelled() }}
         shell: bash
         run: |
           set -euo pipefail
-          target="$STATE_DIR/target.json"
-          for key in fixture_products enquiry_rows continuity_users db_attachments session_rows continuity_sessions sale_orders payments pickings cron_rows cron_trigger_rows; do
-            expected_name="SOURCE_${key^^}"
-            expected="${!expected_name}"
-            actual="$(jq -r ".$key" "$target")"
-            test "$actual" = "$expected" || { echo "Mismatch $key source=$expected target=$actual" >&2; exit 1; }
-          done
+          actual="$(jq -r '.fixture_products' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_FIXTURE_PRODUCTS" || { echo "Mismatch fixture_products source=$SOURCE_FIXTURE_PRODUCTS target=$actual" >&2; exit 1; }
+
+      - name: Verify restored enquiry count
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(jq -r '.enquiry_rows' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_ENQUIRY_ROWS" || { echo "Mismatch enquiry_rows source=$SOURCE_ENQUIRY_ROWS target=$actual" >&2; exit 1; }
+
+      - name: Verify restored continuity user count
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(jq -r '.continuity_users' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_CONTINUITY_USERS" || { echo "Mismatch continuity_users source=$SOURCE_CONTINUITY_USERS target=$actual" >&2; exit 1; }
+
+      - name: Verify restored DB attachment count
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(jq -r '.db_attachments' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_DB_ATTACHMENTS" || { echo "Mismatch db_attachments source=$SOURCE_DB_ATTACHMENTS target=$actual" >&2; exit 1; }
+
+      - name: Verify restored session row count
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(jq -r '.session_rows' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_SESSION_ROWS" || { echo "Mismatch session_rows source=$SOURCE_SESSION_ROWS target=$actual" >&2; exit 1; }
+
+      - name: Verify restored continuity session count
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(jq -r '.continuity_sessions' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_CONTINUITY_SESSIONS" || { echo "Mismatch continuity_sessions source=$SOURCE_CONTINUITY_SESSIONS target=$actual" >&2; exit 1; }
+
+      - name: Verify restored sale order count
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(jq -r '.sale_orders' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_SALE_ORDERS" || { echo "Mismatch sale_orders source=$SOURCE_SALE_ORDERS target=$actual" >&2; exit 1; }
+
+      - name: Verify restored payment count
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(jq -r '.payments' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_PAYMENTS" || { echo "Mismatch payments source=$SOURCE_PAYMENTS target=$actual" >&2; exit 1; }
+
+      - name: Verify restored picking count
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(jq -r '.pickings' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_PICKINGS" || { echo "Mismatch pickings source=$SOURCE_PICKINGS target=$actual" >&2; exit 1; }
+
+      - name: Verify restored cron row count
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(jq -r '.cron_rows' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_CRON_ROWS" || { echo "Mismatch cron_rows source=$SOURCE_CRON_ROWS target=$actual" >&2; exit 1; }
+
+      - name: Verify restored cron trigger count
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(jq -r '.cron_trigger_rows' "$STATE_DIR/target.json")"
+          test "$actual" = "$SOURCE_CRON_TRIGGER_ROWS" || { echo "Mismatch cron_trigger_rows source=$SOURCE_CRON_TRIGGER_ROWS target=$actual" >&2; exit 1; }
+
+      - name: Mark recovered counts verified
+        shell: bash
+        run: |
           touch "$STATE_DIR/counts-verified"
           echo 'recovered_restored_counts=PASS attachment_session_business_counts=exact'
           if [[ -f "$STATE_DIR/application-verified" && -f "$STATE_DIR/privilege-verified" ]]; then
