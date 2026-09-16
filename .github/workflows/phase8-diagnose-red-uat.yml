@@ -45,76 +45,66 @@ jobs:
 
           root = Path(sys.argv[1])
           output = Path(sys.argv[2])
-          lines = []
-          for path in sorted(root.rglob("*")):
-              if not path.is_file():
-                  continue
-              try:
-                  text = path.read_text(encoding="utf-8", errors="replace")
-              except OSError:
-                  continue
-              lines.extend(text.splitlines())
-
           ansi = re.compile(r"\x1b\[[0-9;]*m")
 
           def clean(value):
               value = re.sub(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z\s+", "", value).strip()
               value = ansi.sub("", value)
-              value = re.sub(r"\s+", " ", value)
-              return value
+              return re.sub(r"\s+", " ", value).strip()
 
           def short(value, limit=135):
               value = clean(value)
               return value[:limit] if value else "not-found"
 
-          # GitHub Actions echoes every shell-script source line in cyan before
-          # execution. Exclude those lines so source code cannot masquerade as
-          # runtime PASS markers or exceptions.
-          runtime = [line for line in lines if "\x1b[36;1m" not in line]
+          files = [path for path in sorted(root.rglob("*")) if path.is_file()]
+          candidates = [path for path in files if "execute rollback-safe production-model business journeys" in path.name.lower()]
+          if not candidates:
+              candidates = [path for path in files if "business" in path.name.lower() and "journey" in path.name.lower()]
+          if not candidates:
+              candidates = files
+
+          selected = []
+          for path in candidates:
+              try:
+                  text = path.read_text(encoding="utf-8", errors="replace")
+              except OSError:
+                  continue
+              selected.extend(text.splitlines())
+
+          # GitHub Actions prints shell-source lines in cyan. Keep only actual
+          # runtime output and runner annotations from the failed step.
+          runtime = [line for line in selected if "\x1b[36;1m" not in line]
+          runtime = [clean(line) for line in runtime if clean(line)]
 
           markers = []
           for line in runtime:
-              match = re.search(r"(phase8_uat_[a-z_]+)=PASS", clean(line))
+              match = re.search(r"(phase8_uat_[a-z_]+)=PASS", line)
               if match and match.group(1) not in markers:
                   markers.append(match.group(1))
 
-          traceback_starts = [i for i, line in enumerate(runtime) if "Traceback (most recent call last):" in clean(line)]
+          traceback_starts = [i for i, line in enumerate(runtime) if "Traceback (most recent call last):" in line]
           frame = ""
           error = ""
           if traceback_starts:
               start = traceback_starts[-1]
-              for raw in runtime[start + 1:start + 160]:
-                  value = clean(raw)
+              for value in runtime[start + 1:start + 160]:
                   if re.search(r'File ".+", line \d+', value):
                       frame = value
-                  if re.search(
-                      r"(?:AssertionError|ValidationError|AccessError|UserError|TypeError|AttributeError|KeyError|ValueError|RuntimeError|OperationalError|ProgrammingError|IntegrityError|Exception):",
-                      value,
-                  ):
+                  if re.search(r"(?:AssertionError|ValidationError|AccessError|UserError|TypeError|AttributeError|KeyError|ValueError|RuntimeError|OperationalError|ProgrammingError|IntegrityError|Exception):", value):
                       error = value
 
           if not error:
-              for raw in reversed(runtime):
-                  value = clean(raw)
+              for value in reversed(runtime):
                   if re.search(r"(?:AssertionError|ValidationError|AccessError|UserError|TypeError|AttributeError|KeyError|ValueError|RuntimeError|OperationalError|ProgrammingError|IntegrityError|Exception):", value):
                       error = value
                       break
 
-          interesting = []
-          tokens = (
-              "phase8_", "Traceback", "AssertionError", "ValidationError", "AccessError",
-              "UserError", "TypeError", "AttributeError", "KeyError", "ValueError",
-              "RuntimeError", "OperationalError", "ProgrammingError", "IntegrityError",
-              "CRITICAL", "ERROR", "Process completed with exit code", "grep:",
-          )
-          for raw in runtime:
-              value = clean(raw)
-              if value and any(token in value for token in tokens):
-                  interesting.append(value)
-          tail = interesting[-6:]
-          tail = ["not-found"] * (6 - len(tail)) + tail
+          tail = runtime[-12:]
+          tail = ["not-found"] * (12 - len(tail)) + tail
+          selected_name = ",".join(path.name for path in candidates[:2])
 
           with output.open("a", encoding="utf-8") as handle:
+              handle.write(f"source={short(selected_name)}\n")
               handle.write(f"markers={short(','.join(markers) or 'none')}\n")
               handle.write(f"frame={short(frame)}\n")
               handle.write(f"error={short(error)}\n")
@@ -131,26 +121,23 @@ jobs:
           publish() {
             local context="$1"
             local description="$2"
-            payload="$(jq -cn \
-              --arg state failure \
-              --arg context "$context" \
-              --arg description "$description" \
-              --arg target_url "https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
-              '{state:$state,context:$context,description:$description,target_url:$target_url}')"
-            curl -fsS -X POST \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H 'Accept: application/vnd.github+json' \
-              -H 'X-GitHub-Api-Version: 2022-11-28' \
-              --data "$payload" \
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" >/dev/null
+            payload="$(jq -cn --arg state failure --arg context "$context" --arg description "$description" --arg target_url "https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" '{state:$state,context:$context,description:$description,target_url:$target_url}')"
+            curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' --data "$payload" "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" >/dev/null
           }
+          publish 'phase8/uat-red/source' "${{ steps.recover.outputs.source }}"
           publish 'phase8/uat-red/markers' "${{ steps.recover.outputs.markers }}"
           publish 'phase8/uat-red/frame' "${{ steps.recover.outputs.frame }}"
           publish 'phase8/uat-red/error' "${{ steps.recover.outputs.error }}"
-          publish 'phase8/uat-red/tail-1' "${{ steps.recover.outputs.tail1 }}"
-          publish 'phase8/uat-red/tail-2' "${{ steps.recover.outputs.tail2 }}"
-          publish 'phase8/uat-red/tail-3' "${{ steps.recover.outputs.tail3 }}"
-          publish 'phase8/uat-red/tail-4' "${{ steps.recover.outputs.tail4 }}"
-          publish 'phase8/uat-red/tail-5' "${{ steps.recover.outputs.tail5 }}"
-          publish 'phase8/uat-red/tail-6' "${{ steps.recover.outputs.tail6 }}"
+          publish 'phase8/uat-red/tail-01' "${{ steps.recover.outputs.tail1 }}"
+          publish 'phase8/uat-red/tail-02' "${{ steps.recover.outputs.tail2 }}"
+          publish 'phase8/uat-red/tail-03' "${{ steps.recover.outputs.tail3 }}"
+          publish 'phase8/uat-red/tail-04' "${{ steps.recover.outputs.tail4 }}"
+          publish 'phase8/uat-red/tail-05' "${{ steps.recover.outputs.tail5 }}"
+          publish 'phase8/uat-red/tail-06' "${{ steps.recover.outputs.tail6 }}"
+          publish 'phase8/uat-red/tail-07' "${{ steps.recover.outputs.tail7 }}"
+          publish 'phase8/uat-red/tail-08' "${{ steps.recover.outputs.tail8 }}"
+          publish 'phase8/uat-red/tail-09' "${{ steps.recover.outputs.tail9 }}"
+          publish 'phase8/uat-red/tail-10' "${{ steps.recover.outputs.tail10 }}"
+          publish 'phase8/uat-red/tail-11' "${{ steps.recover.outputs.tail11 }}"
+          publish 'phase8/uat-red/tail-12' "${{ steps.recover.outputs.tail12 }}"
           echo 'phase8_red_diagnostic=PASS source_run=35074919114'
