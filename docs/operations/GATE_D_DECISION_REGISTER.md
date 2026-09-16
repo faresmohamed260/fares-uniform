@@ -17,12 +17,24 @@ Do not place staff names, secret values, customer information, product/order exp
 
 These technical proofs do not answer the production decisions below.
 
+## Accepted platform and domain facts
+
+Client-confirmed on 2026-09-16:
+
+- application hosting/runtime: Vercel;
+- authoritative DNS/edge direction: Cloudflare;
+- managed PostgreSQL/durable state: Supabase;
+- public domain: `faresuniform.uk`.
+
+Public read-only DNS evidence confirms Cloudflare nameservers. The current apex response is Cloudflare HTTP `530`, which proves the DNS/edge path is not yet connected to a healthy accepted Vercel origin. Treat the domain as owned/selected but not production-ready. No provider setting was mutated.
+
+See [production domain plan](PRODUCTION_DOMAIN_PLAN.md).
 ## Required decisions
 
 | ID | Decision required from client/operators | Minimum evidence before closure | State |
 | --- | --- | --- | --- |
-| GD-01 | Production hosting provider/plan, region and spending ceiling | Written provider/plan selection; commercial-use suitability; approved recurring/one-time cost ceiling; account owner role | OPEN |
-| GD-02 | Production domain, DNS, TLS and private Odoo access ownership | Domain and DNS owner roles; intended public hostname; private/backoffice access method; certificate renewal ownership | OPEN |
+| GD-01 | Production hosting provider/plan, region and spending ceiling | Vercel is selected for application hosting and Supabase for managed PostgreSQL. Production Vercel plan/commercial-use suitability, region, approved recurring/one-time cost ceiling and account owner role remain required. | PARTIAL — PLAN/SPENDING OPEN |
+| GD-02 | Production domain, DNS, TLS and private Odoo access ownership | `faresuniform.uk` is selected and delegated to Cloudflare. Exact DNS/proxy records, Vercel verification, TLS acceptance, DNS/certificate owner roles and private/backoffice access method remain required. | PARTIAL — WIRING/OWNERS OPEN |
 | GD-03 | Production secret custody and rotation | Custodian roles for database, Odoo admin, cron and provider tokens; injection boundary; rotation/revocation procedure; emergency-access owner | OPEN |
 | GD-04 | Store devices and outage procedure | Checkout browser/device result; scanner result; receipt/label printer dimensions/result; offline persistence result; power/network outage procedure acknowledged | OPEN |
 | GD-05 | Staff roles and training | Private named-user roster; approved role/location mapping; training completion by workflow; recovery/escalation role | OPEN |

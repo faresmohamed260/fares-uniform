@@ -23,6 +23,18 @@ Exact integrated candidate `de85450cf1c1774a432c5dfd600b6d4596bc2450` passed the
 The integration correction only aligned stale pre-deployment workflow source guards with deployed application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`; it did not change application source or deploy anything. Superseded one-off Phase 8 diagnosis/repair/preflight workflows and their patch payload were removed after their immutable RED/GREEN history had been recorded. The permanent proof workflows and documentation remain.
 
 Release integration is complete. The default-branch observability schedule is active. Manual run `35099333740`, job `104804477793`, and the first observed native scheduled run `35129331378`, job `104906119150`, are GREEN. The scheduled run used exact `main` source `c2a93d8d693f47ebc7b286af5eaebb485895d8c0`, observed zero Vercel runtime errors/HTTP 5xx, retained the 19-job known cron backlog with zero failing crons and zero stuck transactions, and required managed recovery `35068971581` to remain GREEN. Phase-branch deletion, Gate D and production cutover remain separately authorized boundaries.
+## Accepted production direction
+
+The client reconfirmed the intended platform split on 2026-09-16:
+
+- **Vercel** owns application hosting/runtime;
+- **Cloudflare** owns authoritative DNS and the selected edge/proxy direction;
+- **Supabase** owns managed PostgreSQL/durable database state;
+- **`faresuniform.uk`** is the selected owned public domain.
+
+Public DNS read-back confirms `faresuniform.uk` is delegated to Cloudflare nameservers. The apex currently resolves through Cloudflare and returns HTTP `530`, so domain-to-Vercel origin wiring/TLS acceptance is **not complete**. No DNS, Vercel-domain or Cloudflare setting was changed while recording this decision. See [production domain plan](docs/operations/PRODUCTION_DOMAIN_PLAN.md).
+
+The platform/domain selection closes the identity portion of GD-01/GD-02, but production plan/spending approval, exact DNS records, Cloudflare proxy policy, Vercel domain verification, TLS, private Odoo access ownership and cutover authorization remain open.
 ## Current staging identity
 
 - Vercel project: `fares-uniform`, `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`, team `team_r09C6RLmb2acHapENECQIn9T`.
@@ -78,7 +90,7 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 1. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, scheduled authority run `35129331378` / job `104906119150`, and all phase branches.
 2. The client declined the proposed GD-10 repository/environment control changes on 2026-09-16. Do not enable branch protection, Dependabot security updates or a GitHub `production` environment unless later explicitly authorized.
-3. No remaining Gate D item can be completed from repository/CI evidence alone. GD-01 through GD-09 require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
+3. Vercel + Cloudflare + Supabase and `faresuniform.uk` are selected, but no domain/provider mutation is authorized yet. Remaining GD-01/GD-02 work is the production Vercel plan/spending boundary, exact Cloudflare DNS/proxy/TLS wiring, private-access ownership and cutover approval. GD-03 through GD-09 still require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
 4. Do not create production resources, purchase services, activate production secrets, migrate real data, change domains/DNS, assign staff, invent hardware results or cut over without the corresponding explicit Gate D decisions and final production GO.
 5. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release scope.
 ## Constraints for every continuation

@@ -354,3 +354,17 @@ Status: Client direction recorded 2026-09-16; production remains NO-GO.
 The read-only Gate D audit found no repository ruleset or `main` branch protection, no GitHub deployment environments and disabled Dependabot security updates. It also found read-only default Actions permissions, enabled secret scanning/push protection and zero open Dependabot, code-scanning or secret-scanning alerts at the audit time.
 
 The client declined the proposed changes to enable `main` protection, Dependabot security updates and an empty protected `production` environment, then instructed completion of the remaining authorized tasks. No GitHub setting, environment, secret or deployment was changed. This is a deferral, not acceptance of an unprotected production release process. GD-10 remains NOT APPROVED and production remains NO-GO unless a later explicit decision establishes the release-control boundary.
+## D-047 — Vercel + Cloudflare + Supabase production direction and `faresuniform.uk`
+
+Status: Client-reconfirmed platform/domain decision, 2026-09-16; wiring and production authorization remain open.
+
+The intended production platform split is:
+
+- Vercel for application hosting/runtime;
+- Cloudflare for authoritative DNS and the selected edge/proxy direction;
+- Supabase for managed PostgreSQL and durable database state;
+- owned public domain `faresuniform.uk`.
+
+This supersedes any current checklist wording that treats the production provider or domain identity as wholly undecided. It does not select or authorize a paid Vercel plan, approve a spending ceiling, authorize DNS mutation, decide the final Cloudflare proxy policy, attach the domain to the Vercel project, approve production secrets/private access, or authorize cutover.
+
+Read-only public DNS evidence on 2026-09-16 showed Cloudflare nameservers and Cloudflare-served apex addresses. HTTPS returned Cloudflare status `530`, so the domain is selected/owned but not yet connected to a healthy accepted Vercel origin. Exact wiring must follow current Vercel domain inspection output and preserve existing non-web DNS records. See `docs/operations/PRODUCTION_DOMAIN_PLAN.md`.

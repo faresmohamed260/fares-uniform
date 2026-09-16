@@ -51,6 +51,11 @@ Final Phase 6 proof: SHA `e337315684c62d69ad75ba56a5867098da17489c`, run `347266
 - [x] Earlier Hetzner/single-VPS recommendation marked superseded rather than treated as a selected resource.
 - [x] RenderLab/SAGA-style direction adopted: replaceable application surface + managed durable backing services.
 - [x] Managed PostgreSQL selected for Phase 8 staging: **Supabase**.
+- [x] Application hosting/runtime direction reconfirmed: **Vercel**.
+- [x] Authoritative DNS/edge direction reconfirmed: **Cloudflare**.
+- [x] Owned public domain selected: **aresuniform.uk**.
+- [ ] Production Vercel plan/commercial-use and spending boundary approved.
+- [ ] Cloudflare-to-Vercel DNS/proxy/TLS wiring verified for aresuniform.uk.
 - [x] Client explicitly authorized new Fares Uniform staging resources on Vercel/Supabase under a hard **stay free** condition.
 - [x] Actual Fares Uniform Supabase project/database/region established in an isolated dedicated project.
 - [x] Actual isolated Fares Uniform Vercel project shell created in the authorized team.
@@ -172,7 +177,9 @@ The Phase 6 PostgreSQL+filestore recovery model remains preserved for its verifi
 - [x] Final public web typecheck/build/browser gate is green.
 - [x] Isolated Fares Uniform Vercel project shell created and owned by the authorized team.
 - [x] Authorized isolated free-tier staging deployment exists; it is not production hosting approval.
-- [ ] Production domain/DNS/TLS/internal-access ownership decided and configured.
+- [x] Production domain selected: `faresuniform.uk`; authoritative DNS is delegated to Cloudflare.
+- [ ] Exact Cloudflare DNS/proxy records, Vercel domain verification and TLS acceptance completed.
+- [ ] DNS/certificate and private/internal-access owner roles approved.
 - [x] Post-deployment EN/AR public smoke verification passed on the actual staging URL.
 
 ### Repository and production release controls
@@ -223,6 +230,7 @@ Client direction on 2026-09-16: do not apply the proposed branch protection, Dep
 
 Repository-proven target properties:
 - public Next.js surface;
+- aresuniform.uk through Cloudflare authoritative DNS/edge to the Vercel public surface;
 - private/stateless Odoo HTTP service;
 - separate stateless Odoo evented/WebSocket service;
 - managed Supabase PostgreSQL through session semantics + TLS;
@@ -247,7 +255,7 @@ The earlier single-EU-VPS/Hetzner recommendation is historical and superseded bu
 
 **Current production state: NO-GO.**
 
-There is no known application or Gate C engineering blocker. Remaining work is Gate D policy and real-world acceptance: production-suitable hosting/spending, device validation, named staff/training, data cutover/reconciliation, production domains/access/secrets, backup retention/RPO/RTO, named monitoring recipients/escalation, retention/privacy and explicit production GO.
+There is no known application or Gate C engineering blocker. Vercel + Cloudflare + Supabase and `faresuniform.uk` are selected. Remaining work is Gate D policy and real-world acceptance: production Vercel plan/spending approval, exact domain/DNS/proxy/TLS wiring and ownership, device validation, named staff/training, data cutover/reconciliation, production access/secrets, backup retention/RPO/RTO, named monitoring recipients/escalation, retention/privacy and explicit production GO.
 
 ## Next actions allowed now
 

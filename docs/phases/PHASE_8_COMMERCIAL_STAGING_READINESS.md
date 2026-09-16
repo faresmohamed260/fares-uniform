@@ -226,7 +226,7 @@ Purchase, MRP, procurement planning, `sale_management` and `stock_valuation_laye
 
 ### Gate D — production
 
-**NO-GO.** Production additionally requires store-device acceptance, named staff/roles/training, separately authorized real-data cutover/reconciliation, production domains/secrets/access, backup retention and RPO/RTO decisions, named monitoring owners/recipients/escalation, production log/alert retention, launch/spending authorization and an explicit client production GO.
+**NO-GO.** The selected production direction is Vercel application hosting + Cloudflare authoritative DNS/edge + Supabase PostgreSQL, using owned domain `faresuniform.uk`. Production additionally requires approval of the production Vercel plan/spending boundary; exact Cloudflare DNS/proxy/Vercel-verification/TLS wiring and ownership; store-device acceptance; named staff/roles/training; separately authorized real-data cutover/reconciliation; production secrets/private access; backup retention and RPO/RTO decisions; named monitoring owners/recipients/escalation; production log/alert retention; launch authorization; and an explicit client production GO.
 
 ## Immediate continuation
 
