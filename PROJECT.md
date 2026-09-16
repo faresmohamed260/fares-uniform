@@ -14,6 +14,15 @@ Historical business-application authority: `cc2656d7529cfd4af396ddd0af6444a0f660
 
 **Phase 8 Gate C live staging technical acceptance is PASS. Production remains NO-GO.** Release integration and Gate D remain separate from the completed staging proof.
 
+## Release integration checkpoint
+
+Draft PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) is open from `phase-8/commercial-staging-readiness` to `main` for review only. The branch stack is linear and has no divergence from `main`; no phase branch was merged, closed or deleted.
+
+Exact integrated candidate `de85450cf1c1774a432c5dfd600b6d4596bc2450` passed the current Phase 5A, Phase 6 and all four Phase 7 hosted workflows. The Phase 5A run passed 149/149 Odoo tests, the repeatable seven-production-addon upgrade and 8/8 public browser tests. Phase 6 passed package, persistence and destructive clean-volume restore. Phase 7 passed stateless runtime, external cron, WebSocket continuity and Vercel project configuration. Exact run/job/artifact evidence is recorded in [release integration validation](docs/validation/RELEASE_INTEGRATION.md).
+
+The integration correction only aligned stale pre-deployment workflow source guards with deployed application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`; it did not change application source or deploy anything. Superseded one-off Phase 8 diagnosis/repair/preflight workflows and their patch payload were removed after their immutable RED/GREEN history had been recorded. The permanent proof workflows and documentation remain.
+
+This checkpoint is review-ready, not merge-ready by inference. Merge, phase-branch deletion, activation of the default-branch observability schedule, Gate D and production cutover all require their existing explicit boundaries.
 ## Current staging identity
 
 - Vercel project: `fares-uniform`, `prj_DlKEwDdJZBgfTyaej5hP65Z9NSvS`, team `team_r09C6RLmb2acHapENECQIn9T`.
@@ -67,10 +76,9 @@ Do not retry database authentication blindly or rotate a working runtime credent
 
 ## Next tasks, in order
 
-1. Gate C staging technical acceptance is complete. Business-UAT authority is `48316711e4939e4a2e99f2708093930d430cf602`, run `35081126154`, job `104745121818`. Procurement planning/Purchase/MRP and `stock_valuation_layer` are outside this accepted first-release staging gate.
-2. Reconcile the branch/PR release stack as a separate reviewable integration task. Do not merge or delete phase branches without explicit authorization. Default-branch integration is also when the scheduled GitHub observability workflow can become active.
-3. Gate D remains NO-GO: named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, named monitoring recipients/escalation and explicit production GO remain required.
-
+1. Review draft release-integration PR [#6](https://github.com/faresmohamed260/fares-uniform/pull/6) and its exact hosted evidence. Do not merge or delete phase branches without explicit authorization. Default-branch integration is also when the scheduled GitHub observability workflow can become active.
+2. Resolve only review findings against the preserved exact-source and staging contracts; rerun the affected hosted gate for any source change.
+3. Gate D remains NO-GO: named staff/roles/training, device acceptance, real-data cutover/reconciliation, production access/domains/secrets, backup retention/RPO/RTO, named monitoring recipients/escalation and explicit production GO remain required. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release staging gate.
 ## Constraints for every continuation
 
 Remote GitHub source edits and hosted execution only. No local/scratch source, builds or artifacts. No force push, broad Odoo exposure, real business data, `fu_uat` in staging/production, transaction pooling, routine provider-admin Odoo, paid upgrades or production cutover.

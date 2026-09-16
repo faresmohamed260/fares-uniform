@@ -56,6 +56,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 8A free-tier staging execution](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md) | Live Supabase/Vercel execution status, RED-to-green provider evidence and remaining Gate C work |
 | [Phase 8 staging secret inventory](operations/PHASE_8_STAGING_SECRET_INVENTORY.md) | Staging secret names/purpose/custody/rotation without secret values |
 | [Phase 8 staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md) | Staging monitor signals, alert transport, role ownership, privacy/redaction and schedule boundary |
+| [Release integration validation](validation/RELEASE_INTEGRATION.md) | Linear branch audit, exact integrated hosted evidence and review-only PR boundary |
 | [Onboarding rehearsal](operations/ONBOARDING_REHEARSAL.md) | Synthetic setup result and operator/client inputs still required |
 | [Deployment readiness](operations/DEPLOYMENT_READINESS.md) | Go/no-go checklist and remaining live-stage decisions |
 
@@ -66,5 +67,6 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 - [Staging repair and cleanup evidence](validation/PHASE_8_HANDOFF_REPAIR.md): current repair results and preserved RED evidence.
 - [Workflow guide](operations/WORKFLOW_GUIDE.md): retained workflows, retired diagnostic entry points and execution precautions.
 - [Staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md): current monitoring/alert/privacy proof and default-branch schedule limitation.
+- [Release integration validation](validation/RELEASE_INTEGRATION.md): exact candidate, hosted gates, stack audit and draft PR #6 boundary.
 
 Historical phase documents record the state at their closure. Their past authorization/status language does not override the current handoff or later explicit decisions.
