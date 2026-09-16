@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  BASE_APP_SHA: cc2656d7529cfd4af396ddd0af6444a0f6600dc8
+  BASE_APP_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
   ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
   ODOO_DB_NAME: fares
   ODOO_DB_USER: fares_app

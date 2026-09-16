@@ -108,7 +108,7 @@ jobs:
 
       - name: Verify application authority remains unchanged
         env:
-          BASE_APP_SHA: cc2656d7529cfd4af396ddd0af6444a0f6600dc8
+          BASE_APP_SHA: 2a74e93b1828c16839ba7cede336caa4ca374306
         run: |
           set -euo pipefail
           git fetch --no-tags --depth=1 origin "$BASE_APP_SHA"
