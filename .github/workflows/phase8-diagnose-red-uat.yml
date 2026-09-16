@@ -55,8 +55,11 @@ jobs:
                   continue
               lines.extend(text.splitlines())
 
+          ansi = re.compile(r"\x1b\[[0-9;]*m")
+
           def clean(value):
               value = re.sub(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z\s+", "", value).strip()
+              value = ansi.sub("", value)
               value = re.sub(r"\s+", " ", value)
               return value
 
@@ -64,38 +67,59 @@ jobs:
               value = clean(value)
               return value[:limit] if value else "not-found"
 
+          # GitHub Actions echoes every shell-script source line in cyan before
+          # execution. Exclude those lines so source code cannot masquerade as
+          # runtime PASS markers or exceptions.
+          runtime = [line for line in lines if "\x1b[36;1m" not in line]
+
           markers = []
-          for line in lines:
-              match = re.search(r"(phase8_uat_[a-z_]+)=PASS", line)
+          for line in runtime:
+              match = re.search(r"(phase8_uat_[a-z_]+)=PASS", clean(line))
               if match and match.group(1) not in markers:
                   markers.append(match.group(1))
 
-          traceback_starts = [i for i, line in enumerate(lines) if "Traceback (most recent call last):" in line]
+          traceback_starts = [i for i, line in enumerate(runtime) if "Traceback (most recent call last):" in clean(line)]
           frame = ""
           error = ""
           if traceback_starts:
               start = traceback_starts[-1]
-              for raw in lines[start + 1:start + 160]:
+              for raw in runtime[start + 1:start + 160]:
                   value = clean(raw)
                   if re.search(r'File ".+", line \d+', value):
                       frame = value
                   if re.search(
-                      r"(?:^|[\w.])(?:AssertionError|ValidationError|AccessError|UserError|TypeError|AttributeError|KeyError|ValueError|RuntimeError|OperationalError|ProgrammingError|IntegrityError|Exception):",
+                      r"(?:AssertionError|ValidationError|AccessError|UserError|TypeError|AttributeError|KeyError|ValueError|RuntimeError|OperationalError|ProgrammingError|IntegrityError|Exception):",
                       value,
                   ):
                       error = value
 
           if not error:
-              for raw in reversed(lines):
+              for raw in reversed(runtime):
                   value = clean(raw)
-                  if re.search(r"(?:Error|Exception):", value):
+                  if re.search(r"(?:AssertionError|ValidationError|AccessError|UserError|TypeError|AttributeError|KeyError|ValueError|RuntimeError|OperationalError|ProgrammingError|IntegrityError|Exception):", value):
                       error = value
                       break
+
+          interesting = []
+          tokens = (
+              "phase8_", "Traceback", "AssertionError", "ValidationError", "AccessError",
+              "UserError", "TypeError", "AttributeError", "KeyError", "ValueError",
+              "RuntimeError", "OperationalError", "ProgrammingError", "IntegrityError",
+              "CRITICAL", "ERROR", "Process completed with exit code", "grep:",
+          )
+          for raw in runtime:
+              value = clean(raw)
+              if value and any(token in value for token in tokens):
+                  interesting.append(value)
+          tail = interesting[-6:]
+          tail = ["not-found"] * (6 - len(tail)) + tail
 
           with output.open("a", encoding="utf-8") as handle:
               handle.write(f"markers={short(','.join(markers) or 'none')}\n")
               handle.write(f"frame={short(frame)}\n")
               handle.write(f"error={short(error)}\n")
+              for index, value in enumerate(tail, start=1):
+                  handle.write(f"tail{index}={short(value)}\n")
           PY
 
       - name: Publish recovered diagnostic as commit statuses
@@ -123,4 +147,10 @@ jobs:
           publish 'phase8/uat-red/markers' "${{ steps.recover.outputs.markers }}"
           publish 'phase8/uat-red/frame' "${{ steps.recover.outputs.frame }}"
           publish 'phase8/uat-red/error' "${{ steps.recover.outputs.error }}"
+          publish 'phase8/uat-red/tail-1' "${{ steps.recover.outputs.tail1 }}"
+          publish 'phase8/uat-red/tail-2' "${{ steps.recover.outputs.tail2 }}"
+          publish 'phase8/uat-red/tail-3' "${{ steps.recover.outputs.tail3 }}"
+          publish 'phase8/uat-red/tail-4' "${{ steps.recover.outputs.tail4 }}"
+          publish 'phase8/uat-red/tail-5' "${{ steps.recover.outputs.tail5 }}"
+          publish 'phase8/uat-red/tail-6' "${{ steps.recover.outputs.tail6 }}"
           echo 'phase8_red_diagnostic=PASS source_run=35074919114'
