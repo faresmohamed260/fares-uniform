@@ -1,6 +1,6 @@
 # Phase 8 — Commercial staging readiness
 
-Status: **LIVE STAGING AUTHORIZED; FIXTURE/PUBLIC CONTINUITY/RECOVERY GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
+Status: **LIVE STAGING AUTHORIZED; FIXTURE/PUBLIC CONTINUITY/RECOVERY/OBSERVABILITY GREEN; GATE C IN PROGRESS; PRODUCTION NO-GO.**
 
 Branch: `phase-8/commercial-staging-readiness`.
 
@@ -184,7 +184,17 @@ Preserved RED run `35062507713`, job `104685620618`, isolated the only remaining
 
 The connector did not expose sealed stdout for final run `35068971581`; current backup byte/hash/list-count values are intentionally omitted rather than copied from an older run.
 
-See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current evidence, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep, the resolved ordinary-cron backlog, or raw cross-time `ir_cron_trigger` count equality as the current blocker.
+## Hosted staging observability — GREEN technical proof
+
+Workflow source `9d65d93c8ce7ff638de61dd4c8c15f2d7c879215` is GREEN in run `35071292407`, job `104713180912`. It resolves the exact READY deployment and proves English/Arabic public health plus the narrow exposure boundary without mutation. Vercel log queries emitted aggregate counts only and observed zero error/fatal records and zero HTTP 5xx in the one-hour window.
+
+The same run verified the sealed Supabase/PostgreSQL boundary, the exact deployment epoch and fixed synthetic enquiry, and retained the diagnosed 19 ordinary due cron rows as visibility-only state. It observed zero active cron rows with `failure_count > 0`, zero cron-locking synthetic residue and zero idle-in-transaction sessions older than five minutes. It also required the latest managed recovery result to remain run `35068971581` / `01824eba60dc55382a614178df3edd4d88997f61` / success.
+
+Vercel's project alert-rule API was available and returned one existing project rule. The proof does not assume that rule's undisclosed recipients or semantics. The source-controlled privacy-safe failure sink is a GitHub issue; the first run created and immediately closed synthetic issue `#5`, proving transport without retaining raw logs, request bodies, customer/database records, SQL text, secret values or staff names.
+
+The operations contract is `docs/operations/PHASE_8_STAGING_OBSERVABILITY.md`. Its owner labels are roles (`technical-operations-owner`, `business-operations-owner`) rather than invented people. The workflow includes a twice-hourly schedule, but GitHub schedules execute from the default branch only. Because Phase 8 remains isolated on its phase branch, recurring GitHub polling is not active yet; push/manual runs plus native provider observability are the current staging boundary. Release integration, not an early merge solely for scheduling, is where the schedule can become active. Named production owners, recipients/escalation and retention remain Gate D.
+
+See [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for current evidence, and [PROJECT.md](../../PROJECT.md) for current next actions. Do not diagnose the superseded September 14 grep, the resolved ordinary-cron backlog, raw cross-time `ir_cron_trigger` count equality or observability as current blockers.
 
 ## Secret-management boundary
 
@@ -222,21 +232,23 @@ Currently proven:
 - database-backed attachment and authenticated-session continuity across complete runtime replacement;
 - bounded external cron/native-locking proof without mutating the ordinary backlog;
 - authenticated WebSocket replacement/reconnect/cursor replay continuity;
-- managed backup/export plus destructive restore only on a disposable target, repeat seven-addon upgrade, recovered state/privilege proof and zero retained workflow artifacts.
+- managed backup/export plus destructive restore only on a disposable target, repeat seven-addon upgrade, recovered state/privilege proof and zero retained workflow artifacts;
+- hosted staging observability, aggregate runtime-error/5xx proof, database/cron/recovery health checks, role-based ownership labels and a tested privacy-safe issue alert transport.
 
 Current exact live evidence is recorded in `docs/validation/PHASE_8_HANDOFF_REPAIR.md`.
 
 Still required for Gate C:
 
-- logs/monitoring/alert ownership and privacy/redaction rules;
 - business UAT path for company → branch → warehouse → POS session → order → payment → posting → stock/cash/evidence, plus reorder/supplier/FIFO/credit-customer and offline/outbox/IPC scenarios.
+
+The default-branch activation of recurring GitHub observability is a release-integration concern; named people, production notification recipients, escalation and retention remain Gate D.
 
 ### Gate D — production
 
-**NO-GO.** Production additionally requires store-device acceptance, named staff/roles/training, separately authorized real-data cutover/reconciliation, production domains/secrets/access, backup retention and RPO/RTO decisions, monitoring owners, launch/spending authorization and an explicit client production GO.
+**NO-GO.** Production additionally requires store-device acceptance, named staff/roles/training, separately authorized real-data cutover/reconciliation, production domains/secrets/access, backup retention and RPO/RTO decisions, named monitoring owners/recipients/escalation, production log/alert retention, launch/spending authorization and an explicit client production GO.
 
 ## Immediate continuation
 
-Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Establish hosted logs/monitoring/alerts with ownership-role and privacy/redaction rules, then complete live synthetic business-flow evidence before staging sign-off. Gate D remains separately authorized.
+Follow [PROJECT.md](../../PROJECT.md) for the ordered current tasks and [repair evidence](../validation/PHASE_8_HANDOFF_REPAIR.md) for exact runs. Reverify branch HEAD before every write. Complete live synthetic business-flow evidence before staging sign-off; do not install `fu_uat` in staging. Gate D remains separately authorized.
 
 Remote GitHub/hosted execution only. No force-push, stale writer rerun, real data, `fu_uat`, direct `/fu/public/**`, transaction pooling, routine provider-admin Odoo, paid upgrade or production cutover.
