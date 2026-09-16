@@ -1,7 +1,7 @@
 diff --git a/.github/workflows/phase8-live-business-uat.yml b/.github/workflows/phase8-live-business-uat.yml
 --- a/.github/workflows/phase8-live-business-uat.yml
 +++ b/.github/workflows/phase8-live-business-uat.yml
-@@ -432,15 +432,44 @@ jobs:
+@@ -432,11 +432,43 @@ jobs:
 -          chmod 600 "$script"
 +          bootstrap="$(mktemp)"
 +          trap 'rm -f "$script" "$bootstrap"' EXIT
