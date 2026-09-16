@@ -253,7 +253,7 @@ jobs:
               raise RuntimeError("enquiry mismatch")
           print("recovered_application=PASS addons=7 attachment=exact-db session_user=1 catalog=1 enquiry=1")
           PY
-          docker run --rm -i --entrypoint bash --network "$TARGET_NETWORK"             -e ODOO_DB_HOST="$TARGET_DB_CONTAINER" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres             -e ODOO_DB_USER=fares_app -e ODOO_DB_PASSWORD="$app_password" -e ODOO_DB_SSLMODE=prefer             -e ODOO_ADMIN_PASSWD="$admin_password" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0             -e FARES_SESSION_STORE=postgres -e PORT=8069 "fares-recovery:$EXPECTED_DEPLOYMENT_SHA"             -c '/usr/local/bin/fares-vercel-odoo-entrypoint --stop-after-init --no-http </dev/null && exec /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http'             < "$verify" | grep -F 'recovered_application=PASS'
+          docker run --rm -i --entrypoint bash --network "$TARGET_NETWORK"             -e ODOO_DB_HOST="$TARGET_DB_CONTAINER" -e ODOO_DB_PORT=5432 -e ODOO_DB_NAME=postgres             -e ODOO_DB_USER=fares_app -e ODOO_DB_PASSWORD="$app_password" -e ODOO_DB_SSLMODE=prefer             -e ODOO_ADMIN_PASSWD="$admin_password" -e ODOO_WORKERS=0 -e ODOO_MAX_CRON_THREADS=0             -e FARES_SESSION_STORE=postgres -e PORT=8069 "fares-recovery:$EXPECTED_DEPLOYMENT_SHA"             -c '(/usr/local/bin/fares-vercel-odoo-entrypoint --stop-after-init --no-http </dev/null) && exec /opt/odoo-venv/bin/python /opt/odoo/odoo-bin shell -c /tmp/fares-odoo.conf -d postgres --no-http'             < "$verify" | grep -F 'recovered_application=PASS'
 
           pg_password="$(cat "$STATE_DIR/target-pg-password")"
           target="$STATE_DIR/target.json"
