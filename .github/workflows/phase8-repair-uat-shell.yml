@@ -41,16 +41,26 @@ jobs:
           grep -F -- 'odoo-bin shell -c /tmp/fares-phase8-uat.conf' .github/workflows/phase8-live-business-uat.yml
           grep -F -- '2>&1 | tee /tmp/phase8-business-uat.log' .github/workflows/phase8-live-business-uat.yml
 
-      - name: Commit repaired UAT harness
+      - name: Materialize patched workflow as unreferenced Git blob
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
           remote_head="$(git ls-remote origin refs/heads/phase-8/commercial-staging-readiness | awk '{print $1}')"
-          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing write after concurrent change: run=$GITHUB_SHA branch=$remote_head" >&2; exit 1; }
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .github/workflows/phase8-live-business-uat.yml
-          git commit -m 'Fix Phase 8 live UAT Odoo shell invocation'
-          git push origin HEAD:refs/heads/phase-8/commercial-staging-readiness
-
-# Rerun marker: corrected unified-diff hunk counts.
+          test "$remote_head" = "$GITHUB_SHA" || { echo "Refusing stale blob generation: run=$GITHUB_SHA branch=$remote_head" >&2; exit 1; }
+          target='.github/workflows/phase8-live-business-uat.yml'
+          expected="$(git hash-object "$target")"
+          payload="$(jq -Rs '{content:@base64,encoding:"base64"}' < "$target")"
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          status="$(curl -sS -o "$response" -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            --data "$payload" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/git/blobs")"
+          test "$status" = 201 || { cat "$response" >&2; exit 1; }
+          blob_sha="$(jq -er '.sha' "$response")"
+          test "$blob_sha" = "$expected"
+          echo "phase8_repaired_workflow_blob=$blob_sha"
