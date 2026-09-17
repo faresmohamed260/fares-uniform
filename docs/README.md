@@ -15,6 +15,8 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Design system](ui/DESIGN_SYSTEM.md) | UI/RTL/accessibility direction |
 | [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md) | Authorized public-site redesign boundary, marketing/interaction principles, research process and design/kinetic/fidelity gates |
 | [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md) | Current fashion/uniform market research, high-expression interactive references, tool/library findings and concept hypotheses |
+| [Public site showcase and historical-work requirements](ui/PUBLIC_SITE_SHOWCASE_CONTENT_REQUIREMENTS.md) | Real-client/project showcase content model, publication/privacy gate, product-photography standard and layered/exploded product-view requirements |
+| [GPT-6 Astra web-design research](ui/GPT6_ASTRA_WEB_DESIGN_RESEARCH.md) | Verified Astra/Scrollcraft/Higgsfield examples, prompt/workflow findings and Fares adoption plan |
 | [Phase 0](phases/PHASE_0_DISCOVERY.md) | Discovery closure |
 | [Phase 0A hosted proof](phases/PHASE_0A_ODOO_PROOF.md) | Odoo proof contract |
 | [Odoo proof evidence](validation/ODOO_PROOF.md) | Hosted proof evidence |
@@ -71,6 +73,8 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 
 - [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md): client-authorized design/research boundary for the complete public-site redesign; preserves product/security/Gate D contracts and requires concept, kinetic and fidelity gates before implementation.
 - [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md): current uniform/fashion marketing research, interactive reference library, design-tool findings and three first-round concept directions.
+- [Public site showcase and historical-work requirements](ui/PUBLIC_SITE_SHOWCASE_CONTENT_REQUIREMENTS.md): newly required real-client archive/case-study and product-inspection model, including clean photography and truthful layered/exploded views.
+- [GPT-6 Astra web-design research](ui/GPT6_ASTRA_WEB_DESIGN_RESEARCH.md): verified Astra design examples and public prompt/skill/tool workflows adapted to the Fares redesign process.
 - [Staging repair and cleanup evidence](validation/PHASE_8_HANDOFF_REPAIR.md): current repair results and preserved RED evidence.
 - [Workflow guide](operations/WORKFLOW_GUIDE.md): retained workflows, retired diagnostic entry points and execution precautions.
 - [Staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md): current monitoring/alert/privacy proof and active default-branch schedule and remaining production-owner boundary.
