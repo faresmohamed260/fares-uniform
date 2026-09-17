@@ -13,6 +13,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Product and finished-stock rules](requirements/PRODUCT_AND_STOCK_RULES.md) | Product/design/size/code/location/movement foundation |
 | [Foundation architecture](architecture/FOUNDATION_ARCHITECTURE.md) | System ownership/data/offline/integration contracts |
 | [Design system](ui/DESIGN_SYSTEM.md) | UI/RTL/accessibility direction |
+| [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md) | Authorized public-site redesign boundary, marketing/interaction principles, research process and design/kinetic/fidelity gates |
 | [Phase 0](phases/PHASE_0_DISCOVERY.md) | Discovery closure |
 | [Phase 0A hosted proof](phases/PHASE_0A_ODOO_PROOF.md) | Odoo proof contract |
 | [Odoo proof evidence](validation/ODOO_PROOF.md) | Hosted proof evidence |
@@ -67,6 +68,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 
 [PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. Active contracts: [Phase 8](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) and [Phase 8A](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md).
 
+- [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md): client-authorized design/research boundary for the complete public-site redesign; preserves product/security/Gate D contracts and requires concept, kinetic and fidelity gates before implementation.
 - [Staging repair and cleanup evidence](validation/PHASE_8_HANDOFF_REPAIR.md): current repair results and preserved RED evidence.
 - [Workflow guide](operations/WORKFLOW_GUIDE.md): retained workflows, retired diagnostic entry points and execution precautions.
 - [Staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md): current monitoring/alert/privacy proof and active default-branch schedule and remaining production-owner boundary.
