@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowDownRight, ArrowUpRight, Languages, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
@@ -161,9 +162,8 @@ export function PatternExperience({ initialLocale }: { initialLocale: Locale }) 
           <p>{text.sub}</p>
           <a className="primary-action" href="#work">{text.explore}<ArrowDownRight aria-hidden="true" /></a>
         </div>
-        <div className="hero-composition" aria-hidden="true">
-          <div className="fabric-plane plane-one" />
-          <div className="fabric-plane plane-two" />
+        <div className="hero-composition" aria-hidden="true" data-testid="hero-editorial">
+          <Image src="/media/fares-team-editorial.webp" alt="" fill priority sizes="(max-width: 760px) 100vw, 54vw" />
           <div className="seam-line" />
           <span>FU</span>
         </div>
@@ -192,6 +192,34 @@ export function PatternExperience({ initialLocale }: { initialLocale: Locale }) 
             </button>
           ))}
         </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            className="cohort-editorial"
+            key={`cohort-media-${project.id}`}
+            initial={reduced ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduced ? 0 : 0.45 }}
+            data-testid="cohort-editorial"
+          >
+            <div className="cohort-image">
+              <Image
+                src={project.id === "kgc-national" ? "/media/synthetic-cohort-lineup.webp" : "/media/fares-team-editorial.webp"}
+                alt=""
+                fill
+                sizes="(max-width: 760px) 100vw, 1440px"
+              />
+            </div>
+            <div className="cohort-labels">
+              {project.cohorts.map((item, index) => (
+                <button key={item.id} onClick={() => selectCohort(item.id)} aria-pressed={item.id === cohort.id}>
+                  <span>0{index + 1}</span><strong>{item.name[locale]}</strong>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
 
         <AnimatePresence mode="wait">
           <motion.article
@@ -258,6 +286,22 @@ export function PatternExperience({ initialLocale }: { initialLocale: Locale }) 
             <p className="prototype-note">{text.note}</p>
           </motion.article>
         </AnimatePresence>
+      </section>
+
+      <section className="material-section" aria-labelledby="material-title">
+        <div className="material-copy">
+          <span>{locale === "ar" ? "تفاصيل أقرب" : "A closer look"}</span>
+          <h2 id="material-title">{locale === "ar" ? "غرض في كل طبقة." : "Purpose in every layer."}</h2>
+          <p>{locale === "ar" ? "أقمشة متينة. بناء مدروس. تفاصيل واضحة يمكن مراجعتها قبل التصنيع." : "Durable textiles. Considered construction. Clear details that can be reviewed before manufacturing."}</p>
+          <ol>
+            <li><b>01</b>{locale === "ar" ? "قماش أساسي متين" : "Durable main textile"}</li>
+            <li><b>02</b>{locale === "ar" ? "ألواح هوية منسقة" : "Coordinated identity panels"}</li>
+            <li><b>03</b>{locale === "ar" ? "خياطة وتشطيب دقيق" : "Precise seams and finishing"}</li>
+          </ol>
+        </div>
+        <div className="material-media" data-testid="material-editorial">
+          <Image src="/media/uniform-exploded-editorial.webp" alt="" fill sizes="(max-width: 760px) 100vw, 58vw" />
+        </div>
       </section>
 
       <section className="approach-section" id="approach">
