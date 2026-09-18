@@ -100,13 +100,13 @@ The connected KGC Google Drive folder was audited on 2026-09-18 and its complete
 
 The manifest preserves Drive file IDs, filenames and direct links without copying image binaries into GitHub. Future concept/content work must treat worn/model images as the current-look authority, use only matched packshots with those anchors, and leave extra packshots unassigned. This audit does not establish publication, school-logo, location-image or other rights approval and does not authorize implementation, deployment or production changes.
 
-## Public-site design direction checkpoint
+## Phase 9 public-site kinetic prototype
 
-Fares selected **Pattern in Motion** on 2026-09-18 and then confirmed the governing correction: the public experience must be reusable across all Fares clients and organizations. The [selected design specification](docs/ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) now defines a stable Fares shell plus data-driven project skins, generic cohorts/roles, shared-versus-unique garment continuity and a generic inspect/explode/reassemble contract.
+Fares authorized implementation to start on 2026-09-18. The immediate phase is the isolated [Phase 9 kinetic prototype](docs/phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md), not a production public-site rewrite or deployment. Work runs on `phase-9/public-site-kinetic-prototype`.
 
-KGC National is the first complete validation fixture, not the homepage identity or a fixed four-stage site model. KGC colors and diagonal construction language are scoped to the KGC project story. Future organizations may use different cohort structures, garment motifs and palettes through the same content contract. The kinetic gate must include an organization-agnostic Fares entry state, the KGC fixture and a clearly synthetic non-school fixture to expose overfitting.
+The prototype must prove the approved multi-organization Pattern in Motion system: a stable Fares shell, data-driven project skins and cohort/role structures, generic garment inspection, English/Arabic responsive behavior, reduced motion, KGC National as one review fixture and a clearly synthetic non-school fixture. KGC remains a validation case, never the global identity.
 
-This remains a design selection, not production implementation approval. No client media binary was added to this public repository, no public-web source changed, no deployment occurred and publication/model/logo permission remains open. The next authorized design task is a reviewable reusable kinetic prototype using synthetic/private review media; production code and deployment remain separately gated.
+`apps/public-web`, Odoo, providers and production remain unchanged. Hosted render/interaction evidence and Fares's kinetic review are required before production implementation can be authorized.
 
 ## Next tasks, in order
 

@@ -380,3 +380,12 @@ The site uses a stable Fares shell and data-driven project skins. Organization, 
 The generic inspection contract may provide explode/reassemble behavior only when approved media supports the layers; otherwise it must use an annotated flat-view fallback and must not invent garment construction. The kinetic design gate must prove an organization-agnostic Fares entry state, one KGC fixture and at least one clearly synthetic non-school fixture before production implementation is considered.
 
 This decision does not authorize public use of any client media, implementation, deployment or production cutover.
+
+
+## D-049 — Begin isolated kinetic prototype implementation
+
+Status: Accepted by client, 2026-09-18.
+
+Fares authorized implementation to begin after approving Pattern in Motion and confirming that the system must remain multi-organization. The first implementation boundary is an isolated repository-backed kinetic prototype on `phase-9/public-site-kinetic-prototype`, governed by `docs/phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md`.
+
+This authorization covers the prototype, synthetic fixtures and hosted validation only. It does not authorize editing the production `apps/public-web` surface, deployment, provider mutation, public use of unapproved client media, production Gate D or launch. Production implementation remains contingent on review and approval of the prototype's rendered kinetic behavior.
