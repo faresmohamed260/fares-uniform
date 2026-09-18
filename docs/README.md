@@ -61,6 +61,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 8 commercial staging readiness](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) | Staging ownership, live-proof and GO/NO-GO parent contract |
 | [Phase 8A free-tier staging execution](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md) | Live Supabase/Vercel execution status, RED-to-green provider evidence and remaining Gate C work |
 | [Phase 9 public-site kinetic prototype](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) | Authorized isolated Pattern in Motion prototype, multi-organization boundary and hosted kinetic acceptance contract |
+| [Phase 9 kinetic prototype validation](validation/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) | Exact RED-to-green hosted build, browser, responsive/RTL, reduced-motion and rendered-evidence record |
 | [Phase 8 staging secret inventory](operations/PHASE_8_STAGING_SECRET_INVENTORY.md) | Staging secret names/purpose/custody/rotation without secret values |
 | [Phase 8 staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md) | Staging monitor signals, alert transport, role ownership, privacy/redaction and schedule boundary |
 | [Release integration validation](validation/RELEASE_INTEGRATION.md) | Linear branch audit, exact integrated hosted evidence and review-only PR boundary |

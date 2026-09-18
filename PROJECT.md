@@ -102,19 +102,22 @@ The manifest preserves Drive file IDs, filenames and direct links without copyin
 
 ## Phase 9 public-site kinetic prototype
 
-Fares authorized implementation to start on 2026-09-18. The immediate phase is the isolated [Phase 9 kinetic prototype](docs/phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md), not a production public-site rewrite or deployment. Work runs on `phase-9/public-site-kinetic-prototype`.
+Fares authorized implementation to start on 2026-09-18. The isolated [Phase 9 kinetic prototype](docs/phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) is implemented on `phase-9/public-site-kinetic-prototype` and remains separate from the production public site.
 
-The prototype must prove the approved multi-organization Pattern in Motion system: a stable Fares shell, data-driven project skins and cohort/role structures, generic garment inspection, English/Arabic responsive behavior, reduced motion, KGC National as one review fixture and a clearly synthetic non-school fixture. KGC remains a validation case, never the global identity.
+Implementation authority `04e0036786ad23926765daefd16d80f0ad025e4e` passed hosted run `35392671483`, job `105754360569`: locked install, typecheck, optimized build and **5/5 Playwright journeys** are GREEN. Artifact `10566840263` retains desktop, exploded, English mobile, Arabic RTL mobile and five interaction videos. The first run's reduced-motion failure is preserved in the validation record and was fixed at `62c86e4ac088f7edbe9bcee412c0dbda71fb3e0d`.
 
-`apps/public-web`, Odoo, providers and production remain unchanged. Hosted render/interaction evidence and Fares's kinetic review are required before production implementation can be authorized.
+The prototype proves a stable Fares shell, data-driven project skins and variable cohort/role structures, KGC National as one review fixture, a clearly synthetic hospitality fixture, generic inspect/explode/reassemble behavior, English/Arabic responsiveness, touch sizing and reduced-motion parity. Hosted captures were visually compared with the accepted Pattern in Motion concept; the deliberate remaining deviation is synthetic vector garment art because client media publication rights remain open.
+
+Technical prototype validation is GREEN. The kinetic design gate still requires Fares to review and approve the rendered behavior. `apps/public-web`, Odoo, providers and production remain unchanged; production remains NO-GO.
 
 ## Next tasks, in order
 
-1. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, latest scheduled authority run `35146487731` / job `104963791652`, and all phase branches.
-2. The client declined the proposed GD-10 repository/environment control changes on 2026-09-16. Do not enable branch protection, Dependabot security updates or a GitHub `production` environment unless later explicitly authorized.
-3. Vercel + Cloudflare + Supabase and `faresuniform.uk` are selected. Apex/`www` DNS, Vercel verification, TLS and the canonical redirect are GREEN. Remaining GD-01/GD-02 work is production Vercel plan/spending, final Cloudflare proxy policy, DNS/certificate and private-access owner roles. GD-03 through GD-09 still require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
-4. Do not create production resources, purchase services, activate production secrets, migrate real data, make further domain/DNS changes, assign staff, invent hardware results or cut over without the corresponding explicit Gate D decisions and final production GO.
-5. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release scope.
+1. Fares reviews PR #7's hosted kinetic evidence and either approves the motion direction or identifies specific corrections. Do not merge or begin the production `apps/public-web` rewrite until that human kinetic gate is explicit.
+2. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, latest scheduled authority run `35146487731` / job `104963791652`, and all phase branches.
+3. The client declined the proposed GD-10 repository/environment control changes on 2026-09-16. Do not enable branch protection, Dependabot security updates or a GitHub `production` environment unless later explicitly authorized.
+4. Vercel + Cloudflare + Supabase and `faresuniform.uk` are selected. Apex/`www` DNS, Vercel verification, TLS and the canonical redirect are GREEN. Remaining GD-01/GD-02 work is production Vercel plan/spending, final Cloudflare proxy policy, DNS/certificate and private-access owner roles. GD-03 through GD-09 still require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
+5. Do not create production resources, purchase services, activate production secrets, migrate real data, make further domain/DNS changes, assign staff, invent hardware results or cut over without the corresponding explicit Gate D decisions and final production GO.
+6. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release scope.
 ## Constraints for every continuation
 
 Remote GitHub source edits and hosted execution only. No local/scratch source, builds or artifacts. No force push, broad Odoo exposure, real business data, `fu_uat` in staging/production, transaction pooling, routine provider-admin Odoo, paid upgrades or production cutover.
