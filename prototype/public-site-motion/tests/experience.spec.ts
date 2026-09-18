@@ -23,6 +23,8 @@ test("English desktop journey explodes and reassembles a KGC garment", async ({ 
   await expect(page.getByTestId("sharing-status")).toHaveText("Shared system");
   await page.getByTestId("explode-toggle").click();
   await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
+  await page.waitForTimeout(700);
+  await capture(page, "phase9-desktop-en-exploded.png");
   await page.getByTestId("explode-toggle").click();
   await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "false");
   await expectNoOverflow(page);
