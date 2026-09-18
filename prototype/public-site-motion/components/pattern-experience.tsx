@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { ArrowDownRight, ArrowUpRight, Languages, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { projects, type Locale, type Look, type Project } from "@/lib/projects";
@@ -86,9 +86,22 @@ function GarmentStudy({ look, exploded, locale, reduced }: { look: Look; explode
   );
 }
 
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduced(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  return reduced;
+}
+
 export function PatternExperience({ initialLocale }: { initialLocale: Locale }) {
-  const prefersReducedMotion = useReducedMotion();
-  const reduced = Boolean(prefersReducedMotion);
+  const reduced = usePrefersReducedMotion();
   const [locale, setLocale] = useState<Locale>(initialLocale);
   const [projectId, setProjectId] = useState(projects[0].id);
   const project = projects.find((item) => item.id === projectId) ?? projects[0];
