@@ -132,3 +132,36 @@ The goal design is not reached yet. Active differences are:
 - final transition timing and settled geometry still require direct kinetic review.
 
 The next fidelity checkpoint must correct those differences, rerender all review sizes/states and repeat the comparison before any approval claim.
+
+
+## Fidelity checkpoint 3 — editorial scale, textile depth and continuity
+
+Commits:
+
+- `1bcb70626f8daadad7720337a8e133ba52a98bad` — expanded the hero media, removed the polite card treatment, blended its edge into the canvas and added textile light/shadow depth to interactive garment layers;
+- `c05d4986b7d8fc84059520779514d7b7ddeaaa13` — added keyed garment transitions so cohort changes preserve a shared look while genuinely different looks exit and settle.
+
+Hosted authority:
+
+- run: `35396391616`;
+- job: `105766086758`;
+- result: locked install, typecheck, optimized build and **5/5 Playwright journeys PASS**;
+- artifact: `10567194483`;
+- digest: `sha256:0e32fd816773fe69c66138851cc920896015c04ee98c6c0d93a571bb103475ad`.
+
+The approved concept and the new desktop/exploded renders were inspected side by side. Improvements:
+
+- the hero photograph now dominates the right side and blends into the page edge rather than appearing as a small boxed card;
+- first-viewport image/type balance is substantially closer to the approved composition;
+- interactive garment parts carry directional shading and grounded depth;
+- changing to a different garment has explicit origin/exit/settled states;
+- changing cohort without changing a shared garment does not remount it;
+- reduced-motion keeps the same states with zero-duration transitions.
+
+Active differences remain:
+
+- the inspection area still reads more like a design tool than the accepted editorial garment story;
+- the animated vector garment and the photographic material section are not yet one continuous object;
+- final timing and motion character require Fares's direct review.
+
+The next checkpoint must integrate an assembled tactile garment into the inspection transition and repeat the hosted visual comparison.
