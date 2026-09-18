@@ -69,14 +69,29 @@ function isShared(look: Look, cohortId: string) {
 }
 
 function GarmentStudy({ look, exploded, locale, reduced }: { look: Look; exploded: boolean; locale: Locale; reduced: boolean }) {
+  const tactile = look.variant === "jacket";
+
   return (
     <div className={`garment-rig variant-${look.variant}`} data-testid="garment-rig" data-exploded={exploded} aria-label={look.garment[locale]}>
       <div className="rig-shadow" aria-hidden="true" />
+      {tactile && (
+        <motion.div
+          className="assembled-garment"
+          data-testid="assembled-garment"
+          animate={exploded ? { opacity: 0, scale: 0.94 } : { opacity: 1, scale: 1 }}
+          transition={{ duration: reduced ? 0 : 0.42, ease: [0.22, 1, 0.36, 1] }}
+          aria-hidden="true"
+        >
+          <Image src="/media/uniform-assembled-editorial.webp" alt="" fill sizes="(max-width: 760px) 330px, 430px" />
+        </motion.div>
+      )}
       {garmentLayers.map((layer) => (
         <motion.div
           className={`garment-layer ${layer.className}`}
           key={layer.id}
-          animate={exploded ? { x: layer.x, y: layer.y, rotate: layer.r } : { x: 0, y: 0, rotate: 0 }}
+          animate={exploded
+            ? { x: layer.x, y: layer.y, rotate: layer.r, opacity: 1 }
+            : { x: 0, y: 0, rotate: 0, opacity: tactile ? 0 : 1 }}
           transition={{ duration: reduced ? 0 : 0.62, ease: [0.22, 1, 0.36, 1] }}
           aria-hidden="true"
         >
