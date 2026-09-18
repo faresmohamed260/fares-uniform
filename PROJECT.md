@@ -94,6 +94,12 @@ Preserved RED evidence:
 
 Do not retry database authentication blindly or rotate a working runtime credential by inference. Fixture execution must use explicit decrypted credentials without printing values, preserve the deployment epoch and sealed schema privileges, and write only the named synthetic fixture.
 
+## Public-site asset research checkpoint
+
+The connected KGC Google Drive folder was audited on 2026-09-18 and its complete 66-PNG inventory is now documented in the [KGC National media manifest](docs/ui/KGC_MEDIA_MANIFEST.md). The canonical split is 20 authoritative worn/model anchors, 36 visually matched/used packshots, 8 extra/unmatched packshots and 2 supporting references. All current uniform looks are National; no American Diploma content is present.
+
+The manifest preserves Drive file IDs, filenames and direct links without copying image binaries into GitHub. Future concept/content work must treat worn/model images as the current-look authority, use only matched packshots with those anchors, and leave extra packshots unassigned. This audit does not establish publication, school-logo, location-image or other rights approval and does not authorize implementation, deployment or production changes.
+
 ## Next tasks, in order
 
 1. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, latest scheduled authority run `35146487731` / job `104963791652`, and all phase branches.
