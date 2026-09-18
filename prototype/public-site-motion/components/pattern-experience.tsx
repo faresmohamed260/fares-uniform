@@ -25,7 +25,7 @@ const copy = {
     current: "Current selection",
     shared: "Shared system",
     unique: "Cohort-specific",
-    note: "Synthetic vector study for motion review; not approved production media.",
+    note: "Synthetic review media for interaction testing; not approved production imagery.",
   },
   ar: {
     work: "أعمال مختارة",
@@ -45,7 +45,7 @@ const copy = {
     current: "الاختيار الحالي",
     shared: "نظام مشترك",
     unique: "خاص بالمجموعة",
-    note: "دراسة متجهية تخيلية لمراجعة الحركة وليست مادة إنتاج معتمدة.",
+    note: "وسائط تخيلية لمراجعة التفاعل وليست صور إنتاج معتمدة.",
   },
 };
 
