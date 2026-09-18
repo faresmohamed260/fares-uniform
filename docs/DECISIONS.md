@@ -368,3 +368,15 @@ The intended production platform split is:
 After explicit client authorization, only the Cloudflare apex and `www` web records were changed to Vercel's exact project target `35dfccfeeca04397.vercel-dns-017.com`, initially DNS-only. The zone retained 59 records; mail/TXT and unrelated records were preserved. Vercel reports Valid Configuration for both hostnames, the apex returns HTTP `200` from Vercel with HSTS, and `www` returns HTTP `308` to the apex. English/Arabic public rendering passed with no price or stock exposure.
 
 This closes the technical DNS/Vercel-verification/TLS portion of GD-02. It does not approve a production Vercel plan or spending ceiling, decide the final Cloudflare proxy policy, name DNS/certificate/private-access owners, authorize production secrets or real data, approve customer launch, or resolve the remaining Gate D decisions. The immutable deployed application remains `2a74e93b1828c16839ba7cede336caa4ca374306`; no application redeploy or production cutover occurred. See `docs/operations/PRODUCTION_DOMAIN_PLAN.md`.
+
+## D-048 — Public redesign remains organization-agnostic
+
+Status: Accepted by client, 2026-09-18.
+
+Pattern in Motion is the selected public-site design direction, but it belongs to the Fares Uniform experience and must remain reusable across multiple clients and organizations. KGC National is the first complete media and interaction validation case only. It is not the default homepage identity, a permanent Fares visual motif or a fixed four-stage content model.
+
+The site uses a stable Fares shell and data-driven project skins. Organization, sector, program, cohorts/roles, looks, garments, sharing rules, media, visual accents, rights status and enquiry context are project data. Internal components use the generic concept of cohorts and cannot assume school stages, a fixed cohort count, KGC colors or diagonal geometry. Client-derived colors and garment motifs remain scoped to that client's project story.
+
+The generic inspection contract may provide explode/reassemble behavior only when approved media supports the layers; otherwise it must use an annotated flat-view fallback and must not invent garment construction. The kinetic design gate must prove an organization-agnostic Fares entry state, one KGC fixture and at least one clearly synthetic non-school fixture before production implementation is considered.
+
+This decision does not authorize public use of any client media, implementation, deployment or production cutover.

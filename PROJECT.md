@@ -102,9 +102,11 @@ The manifest preserves Drive file IDs, filenames and direct links without copyin
 
 ## Public-site design direction checkpoint
 
-Fares selected **Pattern in Motion** on 2026-09-18 as the public-site direction to carry into the kinetic design gate. The [selected design specification](docs/ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) records the complete Visual Story, diagonal layer system, four-stage continuity, High-uniform exploded/reassembly behavior, English/mobile/Arabic RTL treatment, reduced-motion behavior and prototype acceptance boundary.
+Fares selected **Pattern in Motion** on 2026-09-18 and then confirmed the governing correction: the public experience must be reusable across all Fares clients and organizations. The [selected design specification](docs/ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) now defines a stable Fares shell plus data-driven project skins, generic cohorts/roles, shared-versus-unique garment continuity and a generic inspect/explode/reassemble contract.
 
-This is a design selection, not production implementation approval. No KGC media binary was added to this public repository, no public-web source changed, no deployment occurred and publication/model/logo permission remains open. The next authorized design task is a reviewable kinetic prototype using synthetic/private review media and the selected direction; production code and deployment remain separately gated.
+KGC National is the first complete validation fixture, not the homepage identity or a fixed four-stage site model. KGC colors and diagonal construction language are scoped to the KGC project story. Future organizations may use different cohort structures, garment motifs and palettes through the same content contract. The kinetic gate must include an organization-agnostic Fares entry state, the KGC fixture and a clearly synthetic non-school fixture to expose overfitting.
+
+This remains a design selection, not production implementation approval. No client media binary was added to this public repository, no public-web source changed, no deployment occurred and publication/model/logo permission remains open. The next authorized design task is a reviewable reusable kinetic prototype using synthetic/private review media; production code and deployment remain separately gated.
 
 ## Next tasks, in order
 
