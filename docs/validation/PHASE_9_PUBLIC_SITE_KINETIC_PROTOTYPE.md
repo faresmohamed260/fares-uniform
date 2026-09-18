@@ -4,7 +4,7 @@ Status: **TECHNICAL GREEN / VISUAL FIDELITY NOT YET COMPLETE / HUMAN KINETIC APP
 
 Branch: `phase-9/public-site-kinetic-prototype`  
 Pull request: [#7](https://github.com/faresmohamed260/fares-uniform/pull/7)  
-Implementation authority: `b68f62355d5c9bb9afe071469f24b572f563195d`  
+Implementation authority: `215fc4eb56b36a2c8372eb0716abdcc17a97560d`  
 Production status: **NO-GO; no deployment performed.**
 
 ## Scope proved
@@ -189,3 +189,20 @@ The Playwright journey now proves the assembled image has loaded before triggeri
 - the asset has no client logo, readable brand text or claimed production identity.
 
 The goal design is still not complete. The principal visible gap is now the project/inspection area's utility-panel composition compared with the approved concept's quieter editorial storytelling. The next checkpoint must reduce control chrome, strengthen image/type hierarchy and then repeat hosted desktop, exploded, mobile and RTL comparison.
+
+
+## Fidelity checkpoint 5 — editorial project inspection
+
+Commit:
+
+- `215fc4eb56b36a2c8372eb0716abdcc17a97560d` — replaced the three-column utility dashboard with a two-part editorial composition, enlarged the garment focal object, quieted selector chrome and generalized the synthetic-media disclosure.
+
+Hosted authority:
+
+- run: `35397983771`;
+- job: `105771081853`;
+- result: locked install, typecheck, optimized build and **5/5 Playwright journeys PASS**;
+- artifact: `10569545805`;
+- digest: `sha256:b6e1de33eb176980fe036da26420816fca9e016d81bde363f7fa087c03de373c`.
+
+Fresh desktop assembled/exploded and English/Arabic mobile renders were inspected. The garment now owns the dominant right-hand field, the project narrative and selectors form one quiet left-hand column, and mobile/RTL continue without overflow or lost controls. The remaining visual discontinuity is the flatter synthetic exploded state compared with the assembled tactile jacket. The generic `/explodeview` route required by the approved design specification also remains to be implemented and verified.
