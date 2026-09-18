@@ -18,6 +18,7 @@ export type Cohort = {
 
 export type Project = {
   id: string;
+  programId: string;
   organization: LocalizedText;
   program: LocalizedText;
   sector: LocalizedText;
@@ -40,6 +41,7 @@ const kgcLooks: Look[] = [
 export const projects: Project[] = [
   {
     id: "kgc-national",
+    programId: "national",
     organization: { en: "KGC", ar: "KGC" },
     program: { en: "National program", ar: "البرنامج الوطني" },
     sector: { en: "Education · review fixture", ar: "التعليم · نموذج للمراجعة" },
@@ -60,6 +62,7 @@ export const projects: Project[] = [
   },
   {
     id: "harbor-house",
+    programId: "guest-experience",
     organization: { en: "Harbor House", ar: "هاربور هاوس" },
     program: { en: "Guest experience program", ar: "برنامج تجربة الضيوف" },
     sector: { en: "Hospitality · synthetic", ar: "الضيافة · نموذج تخيلي" },

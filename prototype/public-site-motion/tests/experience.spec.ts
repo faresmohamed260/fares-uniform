@@ -87,3 +87,17 @@ test("reduced motion preserves state and information", async ({ page }) => {
   await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
   await expect(page.getByRole("list", { name: "Construction study" }).getByRole("listitem")).toHaveCount(5);
 });
+
+test("generic explodeview accepts organization, program, role and garment state", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/explodeview?organization=harbor-house&program=guest-experience&role=facilities&garment=outerwear&lang=ar");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByTestId("project-harbor-house")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("cohort-facilities")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("look-outerwear")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
+  await page.getByTestId("explode-toggle").click();
+  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "false");
+  await expectNoOverflow(page);
+  await capture(page, "phase9-explodeview-ar.png");
+});

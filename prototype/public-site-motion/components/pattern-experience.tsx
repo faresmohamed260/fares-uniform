@@ -116,14 +116,32 @@ function usePrefersReducedMotion() {
   return reduced;
 }
 
-export function PatternExperience({ initialLocale }: { initialLocale: Locale }) {
+type PatternExperienceProps = {
+  initialLocale: Locale;
+  initialProjectId?: string;
+  initialCohortId?: string;
+  initialLookId?: string;
+  initialExploded?: boolean;
+};
+
+export function PatternExperience({
+  initialLocale,
+  initialProjectId,
+  initialCohortId,
+  initialLookId,
+  initialExploded = false,
+}: PatternExperienceProps) {
   const reduced = usePrefersReducedMotion();
+  const seededProject = projects.find((item) => item.id === initialProjectId) ?? projects[0];
+  const seededCohort = seededProject.cohorts.find((item) => item.id === initialCohortId) ?? seededProject.cohorts[0];
+  const seededLook = seededProject.looks.find((item) => item.id === initialLookId && seededCohort.lookIds.includes(item.id))
+    ?? firstLook(seededProject, seededCohort.id);
   const [locale, setLocale] = useState<Locale>(initialLocale);
-  const [projectId, setProjectId] = useState(projects[0].id);
+  const [projectId, setProjectId] = useState(seededProject.id);
   const project = projects.find((item) => item.id === projectId) ?? projects[0];
-  const [cohortId, setCohortId] = useState(project.cohorts[0].id);
-  const [lookId, setLookId] = useState(firstLook(project, cohortId).id);
-  const [exploded, setExploded] = useState(false);
+  const [cohortId, setCohortId] = useState(seededCohort.id);
+  const [lookId, setLookId] = useState(seededLook.id);
+  const [exploded, setExploded] = useState(initialExploded);
   const text = copy[locale];
   const cohort = project.cohorts.find((item) => item.id === cohortId) ?? project.cohorts[0];
   const availableLooks = useMemo(() => project.looks.filter((look) => cohort.lookIds.includes(look.id)), [project, cohort]);
