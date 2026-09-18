@@ -48,7 +48,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
 .project-switcher small { opacity: .65; font-size: 12px; }
 .cohort-editorial { margin-top: 56px; background: white; border: 1px solid var(--line); }
 .cohort-image { position: relative; aspect-ratio: 2.42 / 1; overflow: hidden; background: var(--project-soft); }
-.cohort-image img { object-fit: cover; }
+.cohort-image img { object-fit: cover; transition: object-position .65s cubic-bezier(.22,1,.36,1); }
 .cohort-labels { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); }
 .cohort-labels button { min-height: 82px; display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; padding: 12px 18px; border: 0; border-inline-end: 1px solid var(--line); background: white; text-align: start; cursor: pointer; }
 .cohort-labels button:last-child { border-inline-end: 0; }
@@ -84,6 +84,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
 .inspection-heading h4 { margin: 5px 0 0; font-family: var(--serif); font-size: 25px; font-weight: 400; }
 .inspect-button { min-height: 46px; display: inline-flex; align-items: center; gap: 8px; padding: 0 13px; border: 1px solid color-mix(in srgb, var(--project-ink) 24%, transparent); background: white; cursor: pointer; font-size: 12px; font-weight: 800; }
 .inspect-button svg { width: 15px; }
+.garment-transition { transform-origin: center; }
 .garment-rig { position: relative; width: min(100%, 430px); height: 390px; margin: 8px auto 0; transform: scale(.9); transform-origin: center; }
 .rig-shadow { position: absolute; left: 21%; right: 21%; bottom: 12px; height: 30px; border-radius: 50%; background: rgba(20,30,28,.16); filter: blur(14px); }
 .garment-layer { position: absolute; inset: 44px 55px 34px; transform-origin: center; will-change: transform; }

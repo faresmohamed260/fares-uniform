@@ -26,6 +26,7 @@ test("English desktop journey explodes and reassembles a KGC garment", async ({ 
   await expect.poll(() => materialImage.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await page.getByTestId("cohort-high").click();
   await page.getByTestId("look-puffer").click();
+  await expect(page.getByTestId("garment-transition")).toBeVisible();
   await expect(page.getByTestId("sharing-status")).toHaveText("Shared system");
   await page.getByTestId("explode-toggle").click();
   await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");

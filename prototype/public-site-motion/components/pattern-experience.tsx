@@ -276,7 +276,19 @@ export function PatternExperience({ initialLocale }: { initialLocale: Locale }) 
                   {exploded ? text.reassemble : text.inspect}
                 </button>
               </div>
-              <GarmentStudy look={look} exploded={exploded} locale={locale} reduced={reduced} />
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  className="garment-transition"
+                  key={`${project.id}-${look.id}`}
+                  initial={reduced ? false : { opacity: 0, y: 18, scale: 0.965 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={reduced ? { opacity: 0 } : { opacity: 0, y: -12, scale: 1.015 }}
+                  transition={{ duration: reduced ? 0 : 0.46, ease: [0.22, 1, 0.36, 1] }}
+                  data-testid="garment-transition"
+                >
+                  <GarmentStudy look={look} exploded={exploded} locale={locale} reduced={reduced} />
+                </motion.div>
+              </AnimatePresence>
               <div className="selection-caption">
                 <span>{text.current}</span>
                 <strong>{cohort.name[locale]} · {look.name[locale]}</strong>
