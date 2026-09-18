@@ -113,6 +113,8 @@ export function PatternExperience({ initialLocale }: { initialLocale: Locale }) 
   const cohort = project.cohorts.find((item) => item.id === cohortId) ?? project.cohorts[0];
   const availableLooks = useMemo(() => project.looks.filter((look) => cohort.lookIds.includes(look.id)), [project, cohort]);
   const look = availableLooks.find((item) => item.id === lookId) ?? availableLooks[0];
+  const cohortIndex = project.cohorts.findIndex((item) => item.id === cohort.id);
+  const cohortPosition = project.cohorts.length > 1 ? (cohortIndex / (project.cohorts.length - 1)) * 100 : 50;
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -208,7 +210,9 @@ export function PatternExperience({ initialLocale }: { initialLocale: Locale }) 
                 src={project.id === "kgc-national" ? "/media/synthetic-cohort-lineup.webp" : "/media/fares-team-editorial.webp"}
                 alt=""
                 fill
+                priority
                 sizes="(max-width: 760px) 100vw, 1440px"
+                style={{ objectPosition: `${cohortPosition}% center` }}
               />
             </div>
             <div className="cohort-labels">
@@ -300,7 +304,7 @@ export function PatternExperience({ initialLocale }: { initialLocale: Locale }) 
           </ol>
         </div>
         <div className="material-media" data-testid="material-editorial">
-          <Image src="/media/uniform-exploded-editorial.webp" alt="" fill sizes="(max-width: 760px) 100vw, 58vw" />
+          <Image src="/media/uniform-exploded-editorial.webp" alt="" fill priority sizes="(max-width: 760px) 100vw, 58vw" />
         </div>
       </section>
 

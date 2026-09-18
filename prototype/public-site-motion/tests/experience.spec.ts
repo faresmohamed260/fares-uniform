@@ -20,7 +20,10 @@ test("English desktop journey explodes and reassembles a KGC garment", async ({ 
   await expect(page.getByTestId("project-kgc-national")).toHaveAttribute("aria-selected", "true");
   await expect(page.getByTestId("hero-editorial").locator("img")).toBeVisible();
   await expect(page.getByTestId("cohort-editorial").locator("img")).toBeVisible();
-  await expect(page.getByTestId("material-editorial").locator("img")).toBeVisible();
+  const materialImage = page.getByTestId("material-editorial").locator("img");
+  await materialImage.scrollIntoViewIfNeeded();
+  await expect(materialImage).toBeVisible();
+  await expect.poll(() => materialImage.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await page.getByTestId("cohort-high").click();
   await page.getByTestId("look-puffer").click();
   await expect(page.getByTestId("sharing-status")).toHaveText("Shared system");
