@@ -1,6 +1,6 @@
 # Phase 9 — Public-site kinetic prototype
 
-Status: **TECHNICAL PROTOTYPE GREEN / FARES KINETIC REVIEW OPEN; PRODUCTION PUBLIC-WEB AND DEPLOYMENT EXCLUDED.**
+Status: **TECHNICAL PROTOTYPE GREEN / FIDELITY ITERATION ACTIVE / FARES KINETIC REVIEW OPEN; PRODUCTION PUBLIC-WEB AND DEPLOYMENT EXCLUDED.**
 
 Branch: `phase-9/public-site-kinetic-prototype`.
 
@@ -87,4 +87,4 @@ Compilation alone cannot close the kinetic gate. Fares must review the rendered 
 
 ## Exit criteria
 
-Phase 9 prototype implementation is technically GREEN at `04e0036786ad23926765daefd16d80f0ad025e4e`, hosted run `35392671483`, job `105754360569`, with 5/5 Playwright journeys passing and review artifact `10566840263`. The kinetic design gate closes only after Fares approves the rendered behavior. Production `apps/public-web` work and deployment remain separate approvals.
+Phase 9 prototype implementation is technically GREEN at `04e0036786ad23926765daefd16d80f0ad025e4e`, hosted run `35392671483`, job `105754360569`, with 5/5 Playwright journeys passing and review artifact `10566840263`. This does not close visual fidelity. The mandatory side-by-side compare-and-correct loop remains active until material differences from the approved design are corrected and Fares approves the rendered behavior. Production `apps/public-web` work and deployment remain separate approvals.

@@ -389,3 +389,14 @@ Status: Accepted by client, 2026-09-18.
 Fares authorized implementation to begin after approving Pattern in Motion and confirming that the system must remain multi-organization. The first implementation boundary is an isolated repository-backed kinetic prototype on `phase-9/public-site-kinetic-prototype`, governed by `docs/phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md`.
 
 This authorization covers the prototype, synthetic fixtures and hosted validation only. It does not authorize editing the production `apps/public-web` surface, deployment, provider mutation, public use of unapproved client media, production Gate D or launch. Production implementation remains contingent on review and approval of the prototype's rendered kinetic behavior.
+
+
+## D-050 — Visual implementation requires repeated approved-design comparison
+
+Status: Accepted by client, 2026-09-18.
+
+Every public-site visual implementation iteration must be compared side by side with the approved visual design and corrected repeatedly until the goal design is reached. A technical GREEN build, passing browser tests, a partially faithful prototype or a documented temporary substitute does not close the visual or kinetic gate.
+
+Each iteration must retain desktop, English mobile, Arabic RTL and relevant interaction-state evidence; record concrete mismatches in composition, copy, typography, palette, imagery, spacing, component geometry, motion and responsive behavior; fix every material mismatch within scope; rerun hosted validation; then compare again. Any unresolved difference must identify the exact blocker or approval needed.
+
+For Phase 9, the first technically GREEN prototype remains visually incomplete because it substitutes abstract hero planes, UI-like project selection and synthetic vector garments for the accepted photography-led editorial composition and tactile garment detail. Those differences remain active work. PR #7 stays draft and production `apps/public-web` implementation/deployment remains unauthorized until Fares explicitly approves the goal design.

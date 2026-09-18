@@ -1,6 +1,6 @@
 # Phase 9 validation — public-site kinetic prototype
 
-Status: **TECHNICAL GREEN / HUMAN KINETIC APPROVAL OPEN, 2026-09-18.**
+Status: **TECHNICAL GREEN / VISUAL FIDELITY NOT YET COMPLETE / HUMAN KINETIC APPROVAL OPEN, 2026-09-18.**
 
 Branch: `phase-9/public-site-kinetic-prototype`  
 Pull request: [#7](https://github.com/faresmohamed260/fares-uniform/pull/7)  
@@ -82,8 +82,18 @@ It contains:
 | Motion | Transform/reassemble with reduced-motion alternative | Recorded project, cohort, look and explode/reassemble journeys; direct reduced-motion test | PASS technically |
 | Media fidelity | Accepted frame used real KGC model/garment imagery | Synthetic vector garment studies only | INTENTIONAL DEVIATION — publication rights are not approved |
 
-The static accepted concept and the hosted desktop/mobile captures were inspected side by side during validation. No material layout, copy, container, RTL or interaction mismatch remains within the prototype boundary. Synthetic vector media is intentionally not claimed as production visual fidelity.
+The static accepted concept and the hosted desktop/mobile captures were inspected side by side during validation. The first comparison proves the architecture and interaction model, but it does **not** reach the goal design yet.
+
+Material differences that remain:
+
+- the approved concept is photography-led; the prototype hero uses abstract planes;
+- the approved concept's people/stage lineup is visual and editorial; the prototype project/cohort selection is more UI-like;
+- the approved garment detail is tactile, layered product photography; the prototype uses a simplified synthetic vector study;
+- the approved page carries richer material texture and image-to-type tension;
+- the current motion is functionally verified, but its character still needs direct human review against the intended premium garment choreography.
+
+These are active fidelity tasks, not accepted final deviations. Real KGC media remains rights-gated, so the next iteration must use rights-cleared or clearly synthetic high-quality editorial media without turning KGC into the global identity.
 
 ## Remaining human gate
 
-Technical GREEN does not approve the kinetic direction. Fares must review the hosted videos/captures and explicitly approve or request changes. PR #7 remains draft. Production `apps/public-web` implementation, client-media publication and deployment remain separately gated.
+Technical GREEN does not approve the kinetic or visual direction. The implementation must continue through repeated side-by-side comparison and correction until the approved goal design is reached. Fares then reviews the videos/captures and explicitly approves or requests changes. PR #7 remains draft. Production `apps/public-web` implementation, client-media publication and deployment remain separately gated.
