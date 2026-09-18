@@ -4,7 +4,7 @@ Status: **TECHNICAL GREEN / VISUAL FIDELITY NOT YET COMPLETE / HUMAN KINETIC APP
 
 Branch: `phase-9/public-site-kinetic-prototype`  
 Pull request: [#7](https://github.com/faresmohamed260/fares-uniform/pull/7)  
-Implementation authority: `04e0036786ad23926765daefd16d80f0ad025e4e`  
+Implementation authority: `b68f62355d5c9bb9afe071469f24b572f563195d`  
 Production status: **NO-GO; no deployment performed.**
 
 ## Scope proved
@@ -165,3 +165,27 @@ Active differences remain:
 - final timing and motion character require Fares's direct review.
 
 The next checkpoint must integrate an assembled tactile garment into the inspection transition and repeat the hosted visual comparison.
+
+
+## Fidelity checkpoint 4 — tactile assembled-to-exploded continuity
+
+Commit:
+
+- `b68f62355d5c9bb9afe071469f24b572f563195d` — added an optimized transparent assembled-jacket study and connected it to the reversible puffer explode/reassemble transition. The tactile image is restricted to jacket variants; unrelated organization looks retain their generic studies.
+
+Hosted authority:
+
+- run: `35397504763`;
+- job: `105769588523`;
+- result: locked install, typecheck, optimized build and **5/5 Playwright journeys PASS**;
+- artifact: `10568028617`;
+- digest: `sha256:d1c5ee64619258684ec5a86df0071fc670f3ed53f4e3b0ad696877654f66deba`.
+
+The Playwright journey now proves the assembled image has loaded before triggering the explode state. Side-by-side inspection of the approved concept and fresh assembled/exploded desktop plus mobile renders confirms:
+
+- the jacket first appears as a tactile, dimensional focal object rather than a vector diagram;
+- the same inspection control reveals the construction-layer state and reverses cleanly;
+- reduced motion retains both states with zero-duration transitions;
+- the asset has no client logo, readable brand text or claimed production identity.
+
+The goal design is still not complete. The principal visible gap is now the project/inspection area's utility-panel composition compared with the approved concept's quieter editorial storytelling. The next checkpoint must reduce control chrome, strengthen image/type hierarchy and then repeat hosted desktop, exploded, mobile and RTL comparison.

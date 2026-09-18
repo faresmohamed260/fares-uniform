@@ -87,4 +87,4 @@ Compilation alone cannot close the kinetic gate. Fares must review the rendered 
 
 ## Exit criteria
 
-Phase 9 prototype implementation is technically GREEN at current authority `c05d4986b7d8fc84059520779514d7b7ddeaaa13`, hosted run `35396391616`, job `105766086758`, with 5/5 Playwright journeys passing and review artifact `10567194483`. This does not close visual fidelity. The mandatory side-by-side compare-and-correct loop remains active until material differences from the approved design are corrected and Fares approves the rendered behavior. Production `apps/public-web` work and deployment remain separate approvals.
+Phase 9 prototype implementation is technically GREEN at current authority `b68f62355d5c9bb9afe071469f24b572f563195d`, hosted run `35397504763`, job `105769588523`, with 5/5 Playwright journeys passing and review artifact `10568028617`. This does not close visual fidelity. The mandatory side-by-side compare-and-correct loop remains active until material differences from the approved design are corrected and Fares approves the rendered behavior. Production `apps/public-web` work and deployment remain separate approvals.
