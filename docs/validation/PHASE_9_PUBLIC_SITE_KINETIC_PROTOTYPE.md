@@ -97,3 +97,38 @@ These are active fidelity tasks, not accepted final deviations. Real KGC media r
 ## Remaining human gate
 
 Technical GREEN does not approve the kinetic or visual direction. The implementation must continue through repeated side-by-side comparison and correction until the approved goal design is reached. Fares then reviews the videos/captures and explicitly approves or requests changes. PR #7 remains draft. Production `apps/public-web` implementation, client-media publication and deployment remain separately gated.
+
+
+## Fidelity checkpoint 2 — photography-led editorial media
+
+Checkpoint commits:
+
+- `cedc9c3d70e513544a61cb1869836a3be623ab6f` — added three rights-safe synthetic editorial WebP assets and integrated them into the hero, cohort story and garment-material section;
+- `b6fac28680ebc40c6e36ac88ce9bd63f48e3e1a5` — corrected the comparison-discovered mobile failures by eagerly loading deep editorial media and tying the mobile cohort crop to the active cohort.
+
+The images are synthetic review assets with no client logo, badge, real person, readable brand text or copied KGC binary. Repository sizes are approximately 94 KB for the Fares team hero, 63 KB for the cohort lineup and 74 KB for the garment detail.
+
+Hosted authority for this checkpoint:
+
+- run: `35395099067`;
+- job: `105762011679`;
+- result: locked install, typecheck, optimized build and **5/5 Playwright journeys PASS**;
+- artifact: `10567363975`;
+- artifact digest: `sha256:8e3fc5daf74f49fcc6fe54c9a69b1034a8a4050a2bfeb21e562fe79dffe4f0c1`.
+
+Side-by-side comparison with the approved concept confirms the following material improvements:
+
+- photography now leads the hero instead of abstract color planes;
+- the KGC review fixture now has a visual four-cohort editorial progression;
+- the lower page now carries tactile garment construction photography;
+- desktop and mobile preserve the approved large-serif/garment-image tension;
+- the mobile material image is visibly loaded and no longer renders as a blank frame.
+
+The goal design is not reached yet. Active differences are:
+
+- the hero photograph remains more boxed and smaller than the approved model-dominant composition;
+- project and inspection controls still read more like a utility UI than an editorial garment story;
+- the interactive explode state remains a simplified vector representation rather than tactile garment layers;
+- final transition timing and settled geometry still require direct kinetic review.
+
+The next fidelity checkpoint must correct those differences, rerender all review sizes/states and repeat the comparison before any approval claim.
