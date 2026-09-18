@@ -18,6 +18,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Public site showcase and historical-work requirements](ui/PUBLIC_SITE_SHOWCASE_CONTENT_REQUIREMENTS.md) | Real-client/project showcase content model, publication/privacy gate, product-photography standard and layered/exploded product-view requirements |
 | [GPT-6 Astra web-design research](ui/GPT6_ASTRA_WEB_DESIGN_RESEARCH.md) | Verified Astra/Scrollcraft/Higgsfield examples, prompt/workflow findings and Fares adoption plan |
 | [KGC National media manifest](ui/KGC_MEDIA_MANIFEST.md) | Canonical Drive-backed KGC inventory: authoritative model anchors, matched packshots, extra/unmatched assets and stable file references |
+| [Pattern in Motion design specification](ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) | Selected public-site direction, Visual Story, layer contracts, responsive/RTL treatment and kinetic prototype acceptance |
 | [Phase 0](phases/PHASE_0_DISCOVERY.md) | Discovery closure |
 | [Phase 0A hosted proof](phases/PHASE_0A_ODOO_PROOF.md) | Odoo proof contract |
 | [Odoo proof evidence](validation/ODOO_PROOF.md) | Hosted proof evidence |
@@ -77,6 +78,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 - [Public site showcase and historical-work requirements](ui/PUBLIC_SITE_SHOWCASE_CONTENT_REQUIREMENTS.md): newly required real-client archive/case-study and product-inspection model, including clean photography and truthful layered/exploded views.
 - [GPT-6 Astra web-design research](ui/GPT6_ASTRA_WEB_DESIGN_RESEARCH.md): verified Astra design examples and public prompt/skill/tool workflows adapted to the Fares redesign process.
 - [KGC National media manifest](ui/KGC_MEDIA_MANIFEST.md): complete 66-file Drive audit with 20 authoritative worn/model anchors, 36 matched packshots, 8 extra/unmatched packshots, 2 supporting references and stable Drive IDs; no binaries or publication approval.
+- [Pattern in Motion design specification](ui/PATTERN_IN_MOTION_DESIGN_SPEC.md): Fares-selected bright editorial direction with the diagonal four-stage system, garment continuity, `/explodeview` review state, mobile/RTL compositions and kinetic acceptance criteria.
 - [Staging repair and cleanup evidence](validation/PHASE_8_HANDOFF_REPAIR.md): current repair results and preserved RED evidence.
 - [Workflow guide](operations/WORKFLOW_GUIDE.md): retained workflows, retired diagnostic entry points and execution precautions.
 - [Staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md): current monitoring/alert/privacy proof and active default-branch schedule and remaining production-owner boundary.

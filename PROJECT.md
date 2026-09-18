@@ -100,6 +100,12 @@ The connected KGC Google Drive folder was audited on 2026-09-18 and its complete
 
 The manifest preserves Drive file IDs, filenames and direct links without copying image binaries into GitHub. Future concept/content work must treat worn/model images as the current-look authority, use only matched packshots with those anchors, and leave extra packshots unassigned. This audit does not establish publication, school-logo, location-image or other rights approval and does not authorize implementation, deployment or production changes.
 
+## Public-site design direction checkpoint
+
+Fares selected **Pattern in Motion** on 2026-09-18 as the public-site direction to carry into the kinetic design gate. The [selected design specification](docs/ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) records the complete Visual Story, diagonal layer system, four-stage continuity, High-uniform exploded/reassembly behavior, English/mobile/Arabic RTL treatment, reduced-motion behavior and prototype acceptance boundary.
+
+This is a design selection, not production implementation approval. No KGC media binary was added to this public repository, no public-web source changed, no deployment occurred and publication/model/logo permission remains open. The next authorized design task is a reviewable kinetic prototype using synthetic/private review media and the selected direction; production code and deployment remain separately gated.
+
 ## Next tasks, in order
 
 1. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, latest scheduled authority run `35146487731` / job `104963791652`, and all phase branches.
