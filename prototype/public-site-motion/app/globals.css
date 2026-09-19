@@ -1273,3 +1273,57 @@ img { user-select: none; }
     width: 100px;
   }
 }
+
+
+/* Checkpoint 18: mobile composition cleanup */
+.explode-detail-preview.preview-0 img {
+  transform: scale(3);
+}
+.explode-detail-item:has(button[aria-expanded="true"]) button strong::after {
+  content: "";
+  display: block;
+  width: 30px;
+  height: 3px;
+  margin-top: 8px;
+  background: var(--explode-accent);
+}
+
+@media (max-width: 760px) {
+  .hero-model {
+    inset: 24px -25% -48px 18%;
+  }
+  .hero-script {
+    top: 82px;
+    right: 6px;
+    width: 88px;
+    font-size: 13px;
+  }
+
+  [dir="rtl"] .hero-copy {
+    width: 56%;
+    margin-left: auto;
+    margin-right: 0;
+  }
+  [dir="rtl"] .hero-eyebrow,
+  [dir="rtl"] .hero h1,
+  [dir="rtl"] .hero-copy > p,
+  [dir="rtl"] .hero-actions,
+  [dir="rtl"] .hero-meta {
+    margin-left: auto;
+    margin-right: 0;
+  }
+  [dir="rtl"] .hero h1 {
+    width: 186px;
+    max-width: 186px;
+  }
+  [dir="rtl"] .hero-copy > p {
+    width: 182px;
+    max-width: 182px;
+  }
+  [dir="rtl"] .hero-actions {
+    width: 184px;
+  }
+  [dir="rtl"] .hero-meta {
+    width: 150px;
+  }
+}
