@@ -8,9 +8,11 @@ This file owns current status and the next task. Phase contracts own scope and e
 
 ## Active Phase 9 visual authority
 
-The isolated public-site kinetic prototype is now at implementation authority \`4c337238735dc42c04686eec1a12eadb6f146e92\` on \`phase-9/public-site-kinetic-prototype\`. Hosted run \`35417405490\`, job \`105828588249\`, passed locked install, typecheck, optimized build and **7/7 Playwright journeys**. Render artifact \`10576627116\` has digest \`sha256:fd3c21924d0beb0b7b25e3a60c23939d2f98c021e1253dffe88bb7f03611e7f4\`.
+The isolated public-site kinetic prototype is now at implementation authority `ddf9dfafcc4cf1181052cb13c5109a06bba6baf7` on `phase-9/public-site-kinetic-prototype`. Hosted run `35437526328`, job `105882617664`, passed locked install, typecheck, optimized build and **8/8 Playwright journeys**. Render artifact `10582462311` has digest `sha256:a49eb4a11dba73ce512074671fea75d5007e943166166c74974c32e839b2ea6b`.
 
-The accepted Astra/Pattern in Motion comparison is recorded in \`prototype/public-site-motion/design-qa.md\`. The KGC fixture uses the authorized crest and campus image, while all organization/program/cohort/look behavior remains data-driven and a synthetic hospitality project proves the non-school boundary. The dedicated \`/explodeview\` now matches the approved editorial inspection structure and remains reversible, responsive and bilingual. PR #7 stays draft for Fares's direct kinetic review. No production \`apps/public-web\` file, provider or deployment was changed.
+The accepted Astra/Pattern in Motion comparison and final visual result are recorded in `prototype/public-site-motion/design-qa.md`. The KGC fixture uses the authorized crest and campus image plus clearly disclosed synthetic model/garment studies. Organization, program, cohort/role, look and visual skin remain data-driven; Harbor House proves the non-school boundary. The landing now opens on the approved KGC High/Summer story, supports reversible tactile inspection, and carries the current selection into the dedicated `/explodeview`. Hosted keyboard evidence verifies a visible focus ring, Enter activation and exact-state navigation.
+
+Continuation order: read this section, the Phase 9 contract, Phase 9 validation and `prototype/public-site-motion/design-qa.md`; verify branch HEAD and the latest hosted run; then continue the approved-design compare-and-correct loop. PR #7 stays draft for Fares's direct kinetic review. No production `apps/public-web` file, provider or deployment was changed.
 
 ## Delivery state
 
