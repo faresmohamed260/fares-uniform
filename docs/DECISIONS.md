@@ -380,3 +380,43 @@ The site uses a stable Fares shell and data-driven project skins. Organization, 
 The generic inspection contract may provide explode/reassemble behavior only when approved media supports the layers; otherwise it must use an annotated flat-view fallback and must not invent garment construction. The kinetic design gate must prove an organization-agnostic Fares entry state, one KGC fixture and at least one clearly synthetic non-school fixture before production implementation is considered.
 
 This decision does not authorize public use of any client media, implementation, deployment or production cutover.
+
+
+## D-049 — Begin isolated kinetic prototype implementation
+
+Status: Accepted by client, 2026-09-18.
+
+Fares authorized implementation to begin after approving Pattern in Motion and confirming that the system must remain multi-organization. The first implementation boundary is an isolated repository-backed kinetic prototype on `phase-9/public-site-kinetic-prototype`, governed by `docs/phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md`.
+
+This authorization covers the prototype, synthetic fixtures and hosted validation only. It does not authorize editing the production `apps/public-web` surface, deployment, provider mutation, public use of unapproved client media, production Gate D or launch. Production implementation remains contingent on review and approval of the prototype's rendered kinetic behavior.
+
+
+## D-050 — Visual implementation requires repeated approved-design comparison
+
+Status: Accepted by client, 2026-09-18.
+
+Every public-site visual implementation iteration must be compared side by side with the approved visual design and corrected repeatedly until the goal design is reached. A technical GREEN build, passing browser tests, a partially faithful prototype or a documented temporary substitute does not close the visual or kinetic gate.
+
+Each iteration must retain desktop, English mobile, Arabic RTL and relevant interaction-state evidence; record concrete mismatches in composition, copy, typography, palette, imagery, spacing, component geometry, motion and responsive behavior; fix every material mismatch within scope; rerun hosted validation; then compare again. Any unresolved difference must identify the exact blocker or approval needed.
+
+For Phase 9, the first technically GREEN prototype remains visually incomplete because it substitutes abstract hero planes, UI-like project selection and synthetic vector garments for the accepted photography-led editorial composition and tactile garment detail. Those differences remain active work. PR #7 stays draft and production `apps/public-web` implementation/deployment remains unauthorized until Fares explicitly approves the goal design.
+
+
+## D-051 — KGC crest and campus assets authorized for the Phase 9 review implementation
+
+Status: Accepted by client, 2026-09-19; production deployment remains unauthorized.
+
+Fares explicitly instructed the implementation to use the KGC organization assets previously requested: the canonical Kawmeya Girls' College crest/logo at Drive ID `110AOiPx9NtX86ig5JvpnJRlRlBP6vZgX` and the K.G.C. campus exterior at Drive ID `1r4J7nLGevkjGy9EkghM1uTP7OKnK2nQC`.
+
+These two assets may be optimized and copied into the isolated Phase 9 prototype. They must be represented as project-scoped KGC identity/location data under the stable Fares shell, must not become global Fares branding, and must disappear when another organization is selected. This authorization does not cover KGC worn/model or packshot binaries, other client media, editing `apps/public-web`, deployment, launch or production Gate D.
+
+
+## D-052 — Approved editorial reference governs the generalized interactive implementation
+
+Status: Accepted by client, 2026-09-19.
+
+Fares reconfirmed that the approved GPT-6 Astra / Pattern in Motion reference is the visual authority and instructed that implementation be compared with it repeatedly until the goal design is reached. This supersedes the earlier Phase 9 simplification that omitted the project eyebrow and used the shorter “Worn together” hero copy.
+
+The landing hero therefore uses the approved “Designed as one. Worn for years.” hierarchy, paired calls to action, editorial organization imagery and narrative cohort progression. The \`/explodeview\` route is a dedicated full-screen construction experience rather than a parameterized copy of the landing page. It must preserve reversible explode/reassemble behavior, detail inspection, responsive layout, English/Arabic directionality and reduced-motion information parity.
+
+Visual fidelity does not permit hard-coding KGC into the Fares shell. Organization, program, cohort/role, look, identity assets and visual skin remain project data under D-048. KGC is the first complete review fixture and uses only the crest and campus assets authorized by D-051; a synthetic non-school fixture remains required. This decision does not authorize production \`apps/public-web\` edits, deployment or launch.

@@ -1,0 +1,82 @@
+name: Phase 9 public-site kinetic prototype
+
+on:
+  push:
+    branches:
+      - phase-9/public-site-kinetic-prototype
+    paths:
+      - "prototype/public-site-motion/**"
+      - "docs/phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md"
+      - "docs/validation/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md"
+      - "docs/ui/assets/approved-pattern-in-motion/**"
+      - ".github/workflows/phase9-public-site-motion.yml"
+  pull_request:
+    paths:
+      - "prototype/public-site-motion/**"
+      - "docs/ui/assets/approved-pattern-in-motion/**"
+      - ".github/workflows/phase9-public-site-motion.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  kinetic-prototype:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: prototype/public-site-motion
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v5
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Record exact source and toolchain
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --version
+          npm --version
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Render and interaction gate
+        run: npm run test:e2e
+
+      - name: Stage approved reference boards
+        if: always()
+        run: |
+          mkdir -p artifacts/reference
+          cp ../../docs/ui/assets/approved-pattern-in-motion/approved-*.png artifacts/reference/
+          sha256sum artifacts/reference/approved-*.png > artifacts/reference/SHA256SUMS.txt
+
+      - name: Upload review evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase9-public-site-motion-${{ github.sha }}
+          path: |
+            prototype/public-site-motion/artifacts
+            prototype/public-site-motion/playwright-report
+            prototype/public-site-motion/test-results
+          if-no-files-found: warn
+          retention-days: 14

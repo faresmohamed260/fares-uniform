@@ -2,9 +2,17 @@
 
 ## Start here
 
-Work remotely in `faresmohamed260/fares-uniform` on default branch `main`. The completed `phase-8/commercial-staging-readiness` branch and all earlier phase branches remain preserved. Read this file, `AGENTS.md`, `docs/README.md`, `docs/DECISIONS.md`, and the Phase 8/8A contracts. Resolve the target branch HEAD through GitHub before each write. Never infer current state from an old chat.
+Work remotely in `faresmohamed260/fares-uniform` on active branch `phase-9/public-site-kinetic-prototype`; `main` remains the unchanged production/integration baseline for this prototype. The completed `phase-8/commercial-staging-readiness` branch and all earlier phase branches remain preserved. Read this file, `AGENTS.md`, `docs/README.md`, `docs/DECISIONS.md`, the Phase 8/8A contracts and the active Phase 9 contract. Resolve the target branch HEAD through GitHub before each write. Never infer current state from an old chat.
 
 This file owns current status and the next task. Phase contracts own scope and exit criteria; validation documents own historical evidence. Do not copy a second current-status log into the documentation index.
+
+## Active Phase 9 visual authority
+
+The current preserved-board parity authority is `534bd40744a4cfcab835a5334d4d8d12165158d8` on `phase-9/public-site-kinetic-prototype`. Exact-head run `35461456159`, job `105945954701`, passed locked install, typecheck, optimized build and **8/8 Playwright journeys**. Review artifact `10588974373` has digest `sha256:e8ac425d156ad26e8935f132679d0b4db8b079ceb04e698eb7f997aa3922a1ee` and contains the four immutable approved boards beside fresh desktop, English mobile, Arabic RTL, inspector and keyboard evidence. The approved boards remain documentation authority and are not runtime assets.
+
+The accepted Astra/Pattern in Motion boards and the active comparison ledger are recorded in `prototype/public-site-motion/design-qa.md`. Fares explicitly reopened the compare-and-correct loop on 2026-09-19 and instructed iteration to continue until implementation matches those preserved boards. The current prototype follows the board composition directly: model-over-campus editorial hero, diagonal red/white/blue ribbons, four-stage strip, closer-look garment story and three-column inspector. Checkpoints 24–27 tightened mobile/desktop scale, restored a clean garment study after rejecting a broken layered experiment, constrained KGC stage review crops to girls-only synthetic media, and moved the High-stage card to the dedicated synthetic High model. Functional, responsive, RTL, keyboard and reduced-motion gates remain GREEN while visual parity continues.
+
+Continuation order: read this section, the Phase 9 contract, Phase 9 validation and `prototype/public-site-motion/design-qa.md`; verify branch HEAD and the latest hosted run; then continue preserved-board side-by-side comparison and correction without waiting for another approval prompt. Keep the continuity docs synchronized at each verified milestone. PR #7 stays draft. No production `apps/public-web` file, provider or deployment is authorized.
 
 ## Delivery state
 
@@ -100,21 +108,24 @@ The connected KGC Google Drive folder was audited on 2026-09-18 and its complete
 
 The manifest preserves Drive file IDs, filenames and direct links without copying image binaries into GitHub. Future concept/content work must treat worn/model images as the current-look authority, use only matched packshots with those anchors, and leave extra packshots unassigned. This audit does not establish publication, school-logo, location-image or other rights approval and does not authorize implementation, deployment or production changes.
 
-## Public-site design direction checkpoint
+## Phase 9 public-site kinetic prototype
 
-Fares selected **Pattern in Motion** on 2026-09-18 and then confirmed the governing correction: the public experience must be reusable across all Fares clients and organizations. The [selected design specification](docs/ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) now defines a stable Fares shell plus data-driven project skins, generic cohorts/roles, shared-versus-unique garment continuity and a generic inspect/explode/reassemble contract.
+Fares authorized implementation to start on 2026-09-18. The isolated [Phase 9 kinetic prototype](docs/phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) is implemented on `phase-9/public-site-kinetic-prototype` and remains separate from the production public site.
 
-KGC National is the first complete validation fixture, not the homepage identity or a fixed four-stage site model. KGC colors and diagonal construction language are scoped to the KGC project story. Future organizations may use different cohort structures, garment motifs and palettes through the same content contract. The kinetic gate must include an organization-agnostic Fares entry state, the KGC fixture and a clearly synthetic non-school fixture to expose overfitting.
+Current visual-parity authority is `534bd40744a4cfcab835a5334d4d8d12165158d8`. Hosted run `35461456159`, job `105945954701`, passed locked install, typecheck, optimized build and **8/8 Playwright journeys**; review artifact `10588974373` has digest `sha256:e8ac425d156ad26e8935f132679d0b4db8b079ceb04e698eb7f997aa3922a1ee`.
 
-This remains a design selection, not production implementation approval. No client media binary was added to this public repository, no public-web source changed, no deployment occurred and publication/model/logo permission remains open. The next authorized design task is a reviewable reusable kinetic prototype using synthetic/private review media; production code and deployment remain separately gated.
+The approved-design compare-and-correct loop is active again by Fares's explicit instruction. The four pre-implementation boards are now immutable comparison inputs in every review artifact. Functional/accessibility QA is GREEN, but visual parity is not considered closed until the fresh desktop, English mobile, Arabic RTL and dedicated inspector materially match those boards. KGC identity remains project-scoped; Harbor House still proves the non-school boundary. Only the KGC crest and campus binaries authorized by D-051 are present; model and garment review media remain rights-safe synthetic assets with explicit disclosure.
+
+The principal remaining Phase 9 gate is Fares's direct review of the rendered kinetic behavior. PR #7 remains draft. Do not merge it, deploy the prototype, edit production `apps/public-web`, publish additional client media or begin production implementation without the corresponding separate authorization.
 
 ## Next tasks, in order
 
-1. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, latest scheduled authority run `35146487731` / job `104963791652`, and all phase branches.
-2. The client declined the proposed GD-10 repository/environment control changes on 2026-09-16. Do not enable branch protection, Dependabot security updates or a GitHub `production` environment unless later explicitly authorized.
-3. Vercel + Cloudflare + Supabase and `faresuniform.uk` are selected. Apex/`www` DNS, Vercel verification, TLS and the canonical redirect are GREEN. Remaining GD-01/GD-02 work is production Vercel plan/spending, final Cloudflare proxy policy, DNS/certificate and private-access owner roles. GD-03 through GD-09 still require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
-4. Do not create production resources, purchase services, activate production secrets, migrate real data, make further domain/DNS changes, assign staff, invent hardware results or cut over without the corresponding explicit Gate D decisions and final production GO.
-5. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release scope.
+1. Keep PR #7 draft and continue the preserved-board compare-and-correct loop until the desktop landing, English mobile, Arabic RTL mobile and dedicated garment inspector align with the committed approved boards. After each cohesive correction, run hosted validation, inspect the new artifact side by side, and update `PROJECT.md`, the Phase 9 contract/validation and `prototype/public-site-motion/design-qa.md`. Do not merge, deploy or begin production `apps/public-web` work without separate authorization.
+2. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, latest scheduled authority run `35146487731` / job `104963791652`, and all phase branches.
+3. The client declined the proposed GD-10 repository/environment control changes on 2026-09-16. Do not enable branch protection, Dependabot security updates or a GitHub `production` environment unless later explicitly authorized.
+4. Vercel + Cloudflare + Supabase and `faresuniform.uk` are selected. Apex/`www` DNS, Vercel verification, TLS and the canonical redirect are GREEN. Remaining GD-01/GD-02 work is production Vercel plan/spending, final Cloudflare proxy policy, DNS/certificate and private-access owner roles. GD-03 through GD-09 still require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
+5. Do not create production resources, purchase services, activate production secrets, migrate real data, make further domain/DNS changes, assign staff, invent hardware results or cut over without the corresponding explicit Gate D decisions and final production GO.
+6. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release scope.
 ## Constraints for every continuation
 
 Remote GitHub source edits and hosted execution only. No local/scratch source, builds or artifacts. No force push, broad Odoo exposure, real business data, `fu_uat` in staging/production, transaction pooling, routine provider-admin Odoo, paid upgrades or production cutover.
