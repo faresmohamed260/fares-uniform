@@ -2238,3 +2238,103 @@ img { user-select: none; }
   [dir="rtl"] .hero-ribbons span:nth-child(2) { bottom: 150px; }
   [dir="rtl"] .hero-ribbons span:nth-child(3) { bottom: 90px; }
 }
+
+
+/* Checkpoint 27: board-scale refinement and dedicated High-stage portrait */
+@media (min-width: 1121px) {
+  .hero,
+  .hero-visual {
+    min-height: 1290px;
+  }
+  .hero h1 {
+    max-width: 575px;
+    font-size: clamp(118px, 10.3vw, 162px);
+  }
+  .hero-model {
+    inset: 0 -20% -235px -62%;
+  }
+  .hero-model img {
+    object-position: center top;
+    transform: scale(1.52);
+    transform-origin: center top;
+  }
+  .hero-ribbons span:nth-child(1) { bottom: 565px; }
+  .hero-ribbons span:nth-child(2) { bottom: 420px; }
+  .hero-ribbons span:nth-child(3) { bottom: 275px; }
+
+  .kgc-project .stage-card:nth-child(2) .stage-photo img {
+    transform: scale(1.24);
+  }
+  .kgc-project .stage-card:nth-child(4) .stage-photo img {
+    object-position: 50% 10% !important;
+    transform: scale(1.35);
+  }
+
+  .detail-copy h2 {
+    max-width: 520px;
+    font-size: clamp(104px, 9.4vw, 148px);
+  }
+  .detail-garment {
+    inset: -102px 82px -100px -145px;
+  }
+  .detail-garment img {
+    transform: rotate(-6deg) scale(1.44);
+    transform-origin: center;
+  }
+
+  .explode-intro h1 {
+    max-width: 380px;
+    font-size: clamp(90px, 8vw, 134px);
+  }
+  .explode-detail-preview.preview-0::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    top: -20%;
+    left: 54%;
+    width: 22px;
+    height: 145%;
+    transform: rotate(-11deg);
+    background: linear-gradient(90deg, #c5162e 0 36%, transparent 36% 55%, #c5162e 55% 100%);
+    opacity: .94;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-model {
+    inset: 4px -27% -72px 11%;
+  }
+  .hero-model img {
+    object-position: center top;
+    transform: scale(1.5);
+    transform-origin: center top;
+  }
+  .hero-script {
+    top: 18px;
+    right: 2px;
+    width: 92px;
+    font-size: 12px;
+    line-height: 1.05;
+  }
+
+  .kgc-project .stage-card:nth-child(2) .stage-photo img {
+    transform: scale(1.2);
+  }
+  .kgc-project .stage-card:nth-child(4) .stage-photo img {
+    object-position: 50% 8% !important;
+    transform: scale(1.35);
+  }
+
+  [dir="rtl"] .hero-model {
+    inset: 4px 43% -88px -40%;
+  }
+  [dir="rtl"] .hero-model img {
+    object-position: center top;
+    transform: scale(1.64);
+    transform-origin: center top;
+  }
+  [dir="rtl"] .hero-ribbons {
+    inset: 0 50% -5% -44%;
+  }
+}

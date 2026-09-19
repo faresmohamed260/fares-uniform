@@ -224,7 +224,8 @@ export function PatternExperience({
         <div className={"stage-grid stage-count-" + project.cohorts.length} role="tablist" data-testid="cohort-rail">
           {project.cohorts.map((item, index) => {
             const active = item.id === cohort.id;
-            const position = isKgc ? (index < 2 ? 0 : 66.67) : project.cohorts.length > 1 ? (index / (project.cohorts.length - 1)) * 100 : 50;
+            const stageImage = isKgc && item.id === "high" && project.heroModelSrc ? project.heroModelSrc : stageSource;
+            const position = isKgc ? (item.id === "high" ? 50 : index < 2 ? 0 : 66.67) : project.cohorts.length > 1 ? (index / (project.cohorts.length - 1)) * 100 : 50;
             return (
               <button
                 className={"stage-card " + (active ? "is-active" : "")}
@@ -236,7 +237,7 @@ export function PatternExperience({
                 data-testid={"cohort-" + item.id}
               >
                 <span className="stage-photo">
-                  <Image src={stageSource} alt="" fill sizes="25vw" style={{ objectPosition: String(position) + "% center" }} />
+                  <Image src={stageImage} alt="" fill sizes="25vw" style={{ objectPosition: String(position) + "% 22%" }} />
                 </span>
                 <span className="stage-label">
                   <strong>{item.name[locale]}</strong>
