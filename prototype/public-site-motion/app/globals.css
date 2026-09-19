@@ -547,3 +547,25 @@ footer { min-height: 170px; }
   .inspection { margin-top: 20px; }
   .layer-list { display: grid; }
 }
+
+
+/* Checkpoint 11: tactile polo prominence and fully visible mobile choices */
+.variant-polo .assembled-garment,
+.variant-polo .tactile-exploded-garment { inset: -10% -16% -8%; }
+
+@media (max-width: 760px) {
+  .choice-rail { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); overflow: visible; }
+  .look-rail { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .choice-rail button,
+  .look-rail button {
+    width: 100%;
+    min-width: 0;
+    padding: 0 5px;
+    justify-content: center;
+    text-align: center;
+    font-size: 12px;
+  }
+  .choice-rail button.is-active::before { width: 12px; margin-inline-end: 5px; }
+  .variant-polo .assembled-garment,
+  .variant-polo .tactile-exploded-garment { inset: -18% -24% -14%; }
+}
