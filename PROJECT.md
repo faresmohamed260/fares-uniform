@@ -12,7 +12,7 @@ The isolated public-site kinetic prototype is at implementation authority `ddf9d
 
 The accepted Astra/Pattern in Motion comparison and final visual result are recorded in `prototype/public-site-motion/design-qa.md`. The KGC fixture uses the authorized crest and campus image plus clearly disclosed synthetic model/garment studies. Organization, program, cohort/role, look and visual skin remain data-driven; Harbor House proves the non-school boundary. The landing now opens on the approved KGC High/Summer story, supports reversible tactile inspection, and carries the current selection into the dedicated `/explodeview`. Hosted keyboard evidence verifies a visible focus ring, Enter activation and exact-state navigation.
 
-Continuation order: read this section, the Phase 9 contract, Phase 9 validation and `prototype/public-site-motion/design-qa.md`; verify branch HEAD and the latest hosted run; then continue the approved-design compare-and-correct loop. PR #7 stays draft for Fares's direct kinetic review. No production `apps/public-web` file, provider or deployment was changed.
+Continuation order: read this section, the Phase 9 contract, Phase 9 validation and `prototype/public-site-motion/design-qa.md`; verify branch HEAD and the latest hosted run; then retain the latest hosted evidence for Fares's direct kinetic review. Resume the approved-design compare-and-correct loop only if that review requests a visual or interaction change. PR #7 stays draft. No production `apps/public-web` file, provider or deployment was changed.
 
 ## Delivery state
 
