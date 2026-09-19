@@ -603,3 +603,9 @@ footer { min-height: 170px; }
   .inspect-route,
   .inspect-button { min-height: 46px; }
 }
+
+
+/* Checkpoint 12 RED correction: controls own the inspection hit plane */
+.inspection-heading { z-index: 5; }
+.garment-transition,
+.garment-rig { pointer-events: none; }
