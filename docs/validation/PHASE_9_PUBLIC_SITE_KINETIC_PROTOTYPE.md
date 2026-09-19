@@ -270,3 +270,48 @@ Hosted authority:
 The hosted desktop, exploded, English mobile and Arabic RTL renders were compared with the accepted visual direction. The real campus now supplies the architectural organization context used in the approved concept, while the crest appears as a restrained project mark beside the KGC review status. Both remain below the stable Fares shell and inside the KGC project story. The campus does not overpower the cohort/garment sequence, mobile retains the hierarchy, and switching to the synthetic hospitality project removes both assets.
 
 No other KGC/client binary was authorized or added by this checkpoint. PR #7 remains draft pending Fares's direct visual/kinetic approval; production `apps/public-web`, deployment and launch remain excluded.
+
+
+## Fidelity checkpoint 9 — approved hero and editorial hierarchy recovery
+
+Implementation commit:
+
+- \`014d1d5ee22924dc893e8598339b0dabd1cf9670\` — restored the approved eyebrow/headline/CTA hierarchy, full-height model-over-architecture hero, narrative four-stage lineup, tighter page rhythm and project-specific story title.
+
+Preserved RED:
+
+- run \`35416342773\`, job \`105825655197\`;
+- install, typecheck and build passed; Playwright passed 5/6;
+- the only failure was an ambiguous strict locator after the hero correctly gained separate building and model images;
+- failure artifact \`10575493383\`, digest \`sha256:6bc1ffb2bbd826d9d9a7894418c0ca7cf3630cb6c2c3899c2ffee539d0f7845d\`.
+
+Locator correction and GREEN:
+
+- \`ff3002bed802e19d7a65327dd3bbb4be0cd3062f\` targeted the composed hero container while retaining independent natural-width assertions for both project images;
+- run \`35416650411\`, job \`105826491451\`;
+- locked install, typecheck, optimized build and **6/6 Playwright journeys PASS**;
+- artifact \`10576541169\`, digest \`sha256:55e0ca6462794a8f7b6457574af19ef7eddb7b53bc124cf211a5f49d9b5801af\`.
+
+The normalized desktop comparison removed the earlier small generic-group hero, under-scaled navigation, UI-card cohort treatment and duplicated garment section. It also exposed two remaining material gaps: the landing inspection was still too configurator-like and \`/explodeview\` still reused the full landing page.
+
+## Fidelity checkpoint 10 — dedicated inspector and final responsive correction
+
+Implementation commits:
+
+- \`94fbaed7c894e5a386fc0603ac1c4393dd93d70d\` — added a dedicated data-driven \`/explodeview\` with the approved three-part editorial composition, reversible explode/reassemble state, front/back state, localized detail accordion and project/cohort/look query contract; added deterministic KGC English/Arabic evidence captures and tightened landing rhythm;
+- \`4c337238735dc42c04686eec1a12eadb6f146e92\` — kept mobile cohort/look rails in normal flow and removed the final clipped-edge responsive defect.
+
+Intermediate GREEN:
+
+- run \`35417207342\`, job \`105828049312\`;
+- locked install, typecheck, optimized build and **7/7 Playwright journeys PASS**;
+- artifact \`10575734016\`, digest \`sha256:f8e55f6d377081bed70d23e3b528950afcfa3dbd561e1c8c42d02d16ef85f9ef\`.
+
+Final hosted authority:
+
+- run \`35417405490\`, job \`105828588249\`;
+- locked install, typecheck, optimized build and **7/7 Playwright journeys PASS**;
+- artifact \`10576627116\`, digest \`sha256:fd3c21924d0beb0b7b25e3a60c23939d2f98c021e1253dffe88bb7f03611e7f4\`;
+- evidence includes desktop assembled/exploded, English mobile, Arabic KGC RTL, approved-state English \`/explodeview\` and generic Arabic Harbor House \`/explodeview\`.
+
+The final same-state comparisons cover desktop KGC, English mobile, Arabic KGC RTL and the dedicated KGC High/Summer inspector. The inspector now closely tracks the approved large-title / exploded-garment / construction-rail composition while preserving the generalized project schema. The landing retains the approved editorial hierarchy and real KGC crest/campus context. Harbor House continues to remove KGC identity assets and proves the system is not school-specific. No P0/P1/P2 visual issue remains in the reviewed states; the detailed rubric and evidence paths are in \`prototype/public-site-motion/design-qa.md\`.

@@ -46,7 +46,7 @@ Build a repository-backed interactive prototype that proves the accepted Pattern
 - the Fares shell is neutral and consistent; project colors/motifs remain local to the selected project;
 - internal data uses generic `cohorts`, not fixed school stages;
 - the first prototype uses synthetic vector garment studies solely to evaluate hierarchy and motion; they are not approved production media;
-- the hero uses the approved copy “Designed as one. Worn together.” with no added badge/eyebrow;
+- the approved reference hierarchy governs the hero: project eyebrow, “Designed as one. Worn for years.” headline, paired calls to action, editorial organization imagery and restrained program metadata;
 - project discovery is an editorial rail, not a marketplace card grid;
 - inspection is reversible, URL-independent local prototype state;
 - reduced motion converts transforms to immediate/cross-fade state changes without hiding information.
@@ -87,4 +87,4 @@ Compilation alone cannot close the kinetic gate. Fares must review the rendered 
 
 ## Exit criteria
 
-Phase 9 prototype implementation is technically GREEN at current authority `fc6a3e4359aa9c407901fdcf58282dc64ff2d8d1`, hosted run `35414599819`, job `105820623090`, with 6/6 Playwright journeys passing and review artifact `10575382770`. This does not close visual fidelity. The mandatory side-by-side compare-and-correct loop remains active until material differences from the approved design are corrected and Fares approves the rendered behavior. Production `apps/public-web` work and deployment remain separate approvals.
+Phase 9 prototype implementation and design QA are technically GREEN at current authority `4c337238735dc42c04686eec1a12eadb6f146e92`, hosted run `35417405490`, job `105828588249`, with 7/7 Playwright journeys passing and review artifact `10576627116` (`sha256:fd3c21924d0beb0b7b25e3a60c23939d2f98c021e1253dffe88bb7f03611e7f4`). The side-by-side comparison record is `prototype/public-site-motion/design-qa.md`; no P0/P1/P2 visual issue remains in the reviewed desktop, mobile, RTL and dedicated `/explodeview` states. Fares’s direct kinetic approval is still required before PR #7 leaves draft. Production `apps/public-web` work and deployment remain separate approvals.

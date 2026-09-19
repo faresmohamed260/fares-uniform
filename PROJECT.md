@@ -6,6 +6,12 @@ Work remotely in `faresmohamed260/fares-uniform` on default branch `main`. The c
 
 This file owns current status and the next task. Phase contracts own scope and exit criteria; validation documents own historical evidence. Do not copy a second current-status log into the documentation index.
 
+## Active Phase 9 visual authority
+
+The isolated public-site kinetic prototype is now at implementation authority \`4c337238735dc42c04686eec1a12eadb6f146e92\` on \`phase-9/public-site-kinetic-prototype\`. Hosted run \`35417405490\`, job \`105828588249\`, passed locked install, typecheck, optimized build and **7/7 Playwright journeys**. Render artifact \`10576627116\` has digest \`sha256:fd3c21924d0beb0b7b25e3a60c23939d2f98c021e1253dffe88bb7f03611e7f4\`.
+
+The accepted Astra/Pattern in Motion comparison is recorded in \`prototype/public-site-motion/design-qa.md\`. The KGC fixture uses the authorized crest and campus image, while all organization/program/cohort/look behavior remains data-driven and a synthetic hospitality project proves the non-school boundary. The dedicated \`/explodeview\` now matches the approved editorial inspection structure and remains reversible, responsive and bilingual. PR #7 stays draft for Fares's direct kinetic review. No production \`apps/public-web\` file, provider or deployment was changed.
+
 ## Delivery state
 
 Phases 0–7 are complete within their documented repository/CI scope. This covers product/stock/access, offline POS, preorders/collection, returns/exchanges, production queues, business orders, public catalog/enquiry, reporting, integrated synthetic UAT, Arabic polish, recovery packaging and stateless Vercel adaptation.

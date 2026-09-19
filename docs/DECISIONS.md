@@ -409,3 +409,14 @@ Status: Accepted by client, 2026-09-19; production deployment remains unauthoriz
 Fares explicitly instructed the implementation to use the KGC organization assets previously requested: the canonical Kawmeya Girls' College crest/logo at Drive ID `110AOiPx9NtX86ig5JvpnJRlRlBP6vZgX` and the K.G.C. campus exterior at Drive ID `1r4J7nLGevkjGy9EkghM1uTP7OKnK2nQC`.
 
 These two assets may be optimized and copied into the isolated Phase 9 prototype. They must be represented as project-scoped KGC identity/location data under the stable Fares shell, must not become global Fares branding, and must disappear when another organization is selected. This authorization does not cover KGC worn/model or packshot binaries, other client media, editing `apps/public-web`, deployment, launch or production Gate D.
+
+
+## D-052 — Approved editorial reference governs the generalized interactive implementation
+
+Status: Accepted by client, 2026-09-19.
+
+Fares reconfirmed that the approved GPT-6 Astra / Pattern in Motion reference is the visual authority and instructed that implementation be compared with it repeatedly until the goal design is reached. This supersedes the earlier Phase 9 simplification that omitted the project eyebrow and used the shorter “Worn together” hero copy.
+
+The landing hero therefore uses the approved “Designed as one. Worn for years.” hierarchy, paired calls to action, editorial organization imagery and narrative cohort progression. The \`/explodeview\` route is a dedicated full-screen construction experience rather than a parameterized copy of the landing page. It must preserve reversible explode/reassemble behavior, detail inspection, responsive layout, English/Arabic directionality and reduced-motion information parity.
+
+Visual fidelity does not permit hard-coding KGC into the Fares shell. Organization, program, cohort/role, look, identity assets and visual skin remain project data under D-048. KGC is the first complete review fixture and uses only the crest and campus assets authorized by D-051; a synthetic non-school fixture remains required. This decision does not authorize production \`apps/public-web\` edits, deployment or launch.
