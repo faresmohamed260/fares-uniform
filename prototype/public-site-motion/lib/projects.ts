@@ -23,6 +23,12 @@ export type Project = {
   program: LocalizedText;
   sector: LocalizedText;
   synthetic: boolean;
+  identity?: {
+    logoSrc: string;
+    logoAlt: LocalizedText;
+    locationSrc: string;
+    locationAlt: LocalizedText;
+  };
   summary: LocalizedText;
   skin: { accent: string; accentSoft: string; ink: string; motif: "diagonal" | "piping" };
   cohortsLabel: LocalizedText;
@@ -46,6 +52,12 @@ export const projects: Project[] = [
     program: { en: "National program", ar: "البرنامج الوطني" },
     sector: { en: "Education · review fixture", ar: "التعليم · نموذج للمراجعة" },
     synthetic: false,
+    identity: {
+      logoSrc: "/media/kgc-logo.webp",
+      logoAlt: { en: "Kawmeya Girls' College crest", ar: "شعار كلية قومية البنات" },
+      locationSrc: "/media/kgc-building.webp",
+      locationAlt: { en: "K.G.C. campus in Alexandria", ar: "مبنى K.G.C. في الإسكندرية" },
+    },
     summary: {
       en: "One coordinated system across four stages, with shared outerwear and stage-specific identity.",
       ar: "منظومة متناسقة لأربع مراحل، بملابس خارجية مشتركة وهوية خاصة بكل مرحلة.",

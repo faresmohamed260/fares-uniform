@@ -271,15 +271,33 @@ export function PatternExperience({
 
         <AnimatePresence mode="wait">
           <motion.article
-            className={`project-stage motif-${project.skin.motif}`}
+            className={`project-stage motif-${project.skin.motif} ${project.identity ? "has-location" : ""}`}
             key={project.id}
             initial={reduced ? false : { opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduced ? { opacity: 0 } : { opacity: 0, y: -18 }}
             transition={{ duration: reduced ? 0 : 0.48 }}
           >
+            {project.identity && (
+              <figure className="project-location" data-testid="organization-location">
+                <Image src={project.identity.locationSrc} alt={project.identity.locationAlt[locale]} fill priority sizes="(max-width: 760px) 100vw, 1440px" />
+                <figcaption>{project.identity.locationAlt[locale]}</figcaption>
+              </figure>
+            )}
             <div className="project-copy">
-              <span className="project-status">{project.synthetic ? text.synthetic : text.review}</span>
+              <div className="project-overline">
+                {project.identity && (
+                  <Image
+                    className="project-mark"
+                    data-testid="organization-logo"
+                    src={project.identity.logoSrc}
+                    alt={project.identity.logoAlt[locale]}
+                    width={92}
+                    height={92}
+                  />
+                )}
+                <span className="project-status">{project.synthetic ? text.synthetic : text.review}</span>
+              </div>
               <h3>{project.organization[locale]}</h3>
               <p className="program-name">{project.program[locale]}</p>
               <p>{project.summary[locale]}</p>

@@ -20,6 +20,11 @@ test("English desktop journey explodes and reassembles a KGC garment", async ({ 
   await expect(page.getByTestId("project-kgc-national")).toHaveAttribute("aria-selected", "true");
   await expect(page.getByTestId("hero-editorial").locator("img")).toBeVisible();
   await expect(page.getByTestId("cohort-editorial").locator("img")).toBeVisible();
+  const organizationLogo = page.getByTestId("organization-logo");
+  const organizationLocation = page.getByTestId("organization-location").locator("img");
+  await expect(organizationLogo).toBeVisible();
+  await expect(organizationLocation).toBeVisible();
+  await expect.poll(() => organizationLocation.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   const materialImage = page.getByTestId("material-editorial").locator("img");
   await materialImage.scrollIntoViewIfNeeded();
   await expect(materialImage).toBeVisible();
@@ -48,6 +53,8 @@ test("organization switch proves a variable non-school role model", async ({ pag
   await page.goto("/?lang=en");
   await page.getByTestId("project-harbor-house").click();
   await expect(page.getByText("Guest experience program")).toBeVisible();
+  await expect(page.getByTestId("organization-logo")).toHaveCount(0);
+  await expect(page.getByTestId("organization-location")).toHaveCount(0);
   await expect(page.getByTestId("cohort-rail").getByRole("tab")).toHaveCount(3);
   await page.getByTestId("cohort-kitchen").click();
   await page.getByTestId("look-utility").click();
