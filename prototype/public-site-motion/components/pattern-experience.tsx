@@ -23,6 +23,7 @@ const copy = {
     review: "Private review fixture",
     chooseLook: "Choose a look",
     inspect: "Explode garment",
+    fullStudy: "Open full study",
     reassemble: "Reassemble",
     construction: "Construction study",
     layers: ["Silhouette", "Side panels", "Sleeves", "Collar", "Identity detail"],
@@ -47,6 +48,7 @@ const copy = {
     review: "نموذج مراجعة خاص",
     chooseLook: "اختر الإطلالة",
     inspect: "فكّ طبقات القطعة",
+    fullStudy: "افتح الدراسة الكاملة",
     reassemble: "إعادة التجميع",
     construction: "دراسة التكوين",
     layers: ["الشكل العام", "الألواح الجانبية", "الأكمام", "الياقة", "تفصيل الهوية"],
@@ -360,10 +362,19 @@ export function PatternExperience({
             <div className="inspection">
               <div className="inspection-heading">
                 <div><span>{text.construction}</span><h4>{look.garment[locale]}</h4></div>
-                <button className="inspect-button" type="button" aria-pressed={exploded} onClick={() => setExploded((value) => !value)} data-testid="explode-toggle">
-                  {exploded ? <RotateCcw aria-hidden="true" /> : <ArrowUpRight aria-hidden="true" />}
-                  {exploded ? text.reassemble : text.inspect}
-                </button>
+                <div className="inspection-actions">
+                  <a
+                    className="inspect-route"
+                    data-testid="open-explodeview"
+                    href={"/explodeview?organization=" + project.id + "&program=" + project.programId + "&role=" + cohort.id + "&garment=" + look.id + "&lang=" + locale}
+                  >
+                    {text.fullStudy}<ArrowUpRight aria-hidden="true" />
+                  </a>
+                  <button className="inspect-button" type="button" aria-pressed={exploded} onClick={() => setExploded((value) => !value)} data-testid="explode-toggle">
+                    {exploded ? <RotateCcw aria-hidden="true" /> : <ArrowUpRight aria-hidden="true" />}
+                    {exploded ? text.reassemble : text.inspect}
+                  </button>
+                </div>
               </div>
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div

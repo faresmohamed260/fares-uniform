@@ -580,3 +580,26 @@ footer { min-height: 170px; }
   .choice-rail button,
   .look-rail button { min-height: 46px; }
 }
+
+
+/* Checkpoint 12: selected-state bridge into the dedicated inspector */
+.inspection-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.inspect-route {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--project-ink) 24%, transparent);
+  background: rgba(255,255,255,.72);
+  font-size: 12px;
+  font-weight: 800;
+}
+.inspect-route svg { width: 15px; }
+
+@media (max-width: 760px) {
+  .inspection-heading { align-items: flex-start; }
+  .inspection-actions { max-width: 190px; }
+  .inspect-route,
+  .inspect-button { min-height: 46px; }
+}
