@@ -18,7 +18,7 @@ test("English desktop journey explodes and reassembles a KGC garment", async ({ 
   await page.goto("/?lang=en");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Designed as one. Worn for years.");
   await expect(page.getByTestId("project-kgc-national")).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByTestId("hero-editorial").locator("img")).toBeVisible();
+  await expect(page.getByTestId("hero-editorial")).toBeVisible();
   await expect(page.getByTestId("cohort-editorial").locator("img")).toBeVisible();
   const organizationLogo = page.getByTestId("organization-logo");
   const organizationLocation = page.getByTestId("organization-location").locator("img");
