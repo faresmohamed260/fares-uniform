@@ -1,6 +1,6 @@
 # Phase 9 — Public-site kinetic prototype
 
-Status: **TECHNICAL PROTOTYPE GREEN / DESIGN QA PASSED / FARES KINETIC REVIEW OPEN; PRODUCTION PUBLIC-WEB AND DEPLOYMENT EXCLUDED.**
+Status: **TECHNICAL GREEN / PRESERVED-BOARD VISUAL PARITY ITERATION ACTIVE; PRODUCTION PUBLIC-WEB AND DEPLOYMENT EXCLUDED.**
 
 Branch: `phase-9/public-site-kinetic-prototype`.
 
@@ -87,4 +87,4 @@ Compilation alone cannot close the kinetic gate. Fares must review the rendered 
 
 ## Exit criteria
 
-Phase 9 prototype implementation and design QA are technically GREEN at current authority `ddf9dfafcc4cf1181052cb13c5109a06bba6baf7`, hosted run `35437526328`, job `105882617664`, with 8/8 Playwright journeys passing and review artifact `10582462311` (`sha256:a49eb4a11dba73ce512074671fea75d5007e943166166c74974c32e839b2ea6b`). The side-by-side comparison record is `prototype/public-site-motion/design-qa.md`; no P0/P1/P2 visual issue remains in the reviewed desktop, mobile, RTL and dedicated `/explodeview` states. Fares’s direct kinetic approval is still required before PR #7 leaves draft. Production `apps/public-web` work and deployment remain separate approvals.
+Phase 9 remains technically GREEN while preserved-board parity iteration is active. Current authority `a7778a8acefe5359ffe08c0d881212d2bb060736`, run `35453953867`, job `105925846734`, passes 8/8 Playwright journeys; artifact `10586969715` (`sha256:c17e2f5d5924b1e496a87afdffaf90a8d41f1607739857271f0e10028b164f43`) packages the immutable approved reference boards with the fresh rendered evidence. Fares instructed the implementation to keep iterating until it matches those boards and to keep authoritative docs current during the loop. PR #7 remains draft. Production `apps/public-web` work and deployment remain separate approvals.

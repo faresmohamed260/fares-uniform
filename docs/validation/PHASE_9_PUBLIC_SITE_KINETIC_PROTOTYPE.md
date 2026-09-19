@@ -1,10 +1,10 @@
 # Phase 9 validation — public-site kinetic prototype
 
-Status: **TECHNICAL GREEN / DESIGN QA PASSED / HUMAN KINETIC APPROVAL OPEN, 2026-09-19.**
+Status: **TECHNICAL GREEN / PRESERVED-BOARD VISUAL PARITY ITERATION ACTIVE, 2026-09-19.**
 
 Branch: `phase-9/public-site-kinetic-prototype`  
 Pull request: [#7](https://github.com/faresmohamed260/fares-uniform/pull/7)  
-Implementation authority: `ddf9dfafcc4cf1181052cb13c5109a06bba6baf7`  
+Implementation authority: `a7778a8acefe5359ffe08c0d881212d2bb060736`  
 Production status: **NO-GO; no deployment performed.**
 
 ## Scope proved
@@ -409,3 +409,25 @@ The four original PNG boards are preserved byte-for-byte under `docs/ui/assets/a
 - garment inspector — 1487 × 1058, SHA-256 `3056c8e4ef51f2d06802c0c72f8126daf696cc0501ae5b6948e74972dfcde046`.
 
 The assets are documentation/reference evidence, not runtime or production media. They do not replace the organization-agnostic D-048/D-052 contracts, authorize publication, or broaden the authorized KGC binary set. `design-qa.md` now links directly to the versioned boards so future compare-and-correct work does not depend on ephemeral conversation storage. No prototype source, production surface, provider or deployment changed.
+
+
+## Fidelity checkpoints 15–21 — preserved-board parity loop reopened
+
+Fares explicitly instructed the Phase 9 implementation to continue iterating until the rendered prototype matches the four committed pre-implementation boards and to keep the authoritative documentation synchronized during that work.
+
+The loop now uses one review artifact containing both the immutable boards and current hosted screenshots. Workflow commit `a23358c633440f1f65af70822e04ff52532c6dd9` added the approved boards to the artifact bundle without changing runtime asset paths. Run `35451336893`, job `105918904003`, passed the full hosted gate and artifact `10585749486` retained the side-by-side evidence.
+
+Commit `3a592f5c8541587916728f2635a8d21842a3e738` restructured the isolated prototype around the board composition rather than the earlier utility-panel layout: editorial model-over-campus hero, diagonal textile ribbons, four-stage strip, closer-look garment composition, compact footer and dedicated three-column inspector. Run `35452015164`, job `105920708573`, passed all hosted checks; artifact `10587231958` has digest `sha256:04a13385102769475240347fd2aee983c8a763915e1f1f7dd6e128ae2898dee5`.
+
+Subsequent parity corrections refined RTL hero geometry, inspector collar presentation, mobile clipping/overlap and desktop hero proportions through commits `c00ad4d7681a4c4e3176c631c3cf56ff126bf474`, `f68cd55a1ab71db33739894cb9afcb957c123dbe`, `d90056580811b81a205efdc64c7cbd48e5b6f9e5`, `b85fa5d225c967fd4605376ccb14940e9e902392`, `96dd67dade752b9b1ffcb2e67ed78df5627f2494` and `a7778a8acefe5359ffe08c0d881212d2bb060736`.
+
+Current exact-head hosted authority:
+- commit: `a7778a8acefe5359ffe08c0d881212d2bb060736`;
+- run: `35453953867`;
+- job: `105925846734`;
+- locked install, typecheck, optimized build and **8/8 Playwright journeys: PASS**;
+- artifact: `10586969715`;
+- artifact digest: `sha256:c17e2f5d5924b1e496a87afdffaf90a8d41f1607739857271f0e10028b164f43`;
+- current captures: desktop 1440×3438, English mobile 390×2279, Arabic mobile 390×2029, English inspector 1440×1109.
+
+The implementation is materially closer to the approved boards but the parity loop remains open by instruction; technical GREEN is not being used as a substitute for visual completion. PR #7 stays draft. No production deployment, provider mutation or production `apps/public-web` change is authorized.

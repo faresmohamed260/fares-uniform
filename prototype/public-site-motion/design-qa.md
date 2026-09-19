@@ -1,6 +1,6 @@
 # Phase 9 design QA — Pattern in Motion
 
-Final result: passed
+Current result: functional/accessibility GREEN; preserved-board visual parity iteration ACTIVE
 
 ## Compared sources
 
@@ -71,13 +71,19 @@ The landing now exposes a selected-state bridge to the dedicated inspector. Its 
 
 Intentional constraints are not defects: the approved references are visual direction rather than production client photography; synthetic garment/model media remain clearly disclosed, and production `apps/public-web` plus deployment are outside Phase 9.
 
-## Hosted authority
+## Current hosted authority
 
-- implementation: `ddf9dfafcc4cf1181052cb13c5109a06bba6baf7`;
-- workflow run: `35437526328`;
-- job: `105882617664`;
-- result: locked install, typecheck, optimized build and 8/8 Playwright journeys passed;
-- artifact: `10582462311`;
-- digest: `sha256:a49eb4a11dba73ce512074671fea75d5007e943166166c74974c32e839b2ea6b`;
-- documentation-only head `e9951dbecacaa7669661264973c075ffe8d5c66a` was independently revalidated by run `35438249057`, job `105884508653`, with 8/8 journeys and artifact `10583416164` (`sha256:9d7ac43d2bf54eacacbe7fc7e81531d2f917589c899dfb11e84aaaec8f759cd6`); PR #7 tracks the newest exact-head evidence;
-- browser plugin: not available in this session; hosted Playwright supplied the rendered and interaction evidence.
+- implementation commit: `a7778a8acefe5359ffe08c0d881212d2bb060736`;
+- run: `35453953867`;
+- job: `105925846734`;
+- artifact: `10586969715`;
+- digest: `sha256:c17e2f5d5924b1e496a87afdffaf90a8d41f1607739857271f0e10028b164f43`;
+- 8/8 Playwright journeys PASS.
+
+The artifact contains the four approved reference boards under `artifacts/reference/` beside the fresh implementation captures under `artifacts/screenshots/`. This is now the required review shape for every parity checkpoint.
+
+## Active parity ledger
+
+The earlier technical/accessibility findings remain closed. Visual parity is intentionally reopened by Fares's instruction. The current implementation now follows the same major composition sequence as the references: editorial Fares header, overlapping model/campus hero with red-white-blue textile ribbons, four-stage narrative, closer-look garment construction story, compact footer and dedicated three-column inspector.
+
+The compare-and-correct loop remains active. No statement in this document should be read as permission to stop on CI GREEN alone; hosted visual evidence must continue to be compared directly with the preserved boards until the implementation is judged to match them. PR #7 remains draft and production remains excluded.
