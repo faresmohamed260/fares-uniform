@@ -4,7 +4,7 @@ Status: **TECHNICAL GREEN / VISUAL FIDELITY NOT YET COMPLETE / HUMAN KINETIC APP
 
 Branch: `phase-9/public-site-kinetic-prototype`  
 Pull request: [#7](https://github.com/faresmohamed260/fares-uniform/pull/7)  
-Implementation authority: `215fc4eb56b36a2c8372eb0716abdcc17a97560d`  
+Implementation authority: `07851c13832b81ec80d829c8ae1f5316ebbdfc2a`  
 Production status: **NO-GO; no deployment performed.**
 
 ## Scope proved
@@ -206,3 +206,22 @@ Hosted authority:
 - digest: `sha256:b6e1de33eb176980fe036da26420816fca9e016d81bde363f7fa087c03de373c`.
 
 Fresh desktop assembled/exploded and English/Arabic mobile renders were inspected. The garment now owns the dominant right-hand field, the project narrative and selectors form one quiet left-hand column, and mobile/RTL continue without overflow or lost controls. The remaining visual discontinuity is the flatter synthetic exploded state compared with the assembled tactile jacket. The generic `/explodeview` route required by the approved design specification also remains to be implemented and verified.
+
+
+## Fidelity checkpoint 6 — generic `/explodeview` route
+
+Commit:
+
+- `07851c13832b81ec80d829c8ae1f5316ebbdfc2a` — added the internal review route and generic initial-state contract for organization, program, cohort/role, look/garment and locale identifiers.
+
+Hosted authority:
+
+- run: `35398577951`;
+- job: `105772981293`;
+- result: locked install, typecheck, optimized build and **6/6 Playwright journeys PASS**;
+- artifact: `10568922283`;
+- digest: `sha256:941045e47b73b5d32f2fa1e0956d1da0c451ddd34aeedf02aa8bfc71d4ee238e`.
+
+The new route journey loads `/explodeview?organization=harbor-house&program=guest-experience&role=facilities&garment=outerwear&lang=ar`, verifies RTL plus the exact organization/role/garment state, begins exploded, reassembles, checks overflow and captures `phase9-explodeview-ar.png`. This proves the route contract does not embed KGC identifiers or a four-stage assumption.
+
+The visual compare still identifies the puffer's flat synthetic exploded parts as the largest remaining mismatch against the tactile assembled jacket. The next checkpoint must create a rights-safe transparent exploded garment treatment, integrate it only where semantically valid and repeat the full hosted comparison.
