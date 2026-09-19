@@ -224,7 +224,7 @@ export function PatternExperience({
         <div className={"stage-grid stage-count-" + project.cohorts.length} role="tablist" data-testid="cohort-rail">
           {project.cohorts.map((item, index) => {
             const active = item.id === cohort.id;
-            const position = isKgc ? [0, 0, 66.67, 66.67][index] ?? 50 : project.cohorts.length > 1 ? (index / (project.cohorts.length - 1)) * 100 : 50;
+            const position = project.cohorts.length > 1 ? (index / (project.cohorts.length - 1)) * 100 : 50;
             return (
               <button
                 className={"stage-card " + (active ? "is-active" : "")}
