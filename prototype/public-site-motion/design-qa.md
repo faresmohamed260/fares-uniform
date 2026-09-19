@@ -52,6 +52,10 @@ The landing’s initial KGC story now matches the approved High/Summer focus. A 
 
 The landing now exposes a selected-state bridge to the dedicated inspector. Its URL is built from generic project data and carries organization, program, cohort/role, look/garment and locale state. The first hosted attempt preserved a RED Arabic interaction where decorative media intercepted the control; the final implementation explicitly separates visual and interactive hit planes.
 
+### Checkpoint 13 keyboard proof
+
+`phase9-keyboard-focus.png` records a clear focus-visible outline on the selected-state “Open full study” link. The hosted keyboard journey activates the link with Enter and verifies that the exact High/Summer state reaches the exploded inspector.
+
 ## Final rubric
 
 - composition: passed — stable Fares shell, split editorial hero, narrative cohort progression, large inspection field and dedicated three-part inspector;

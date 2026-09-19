@@ -372,3 +372,18 @@ Final GREEN:
 - artifact `10582307477`, digest `sha256:a63887642a22b5bfb44e10c5bce9b6c978408be9dd10a91c3db5a0c34bbf8e63`.
 
 The landing and dedicated inspector now form one continuous generalized interaction instead of separate demonstrations. KGC and Harbor House selections produce their own query-backed inspection state without embedding school-only assumptions. The hosted mobile evidence keeps both “Open full study” and “Explode garment” visible and operable.
+
+## Fidelity checkpoint 13 — keyboard-visible full-inspector journey
+
+Commit:
+
+- `ddf9dfafcc4cf1181052cb13c5109a06bba6baf7` adds a keyboard-only hosted journey for the selected-state inspector bridge.
+
+Hosted authority:
+
+- run `35437526328`, job `105882617664`;
+- locked install, typecheck, optimized build and **8/8 Playwright journeys PASS**;
+- artifact `10582462311`, digest `sha256:a49eb4a11dba73ce512074671fea75d5007e943166166c74974c32e839b2ea6b`;
+- new evidence `phase9-keyboard-focus.png` captures the focused “Open full study” control.
+
+The journey focuses the link without a pointer, verifies a visible computed outline of at least 2px, activates it with Enter, verifies the exact KGC / National / High / Summer / English URL, and confirms the destination inspector opens with matching project, cohort and look in exploded state. This closes the previously implied keyboard-visible-focus criterion with direct hosted evidence.
