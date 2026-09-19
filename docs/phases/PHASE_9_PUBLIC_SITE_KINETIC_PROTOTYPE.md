@@ -1,6 +1,6 @@
 # Phase 9 — Public-site kinetic prototype
 
-Status: **TECHNICAL PROTOTYPE GREEN / FIDELITY ITERATION ACTIVE / FARES KINETIC REVIEW OPEN; PRODUCTION PUBLIC-WEB AND DEPLOYMENT EXCLUDED.**
+Status: **TECHNICAL PROTOTYPE GREEN / DESIGN QA PASSED / FARES KINETIC REVIEW OPEN; PRODUCTION PUBLIC-WEB AND DEPLOYMENT EXCLUDED.**
 
 Branch: `phase-9/public-site-kinetic-prototype`.
 
@@ -45,7 +45,7 @@ Build a repository-backed interactive prototype that proves the accepted Pattern
 
 - the Fares shell is neutral and consistent; project colors/motifs remain local to the selected project;
 - internal data uses generic `cohorts`, not fixed school stages;
-- the first prototype uses synthetic vector garment studies solely to evaluate hierarchy and motion; they are not approved production media;
+- the prototype uses rights-safe synthetic model and garment review media, including tactile assembled/exploded studies, solely to evaluate hierarchy and motion; they are not approved production media;
 - the approved reference hierarchy governs the hero: project eyebrow, “Designed as one. Worn for years.” headline, paired calls to action, editorial organization imagery and restrained program metadata;
 - project discovery is an editorial rail, not a marketplace card grid;
 - inspection is reversible, URL-independent local prototype state;

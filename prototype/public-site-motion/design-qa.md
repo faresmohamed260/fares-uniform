@@ -77,5 +77,5 @@ Intentional constraints are not defects: the approved references are visual dire
 - result: locked install, typecheck, optimized build and 8/8 Playwright journeys passed;
 - artifact: `10582462311`;
 - digest: `sha256:a49eb4a11dba73ce512074671fea75d5007e943166166c74974c32e839b2ea6b`;
-- exact documentation head at this checkpoint is recorded in `PROJECT.md` and PR #7;
+- documentation-only head `e9951dbecacaa7669661264973c075ffe8d5c66a` was independently revalidated by run `35438249057`, job `105884508653`, with 8/8 journeys and artifact `10583416164` (`sha256:9d7ac43d2bf54eacacbe7fc7e81531d2f917589c899dfb11e84aaaec8f759cd6`); PR #7 tracks the newest exact-head evidence;
 - browser plugin: not available in this session; hosted Playwright supplied the rendered and interaction evidence.

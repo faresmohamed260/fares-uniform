@@ -1,10 +1,10 @@
 # Phase 9 validation — public-site kinetic prototype
 
-Status: **TECHNICAL GREEN / VISUAL FIDELITY NOT YET COMPLETE / HUMAN KINETIC APPROVAL OPEN, 2026-09-18.**
+Status: **TECHNICAL GREEN / DESIGN QA PASSED / HUMAN KINETIC APPROVAL OPEN, 2026-09-19.**
 
 Branch: `phase-9/public-site-kinetic-prototype`  
 Pull request: [#7](https://github.com/faresmohamed260/fares-uniform/pull/7)  
-Implementation authority: `fc6a3e4359aa9c407901fdcf58282dc64ff2d8d1`  
+Implementation authority: `ddf9dfafcc4cf1181052cb13c5109a06bba6baf7`  
 Production status: **NO-GO; no deployment performed.**
 
 ## Scope proved
@@ -21,7 +21,7 @@ The isolated `prototype/public-site-motion` surface proves:
 - desktop and mobile compositions;
 - keyboard focus, practical touch targets and no horizontal overflow;
 - reduced-motion information and state parity;
-- no price, stock, private Odoo route, client binary or provider dependency.
+- no price, stock, private Odoo route, unauthorized client binary or provider dependency.
 
 `apps/public-web`, Odoo addons, public APIs, Vercel, Supabase, Cloudflare and production were not changed.
 
@@ -33,7 +33,7 @@ The test was not weakened. Commit `62c86e4ac088f7edbe9bcee412c0dbda71fb3e0d` rep
 
 The initial failure artifact is `10565994428`; its digest is `sha256:dffbc5e14c1c7e2232689f00449e4054f862c4b73d2db7c57e2cf5d234e4001e`.
 
-## Final hosted authority
+## Initial hosted authority
 
 Run `35392671483`, job `105754360569`, at exact branch head `04e0036786ad23926765daefd16d80f0ad025e4e`:
 
@@ -387,3 +387,11 @@ Hosted authority:
 - new evidence `phase9-keyboard-focus.png` captures the focused “Open full study” control.
 
 The journey focuses the link without a pointer, verifies a visible computed outline of at least 2px, activates it with Enter, verifies the exact KGC / National / High / Summer / English URL, and confirms the destination inspector opens with matching project, cohort and look in exploded state. This closes the previously implied keyboard-visible-focus criterion with direct hosted evidence.
+
+## Documentation-head revalidation — final review artifact
+
+Documentation-only head `e9951dbecacaa7669661264973c075ffe8d5c66a` did not change prototype behavior. Exact-head run `35438249057`, job `105884508653`, repeated the locked install, TypeScript typecheck, optimized production build and **8/8 Playwright journeys PASS**.
+
+Artifact `10583416164` (digest `sha256:9d7ac43d2bf54eacacbe7fc7e81531d2f917589c899dfb11e84aaaec8f759cd6`) contains the fresh desktop assembled/exploded views, English mobile, Arabic RTL mobile, English and Arabic dedicated inspectors, keyboard-focus capture and the eight interaction videos. The evidence was re-inspected after download: the reviewed states remain consistent with the passed design QA record and preserve the synthetic-media disclosure and organization-scoped KGC identity.
+
+This revalidation confirms the final reviewed prototype evidence remained intact through the documentation normalization. Fares's direct kinetic approval remains open; PR #7 stays draft and no production deployment or provider mutation is authorized.
