@@ -1500,3 +1500,208 @@ img { user-select: none; }
     bottom: 345px;
   }
 }
+
+
+/* Checkpoint 22: viewport-scale parity and girls-only KGC stage crop */
+@media (min-width: 1121px) {
+  .hero-copy {
+    align-self: start;
+    padding-top: 92px;
+  }
+  .hero h1 {
+    max-width: 545px;
+    line-height: .82;
+  }
+  .hero-model img {
+    transform: scale(1.08);
+    transform-origin: center bottom;
+  }
+  .detail-garment img {
+    transform: rotate(-3deg) scale(1.05);
+    transform-origin: center;
+  }
+  .explode-media img {
+    transform: rotate(-2deg) scale(1.04);
+    transform-origin: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    min-height: 505px;
+  }
+  .hero-copy {
+    width: 55%;
+    padding: 36px 0 18px 18px;
+  }
+  .hero-eyebrow {
+    max-width: 175px;
+    margin-bottom: 14px;
+    font-size: 7px;
+    line-height: 1.5;
+    letter-spacing: .24em;
+  }
+  .hero-eyebrow::after {
+    width: 20px;
+    height: 3px;
+    margin-top: 10px;
+  }
+  .hero h1 {
+    max-width: 190px;
+    font-size: 43px;
+    line-height: .9;
+    letter-spacing: -.055em;
+  }
+  .hero-copy > p {
+    max-width: 166px;
+    margin-top: 14px;
+    font-size: 10.5px;
+    line-height: 1.42;
+  }
+  .hero-actions {
+    width: 168px;
+    gap: 7px;
+    margin-top: 14px;
+  }
+  .primary-action,
+  .secondary-action {
+    min-height: 44px;
+    padding: 0 11px;
+    font-size: 9.5px;
+  }
+  .hero-meta {
+    width: 152px;
+    gap: 2px;
+    margin-top: 14px;
+    padding-top: 9px;
+    font-size: 5.5px;
+    line-height: 1.35;
+  }
+  .hero-visual {
+    min-height: 505px;
+    inset: 78px 0 auto;
+    height: 505px;
+  }
+  .hero-model {
+    inset: -10px -31% -36px 28%;
+  }
+  .hero-model img {
+    transform: scale(1.42);
+    transform-origin: center bottom;
+  }
+  .hero-ribbons {
+    inset: 25px -47% -7% 2%;
+  }
+  .hero-ribbons span {
+    height: 54px;
+    transform: rotate(-27deg);
+  }
+  .hero-ribbons span:nth-child(1) { bottom: 155px; }
+  .hero-ribbons span:nth-child(2) { bottom: 99px; }
+  .hero-ribbons span:nth-child(3) { bottom: 43px; }
+  .hero-script {
+    top: 40px;
+    right: 8px;
+    width: 94px;
+    font-size: 13px;
+    line-height: 1.02;
+  }
+  .hero-side-note {
+    right: 10px;
+    bottom: 34px;
+    width: 86px;
+    padding-block: 8px;
+    font-size: 5.5px;
+  }
+
+  .stage-story {
+    padding-bottom: 28px;
+  }
+  .stage-heading {
+    padding: 18px 18px 10px;
+    font-size: 25px;
+  }
+  .stage-grid {
+    padding: 0 5px 18px;
+  }
+  .stage-grid::after {
+    bottom: 10px;
+  }
+  .stage-photo {
+    height: 108px;
+  }
+  .stage-photo img {
+    transform: scale(1.36);
+  }
+  .stage-label {
+    min-height: 54px;
+    padding: 8px 3px 20px;
+  }
+  .stage-label strong {
+    font-size: 10px;
+  }
+  .stage-label i {
+    bottom: -10px;
+    width: 17px;
+    height: 17px;
+  }
+  .stage-card.is-active .stage-label strong::after {
+    width: 18px;
+    height: 2px;
+    margin-top: 5px;
+  }
+
+  .detail-story {
+    padding-top: 34px;
+  }
+
+  [dir="rtl"] .hero {
+    min-height: 505px;
+  }
+  [dir="rtl"] .hero-copy {
+    width: 55%;
+    padding: 38px 18px 18px 0;
+  }
+  [dir="rtl"] .hero h1 {
+    width: 180px;
+    max-width: 180px;
+    font-size: 39px;
+    line-height: 1.02;
+  }
+  [dir="rtl"] .hero-copy > p {
+    width: 168px;
+    max-width: 168px;
+    margin-top: 13px;
+    font-size: 10.5px;
+  }
+  [dir="rtl"] .hero-actions {
+    width: 168px;
+    margin-top: 14px;
+  }
+  [dir="rtl"] .hero-meta {
+    width: 145px;
+    margin-top: 14px;
+  }
+  [dir="rtl"] .hero-model {
+    inset: -8px 38% -34px -33%;
+  }
+  [dir="rtl"] .hero-model img {
+    transform: scale(1.4);
+  }
+  [dir="rtl"] .hero-ribbons {
+    inset: 32px 43% -5% -21%;
+  }
+  [dir="rtl"] .hero-ribbons span {
+    left: -5%;
+    width: 110%;
+    height: 54px;
+    transform: rotate(26deg);
+  }
+  [dir="rtl"] .hero-ribbons span:nth-child(1) { bottom: 158px; }
+  [dir="rtl"] .hero-ribbons span:nth-child(2) { bottom: 102px; }
+  [dir="rtl"] .hero-ribbons span:nth-child(3) { bottom: 46px; }
+  [dir="rtl"] .hero-side-note {
+    right: 10px;
+    bottom: 34px;
+  }
+}
