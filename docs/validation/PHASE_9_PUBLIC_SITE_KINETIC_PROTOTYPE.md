@@ -4,7 +4,7 @@ Status: **TECHNICAL GREEN / VISUAL FIDELITY NOT YET COMPLETE / HUMAN KINETIC APP
 
 Branch: `phase-9/public-site-kinetic-prototype`  
 Pull request: [#7](https://github.com/faresmohamed260/fares-uniform/pull/7)  
-Implementation authority: `07851c13832b81ec80d829c8ae1f5316ebbdfc2a`  
+Implementation authority: `f8a93e7c5535a005304205c4f4d704025a43bb2a`  
 Production status: **NO-GO; no deployment performed.**
 
 ## Scope proved
@@ -225,3 +225,22 @@ Hosted authority:
 The new route journey loads `/explodeview?organization=harbor-house&program=guest-experience&role=facilities&garment=outerwear&lang=ar`, verifies RTL plus the exact organization/role/garment state, begins exploded, reassembles, checks overflow and captures `phase9-explodeview-ar.png`. This proves the route contract does not embed KGC identifiers or a four-stage assumption.
 
 The visual compare still identifies the puffer's flat synthetic exploded parts as the largest remaining mismatch against the tactile assembled jacket. The next checkpoint must create a rights-safe transparent exploded garment treatment, integrate it only where semantically valid and repeat the full hosted comparison.
+
+
+## Fidelity checkpoint 7 — tactile exploded jacket
+
+Commit:
+
+- `f8a93e7c5535a005304205c4f4d704025a43bb2a` — added a 125 KB rights-safe transparent exploded-jacket WebP, cross-faded it with the assembled jacket only for jacket variants, retained generic vector studies for other looks and added an image-load assertion before exploded capture.
+
+Hosted authority:
+
+- run: `35413696049`;
+- job: `105818088484`;
+- result: locked install, typecheck, optimized build and **6/6 Playwright journeys PASS**;
+- artifact: `10575710100`;
+- digest: `sha256:930e74d6a2b35755636dc7d5c3a8809e16edaf399a50735abaca77a56df7c08e`.
+
+Fresh desktop assembled/exploded and English mobile renders were compared with the accepted concept. The puffer now retains real fabric, stitching, ribbing, seams, depth and matching navy/warm-white/coral/light-blue material language in both settled states. Dense frame extraction from the hosted 5.4-second desktop recording confirms the selected-look transition, tactile explode cross-fade and reassembly all reach coherent settled frames without losing controls. Reduced-motion retains immediate state parity.
+
+This closes the largest documented material-fidelity mismatch in the prototype without using a client binary or implying that the asset represents every look. The implementation remains a synthetic review prototype. Fares's direct kinetic/design approval is still required before PR #7 can leave draft or any production `apps/public-web` work can be authorized.
