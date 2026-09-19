@@ -8,7 +8,7 @@ Final result: passed
 |---|---|---:|---|---:|---|
 | Desktop landing | \`exec-7e78b237-351a-430a-ac94-f9308628f2a8.png\` | 811 × 1939 | artifact \`10576627116/artifacts/screenshots/phase9-desktop-en.png\` | 1440 × 3651 | English, KGC, High + puffer settled after interaction |
 | Mobile landing | \`exec-760ae055-2c0c-4dae-ab62-b373a6c2e6a8.png\` | 853 × 1844 | artifact \`10576627116/artifacts/screenshots/phase9-mobile-en.png\` | 390 × 3067 | English, KGC initial state |
-| Mobile RTL | \`exec-3847698c-10e1-4f0c-b9f6-302e7e26a688.png\` | 853 × 1844 | artifact \`10576627116/artifacts/screenshots/phase9-mobile-ar.png\` | 390 × 3039 | Arabic RTL, KGC initial state |
+| Mobile RTL | \`exec-3847698c-10e1-4f0c-b9f6-302e7e26a688.png\` | 853 × 1844 | artifact \`10576627116/artifacts/screenshots/phase9-mobile-ar.png\` | 390 × 3062 | Arabic RTL, KGC initial state |
 | Garment inspector | \`exec-e4072d4b-d668-433b-a15e-f79d6f7e9681.png\` | 1487 × 1058 | artifact \`10576627116/artifacts/screenshots/phase9-explodeview-en.png\` | 1440 × 1080 | English, KGC / High / Summer, exploded |
 
 Hosted screenshots use Playwright viewports 1440 × 1000 for desktop and 390 × 844 for mobile at device scale factor 1. Full-page capture accounts for the taller landing implementation: it includes the complete generalized cohort/look controls, footer and interaction evidence, while the approved mobile references are shorter presentation boards.
