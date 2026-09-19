@@ -1327,3 +1327,122 @@ img { user-select: none; }
     width: 150px;
   }
 }
+
+
+/* Checkpoint 19: mobile board geometry and editorial overlap */
+.explode-detail-preview.preview-0 img {
+  transform: scale(3.65);
+  transform-origin: 50% 0%;
+}
+
+@media (max-width: 760px) {
+  .hero-actions {
+    width: 210px;
+  }
+  .hero-model {
+    inset: 24px -22% -42px 29%;
+  }
+  .hero-script {
+    top: 78px;
+    right: 2px;
+    width: 76px;
+    font-size: 12px;
+    line-height: 1.05;
+  }
+
+  .detail-story {
+    position: relative;
+    display: block;
+    min-height: 830px;
+    overflow: hidden;
+    padding: 54px 20px 42px;
+  }
+  .detail-copy {
+    position: relative;
+    z-index: 5;
+    width: 60%;
+    max-width: 220px;
+  }
+  .detail-copy h2 {
+    max-width: 220px;
+    font-size: 54px;
+    line-height: .86;
+  }
+  .detail-copy > p {
+    max-width: 210px;
+    font-size: 13px;
+  }
+  .detail-action {
+    min-width: 0;
+    width: 210px;
+    padding-inline: 15px;
+    font-size: 11px;
+  }
+  .look-menu {
+    width: 210px;
+  }
+  .detail-motto {
+    width: 190px;
+    margin-top: 30px;
+  }
+  .detail-visual {
+    position: absolute;
+    z-index: 2;
+    top: 84px;
+    right: -39%;
+    width: 92%;
+    min-height: 690px;
+  }
+  .detail-garment {
+    inset: -34px -34px 80px -52px;
+  }
+  .detail-callouts {
+    left: -58%;
+    right: 5%;
+    bottom: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    background: rgba(248,246,240,.92);
+  }
+  .sharing-note {
+    right: 8px;
+    bottom: 192px;
+  }
+
+  [dir="rtl"] .hero-copy {
+    width: 62%;
+  }
+  [dir="rtl"] .hero h1 {
+    width: 210px;
+    max-width: 210px;
+  }
+  [dir="rtl"] .hero-copy > p {
+    width: 196px;
+    max-width: 196px;
+  }
+  [dir="rtl"] .hero-actions {
+    width: 190px;
+  }
+  [dir="rtl"] .hero-model img {
+    transform: scale(1.4);
+    transform-origin: left bottom;
+  }
+  [dir="rtl"] .detail-copy {
+    width: 60%;
+    max-width: 220px;
+    margin-left: auto;
+    margin-right: 0;
+    text-align: right;
+  }
+  [dir="rtl"] .detail-visual {
+    right: auto;
+    left: -39%;
+  }
+  [dir="rtl"] .detail-callouts {
+    left: 5%;
+    right: -58%;
+  }
+  [dir="rtl"] .sharing-note {
+    right: auto;
+    left: 8px;
+  }
+}
