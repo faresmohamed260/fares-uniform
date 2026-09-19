@@ -420,3 +420,16 @@ Fares reconfirmed that the approved GPT-6 Astra / Pattern in Motion reference is
 The landing hero therefore uses the approved “Designed as one. Worn for years.” hierarchy, paired calls to action, editorial organization imagery and narrative cohort progression. The \`/explodeview\` route is a dedicated full-screen construction experience rather than a parameterized copy of the landing page. It must preserve reversible explode/reassemble behavior, detail inspection, responsive layout, English/Arabic directionality and reduced-motion information parity.
 
 Visual fidelity does not permit hard-coding KGC into the Fares shell. Organization, program, cohort/role, look, identity assets and visual skin remain project data under D-048. KGC is the first complete review fixture and uses only the crest and campus assets authorized by D-051; a synthetic non-school fixture remains required. This decision does not authorize production \`apps/public-web\` edits, deployment or launch.
+
+
+## D-053 — Original KGC media required for the Phase 9 client fixture
+
+Status: Accepted by client, 2026-09-19; production deployment remains unauthorized.
+
+Fares explicitly instructed the Phase 9 implementation to use the original KGC assets for KGC client data and not invent fake/synthetic KGC assets. This supersedes D-051's narrower Phase 9 binary authorization for the review fixture only.
+
+For the isolated Phase 9 KGC fixture, the repository may now copy and use the original manifest-backed KGC worn/model anchors, matched/used packshots, canonical crest/logo and campus exterior recorded in `docs/ui/KGC_MEDIA_MANIFEST.md`. KGC client-facing hero, stage, garment and inspection media must resolve only to those original assets. Synthetic people, synthetic garments and fabricated KGC construction layers must not be presented as KGC client data.
+
+Where the approved design calls for an exploded/construction view but the original KGC media does not contain real separated construction layers, the implementation must use an annotated flat-view / original-packshot fallback under D-048 rather than fabricating layers. Cropping, responsive framing and close-up presentation of an original KGC asset are allowed layout operations; they do not authorize generation or invention of new KGC imagery.
+
+Synthetic media remains permitted for clearly synthetic non-client fixtures such as Harbor House. This decision does not authorize production `apps/public-web` edits, public deployment, launch, broader publication rights, provider mutation or production Gate D.
