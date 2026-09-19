@@ -569,3 +569,14 @@ footer { min-height: 170px; }
   .variant-polo .assembled-garment,
   .variant-polo .tactile-exploded-garment { inset: -18% -24% -14%; }
 }
+
+
+/* Checkpoint 11 RED correction: preserve control hit areas */
+.assembled-garment,
+.tactile-exploded-garment,
+.garment-layer { pointer-events: none; }
+
+@media (max-width: 760px) {
+  .choice-rail button,
+  .look-rail button { min-height: 46px; }
+}
