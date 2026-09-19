@@ -1198,3 +1198,78 @@ img { user-select: none; }
     width: 104px;
   }
 }
+
+
+/* Checkpoint 17: RTL hero and inspector detail parity */
+.explode-detail-preview.preview-0 img {
+  object-fit: contain;
+  object-position: center top;
+  transform: scale(1.85);
+  transform-origin: 50% 0%;
+}
+
+@media (max-width: 760px) {
+  .hero-script {
+    top: 56px;
+    right: 8px;
+    width: 92px;
+    font-size: 14px;
+    line-height: 1.05;
+  }
+
+  [dir="rtl"] .hero {
+    min-height: 620px;
+  }
+  [dir="rtl"] .hero-copy {
+    width: 49%;
+    margin-inline-start: auto;
+    padding: 56px 18px 20px 0;
+  }
+  [dir="rtl"] .hero-eyebrow {
+    max-width: 172px;
+    margin-bottom: 18px;
+  }
+  [dir="rtl"] .hero h1 {
+    width: 176px;
+    max-width: 176px;
+    font-size: 46px;
+    line-height: 1.01;
+  }
+  [dir="rtl"] .hero-copy > p {
+    width: 176px;
+    max-width: 176px;
+    margin-top: 16px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  [dir="rtl"] .hero-actions {
+    width: 176px;
+    margin-top: 18px;
+  }
+  [dir="rtl"] .hero-meta {
+    width: 150px;
+    margin-top: 18px;
+  }
+  [dir="rtl"] .hero-model {
+    inset: 24px 42% -24px -45%;
+  }
+  [dir="rtl"] .hero-ribbons {
+    inset: 62px 48% -5% -25%;
+    transform: none;
+  }
+  [dir="rtl"] .hero-ribbons span {
+    left: -3%;
+    width: 108%;
+    height: 62px;
+    transform: rotate(20deg);
+    transform-origin: right center;
+  }
+  [dir="rtl"] .hero-ribbons span:nth-child(1) { bottom: 184px; }
+  [dir="rtl"] .hero-ribbons span:nth-child(2) { bottom: 120px; }
+  [dir="rtl"] .hero-ribbons span:nth-child(3) { bottom: 56px; }
+  [dir="rtl"] .hero-side-note {
+    right: 14px;
+    bottom: 36px;
+    width: 100px;
+  }
+}
