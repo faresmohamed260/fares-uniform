@@ -92,6 +92,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
 .rig-shadow { position: absolute; left: 21%; right: 21%; bottom: 12px; height: 30px; border-radius: 50%; background: rgba(20,30,28,.16); filter: blur(14px); }
 .assembled-garment { position: absolute; inset: 0 -6px 4px; z-index: 1; transform-origin: center; filter: drop-shadow(0 30px 26px rgba(16,42,67,.2)); }
 .assembled-garment img { object-fit: contain; }
+.tactile-exploded-garment { position: absolute; inset: 34px -36px 24px; z-index: 3; transform-origin: center; filter: drop-shadow(0 22px 20px rgba(16,42,67,.18)); }
+.tactile-exploded-garment img { object-fit: contain; }
 .garment-layer { position: absolute; inset: 44px 55px 34px; z-index: 2; transform-origin: center; will-change: transform, opacity; }
 .garment-layer { filter: drop-shadow(0 9px 10px rgba(16,42,67,.12)); }
 .garment-layer > span { position: absolute; display: block; background: linear-gradient(135deg, color-mix(in srgb, var(--project-ink) 84%, white), var(--project-ink) 52%, color-mix(in srgb, var(--project-ink) 82%, black)); box-shadow: inset 1px 0 rgba(255,255,255,.2), inset -1px 0 rgba(0,0,0,.16); }
