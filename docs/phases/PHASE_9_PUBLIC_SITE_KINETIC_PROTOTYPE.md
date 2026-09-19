@@ -23,7 +23,7 @@ Build a repository-backed interactive prototype that proves the accepted Pattern
 - isolated Next.js prototype under `prototype/public-site-motion`;
 - stable Fares shell and project-scoped visual skins;
 - typed organization/program/cohort/look/garment fixture model;
-- KGC National as one synthetic/private-review fixture, without client media binaries;
+- KGC National as one private-review fixture, including only the explicitly authorized canonical crest and campus photo plus synthetic garment/model media;
 - one clearly synthetic non-school organization;
 - cohort/role and look selection with shared-versus-unique continuity;
 - generic inspect, explode and reassemble interaction;
@@ -36,7 +36,7 @@ Build a repository-backed interactive prototype that proves the accepted Pattern
 
 - edits to `apps/public-web` or any Odoo addon/API;
 - Vercel/Supabase/provider mutation or deployment;
-- public use of KGC or other client media, names or logos beyond already documented review data;
+- use of KGC or other client media beyond the two project-scoped assets explicitly authorized in D-051;
 - prices, stock, customer/private records or broad Odoo routes;
 - CMS, production routing, enquiry submission integration or analytics;
 - production Gate D approval.
@@ -57,7 +57,7 @@ Use the repository-pinned Next.js/React/Motion/Playwright dependency set already
 
 ## Data and security
 
-All prototype records are synthetic or explicitly marked review fixtures. KGC uses documented program/cohort/garment facts only; no Drive binary, model likeness, private record, logo or location image is copied into GitHub. Public catalog restrictions remain unchanged.
+All prototype records are synthetic or explicitly marked review fixtures. By D-051, the canonical KGC crest and campus photo are the only Drive binaries authorized for this Phase 9 review implementation; they are optimized, stored only under the isolated prototype and selected through project-scoped data. No KGC model/garment binary, private record or other client media is copied into GitHub. Public catalog restrictions remain unchanged.
 
 ## Hosted validation
 
@@ -87,4 +87,4 @@ Compilation alone cannot close the kinetic gate. Fares must review the rendered 
 
 ## Exit criteria
 
-Phase 9 prototype implementation is technically GREEN at current authority `f8a93e7c5535a005304205c4f4d704025a43bb2a`, hosted run `35413696049`, job `105818088484`, with 6/6 Playwright journeys passing and review artifact `10575710100`. This does not close visual fidelity. The mandatory side-by-side compare-and-correct loop remains active until material differences from the approved design are corrected and Fares approves the rendered behavior. Production `apps/public-web` work and deployment remain separate approvals.
+Phase 9 prototype implementation is technically GREEN at current authority `fc6a3e4359aa9c407901fdcf58282dc64ff2d8d1`, hosted run `35414599819`, job `105820623090`, with 6/6 Playwright journeys passing and review artifact `10575382770`. This does not close visual fidelity. The mandatory side-by-side compare-and-correct loop remains active until material differences from the approved design are corrected and Fares approves the rendered behavior. Production `apps/public-web` work and deployment remain separate approvals.

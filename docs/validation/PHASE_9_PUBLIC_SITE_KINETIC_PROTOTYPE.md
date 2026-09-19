@@ -4,7 +4,7 @@ Status: **TECHNICAL GREEN / VISUAL FIDELITY NOT YET COMPLETE / HUMAN KINETIC APP
 
 Branch: `phase-9/public-site-kinetic-prototype`  
 Pull request: [#7](https://github.com/faresmohamed260/fares-uniform/pull/7)  
-Implementation authority: `f8a93e7c5535a005304205c4f4d704025a43bb2a`  
+Implementation authority: `fc6a3e4359aa9c407901fdcf58282dc64ff2d8d1`  
 Production status: **NO-GO; no deployment performed.**
 
 ## Scope proved
@@ -244,3 +244,29 @@ Hosted authority:
 Fresh desktop assembled/exploded and English mobile renders were compared with the accepted concept. The puffer now retains real fabric, stitching, ribbing, seams, depth and matching navy/warm-white/coral/light-blue material language in both settled states. Dense frame extraction from the hosted 5.4-second desktop recording confirms the selected-look transition, tactile explode cross-fade and reassembly all reach coherent settled frames without losing controls. Reduced-motion retains immediate state parity.
 
 This closes the largest documented material-fidelity mismatch in the prototype without using a client binary or implying that the asset represents every look. The implementation remains a synthetic review prototype. Fares's direct kinetic/design approval is still required before PR #7 can leave draft or any production `apps/public-web` work can be authorized.
+
+
+## Fidelity checkpoint 8 — authorized KGC identity and campus context
+
+Commit:
+
+- `fc6a3e4359aa9c407901fdcf58282dc64ff2d8d1` — integrated the canonical KGC crest and campus photo as optimized project-scoped WebP assets, added localized identity metadata and verified the assets are absent from Harbor House.
+
+Source assets:
+
+- crest Drive ID: `110AOiPx9NtX86ig5JvpnJRlRlBP6vZgX`;
+- campus Drive ID: `1r4J7nLGevkjGy9EkghM1uTP7OKnK2nQC`;
+- optimized repository assets: approximately 46 KB and 285 KB respectively;
+- authorization: Fares explicitly instructed their use in the approved-design implementation on 2026-09-19; the authorization is recorded as D-051 and is scoped to the Phase 9 review implementation. No deployment occurred.
+
+Hosted authority:
+
+- run: `35414599819`;
+- job: `105820623090`;
+- result: locked install, typecheck, optimized build and **6/6 Playwright journeys PASS**;
+- artifact: `10575382770`;
+- digest: `sha256:e0f75e7e8c34b6924754920a119affc55978cd82e3653e579fad241e9b081854`.
+
+The hosted desktop, exploded, English mobile and Arabic RTL renders were compared with the accepted visual direction. The real campus now supplies the architectural organization context used in the approved concept, while the crest appears as a restrained project mark beside the KGC review status. Both remain below the stable Fares shell and inside the KGC project story. The campus does not overpower the cohort/garment sequence, mobile retains the hierarchy, and switching to the synthetic hospitality project removes both assets.
+
+No other KGC/client binary was authorized or added by this checkpoint. PR #7 remains draft pending Fares's direct visual/kinetic approval; production `apps/public-web`, deployment and launch remain excluded.

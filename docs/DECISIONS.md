@@ -400,3 +400,12 @@ Every public-site visual implementation iteration must be compared side by side 
 Each iteration must retain desktop, English mobile, Arabic RTL and relevant interaction-state evidence; record concrete mismatches in composition, copy, typography, palette, imagery, spacing, component geometry, motion and responsive behavior; fix every material mismatch within scope; rerun hosted validation; then compare again. Any unresolved difference must identify the exact blocker or approval needed.
 
 For Phase 9, the first technically GREEN prototype remains visually incomplete because it substitutes abstract hero planes, UI-like project selection and synthetic vector garments for the accepted photography-led editorial composition and tactile garment detail. Those differences remain active work. PR #7 stays draft and production `apps/public-web` implementation/deployment remains unauthorized until Fares explicitly approves the goal design.
+
+
+## D-051 — KGC crest and campus assets authorized for the Phase 9 review implementation
+
+Status: Accepted by client, 2026-09-19; production deployment remains unauthorized.
+
+Fares explicitly instructed the implementation to use the KGC organization assets previously requested: the canonical Kawmeya Girls' College crest/logo at Drive ID `110AOiPx9NtX86ig5JvpnJRlRlBP6vZgX` and the K.G.C. campus exterior at Drive ID `1r4J7nLGevkjGy9EkghM1uTP7OKnK2nQC`.
+
+These two assets may be optimized and copied into the isolated Phase 9 prototype. They must be represented as project-scoped KGC identity/location data under the stable Fares shell, must not become global Fares branding, and must disappear when another organization is selected. This authorization does not cover KGC worn/model or packshot binaries, other client media, editing `apps/public-web`, deployment, launch or production Gate D.
