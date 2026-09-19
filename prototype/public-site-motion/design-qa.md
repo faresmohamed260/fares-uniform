@@ -73,11 +73,11 @@ Intentional constraints are not defects: the approved references are visual dire
 
 ## Current hosted authority
 
-- implementation commit: `a7778a8acefe5359ffe08c0d881212d2bb060736`;
-- run: `35453953867`;
-- job: `105925846734`;
-- artifact: `10586969715`;
-- digest: `sha256:c17e2f5d5924b1e496a87afdffaf90a8d41f1607739857271f0e10028b164f43`;
+- implementation commit: `534bd40744a4cfcab835a5334d4d8d12165158d8`;
+- run: `35461456159`;
+- job: `105945954701`;
+- artifact: `10588974373`;
+- digest: `sha256:e8ac425d156ad26e8935f132679d0b4db8b079ceb04e698eb7f997aa3922a1ee`;
 - 8/8 Playwright journeys PASS.
 
 The artifact contains the four approved reference boards under `artifacts/reference/` beside the fresh implementation captures under `artifacts/screenshots/`. This is now the required review shape for every parity checkpoint.
@@ -87,3 +87,10 @@ The artifact contains the four approved reference boards under `artifacts/refere
 The earlier technical/accessibility findings remain closed. Visual parity is intentionally reopened by Fares's instruction. The current implementation now follows the same major composition sequence as the references: editorial Fares header, overlapping model/campus hero with red-white-blue textile ribbons, four-stage narrative, closer-look garment construction story, compact footer and dedicated three-column inspector.
 
 The compare-and-correct loop remains active. No statement in this document should be read as permission to stop on CI GREEN alone; hosted visual evidence must continue to be compared directly with the preserved boards until the implementation is judged to match them. PR #7 remains draft and production remains excluded.
+
+
+## Checkpoint 27 comparison note
+
+The current hosted evidence is materially closer to the committed boards than checkpoint 21: the desktop hero model and serif headline occupy more of the first composition, the mobile EN/AR crops now read as the same authored poster rather than a generic responsive page, the stage sequence is constrained to girls-only KGC review media, and the inspector preserves the three-column title/object/detail-rail structure.
+
+Open visual work remains visible and intentional: the desktop textile ribbons still intrude farther into the copy field than the reference, the High stage portrait needs a tighter editorial crop, the first inspector detail crop still reads more diagrammatically than the approved textile macro, and the landing garment study remains cleaner/more separated than the folded tactile reference. Those are the next compare-and-correct targets.

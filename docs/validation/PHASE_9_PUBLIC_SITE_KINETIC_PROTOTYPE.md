@@ -4,7 +4,7 @@ Status: **TECHNICAL GREEN / PRESERVED-BOARD VISUAL PARITY ITERATION ACTIVE, 2026
 
 Branch: `phase-9/public-site-kinetic-prototype`  
 Pull request: [#7](https://github.com/faresmohamed260/fares-uniform/pull/7)  
-Implementation authority: `a7778a8acefe5359ffe08c0d881212d2bb060736`  
+Implementation authority: `534bd40744a4cfcab835a5334d4d8d12165158d8`  
 Production status: **NO-GO; no deployment performed.**
 
 ## Scope proved
@@ -431,3 +431,25 @@ Current exact-head hosted authority:
 - current captures: desktop 1440×3438, English mobile 390×2279, Arabic mobile 390×2029, English inspector 1440×1109.
 
 The implementation is materially closer to the approved boards but the parity loop remains open by instruction; technical GREEN is not being used as a substitute for visual completion. PR #7 stays draft. No production deployment, provider mutation or production `apps/public-web` change is authorized.
+
+
+## Fidelity checkpoints 24–27 — direct board-scale correction
+
+Fares instructed the loop to continue without stopping on technical GREEN and to keep the authoritative docs synchronized as the visual work proceeds.
+
+Checkpoint 24 (`865cf0b031218a92846e44d011377b64d5b9e282`) increased the model/type overlap, shifted the textile ribbons toward the approved composition and attempted a more layered garment study. Hosted run `35460740204`, job `105944024049`, passed the full gate with artifact `10589399065` (`sha256:a380acfb898e7ecdea36a353048faf739fcaa4f6f05d2336dd3c274bb5f6e6f8`).
+
+Checkpoint 25 (`57f6e53c89b693ee4cce7d553ff805ecf30ae376`) exposed that the experimental clipped-image garment stack looked mechanically broken in the hosted render. That visual regression was not accepted merely because CI was GREEN. Run `35461007209`, job `105944743976`, preserved the evidence in artifact `10589249693` (`sha256:daaac1c43a39ce5d26c3b73886b4760d79a51dcc8a9148e76e30560115ef8501`).
+
+Checkpoint 26 (`0b247b95f9c93c360847e2c9e75645c372f9ac1f`) removed the broken stack, restored the clean tactile exploded study and corrected the KGC stage crop logic so review media remains girls-only instead of exposing the mixed-gender synthetic source. Run `35461207448`, job `105945289302`, passed; artifact `10589734370` has digest `sha256:9c48aa4a3ccc8ebd40fa4426a6188b91ca661b6eb604044198c500e9bc103bd1`.
+
+Checkpoint 27 is the current verified visual authority:
+- commit: `534bd40744a4cfcab835a5334d4d8d12165158d8`;
+- run: `35461456159`;
+- job: `105945954701`;
+- locked install, typecheck, optimized production build and **8/8 Playwright journeys: PASS**;
+- artifact: `10588974373`;
+- artifact digest: `sha256:e8ac425d156ad26e8935f132679d0b4db8b079ceb04e698eb7f997aa3922a1ee`;
+- current captures: desktop `1440×3378`, English mobile `390×1800`, Arabic mobile `390×1727`, English inspector `1440×1109`.
+
+Checkpoint 27 further matched the approved desktop scale, kept the English and Arabic model crops closer to the boards, removed the duplicated High-stage crop in favor of the dedicated synthetic High model, and increased the inspector/title hierarchy. The parity loop remains open: remaining visible differences are being corrected rather than reclassified as acceptable deviations. PR #7 stays draft; production remains excluded.
