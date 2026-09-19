@@ -1446,3 +1446,25 @@ img { user-select: none; }
     left: 8px;
   }
 }
+
+
+/* Checkpoint 20: remove residual mobile clipping */
+@media (max-width: 760px) {
+  .detail-callouts {
+    left: -47vw;
+    right: 39vw;
+  }
+
+  [dir="rtl"] .hero-model img {
+    transform: scale(1.2);
+    transform-origin: left bottom;
+  }
+  [dir="rtl"] .hero h1 {
+    width: 214px;
+    max-width: 214px;
+  }
+  [dir="rtl"] .detail-callouts {
+    left: 39vw;
+    right: -47vw;
+  }
+}
