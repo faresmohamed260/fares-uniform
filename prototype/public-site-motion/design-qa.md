@@ -6,19 +6,19 @@ Final result: passed
 
 | Surface | Approved reference | Reference pixels | Hosted implementation | Implementation pixels | State |
 |---|---|---:|---|---:|---|
-| Desktop landing | \`exec-7e78b237-351a-430a-ac94-f9308628f2a8.png\` | 811 × 1939 | artifact \`10576627116/artifacts/screenshots/phase9-desktop-en.png\` | 1440 × 3651 | English, KGC, High + puffer settled after interaction |
-| Mobile landing | \`exec-760ae055-2c0c-4dae-ab62-b373a6c2e6a8.png\` | 853 × 1844 | artifact \`10576627116/artifacts/screenshots/phase9-mobile-en.png\` | 390 × 3145 | English, KGC High / Summer initial state |
-| Mobile RTL | \`exec-3847698c-10e1-4f0c-b9f6-302e7e26a688.png\` | 853 × 1844 | artifact \`10576627116/artifacts/screenshots/phase9-mobile-ar.png\` | 390 × 3112 | Arabic RTL, KGC High / Summer initial state |
-| Garment inspector | \`exec-e4072d4b-d668-433b-a15e-f79d6f7e9681.png\` | 1487 × 1058 | artifact \`10576627116/artifacts/screenshots/phase9-explodeview-en.png\` | 1440 × 1080 | English, KGC / High / Summer, exploded |
+| Desktop landing | `exec-7e78b237-351a-430a-ac94-f9308628f2a8.png` | 811 × 1939 | artifact `10582462311/artifacts/screenshots/phase9-desktop-en.png` | 1440 × 3651 | English, KGC, High + puffer settled after interaction |
+| Mobile landing | `exec-760ae055-2c0c-4dae-ab62-b373a6c2e6a8.png` | 853 × 1844 | artifact `10582462311/artifacts/screenshots/phase9-mobile-en.png` | 390 × 3145 | English, KGC High / Summer initial state |
+| Mobile RTL | `exec-3847698c-10e1-4f0c-b9f6-302e7e26a688.png` | 853 × 1844 | artifact `10582462311/artifacts/screenshots/phase9-mobile-ar.png` | 390 × 3112 | Arabic RTL, KGC High / Summer initial state |
+| Garment inspector | `exec-e4072d4b-d668-433b-a15e-f79d6f7e9681.png` | 1487 × 1058 | artifact `10582462311/artifacts/screenshots/phase9-explodeview-en.png` | 1440 × 1080 | English, KGC / High / Summer, exploded |
 
 Hosted screenshots use Playwright viewports 1440 × 1000 for desktop and 390 × 844 for mobile at device scale factor 1. Full-page capture accounts for the taller landing implementation: it includes the complete generalized cohort/look controls, footer and interaction evidence, while the approved mobile references are shorter presentation boards.
 
 Local normalized comparison outputs used during review:
 
-- \`phase9-qa-approved-v-current.jpg\` — approved desktop beside checkpoint 8;
-- \`phase9-qa-approved-v-checkpoint9.jpg\` — approved desktop beside the corrected landing;
-- \`phase9-qa-mobile-en.jpg\` and \`phase9-qa-mobile-ar.jpg\` — same-width mobile comparisons;
-- \`phase9-qa-explode-approved-v-checkpoint10.jpg\` — approved inspector beside the hosted dedicated inspector.
+- `phase9-qa-approved-v-current.jpg` — approved desktop beside checkpoint 8;
+- `phase9-qa-approved-v-checkpoint9.jpg` — approved desktop beside the corrected landing;
+- `phase9-qa-mobile-en.jpg` and `phase9-qa-mobile-ar.jpg` — same-width mobile comparisons;
+- `phase9-qa-explode-approved-v-checkpoint10.jpg` — approved inspector beside the hosted dedicated inspector.
 
 ## Comparison history
 
@@ -36,7 +36,7 @@ The hero gained the approved hierarchy, real KGC campus context, one dominant ri
 
 Remaining comparison findings:
 
-- P1: \`/explodeview\` still reused the full landing page and did not match the approved dedicated construction experience.
+- P1: `/explodeview` still reused the full landing page and did not match the approved dedicated construction experience.
 - P2: mobile project controls stacked too deeply.
 - P2: Arabic evidence captured a different organization, making it invalid for direct visual comparison.
 
@@ -67,14 +67,15 @@ The landing now exposes a selected-state bridge to the dedicated inspector. Its 
 - responsive and accessibility: passed — no horizontal overflow, practical touch targets, keyboard-visible controls, semantic headings/tabs/buttons and information parity;
 - generalization: passed — KGC is a fixture, not the shell; Harbor House proves a non-school role model and generic URL state.
 
-Intentional constraints are not defects: the approved references are visual direction rather than production client photography; synthetic garment/model media remain clearly disclosed, and production \`apps/public-web\` plus deployment are outside Phase 9.
+Intentional constraints are not defects: the approved references are visual direction rather than production client photography; synthetic garment/model media remain clearly disclosed, and production `apps/public-web` plus deployment are outside Phase 9.
 
 ## Hosted authority
 
-- implementation: \`4c337238735dc42c04686eec1a12eadb6f146e92\`;
-- workflow run: \`35417405490\`;
-- job: \`105828588249\`;
-- result: locked install, typecheck, optimized build and 7/7 Playwright journeys passed;
-- artifact: \`10576627116\`;
-- digest: \`sha256:fd3c21924d0beb0b7b25e3a60c23939d2f98c021e1253dffe88bb7f03611e7f4\`;
+- implementation: `ddf9dfafcc4cf1181052cb13c5109a06bba6baf7`;
+- workflow run: `35437526328`;
+- job: `105882617664`;
+- result: locked install, typecheck, optimized build and 8/8 Playwright journeys passed;
+- artifact: `10582462311`;
+- digest: `sha256:a49eb4a11dba73ce512074671fea75d5007e943166166c74974c32e839b2ea6b`;
+- exact documentation head at this checkpoint is recorded in `PROJECT.md` and PR #7;
 - browser plugin: not available in this session; hosted Playwright supplied the rendered and interaction evidence.
