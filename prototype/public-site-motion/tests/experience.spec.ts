@@ -95,6 +95,29 @@ test("mobile controls retain practical touch targets", async ({ page }) => {
   await capture(page, "phase9-mobile-en.png");
 });
 
+test("keyboard focus reaches and opens the selected full study", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/?lang=en");
+  const fullStudy = page.getByTestId("open-explodeview");
+  await fullStudy.focus();
+  await expect(fullStudy).toBeFocused();
+  const focusStyle = await fullStudy.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { width: Number.parseFloat(style.outlineWidth), style: style.outlineStyle };
+  });
+  expect(focusStyle.width).toBeGreaterThanOrEqual(2);
+  expect(focusStyle.style).not.toBe("none");
+  await capture(page, "phase9-keyboard-focus.png");
+  await Promise.all([
+    page.waitForURL("**/explodeview?organization=kgc-national&program=national&role=high&garment=summer&lang=en"),
+    page.keyboard.press("Enter"),
+  ]);
+  await expect(page.getByTestId("explode-project")).toHaveText("KGC");
+  await expect(page.getByTestId("explode-cohort")).toHaveText("High");
+  await expect(page.getByTestId("explode-look")).toHaveText("Summer polo");
+  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
+});
+
 test("approved KGC explode view is a dedicated interactive inspection", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/explodeview?organization=kgc-national&program=national&role=high&garment=summer&lang=en");
