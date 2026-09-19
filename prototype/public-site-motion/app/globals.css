@@ -531,3 +531,19 @@ footer { min-height: 170px; }
   .explode-detail-item button { min-height: 66px; }
   .explode-detail-preview { height: 180px; margin-inline-start: 48px; }
 }
+
+
+@media (max-width: 760px) {
+  .project-stage { display: block; }
+  .project-copy,
+  .selector-panel,
+  .inspection,
+  .layer-list,
+  .prototype-note { width: 100%; min-width: 0; }
+  .selector-panel { margin: 22px 0 0; overflow: hidden; }
+  .selector-block { min-width: 0; }
+  .choice-rail,
+  .look-rail { width: 100%; max-width: 100%; }
+  .inspection { margin-top: 20px; }
+  .layer-list { display: grid; }
+}
