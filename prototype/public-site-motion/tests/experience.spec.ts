@@ -78,6 +78,10 @@ test("Arabic RTL keeps the complete interaction available", async ({ page }) => 
 test("mobile controls retain practical touch targets", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/?lang=en");
+  await expect(page.getByTestId("cohort-high")).toHaveAttribute("aria-selected", "true");
+  const landingPolo = page.getByTestId("assembled-garment").locator("img");
+  await expect(landingPolo).toBeVisible();
+  await expect.poll(() => landingPolo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   const controls = page.locator(".project-switcher button, .choice-rail button, .inspect-button, .language-button");
   const count = await controls.count();
   expect(count).toBeGreaterThan(5);

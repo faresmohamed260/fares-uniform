@@ -77,7 +77,9 @@ function isShared(look: Look, cohortId: string) {
 }
 
 function GarmentStudy({ look, exploded, locale, reduced }: { look: Look; exploded: boolean; locale: Locale; reduced: boolean }) {
-  const tactile = look.variant === "jacket";
+  const tactile = look.variant === "jacket" || look.variant === "polo";
+  const assembledSrc = look.variant === "polo" ? "/media/uniform-polo-assembled.webp" : "/media/uniform-assembled-editorial.webp";
+  const explodedSrc = look.variant === "polo" ? "/media/uniform-polo-exploded.webp" : "/media/uniform-exploded-transparent.webp";
 
   return (
     <div className={`garment-rig variant-${look.variant}`} data-testid="garment-rig" data-exploded={exploded} aria-label={look.garment[locale]}>
@@ -91,7 +93,7 @@ function GarmentStudy({ look, exploded, locale, reduced }: { look: Look; explode
             transition={{ duration: reduced ? 0 : 0.42, ease: [0.22, 1, 0.36, 1] }}
             aria-hidden="true"
           >
-            <Image src="/media/uniform-assembled-editorial.webp" alt="" fill sizes="(max-width: 760px) 330px, 430px" />
+            <Image src={assembledSrc} alt="" fill sizes="(max-width: 760px) 330px, 430px" />
           </motion.div>
           <motion.div
             className="tactile-exploded-garment"
@@ -100,7 +102,7 @@ function GarmentStudy({ look, exploded, locale, reduced }: { look: Look; explode
             transition={{ duration: reduced ? 0 : 0.58, ease: [0.22, 1, 0.36, 1], delay: reduced || !exploded ? 0 : 0.08 }}
             aria-hidden="true"
           >
-            <Image src="/media/uniform-exploded-transparent.webp" alt="" fill sizes="(max-width: 760px) 360px, 520px" />
+            <Image src={explodedSrc} alt="" fill sizes="(max-width: 760px) 360px, 520px" />
           </motion.div>
         </>
       )}
@@ -152,7 +154,10 @@ export function PatternExperience({
 }: PatternExperienceProps) {
   const reduced = usePrefersReducedMotion();
   const seededProject = projects.find((item) => item.id === initialProjectId) ?? projects[0];
-  const seededCohort = seededProject.cohorts.find((item) => item.id === initialCohortId) ?? seededProject.cohorts[0];
+  const defaultCohort = seededProject.id === "kgc-national"
+    ? seededProject.cohorts.find((item) => item.id === "high") ?? seededProject.cohorts[0]
+    : seededProject.cohorts[0];
+  const seededCohort = seededProject.cohorts.find((item) => item.id === initialCohortId) ?? defaultCohort;
   const seededLook = seededProject.looks.find((item) => item.id === initialLookId && seededCohort.lookIds.includes(item.id))
     ?? firstLook(seededProject, seededCohort.id);
   const [locale, setLocale] = useState<Locale>(initialLocale);
