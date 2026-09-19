@@ -8,10 +8,12 @@ on:
       - "prototype/public-site-motion/**"
       - "docs/phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md"
       - "docs/validation/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md"
+      - "docs/ui/assets/approved-pattern-in-motion/**"
       - ".github/workflows/phase9-public-site-motion.yml"
   pull_request:
     paths:
       - "prototype/public-site-motion/**"
+      - "docs/ui/assets/approved-pattern-in-motion/**"
       - ".github/workflows/phase9-public-site-motion.yml"
   workflow_dispatch:
 
@@ -59,6 +61,13 @@ jobs:
 
       - name: Render and interaction gate
         run: npm run test:e2e
+
+      - name: Stage approved reference boards
+        if: always()
+        run: |
+          mkdir -p artifacts/reference
+          cp ../../docs/ui/assets/approved-pattern-in-motion/approved-*.png artifacts/reference/
+          sha256sum artifacts/reference/approved-*.png > artifacts/reference/SHA256SUMS.txt
 
       - name: Upload review evidence
         if: always()
