@@ -1705,3 +1705,127 @@ img { user-select: none; }
     bottom: 34px;
   }
 }
+
+
+/* Checkpoint 23: exact mobile fold and visible model framing */
+@media (min-width: 1121px) {
+  .hero h1 {
+    max-width: 430px;
+  }
+  .hero-model img {
+    transform: scale(.92);
+    transform-origin: center bottom;
+  }
+  .detail-garment img {
+    transform: rotate(-3deg) scale(1.14);
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    min-height: 470px;
+  }
+  .hero-copy {
+    width: 52%;
+    padding: 20px 0 14px 18px;
+  }
+  .hero h1 {
+    max-width: 154px;
+    font-size: 41px;
+    line-height: .91;
+  }
+  .hero-copy > p {
+    max-width: 144px;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .hero-actions {
+    width: 154px;
+  }
+  .hero-meta {
+    width: 145px;
+  }
+  .hero-visual {
+    inset: 0 0 auto;
+    height: 470px;
+    min-height: 470px;
+  }
+  .hero-model {
+    inset: -10px -38% -18px 19%;
+  }
+  .hero-model img {
+    transform: scale(1.16);
+    transform-origin: center bottom;
+  }
+  .hero-ribbons {
+    inset: 0 -38% -5% 1%;
+  }
+  .hero-script {
+    top: 22px;
+    right: 7px;
+    width: 90px;
+    font-size: 13px;
+  }
+  .hero-side-note {
+    right: 9px;
+    bottom: 20px;
+  }
+
+  .stage-story {
+    padding-bottom: 24px;
+  }
+  .stage-heading {
+    padding-top: 14px;
+    font-size: 24px;
+  }
+  .stage-photo {
+    height: 105px;
+  }
+  .stage-label {
+    min-height: 52px;
+  }
+  .detail-story {
+    padding-top: 28px;
+  }
+
+  [dir="rtl"] .stage-grid {
+    direction: ltr;
+  }
+  [dir="rtl"] .stage-card {
+    direction: rtl;
+  }
+  [dir="rtl"] .hero {
+    min-height: 470px;
+  }
+  [dir="rtl"] .hero-copy {
+    width: 52%;
+    padding: 20px 18px 14px 0;
+  }
+  [dir="rtl"] .hero h1 {
+    width: 164px;
+    max-width: 164px;
+    font-size: 38px;
+    line-height: 1.01;
+  }
+  [dir="rtl"] .hero-copy > p {
+    width: 148px;
+    max-width: 148px;
+    font-size: 10px;
+  }
+  [dir="rtl"] .hero-actions {
+    width: 154px;
+  }
+  [dir="rtl"] .hero-meta {
+    width: 138px;
+  }
+  [dir="rtl"] .hero-model {
+    inset: -8px 28% -18px -39%;
+  }
+  [dir="rtl"] .hero-model img {
+    transform: scale(1.16);
+    transform-origin: center bottom;
+  }
+  [dir="rtl"] .hero-ribbons {
+    inset: 0 38% -5% -18%;
+  }
+}
