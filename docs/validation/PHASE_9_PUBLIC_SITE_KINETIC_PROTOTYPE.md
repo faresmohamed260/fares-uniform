@@ -315,3 +315,36 @@ Final hosted authority:
 - evidence includes desktop assembled/exploded, English mobile, Arabic KGC RTL, approved-state English \`/explodeview\` and generic Arabic Harbor House \`/explodeview\`.
 
 The final same-state comparisons cover desktop KGC, English mobile, Arabic KGC RTL and the dedicated KGC High/Summer inspector. The inspector now closely tracks the approved large-title / exploded-garment / construction-rail composition while preserving the generalized project schema. The landing retains the approved editorial hierarchy and real KGC crest/campus context. Harbor House continues to remove KGC identity assets and proves the system is not school-specific. No P0/P1/P2 visual issue remains in the reviewed states; the detailed rubric and evidence paths are in \`prototype/public-site-motion/design-qa.md\`.
+
+
+## Fidelity checkpoint 11 — tactile High/Summer landing study
+
+Implementation:
+
+- \`af727a44ca4c6f7c9c35f27b6b09bd2a7441c80c\` added rights-safe synthetic assembled and exploded short-sleeve polo studies, made KGC High/Summer the initial landing story to match the approved reference, and asserted that the photographic polo asset loads before mobile evidence capture;
+- \`7028413639d15c8e799dbcc9b035280b35bf00b8\` converted mobile cohort/look choices from clipped horizontal rails to compact grids and enlarged the product study;
+- \`b41304524571a7d53d7b83b870b0ce2a5d197017\` preserved the enlarged editorial image while keeping decorative garment layers out of the pointer hit-test path and setting a true 46px minimum mobile control height.
+
+Synthetic asset provenance:
+
+- assembled generation source: \`exec-0a0efe29-573f-4acd-99f6-63093aa650fd.png\`;
+- exploded generation source: \`exec-0cba5d38-5a75-44c2-beaa-b32efa8f2815.png\`;
+- optimized repository assets: \`public/media/uniform-polo-assembled.webp\` (900 × 1125, approximately 73 KB, alpha) and \`public/media/uniform-polo-exploded.webp\` (900 × 1125, approximately 110 KB, alpha);
+- prompt intent: premium top-down editorial product studies of a logo-free navy / warm-white / coral / pale-blue diagonal polo and navy trousers, with realistic weave, seams and transparent alpha;
+- these are synthetic review assets, not KGC binaries or approved production imagery. The authorized KGC crest remains a separate project identity asset.
+
+Preserved RED:
+
+- commit \`7028413639d15c8e799dbcc9b035280b35bf00b8\`;
+- run \`35436343480\`, job \`105879528344\`;
+- install, typecheck and build passed; Playwright passed 5/7;
+- one touch target measured \`43.9998779296875px\` against the 44px requirement, and the enlarged decorative polo intercepted the reduced-motion explode-button click;
+- failure artifact \`10581444477\`, digest \`sha256:520c71ecedfa7f1dede0af9808452defdd997f772057960d7dda24e47aab0bef\`.
+
+Final GREEN:
+
+- run \`35436536705\`, job \`105880045006\`;
+- locked install, typecheck, optimized build and **7/7 Playwright journeys PASS**;
+- artifact \`10581199723\`, digest \`sha256:ddd4d16d53c2ea64a9d686948217418fb04d90de89bfed90962ddcd1bd66b959\`.
+
+The hosted English and Arabic mobile renders now open on the High/Summer story, keep all four stages and five looks visible in touch-safe grids, and give the tactile assembled polo primary visual weight. The normalized English mobile comparison is \`phase9-qa-mobile-en-checkpoint11.jpg\`. No production or client garment binary was added.
