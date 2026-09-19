@@ -2139,3 +2139,102 @@ img { user-select: none; }
     transform: rotate(27deg);
   }
 }
+
+
+/* Checkpoint 26: restore clean garment study and correct review crops */
+@media (min-width: 1121px) {
+  .kgc-project .stage-card:nth-child(1) .stage-photo img,
+  .kgc-project .stage-card:nth-child(2) .stage-photo img {
+    object-position: 0% 22% !important;
+  }
+  .kgc-project .stage-card:nth-child(3) .stage-photo img,
+  .kgc-project .stage-card:nth-child(4) .stage-photo img {
+    object-position: 66.67% 22% !important;
+  }
+  .kgc-project .stage-photo img {
+    transform: scale(1.24);
+  }
+  .kgc-project .stage-card:nth-child(2) .stage-photo img {
+    transform: scale(1.24) scaleX(-1);
+  }
+  .kgc-project .stage-card:nth-child(4) .stage-photo img {
+    transform: scale(1.32) scaleX(-1);
+  }
+
+  .detail-garment {
+    inset: -86px 105px -78px -118px;
+  }
+  .detail-garment img {
+    transform: rotate(-6deg) scale(1.28);
+    transform-origin: center;
+  }
+
+  .explode-detail-preview.preview-0 img {
+    object-position: center 0%;
+    transform: scale(6.4);
+    transform-origin: 50% 0%;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-model {
+    inset: 10px -26% -70px 14%;
+  }
+  .hero-model img {
+    object-position: center top;
+    transform: scale(1.46);
+    transform-origin: center top;
+  }
+  .hero-ribbons {
+    inset: 0 -52% -5% 36%;
+  }
+  .hero-ribbons span:nth-child(1) { bottom: 255px; }
+  .hero-ribbons span:nth-child(2) { bottom: 195px; }
+  .hero-ribbons span:nth-child(3) { bottom: 135px; }
+  .hero-script {
+    top: 28px;
+    right: 7px;
+    width: 98px;
+    font-size: 13px;
+  }
+
+  .kgc-project .stage-card:nth-child(1) .stage-photo img,
+  .kgc-project .stage-card:nth-child(2) .stage-photo img {
+    object-position: 0% 22% !important;
+  }
+  .kgc-project .stage-card:nth-child(3) .stage-photo img,
+  .kgc-project .stage-card:nth-child(4) .stage-photo img {
+    object-position: 66.67% 22% !important;
+  }
+  .kgc-project .stage-photo img {
+    transform: scale(1.2);
+  }
+  .kgc-project .stage-card:nth-child(2) .stage-photo img {
+    transform: scale(1.2) scaleX(-1);
+  }
+  .kgc-project .stage-card:nth-child(4) .stage-photo img {
+    transform: scale(1.28) scaleX(-1);
+  }
+
+  .detail-garment {
+    inset: -14px -24px 18px -38px;
+  }
+  .detail-garment img {
+    transform: rotate(-5deg) scale(1.18);
+  }
+
+  [dir="rtl"] .hero-model {
+    inset: 38px 45% -84px -36%;
+  }
+  [dir="rtl"] .hero-model img {
+    object-position: center top;
+    transform: scale(1.56);
+    transform-origin: center top;
+  }
+  [dir="rtl"] .hero-ribbons {
+    inset: 0 48% -5% -42%;
+  }
+  [dir="rtl"] .hero-ribbons span:nth-child(1) { bottom: 210px; }
+  [dir="rtl"] .hero-ribbons span:nth-child(2) { bottom: 150px; }
+  [dir="rtl"] .hero-ribbons span:nth-child(3) { bottom: 90px; }
+}

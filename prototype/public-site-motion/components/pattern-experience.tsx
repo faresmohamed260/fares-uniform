@@ -112,7 +112,6 @@ export function PatternExperience({
   const detailBody = isKgc ? text.detailBody : text.genericDetailBody;
   const detailMotto = isKgc ? text.motto : text.genericMotto;
   const stageSource = isKgc ? "/media/synthetic-cohort-lineup.webp" : "/media/fares-team-editorial.webp";
-  const assembledSrc = look.variant === "polo" ? "/media/uniform-polo-assembled.webp" : "/media/uniform-assembled-editorial.webp";
   const explodedSrc = look.variant === "polo" ? "/media/uniform-polo-exploded.webp" : "/media/uniform-exploded-transparent.webp";
   const inspectorHref = "/explodeview?organization=" + project.id + "&program=" + project.programId + "&role=" + cohort.id + "&garment=" + look.id + "&lang=" + locale;
 
@@ -284,32 +283,15 @@ export function PatternExperience({
         </div>
 
         <div className="detail-visual" data-testid="garment-rig" data-exploded="true">
-          {isKgc && look.variant === "polo" ? (
-            <motion.div
-              className="detail-stack"
-              key={project.id + "-" + look.id + "-stack"}
-              initial={{ opacity: 0, y: 18, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              aria-hidden="true"
-            >
-              {["collar", "body", "panel", "lower"].map((piece) => (
-                <span className={"detail-stack-piece detail-stack-" + piece} key={piece}>
-                  <Image src={assembledSrc} alt="" fill priority sizes="(max-width: 760px) 100vw, 64vw" />
-                </span>
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div
-              className="detail-garment"
-              key={project.id + "-" + look.id}
-              initial={{ opacity: 0, y: 18, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Image src={explodedSrc} alt="" fill priority sizes="(max-width: 760px) 100vw, 64vw" />
-            </motion.div>
-          )}
+          <motion.div
+            className="detail-garment"
+            key={project.id + "-" + look.id}
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Image src={explodedSrc} alt="" fill priority sizes="(max-width: 760px) 100vw, 64vw" />
+          </motion.div>
           <ol className="detail-callouts" aria-label={locale === "ar" ? "تفاصيل القطعة" : "Garment details"}>
             {detailLabels[locale].map((label, index) => (
               <li key={label}><span>0{index + 1}</span><strong>{label}</strong></li>
