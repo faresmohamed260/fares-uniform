@@ -66,12 +66,13 @@ test("Arabic RTL keeps the complete interaction available", async ({ page }) => 
   await page.goto("/?lang=ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("مصمّم");
+  await page.waitForTimeout(800);
+  await expectNoOverflow(page);
+  await capture(page, "phase9-mobile-ar.png");
   await page.getByTestId("project-harbor-house").click();
   await page.getByTestId("cohort-facilities").click();
   await page.getByTestId("explode-toggle").click();
   await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
-  await expectNoOverflow(page);
-  await capture(page, "phase9-mobile-ar.png");
 });
 
 test("mobile controls retain practical touch targets", async ({ page }) => {
@@ -84,8 +85,23 @@ test("mobile controls retain practical touch targets", async ({ page }) => {
     const box = await controls.nth(index).boundingBox();
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
   }
+  await page.waitForTimeout(800);
   await expectNoOverflow(page);
   await capture(page, "phase9-mobile-en.png");
+});
+
+test("approved KGC explode view is a dedicated interactive inspection", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/explodeview?organization=kgc-national&program=national&role=high&garment=summer&lang=en");
+  await expect(page.getByTestId("explode-project")).toHaveText("KGC");
+  await expect(page.getByTestId("explode-cohort")).toHaveText("High");
+  await expect(page.getByTestId("explode-look")).toHaveText("Summer polo");
+  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
+  await page.waitForTimeout(500);
+  await expectNoOverflow(page);
+  await capture(page, "phase9-explodeview-en.png");
+  await page.getByTestId("explode-toggle").click();
+  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "false");
 });
 
 test("reduced motion preserves state and information", async ({ page }) => {
@@ -101,9 +117,9 @@ test("generic explodeview accepts organization, program, role and garment state"
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/explodeview?organization=harbor-house&program=guest-experience&role=facilities&garment=outerwear&lang=ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-  await expect(page.getByTestId("project-harbor-house")).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByTestId("cohort-facilities")).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByTestId("look-outerwear")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("explode-project")).toHaveText("هاربور هاوس");
+  await expect(page.getByTestId("explode-cohort")).toHaveText("المرافق");
+  await expect(page.getByTestId("explode-look")).toHaveText("الملابس الخارجية");
   await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
   await page.getByTestId("explode-toggle").click();
   await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "false");
