@@ -156,8 +156,8 @@ export function ExplodeExperience({ project, cohort, look, initialLocale }: Prop
                   </button>
                   {open && (
                     <>
-                      <div className="explode-detail-preview">
-                        <Image src={assembledSrc} alt="" fill sizes="320px" />
+                      <div className={`explode-detail-preview preview-${index}`}>
+                        <Image src={index === 0 ? explodedSrc : assembledSrc} alt="" fill sizes="320px" />
                       </div>
                       <p>{body}</p>
                     </>
