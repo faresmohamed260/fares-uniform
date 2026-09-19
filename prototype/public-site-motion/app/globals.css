@@ -1106,3 +1106,95 @@ img { user-select: none; }
     animation-iteration-count: 1 !important;
   }
 }
+
+
+/* Checkpoint 16: tighten board parity after preserved-reference review */
+@media (min-width: 1121px) {
+  .explode-grid {
+    grid-template-columns: minmax(430px, .95fr) minmax(570px, 1.16fr) minmax(330px, .72fr);
+  }
+  .explode-controls { flex-wrap: nowrap; }
+  .explode-controls button {
+    min-width: 88px;
+    padding-inline: 14px;
+  }
+  .explode-controls .is-primary { min-width: 168px; }
+  .explode-media { inset: -74px -18% -72px -15%; }
+  .explode-detail-preview img {
+    object-position: center 8%;
+    transform: scale(2.25);
+    transform-origin: 50% 12%;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero { min-height: 760px; }
+  .hero-model {
+    inset: 28px -50% -56px 22%;
+  }
+  .hero-script {
+    top: 70px;
+    right: 12px;
+    width: 112px;
+    font-size: 17px;
+    line-height: 1.08;
+  }
+  .stage-photo img {
+    transform: scale(1.42);
+  }
+
+  [dir="rtl"] .hero {
+    min-height: 760px;
+  }
+  [dir="rtl"] .hero-copy {
+    width: 49%;
+    margin-inline-start: auto;
+    padding: 92px 18px 28px 0;
+    text-align: right;
+  }
+  [dir="rtl"] .hero-eyebrow {
+    max-width: 180px;
+    margin-inline-start: auto;
+  }
+  [dir="rtl"] .hero h1 {
+    width: 176px;
+    max-width: 176px;
+    margin-inline-start: auto;
+    font-size: 48px;
+    line-height: .98;
+    letter-spacing: 0;
+  }
+  [dir="rtl"] .hero-copy > p {
+    width: 176px;
+    max-width: 176px;
+    margin-inline-start: auto;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  [dir="rtl"] .hero-actions {
+    width: 176px;
+    margin-inline-start: auto;
+  }
+  [dir="rtl"] .hero-meta {
+    width: 154px;
+    margin-top: 26px;
+    margin-inline-start: auto;
+    text-align: right;
+  }
+  [dir="rtl"] .hero-model {
+    inset: 58px 47% -45px -13%;
+  }
+  [dir="rtl"] .hero-ribbons {
+    inset: 96px 35% -5% -24%;
+    transform: none;
+  }
+  [dir="rtl"] .hero-ribbons span {
+    transform: rotate(20deg);
+    transform-origin: right center;
+  }
+  [dir="rtl"] .hero-side-note {
+    right: 16px;
+    bottom: 48px;
+    width: 104px;
+  }
+}
