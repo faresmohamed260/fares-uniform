@@ -2338,3 +2338,56 @@ img { user-select: none; }
     inset: 0 50% -5% -44%;
   }
 }
+
+
+/* Checkpoint 28: tighten ribbon field, High crop and textile macro */
+@media (min-width: 1121px) {
+  .hero-ribbons {
+    inset: 0 -28% -7% 4%;
+  }
+
+  .kgc-project .stage-card:nth-child(4) .stage-photo img {
+    object-position: 50% 0% !important;
+    transform: scale(2.5);
+    transform-origin: center top;
+  }
+
+  .explode-detail-preview.preview-0::after {
+    top: -12%;
+    left: 61%;
+    width: 12px;
+    height: 132%;
+    transform: rotate(-12deg);
+    background: linear-gradient(90deg, #c5162e 0 34%, transparent 34% 60%, #c5162e 60% 100%);
+    opacity: .82;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-ribbons {
+    inset: 0 -52% -5% 45%;
+  }
+  .hero-script {
+    top: 8px;
+    right: -2px;
+    width: 82px;
+    font-size: 11px;
+    line-height: 1.04;
+  }
+
+  .kgc-project .stage-card:nth-child(4) .stage-photo img {
+    object-position: 50% 0% !important;
+    transform: scale(2.3);
+    transform-origin: center top;
+  }
+
+  [dir="rtl"] .hero-model {
+    inset: 2px 42% -90px -42%;
+  }
+  [dir="rtl"] .hero-model img {
+    transform: scale(1.66);
+  }
+  [dir="rtl"] .hero-ribbons {
+    inset: 0 50% -5% -44%;
+  }
+}
