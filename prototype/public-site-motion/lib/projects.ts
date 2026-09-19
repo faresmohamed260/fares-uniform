@@ -13,6 +13,7 @@ export type Look = {
 export type Cohort = {
   id: string;
   name: LocalizedText;
+  tagline: LocalizedText;
   lookIds: string[];
 };
 
@@ -22,6 +23,9 @@ export type Project = {
   organization: LocalizedText;
   program: LocalizedText;
   sector: LocalizedText;
+  heroEyebrow: LocalizedText;
+  storyTitle: LocalizedText;
+  heroModelSrc?: string;
   synthetic: boolean;
   identity?: {
     logoSrc: string;
@@ -51,6 +55,9 @@ export const projects: Project[] = [
     organization: { en: "KGC", ar: "KGC" },
     program: { en: "National program", ar: "البرنامج الوطني" },
     sector: { en: "Education · review fixture", ar: "التعليم · نموذج للمراجعة" },
+    heroEyebrow: { en: "Schools today. A brighter tomorrow.", ar: "مدارس اليوم. غد أكثر إشراقاً." },
+    storyTitle: { en: "Purpose in every layer.", ar: "غرض في كل طبقة." },
+    heroModelSrc: "/media/kgc-hero-model.webp",
     synthetic: false,
     identity: {
       logoSrc: "/media/kgc-logo.webp",
@@ -65,10 +72,10 @@ export const projects: Project[] = [
     skin: { accent: "#ee4b3d", accentSoft: "#dceffa", ink: "#102a43", motif: "diagonal" },
     cohortsLabel: { en: "Stages", ar: "المراحل" },
     cohorts: [
-      { id: "kindergarten", name: { en: "Kindergarten", ar: "رياض الأطفال" }, lookIds: kgcLooks.map((look) => look.id) },
-      { id: "primary", name: { en: "Primary", ar: "الابتدائي" }, lookIds: kgcLooks.map((look) => look.id) },
-      { id: "middle", name: { en: "Middle", ar: "الإعدادي" }, lookIds: kgcLooks.map((look) => look.id) },
-      { id: "high", name: { en: "High", ar: "الثانوي" }, lookIds: kgcLooks.map((look) => look.id) },
+      { id: "kindergarten", name: { en: "Kindergarten", ar: "رياض الأطفال" }, tagline: { en: "A confident start.", ar: "بداية واثقة." }, lookIds: kgcLooks.map((look) => look.id) },
+      { id: "primary", name: { en: "Primary", ar: "الابتدائي" }, tagline: { en: "Growing together.", ar: "ننمو معاً." }, lookIds: kgcLooks.map((look) => look.id) },
+      { id: "middle", name: { en: "Middle", ar: "الإعدادي" }, tagline: { en: "More to become.", ar: "المزيد لنحققه." }, lookIds: kgcLooks.map((look) => look.id) },
+      { id: "high", name: { en: "High", ar: "الثانوي" }, tagline: { en: "Ready for what's next.", ar: "مستعدون للخطوة القادمة." }, lookIds: kgcLooks.map((look) => look.id) },
     ],
     looks: kgcLooks,
   },
@@ -78,6 +85,8 @@ export const projects: Project[] = [
     organization: { en: "Harbor House", ar: "هاربور هاوس" },
     program: { en: "Guest experience program", ar: "برنامج تجربة الضيوف" },
     sector: { en: "Hospitality · synthetic", ar: "الضيافة · نموذج تخيلي" },
+    heroEyebrow: { en: "One service language. Every guest moment.", ar: "لغة خدمة واحدة. في كل لحظة." },
+    storyTitle: { en: "Intent in every detail.", ar: "قصد في كل تفصيل." },
     synthetic: true,
     summary: {
       en: "A clearly synthetic hospitality study with three roles, proving the system is not tied to schools.",
@@ -86,9 +95,9 @@ export const projects: Project[] = [
     skin: { accent: "#1a7f72", accentSoft: "#dfe9df", ink: "#17332f", motif: "piping" },
     cohortsLabel: { en: "Roles", ar: "الأدوار" },
     cohorts: [
-      { id: "front-of-house", name: { en: "Front of house", ar: "خدمة الضيوف" }, lookIds: ["service", "evening", "outerwear"] },
-      { id: "kitchen", name: { en: "Kitchen", ar: "المطبخ" }, lookIds: ["service", "utility"] },
-      { id: "facilities", name: { en: "Facilities", ar: "المرافق" }, lookIds: ["utility", "outerwear"] },
+      { id: "front-of-house", name: { en: "Front of house", ar: "خدمة الضيوف" }, tagline: { en: "A composed welcome.", ar: "ترحيب راقٍ." }, lookIds: ["service", "evening", "outerwear"] },
+      { id: "kitchen", name: { en: "Kitchen", ar: "المطبخ" }, tagline: { en: "Built for the pace.", ar: "مصمم لوتيرة العمل." }, lookIds: ["service", "utility"] },
+      { id: "facilities", name: { en: "Facilities", ar: "المرافق" }, tagline: { en: "Ready across every space.", ar: "جاهز لكل مساحة." }, lookIds: ["utility", "outerwear"] },
     ],
     looks: [
       { id: "service", name: { en: "Service", ar: "الخدمة" }, garment: { en: "Piped service shirt", ar: "قميص خدمة بحواف" }, note: { en: "Role-specific cut", ar: "قصة خاصة بالدور" }, sharedAcross: null, variant: "polo" },

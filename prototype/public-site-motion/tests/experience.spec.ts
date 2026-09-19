@@ -16,7 +16,7 @@ async function expectNoOverflow(page: Page) {
 test("English desktop journey explodes and reassembles a KGC garment", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/?lang=en");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Designed as one. Worn together.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Designed as one. Worn for years.");
   await expect(page.getByTestId("project-kgc-national")).toHaveAttribute("aria-selected", "true");
   await expect(page.getByTestId("hero-editorial").locator("img")).toBeVisible();
   await expect(page.getByTestId("cohort-editorial").locator("img")).toBeVisible();
@@ -25,10 +25,9 @@ test("English desktop journey explodes and reassembles a KGC garment", async ({ 
   await expect(organizationLogo).toBeVisible();
   await expect(organizationLocation).toBeVisible();
   await expect.poll(() => organizationLocation.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
-  const materialImage = page.getByTestId("material-editorial").locator("img");
-  await materialImage.scrollIntoViewIfNeeded();
-  await expect(materialImage).toBeVisible();
-  await expect.poll(() => materialImage.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+  const heroModel = page.getByTestId("hero-model").locator("img");
+  await expect(heroModel).toBeVisible();
+  await expect.poll(() => heroModel.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await page.getByTestId("cohort-high").click();
   await page.getByTestId("look-puffer").click();
   await expect(page.getByTestId("garment-transition")).toBeVisible();

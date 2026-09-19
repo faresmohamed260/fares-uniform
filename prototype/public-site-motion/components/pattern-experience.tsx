@@ -8,12 +8,16 @@ import { projects, type Locale, type Look, type Project } from "@/lib/projects";
 
 const copy = {
   en: {
-    work: "Selected work",
+    work: "Work",
+    programs: "Programs",
+    process: "Process",
+    about: "About",
     approach: "Approach",
-    contact: "Discuss your program",
-    hero: "Designed as one. Worn together.",
-    sub: "Coordinated uniform programs designed and manufactured in Egypt for organizations and teams.",
-    explore: "Explore our work",
+    contact: "Discuss your uniform",
+    start: "Start a project",
+    hero: "Designed as one. Worn for years.",
+    sub: "A coordinated uniform program for every stage. One identity, thoughtfully designed and manufactured in Egypt for organizations and teams.",
+    explore: "See the program",
     project: "Project",
     synthetic: "Synthetic study",
     review: "Private review fixture",
@@ -28,12 +32,16 @@ const copy = {
     note: "Synthetic review media for interaction testing; not approved production imagery.",
   },
   ar: {
-    work: "أعمال مختارة",
+    work: "أعمالنا",
+    programs: "البرامج",
+    process: "المنهج",
+    about: "عن فارس",
     approach: "منهجنا",
-    contact: "ناقش برنامجك معنا",
-    hero: "مصمّم كمنظومة واحدة. يُرتدى بروح واحدة.",
-    sub: "برامج زي موحّد متكاملة، مصمّمة ومُصنّعة في مصر للمؤسسات والفرق.",
-    explore: "استكشف أعمالنا",
+    contact: "ناقش زيّك معنا",
+    start: "ابدأ مشروعاً",
+    hero: "مصمّم كمنظومة واحدة. يُرتدى لسنوات.",
+    sub: "برنامج زي موحّد متكامل لكل مرحلة. هوية واحدة، مصمّمة بعناية ومُصنّعة في مصر للمؤسسات والفرق.",
+    explore: "شاهد البرنامج",
     project: "المشروع",
     synthetic: "دراسة تخيلية",
     review: "نموذج مراجعة خاص",
@@ -191,25 +199,45 @@ export function PatternExperience({
   return (
     <main className="experience" style={style} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} data-reduced-motion={reduced}>
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="Fares Uniform">Fares <span>Uniform</span></a>
+        <a className="brand" href="#top" aria-label="Fares Uniform"><strong>FARES</strong><span>UNIFORM</span></a>
         <nav aria-label="Primary">
           <a href="#work">{text.work}</a>
-          <a href="#approach">{text.approach}</a>
-          <a className="contact-link" href="#contact">{text.contact}<ArrowUpRight aria-hidden="true" /></a>
+          <a href="#work">{text.programs}</a>
+          <a href="#approach">{text.process}</a>
+          <a href="#contact">{text.about}</a>
           <button className="language-button" type="button" onClick={() => setLocale((value) => value === "en" ? "ar" : "en")} aria-label={locale === "en" ? "العربية" : "English"}>
             <Languages aria-hidden="true" />{locale === "en" ? "AR" : "EN"}
           </button>
+          <a className="contact-link" href="#contact">{text.start}<ArrowUpRight aria-hidden="true" /></a>
         </nav>
       </header>
 
       <section className="hero" id="top">
         <div className="hero-copy">
+          <span className="hero-eyebrow">{project.heroEyebrow[locale]}</span>
           <h1>{text.hero}</h1>
           <p>{text.sub}</p>
-          <a className="primary-action" href="#work">{text.explore}<ArrowDownRight aria-hidden="true" /></a>
+          <div className="hero-actions">
+            <a className="primary-action" href="#work">{text.explore} · {project.organization[locale]}<ArrowDownRight aria-hidden="true" /></a>
+            <a className="secondary-action" href="#contact">{text.contact}<ArrowUpRight aria-hidden="true" /></a>
+          </div>
+          <div className="hero-meta"><span>{locale === "ar" ? "الناس" : "People"}</span><span>{locale === "ar" ? "البرامج" : "Programs"}</span><span>{locale === "ar" ? "صُمّم للانتماء" : "Built to belong"}</span></div>
         </div>
-        <div className="hero-composition" aria-hidden="true" data-testid="hero-editorial">
-          <Image src="/media/fares-team-editorial.webp" alt="" fill priority sizes="(max-width: 760px) 100vw, 54vw" />
+        <div className={`hero-composition ${project.identity ? "has-project-identity" : ""}`} data-testid="hero-editorial">
+          {project.identity ? (
+            <>
+              <div className="hero-building" data-testid="organization-location">
+                <Image src={project.identity.locationSrc} alt={project.identity.locationAlt[locale]} fill priority sizes="(max-width: 760px) 100vw, 58vw" />
+              </div>
+              {project.heroModelSrc && (
+                <motion.div className="hero-model" data-testid="hero-model" key={project.id} initial={reduced ? false : { opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: reduced ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] }}>
+                  <Image src={project.heroModelSrc} alt="" fill priority sizes="(max-width: 760px) 86vw, 42vw" />
+                </motion.div>
+              )}
+            </>
+          ) : (
+            <Image src="/media/fares-team-editorial.webp" alt="" fill priority sizes="(max-width: 760px) 100vw, 58vw" />
+          )}
           <div className="seam-line" />
           <span>FU</span>
         </div>
@@ -262,7 +290,7 @@ export function PatternExperience({
             <div className="cohort-labels">
               {project.cohorts.map((item, index) => (
                 <button key={item.id} onClick={() => selectCohort(item.id)} aria-pressed={item.id === cohort.id}>
-                  <span>0{index + 1}</span><strong>{item.name[locale]}</strong>
+                  <span>0{index + 1}</span><strong>{item.name[locale]}</strong><small>{item.tagline[locale]}</small>
                 </button>
               ))}
             </div>
@@ -271,19 +299,13 @@ export function PatternExperience({
 
         <AnimatePresence mode="wait">
           <motion.article
-            className={`project-stage motif-${project.skin.motif} ${project.identity ? "has-location" : ""}`}
+            className={`project-stage motif-${project.skin.motif}`}
             key={project.id}
             initial={reduced ? false : { opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduced ? { opacity: 0 } : { opacity: 0, y: -18 }}
             transition={{ duration: reduced ? 0 : 0.48 }}
           >
-            {project.identity && (
-              <figure className="project-location" data-testid="organization-location">
-                <Image src={project.identity.locationSrc} alt={project.identity.locationAlt[locale]} fill priority sizes="(max-width: 760px) 100vw, 1440px" />
-                <figcaption>{project.identity.locationAlt[locale]}</figcaption>
-              </figure>
-            )}
             <div className="project-copy">
               <div className="project-overline">
                 {project.identity && (
@@ -298,7 +320,7 @@ export function PatternExperience({
                 )}
                 <span className="project-status">{project.synthetic ? text.synthetic : text.review}</span>
               </div>
-              <h3>{project.organization[locale]}</h3>
+              <h3>{project.storyTitle[locale]}</h3>
               <p className="program-name">{project.program[locale]}</p>
               <p>{project.summary[locale]}</p>
               <dl>
@@ -364,22 +386,6 @@ export function PatternExperience({
             <p className="prototype-note">{text.note}</p>
           </motion.article>
         </AnimatePresence>
-      </section>
-
-      <section className="material-section" aria-labelledby="material-title">
-        <div className="material-copy">
-          <span>{locale === "ar" ? "تفاصيل أقرب" : "A closer look"}</span>
-          <h2 id="material-title">{locale === "ar" ? "غرض في كل طبقة." : "Purpose in every layer."}</h2>
-          <p>{locale === "ar" ? "أقمشة متينة. بناء مدروس. تفاصيل واضحة يمكن مراجعتها قبل التصنيع." : "Durable textiles. Considered construction. Clear details that can be reviewed before manufacturing."}</p>
-          <ol>
-            <li><b>01</b>{locale === "ar" ? "قماش أساسي متين" : "Durable main textile"}</li>
-            <li><b>02</b>{locale === "ar" ? "ألواح هوية منسقة" : "Coordinated identity panels"}</li>
-            <li><b>03</b>{locale === "ar" ? "خياطة وتشطيب دقيق" : "Precise seams and finishing"}</li>
-          </ol>
-        </div>
-        <div className="material-media" data-testid="material-editorial">
-          <Image src="/media/uniform-exploded-editorial.webp" alt="" fill priority sizes="(max-width: 760px) 100vw, 58vw" />
-        </div>
       </section>
 
       <section className="approach-section" id="approach">
