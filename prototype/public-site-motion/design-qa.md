@@ -7,7 +7,7 @@ Final result: passed
 | Surface | Approved reference | Reference pixels | Hosted implementation | Implementation pixels | State |
 |---|---|---:|---|---:|---|
 | Desktop landing | \`exec-7e78b237-351a-430a-ac94-f9308628f2a8.png\` | 811 × 1939 | artifact \`10576627116/artifacts/screenshots/phase9-desktop-en.png\` | 1440 × 3651 | English, KGC, High + puffer settled after interaction |
-| Mobile landing | \`exec-760ae055-2c0c-4dae-ab62-b373a6c2e6a8.png\` | 853 × 1844 | artifact \`10576627116/artifacts/screenshots/phase9-mobile-en.png\` | 390 × 3117 | English, KGC High / Summer initial state |
+| Mobile landing | \`exec-760ae055-2c0c-4dae-ab62-b373a6c2e6a8.png\` | 853 × 1844 | artifact \`10576627116/artifacts/screenshots/phase9-mobile-en.png\` | 390 × 3145 | English, KGC High / Summer initial state |
 | Mobile RTL | \`exec-3847698c-10e1-4f0c-b9f6-302e7e26a688.png\` | 853 × 1844 | artifact \`10576627116/artifacts/screenshots/phase9-mobile-ar.png\` | 390 × 3112 | Arabic RTL, KGC High / Summer initial state |
 | Garment inspector | \`exec-e4072d4b-d668-433b-a15e-f79d6f7e9681.png\` | 1487 × 1058 | artifact \`10576627116/artifacts/screenshots/phase9-explodeview-en.png\` | 1440 × 1080 | English, KGC / High / Summer, exploded |
 
@@ -47,6 +47,10 @@ A dedicated generalized inspector now reproduces the approved three-part structu
 ### Checkpoint 11 correction
 
 The landing’s initial KGC story now matches the approved High/Summer focus. A logo-free synthetic assembled/exploded polo pair replaces the flat vector garment, retaining truthful disclosure and keeping the authorized KGC crest separate. Mobile stage and look controls are fully visible, touch-safe grids. The first grid/enlargement attempt preserved a RED browser run: a subpixel 44px miss and decorative-image pointer interception. Both root causes were fixed in CSS without weakening the tests.
+
+### Checkpoint 12 correction
+
+The landing now exposes a selected-state bridge to the dedicated inspector. Its URL is built from generic project data and carries organization, program, cohort/role, look/garment and locale state. The first hosted attempt preserved a RED Arabic interaction where decorative media intercepted the control; the final implementation explicitly separates visual and interactive hit planes.
 
 ## Final rubric
 

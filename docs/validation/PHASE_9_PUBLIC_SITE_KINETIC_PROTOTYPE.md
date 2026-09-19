@@ -348,3 +348,27 @@ Final GREEN:
 - artifact \`10581199723\`, digest \`sha256:ddd4d16d53c2ea64a9d686948217418fb04d90de89bfed90962ddcd1bd66b959\`.
 
 The hosted English and Arabic mobile renders now open on the High/Summer story, keep all four stages and five looks visible in touch-safe grids, and give the tactile assembled polo primary visual weight. The normalized English mobile comparison is \`phase9-qa-mobile-en-checkpoint11.jpg\`. No production or client garment binary was added.
+
+## Fidelity checkpoint 12 — selected-state journey into `/explodeview`
+
+Implementation:
+
+- `56a375e5e9119ddfca48706ed4d0d6a20a1c566e` added a localized “Open full study” control beside the reversible inline explode action;
+- the link carries the current generic organization, program, cohort/role, look/garment and locale identifiers into `/explodeview`;
+- the desktop journey asserts the exact KGC / National / High / Puffer / English URL after changing selection;
+- `fe22ce27e24a42e9fd3bda7fb8b3d8c9b1773cfe` established the inspection heading as the interaction plane and excluded decorative garment containers from pointer hit testing.
+
+Preserved RED:
+
+- run `35436976803`, job `105881198791`;
+- install, typecheck and build passed; Playwright passed 6/7;
+- Arabic RTL switching reached Harbor House / Facilities, but the decorative garment transition intercepted the explode-button click after scrolling;
+- failure artifact `10582511516`, digest `sha256:8526be8f418a10d792c83bc508d6585ee54235fbe4c25c6a0e42e06c90c7c746`.
+
+Final GREEN:
+
+- run `35437169562`, job `105881692438`;
+- locked install, typecheck, optimized build and **7/7 Playwright journeys PASS**;
+- artifact `10582307477`, digest `sha256:a63887642a22b5bfb44e10c5bce9b6c978408be9dd10a91c3db5a0c34bbf8e63`.
+
+The landing and dedicated inspector now form one continuous generalized interaction instead of separate demonstrations. KGC and Harbor House selections produce their own query-backed inspection state without embedding school-only assumptions. The hosted mobile evidence keeps both “Open full study” and “Explode garment” visible and operable.
