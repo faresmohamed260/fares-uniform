@@ -395,3 +395,17 @@ Documentation-only head `e9951dbecacaa7669661264973c075ffe8d5c66a` did not chang
 Artifact `10583416164` (digest `sha256:9d7ac43d2bf54eacacbe7fc7e81531d2f917589c899dfb11e84aaaec8f759cd6`) contains the fresh desktop assembled/exploded views, English mobile, Arabic RTL mobile, English and Arabic dedicated inspectors, keyboard-focus capture and the eight interaction videos. The evidence was re-inspected after download: the reviewed states remain consistent with the passed design QA record and preserve the synthetic-media disclosure and organization-scoped KGC identity.
 
 This revalidation confirms the final reviewed prototype evidence remained intact through the documentation normalization. Fares's direct kinetic approval remains open; PR #7 stays draft and no production deployment or provider mutation is authorized.
+
+
+## Fidelity checkpoint 14 — approved pre-implementation boards preserved
+
+Fares explicitly requested that the approved pre-implementation designs from the design conversation be committed to the repository as durable reference assets.
+
+The four original PNG boards are preserved byte-for-byte under `docs/ui/assets/approved-pattern-in-motion/`:
+
+- desktop landing — 811 × 1939, SHA-256 `63760bc5c69ac7dbf32e3fbe086e19706b494b6b7e75c80f99b61592308f5d3f`;
+- English mobile landing — 853 × 1844, SHA-256 `adc39408ae007fc301a427b8035a9a5041e812c0e74463135db155b4283ff9e8`;
+- Arabic RTL mobile landing — 853 × 1844, SHA-256 `83f756f7344de335f99de671af9015e86e4bd9a6e27c66b3c5880ecc8f9fde11`;
+- garment inspector — 1487 × 1058, SHA-256 `3056c8e4ef51f2d06802c0c72f8126daf696cc0501ae5b6948e74972dfcde046`.
+
+The assets are documentation/reference evidence, not runtime or production media. They do not replace the organization-agnostic D-048/D-052 contracts, authorize publication, or broaden the authorized KGC binary set. `design-qa.md` now links directly to the versioned boards so future compare-and-correct work does not depend on ephemeral conversation storage. No prototype source, production surface, provider or deployment changed.

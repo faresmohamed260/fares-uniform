@@ -19,6 +19,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [GPT-6 Astra web-design research](ui/GPT6_ASTRA_WEB_DESIGN_RESEARCH.md) | Verified Astra/Scrollcraft/Higgsfield examples, prompt/workflow findings and Fares adoption plan |
 | [KGC National media manifest](ui/KGC_MEDIA_MANIFEST.md) | Canonical Drive-backed KGC inventory: authoritative model anchors, matched packshots, extra/unmatched assets and stable file references |
 | [Pattern in Motion design specification](ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) | Selected multi-organization public-site direction, reusable content/layer contracts, responsive/RTL treatment and kinetic prototype acceptance |
+| [Approved Pattern in Motion boards](ui/assets/approved-pattern-in-motion/README.md) | Immutable pre-implementation desktop, mobile EN, mobile AR and garment-inspector visual references with checksums and usage boundaries |
 | [Phase 0](phases/PHASE_0_DISCOVERY.md) | Discovery closure |
 | [Phase 0A hosted proof](phases/PHASE_0A_ODOO_PROOF.md) | Odoo proof contract |
 | [Odoo proof evidence](validation/ODOO_PROOF.md) | Hosted proof evidence |

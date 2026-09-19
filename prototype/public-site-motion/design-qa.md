@@ -6,10 +6,12 @@ Final result: passed
 
 | Surface | Approved reference | Reference pixels | Hosted implementation | Implementation pixels | State |
 |---|---|---:|---|---:|---|
-| Desktop landing | `exec-7e78b237-351a-430a-ac94-f9308628f2a8.png` | 811 × 1939 | artifact `10582462311/artifacts/screenshots/phase9-desktop-en.png` | 1440 × 3651 | English, KGC, High + puffer settled after interaction |
-| Mobile landing | `exec-760ae055-2c0c-4dae-ab62-b373a6c2e6a8.png` | 853 × 1844 | artifact `10582462311/artifacts/screenshots/phase9-mobile-en.png` | 390 × 3145 | English, KGC High / Summer initial state |
-| Mobile RTL | `exec-3847698c-10e1-4f0c-b9f6-302e7e26a688.png` | 853 × 1844 | artifact `10582462311/artifacts/screenshots/phase9-mobile-ar.png` | 390 × 3112 | Arabic RTL, KGC High / Summer initial state |
-| Garment inspector | `exec-e4072d4b-d668-433b-a15e-f79d6f7e9681.png` | 1487 × 1058 | artifact `10582462311/artifacts/screenshots/phase9-explodeview-en.png` | 1440 × 1080 | English, KGC / High / Summer, exploded |
+| Desktop landing | [`approved-desktop-landing.png`](../../docs/ui/assets/approved-pattern-in-motion/approved-desktop-landing.png) | 811 × 1939 | artifact `10582462311/artifacts/screenshots/phase9-desktop-en.png` | 1440 × 3651 | English, KGC, High + puffer settled after interaction |
+| Mobile landing | [`approved-mobile-landing-en.png`](../../docs/ui/assets/approved-pattern-in-motion/approved-mobile-landing-en.png) | 853 × 1844 | artifact `10582462311/artifacts/screenshots/phase9-mobile-en.png` | 390 × 3145 | English, KGC High / Summer initial state |
+| Mobile RTL | [`approved-mobile-landing-ar.png`](../../docs/ui/assets/approved-pattern-in-motion/approved-mobile-landing-ar.png) | 853 × 1844 | artifact `10582462311/artifacts/screenshots/phase9-mobile-ar.png` | 390 × 3112 | Arabic RTL, KGC High / Summer initial state |
+| Garment inspector | [`approved-garment-inspector.png`](../../docs/ui/assets/approved-pattern-in-motion/approved-garment-inspector.png) | 1487 × 1058 | artifact `10582462311/artifacts/screenshots/phase9-explodeview-en.png` | 1440 × 1080 | English, KGC / High / Summer, exploded |
+
+The four approved boards are now preserved byte-for-byte under `docs/ui/assets/approved-pattern-in-motion/`. Their source identifiers, dimensions, byte counts and SHA-256 checksums are recorded in that directory's README. They are design-review authority only: they are not runtime assets, publication approval or a KGC-only shell contract.
 
 Hosted screenshots use Playwright viewports 1440 × 1000 for desktop and 390 × 844 for mobile at device scale factor 1. Full-page capture accounts for the taller landing implementation: it includes the complete generalized cohort/look controls, footer and interaction evidence, while the approved mobile references are shorter presentation boards.
 
