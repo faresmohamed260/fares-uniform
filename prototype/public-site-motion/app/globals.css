@@ -1468,3 +1468,35 @@ img { user-select: none; }
     right: -47vw;
   }
 }
+
+
+/* Checkpoint 21: desktop board-proportion alignment */
+@media (min-width: 1121px) {
+  .hero,
+  .hero-visual {
+    min-height: 1350px;
+  }
+  .hero h1 {
+    font-size: clamp(96px, 8.35vw, 138px);
+    max-width: 690px;
+  }
+  .hero-model {
+    inset: 34px -9% -62px -40%;
+  }
+  .hero-ribbons span {
+    height: 145px;
+  }
+  .hero-ribbons span:nth-child(1) { bottom: 340px; }
+  .hero-ribbons span:nth-child(2) { bottom: 195px; }
+  .hero-ribbons span:nth-child(3) { bottom: 50px; }
+  .hero-script {
+    top: auto;
+    bottom: 118px;
+    right: 5.5%;
+    width: 220px;
+    font-size: 28px;
+  }
+  .hero-side-note {
+    bottom: 345px;
+  }
+}
