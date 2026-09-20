@@ -18,6 +18,7 @@ type EnquiryFormProps = {
   initialOrganization?: string;
   initialSector?: string;
   initialMessage?: string;
+  formToken: string;
 };
 
 export function EnquiryForm({
@@ -26,6 +27,7 @@ export function EnquiryForm({
   initialOrganization = "",
   initialSector = "",
   initialMessage = "",
+  formToken,
 }: EnquiryFormProps) {
   const text = copy[language];
   const keyRef = useRef<string>("");
@@ -55,7 +57,14 @@ export function EnquiryForm({
       language,
     };
     try {
-      const response = await fetch("/api/enquiries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const response = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Fares-Enquiry-Token": formToken,
+        },
+        body: JSON.stringify(payload),
+      });
       const body = (await response.json()) as { reference?: string; error?: string };
       if (!response.ok || !body.reference) throw new Error(body.error || text.error);
       setState({ kind: "success", reference: body.reference });
@@ -69,7 +78,7 @@ export function EnquiryForm({
   return (
     <section className="enquiry-panel" id="enquiry" aria-labelledby="enquiry-title">
       <div className="enquiry-intro"><span className="eyebrow">{language === "ar" ? "ابدأ الحديث" : "Start a conversation"}</span><h2 id="enquiry-title">{text.heading}</h2><p>{text.note}</p></div>
-      <form className="enquiry-form" onSubmit={submit}>
+      <form className="enquiry-form" data-form-token={formToken} onSubmit={submit}>
         <label><span>{text.name}</span><input name="contact_name" required maxLength={120} autoComplete="name" /></label>
         <label><span>{text.org}</span><input name="organization_name" required maxLength={160} autoComplete="organization" defaultValue={initialOrganization} /></label>
         <label><span>{text.sector}</span><input name="sector" required maxLength={120} defaultValue={initialSector} /></label>

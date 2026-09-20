@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { EnquiryForm } from "@/components/enquiry-form";
+import { createEnquiryFormToken } from "@/lib/enquiry-form-token";
 import { PatternMaterialStudy } from "@/components/pattern-material-study";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { requirePublicLocale } from "@/lib/locale";
@@ -69,6 +70,7 @@ export default async function Home({ params, searchParams }: Props) {
   const locale = requirePublicLocale((await params).locale);
   const query = await searchParams;
   const text = copy[locale];
+  const formToken = createEnquiryFormToken();
   const [homeData, items, prefill] = await Promise.all([
     getV2Home(locale),
     getCatalog(locale),
@@ -98,6 +100,7 @@ export default async function Home({ params, searchParams }: Props) {
         initialOrganization={prefill?.organization}
         initialSector={prefill?.sector}
         initialMessage={prefill?.message}
+        formToken={formToken}
       />
     </main>
     <SiteFooter locale={locale} />
