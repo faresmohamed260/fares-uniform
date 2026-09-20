@@ -90,7 +90,7 @@ test("work discovery uses a canonical locale route and keeps public payload clea
   });
 
   await page.goto("/en");
-  await page.getByRole("link", { name: "Explore our work" }).click();
+  await page.locator(".hero").getByRole("link", { name: "Explore our work" }).click();
   await expect(page).toHaveURL(/\/en\/work$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Selected work");
   await assertNoOverflow(page);
