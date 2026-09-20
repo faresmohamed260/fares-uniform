@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
@@ -13,6 +13,17 @@ async function expectNoOverflow(page: Page) {
   expect(overflow).toBeLessThanOrEqual(1);
 }
 
+async function expectImageSourcePath(image: Locator, expectedPath: string) {
+  await expect(image).toHaveAttribute("src", /.+/);
+  await expect.poll(async () => {
+    const src = await image.getAttribute("src");
+    if (!src) return null;
+    if (!src.startsWith("/_next/image?")) return src;
+    const optimized = new URL(src, "http://phase9.test");
+    return optimized.searchParams.get("url");
+  }).toBe(expectedPath);
+}
+
 test("approved English desktop landing keeps the High Summer story", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/?lang=en");
@@ -25,7 +36,7 @@ test("approved English desktop landing keeps the High Summer story", async ({ pa
   await expect(location).toBeVisible();
   await expect.poll(() => heroModel.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await expect.poll(() => location.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
-  await expect(heroModel).toHaveAttribute("src", /\/review-media\/kgc\/high-summer\.png/);
+  await expectImageSourcePath(heroModel, "/review-media/kgc/high-summer.png");
   const expectedStageMedia = {
     kindergarten: "kindergarten-summer.png",
     primary: "primary-summer.png",
@@ -33,7 +44,7 @@ test("approved English desktop landing keeps the High Summer story", async ({ pa
     high: "high-summer.png",
   };
   for (const [stage, file] of Object.entries(expectedStageMedia)) {
-    await expect(page.getByTestId(`cohort-${stage}`).locator("img")).toHaveAttribute("src", new RegExp(`/review-media/kgc/${file.replace(".", "\\.")}`));
+    await expectImageSourcePath(page.getByTestId(`cohort-${stage}`).locator("img"), `/review-media/kgc/${file}`);
   }
 
   await expect(page.getByTestId("open-explodeview")).toHaveAttribute(
@@ -120,12 +131,12 @@ test("approved KGC inspector uses original front and back packshots", async ({ p
   await expect(page.getByTestId("explode-toggle")).toHaveCount(0);
   const garment = rig.locator("img").first();
   await expect(garment).toBeVisible();
-  await expect(garment).toHaveAttribute("src", /\/review-media\/kgc\/high-summer-polo-front\.png/);
+  await expectImageSourcePath(garment, "/review-media/kgc/high-summer-polo-front.png");
   await expect.poll(() => garment.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await page.getByTestId("view-back").click();
-  await expect(garment).toHaveAttribute("src", /\/review-media\/kgc\/high-summer-polo-back\.png/);
+  await expectImageSourcePath(garment, "/review-media/kgc/high-summer-polo-back.png");
   await page.getByTestId("view-front").click();
-  await expect(garment).toHaveAttribute("src", /\/review-media\/kgc\/high-summer-polo-front\.png/);
+  await expectImageSourcePath(garment, "/review-media/kgc/high-summer-polo-front.png");
   await expectNoOverflow(page);
   await page.waitForTimeout(500);
   await capture(page, "phase9-explodeview-en.png");
