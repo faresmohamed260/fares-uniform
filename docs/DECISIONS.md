@@ -435,3 +435,21 @@ This decision is a **content/fidelity authorization**, not a media-storage archi
 Where the approved design calls for an exploded/construction view but the original KGC media does not contain real separated construction layers, the implementation must use an annotated flat-view / original-packshot fallback under D-048 rather than fabricating layers. Cropping, responsive framing and close-up presentation of an original KGC asset are allowed layout operations; they do not authorize generation or invention of new KGC imagery.
 
 Synthetic media remains permitted for clearly synthetic non-client fixtures such as Harbor House. This decision does not authorize production `apps/public-web` edits, public deployment, launch, broader publication rights, provider mutation or production Gate D.
+
+
+## D-054 — Cloudflare R2 object storage
+
+Status: Accepted by client and provider bootstrap verified, 2026-09-20.
+
+Cloudflare R2 is the selected Fares Uniform object-storage provider. This resolves the previously open media/object-store provider choice without changing Vercel application hosting or Supabase PostgreSQL ownership.
+
+The initial bucket split is:
+- `fares-uniform-media-public` for approved publishable website media;
+- `fares-uniform-media-private` for private source/review media;
+- `fares-uniform-backups` for off-host backup objects.
+
+Hosted run `35525401012`, job `106116558010`, at source `86e00e9413745369bb7e922ca9e0d3d39722ade9` created and verified all three as Standard, private buckets with public r2.dev access disabled and no custom domains. Artifact `10609631325` has digest `sha256:dc775d36659811238c95cf6d58f8ac5bd2d54c7d9cdefdad400fab5c1468c2af`. Automatic placement resolved to WNAM; no data-residency requirement has been accepted.
+
+Google Drive remains the audited source/archive location for existing KGC originals during migration. GitHub remains source/evidence storage rather than a client-photo warehouse. Odoo database-backed attachments remain in Supabase PostgreSQL; D-054 does not move that operational state into R2.
+
+Production publication, backup retention/RPO/RTO, and any future residency requirement remain separately gated.
