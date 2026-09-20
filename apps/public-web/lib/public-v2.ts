@@ -214,10 +214,28 @@ export async function getV2Project(organizationSlug: string, programSlug: string
   if (providerIsFixture()) {
     if (organizationSlug !== "harbor-house" || programSlug !== "service-program") return null;
     const summary = fixtureWork(locale);
+    const ar = locale === "ar";
     return parseProject({
       organization: summary.organization,
       program: { ...summary.program, brief: summary.program.summary, visual_skin: { accent: "#163A5F", accent_secondary: "#A84646", motif: "synthetic-line" } },
-      cohorts: [], looks: [], garments: [], media: [],
+      cohorts: [
+        { slug: "front-desk", label: ar ? "الاستقبال" : "Front desk", tagline: ar ? "الترحيب بالضيوف وتنظيم الوصول" : "Guest arrival and reception", order: 0 },
+        { slug: "kitchen", label: ar ? "المطبخ" : "Kitchen", tagline: ar ? "حركة يومية سريعة وعمل جماعي" : "Fast daily movement and teamwork", order: 1 },
+        { slug: "facilities", label: ar ? "المرافق" : "Facilities", tagline: ar ? "عمل ميداني يحتاج إلى طبقات عملية" : "Field work that needs practical layers", order: 2 },
+      ],
+      looks: [
+        { slug: "service", label: ar ? "طقم الخدمة" : "Service set", cohorts: ["front-desk", "kitchen"], garments: ["service-shirt", "tailored-trouser"], order: 0 },
+        { slug: "utility", label: ar ? "طقم العمل" : "Utility set", cohorts: ["facilities"], garments: ["utility-overshirt", "work-trouser"], order: 1 },
+        { slug: "outerwear", label: ar ? "الطبقة الخارجية" : "Outerwear", cohorts: ["facilities"], garments: ["field-jacket", "work-trouser"], order: 2 },
+      ],
+      garments: [
+        { slug: "service-shirt", name: ar ? "قميص خدمة" : "Service shirt", category: ar ? "قميص" : "Shirt", inspection_mode: "flat", media: [] },
+        { slug: "tailored-trouser", name: ar ? "بنطال رسمي" : "Tailored trouser", category: ar ? "بنطال" : "Trouser", inspection_mode: "flat", media: [] },
+        { slug: "utility-overshirt", name: ar ? "قميص عمل خارجي" : "Utility overshirt", category: ar ? "طبقة عمل" : "Work layer", inspection_mode: "flat", media: [] },
+        { slug: "work-trouser", name: ar ? "بنطال عمل" : "Work trouser", category: ar ? "بنطال" : "Trouser", inspection_mode: "flat", media: [] },
+        { slug: "field-jacket", name: ar ? "سترة ميدانية" : "Field jacket", category: ar ? "سترة" : "Jacket", inspection_mode: "flat", media: [] },
+      ],
+      media: [],
     });
   }
   const payload = await fetchV2(`/fu/public/v2/work/${encodeURIComponent(organizationSlug)}/${encodeURIComponent(programSlug)}`, locale);
