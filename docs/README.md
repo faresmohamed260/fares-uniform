@@ -75,7 +75,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 
 ## Current work
 
-[PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. Active contracts: [Phase 8](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) and [Phase 8A](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md).
+[PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. The active implementation contract is [Phase 9](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md). Phase 8/8A remain the authoritative completed/live-staging contracts and production remains Gate D NO-GO.
 
 - [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md): client-authorized design/research boundary for the complete public-site redesign; preserves product/security/Gate D contracts and requires concept, kinetic and fidelity gates before implementation.
 - [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md): current uniform/fashion marketing research, interactive reference library, design-tool findings and three first-round concept directions.
