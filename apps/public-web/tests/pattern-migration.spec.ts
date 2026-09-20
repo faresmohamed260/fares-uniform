@@ -124,3 +124,51 @@ test("unknown or unpublished project identity fails closed", async ({ request })
   expect((await request.get("/en/work/unknown/program")).status()).toBe(404);
   expect((await request.get("/ar/work/harbor-house/unknown")).status()).toBe(404);
 });
+
+
+test("generic role lineup preserves shared-look continuity without school-stage assumptions", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/en/work/harbor-house/service-program");
+
+  const rail = page.getByTestId("cohort-rail");
+  await expect(rail.getByRole("button")).toHaveCount(3);
+  await expect(page.getByTestId("cohort-front-desk")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("look-service")).toHaveAttribute("aria-pressed", "true");
+
+  const body = await page.locator("body").innerText();
+  expect(body).not.toContain("Kindergarten");
+  expect(body).not.toContain("Primary");
+  expect(body).not.toContain("Middle");
+  expect(body).not.toContain("High");
+
+  await page.getByTestId("cohort-kitchen").click();
+  await expect(page.getByTestId("cohort-kitchen")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("look-service")).toHaveAttribute("aria-pressed", "true");
+  await expect(page).toHaveURL(/role=kitchen/);
+  await expect(page).toHaveURL(/look=service/);
+
+  await page.getByTestId("cohort-facilities").click();
+  await expect(page.getByTestId("cohort-facilities")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("look-utility")).toHaveAttribute("aria-pressed", "true");
+  await expect(page).toHaveURL(/role=facilities/);
+  await expect(page).toHaveURL(/look=utility/);
+  await expect(page.getByTestId("active-garments")).toContainText("Utility overshirt");
+
+  await expectNoOverflow(page);
+  await capture(page, "pattern-continuity-en-desktop.png");
+});
+
+test("addressed Arabic role/look state survives direct entry and stays RTL", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/ar/work/harbor-house/service-program?role=facilities&look=outerwear");
+
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByTestId("cohort-facilities")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("look-outerwear")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("active-garments")).toContainText("سترة ميدانية");
+  await expect(page).toHaveURL(/role=facilities/);
+  await expect(page).toHaveURL(/look=outerwear/);
+
+  await expectNoOverflow(page);
+  await capture(page, "pattern-continuity-ar-mobile.png");
+});
