@@ -2,9 +2,44 @@
 
 ## Start here
 
-Work remotely in `faresmohamed260/fares-uniform` on default branch `main`. The completed `phase-8/commercial-staging-readiness` branch and all earlier phase branches remain preserved. Read this file, `AGENTS.md`, `docs/README.md`, `docs/DECISIONS.md`, and the Phase 8/8A contracts. Resolve the target branch HEAD through GitHub before each write. Never infer current state from an old chat.
+Work remotely in `faresmohamed260/fares-uniform` on active branch `phase-9/public-site-kinetic-prototype`; `main` remains the unchanged production/integration baseline for this prototype. The completed `phase-8/commercial-staging-readiness` branch and all earlier phase branches remain preserved. Read this file, `AGENTS.md`, `docs/README.md`, `docs/DECISIONS.md`, the Phase 8/8A contracts and the active Phase 9 contract. Resolve the target branch HEAD through GitHub before each write. Never infer current state from an old chat.
 
 This file owns current status and the next task. Phase contracts own scope and exit criteria; validation documents own historical evidence. Do not copy a second current-status log into the documentation index.
+
+## Active Phase 9 visual authority
+
+The current rendered implementation authority is `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256` on `phase-9/public-site-kinetic-prototype`. Push run `35529953588`, job `106128675433`, passed locked install, TypeScript typecheck, optimized production build, private R2 review-media staging and **8/8 Playwright journeys**. Review artifact `10610259627` has digest `sha256:852ddd4842b562d18bc233bcc0e1db9df8a1497053e98aa5c5974738966971ac`.
+
+D-054 selects Cloudflare R2 as the object-storage layer. Bootstrap run `35525401012`, job `106116558010`, created and verified three private Standard buckets: `fares-uniform-media-public`, `fares-uniform-media-private` and `fares-uniform-backups`; public `r2.dev` access remained disabled and no custom domain was attached. One-shot transfer run `35528055553`, job `106123589186`, copied only the six D-053-authorized KGC originals into `fares-uniform-media-private/kgc/review/` with exact byte-count/SHA-256 checks. Temporary ingest infrastructure was removed by GREEN cleanup run `35528399852`, job `106124509690`.
+
+The active KGC review uses only manifest-backed original worn/model anchors and original High/Summer front/back packshots. Synthetic KGC people, garments and fabricated construction layers are absent. Where the approved boards depict construction that the source media does not actually contain, D-048/D-053 require the truthful annotated flat/front-back fallback instead of invented layers. Harbor House remains the clearly synthetic non-school generalization fixture.
+
+The preserved Pattern in Motion boards remain the visual design authority. Fresh desktop, English mobile, Arabic RTL and inspector captures from artifact `10610259627` were compared directly against those boards after the final geometry pass. Composition, typography, color, responsive behavior, RTL, keyboard focus, touch targets, reduced-motion information parity and the D-053 original-media boundary are GREEN for this isolated prototype. The intentional flat-packshot construction fallback is a source-truth constraint, not an unresolved synthetic-media substitution.
+
+PR #7 remains draft pending Fares's explicit visual approval. Production `apps/public-web`, public KGC publication, launch and Gate D remain NO-GO. The broad repository secret `CLOUDFLARE_API_TOKEN` is currently confined to hosted provider/review staging; any production object data plane must replace it with a narrowly scoped R2 credential before production GO.
+
+Continuation order: verify current branch HEAD and latest Phase 9 run, then use this checkpoint as the current prototype handoff. Do not revive the superseded Google service-account path. Further changes should be driven by Fares's design feedback or a separately authorized production/public-media phase.
+
+## Public-site production architecture audit
+
+A professional architecture audit is complete at branch baseline `257a26dcf2c9b42e718238023b0264c6f30fda2a`: [Public site production architecture review](docs/architecture/PUBLIC_SITE_PRODUCTION_ARCHITECTURE_REVIEW.md).
+
+The audit preserves the approved Pattern in Motion goal but concludes that the Phase 9 prototype must **not** be promoted wholesale into `apps/public-web`. The current production app and the visual prototype are separate Next.js architectures, the production five-field catalog contract cannot express the approved multi-organization project model, and the prototype contains review-only KGC branching, append-only CSS overrides, query-state/i18n shortcuts and no real enquiry integration.
+
+The recommended productionization direction is:
+- keep `apps/public-web` as the single production frontend;
+- add a versioned Odoo public editorial/showcase contract rather than hard-coding projects in frontend source;
+- keep Odoo as business/editorial publication authority and R2 as media-byte authority;
+- promote only rights-approved derivatives from private to public R2;
+- use canonical `/en` and `/ar` server-rendered routes;
+- render static story content as Server Components and hydrate only interaction islands;
+- remove organization-ID branching and drive inspection/motion from content capabilities;
+- rebuild the final settled visual CSS into semantic tokens/component-scoped styles while preserving `4120c33…` as the visual authority;
+- integrate contextual enquiry, abuse/error hardening, SEO, cache/resilience, accessibility and performance gates before cutover.
+
+A proposed execution-ready contract is recorded at [Phase 10 public-site productionization](docs/phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md). Its status is **PROPOSED / NOT YET AUTHORIZED**. No production runtime code was changed by this audit.
+
+Next decision: Fares reviews/accepts or revises the architecture plan. After explicit acceptance and Phase 9 visual sign-off, close/merge Phase 9 only if separately authorized, then execute Phase 10 on a dedicated branch. Production launch/Gate D remain NO-GO.
 
 ## Delivery state
 
@@ -100,21 +135,22 @@ The connected KGC Google Drive folder was audited on 2026-09-18 and its complete
 
 The manifest preserves Drive file IDs, filenames and direct links without copying image binaries into GitHub. Future concept/content work must treat worn/model images as the current-look authority, use only matched packshots with those anchors, and leave extra packshots unassigned. This audit does not establish publication, school-logo, location-image or other rights approval and does not authorize implementation, deployment or production changes.
 
-## Public-site design direction checkpoint
+## Phase 9 public-site kinetic prototype
 
-Fares selected **Pattern in Motion** on 2026-09-18 and then confirmed the governing correction: the public experience must be reusable across all Fares clients and organizations. The [selected design specification](docs/ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) now defines a stable Fares shell plus data-driven project skins, generic cohorts/roles, shared-versus-unique garment continuity and a generic inspect/explode/reassemble contract.
+Fares authorized the isolated Pattern in Motion implementation on `phase-9/public-site-kinetic-prototype`. The current exact rendered authority is `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`, run `35529953588`, job `106128675433`, artifact `10610259627` (`sha256:852ddd4842b562d18bc233bcc0e1db9df8a1497053e98aa5c5974738966971ac`), with 8/8 hosted journeys GREEN.
 
-KGC National is the first complete validation fixture, not the homepage identity or a fixed four-stage site model. KGC colors and diagonal construction language are scoped to the KGC project story. Future organizations may use different cohort structures, garment motifs and palettes through the same content contract. The kinetic gate must include an organization-agnostic Fares entry state, the KGC fixture and a clearly synthetic non-school fixture to expose overfitting.
+D-053 KGC content truth is now backed by D-054 Cloudflare R2 storage. The six approved originals are private R2 objects, staged ephemerally into the runner and hash-verified before render. The final desktop/mobile/RTL/inspector evidence was compared against the four preserved boards. KGC uses original media only; construction views that lack real separated source layers use the D-048 flat/front-back fallback. Harbor House remains synthetic and proves the organization-agnostic shell.
 
-This remains a design selection, not production implementation approval. No client media binary was added to this public repository, no public-web source changed, no deployment occurred and publication/model/logo permission remains open. The next authorized design task is a reviewable reusable kinetic prototype using synthetic/private review media; production code and deployment remain separately gated.
+The implementation checkpoint is ready for Fares's explicit visual sign-off. PR #7 stays draft; production `apps/public-web`, public client-media publication, deployment and Gate D remain excluded.
 
 ## Next tasks, in order
 
-1. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, latest scheduled authority run `35146487731` / job `104963791652`, and all phase branches.
-2. The client declined the proposed GD-10 repository/environment control changes on 2026-09-16. Do not enable branch protection, Dependabot security updates or a GitHub `production` environment unless later explicitly authorized.
-3. Vercel + Cloudflare + Supabase and `faresuniform.uk` are selected. Apex/`www` DNS, Vercel verification, TLS and the canonical redirect are GREEN. Remaining GD-01/GD-02 work is production Vercel plan/spending, final Cloudflare proxy policy, DNS/certificate and private-access owner roles. GD-03 through GD-09 still require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
-4. Do not create production resources, purchase services, activate production secrets, migrate real data, make further domain/DNS changes, assign staff, invent hardware results or cut over without the corresponding explicit Gate D decisions and final production GO.
-5. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release scope.
+1. Keep PR #7 draft. Start the next checkpoint by selecting only the exact original KGC assets needed for the approved High/Summer hero, four-stage progression and inspector from `docs/ui/KGC_MEDIA_MANIFEST.md`; choose and document the smallest review-only delivery mechanism needed by the isolated hosted prototype without turning GitHub or Google Drive into the production asset platform; replace synthetic KGC imagery; use the D-048 annotated flat/front-back fallback where truthful exploded layers do not exist; keep Harbor House synthetic; rerun hosted validation and continue side-by-side board comparison. Update `PROJECT.md`, the Phase 9 contract/validation and `prototype/public-site-motion/design-qa.md` at each verified checkpoint. Do not merge, deploy or begin production `apps/public-web` work without separate authorization.
+2. All currently authorized repository, hosted-CI, release-integration and isolated-staging technical work is complete. Preserve `main`, merge commit `29a6835f1e542119f50aa800ddec7fe57f1cf704`, latest scheduled authority run `35146487731` / job `104963791652`, and all phase branches.
+3. The client declined the proposed GD-10 repository/environment control changes on 2026-09-16. Do not enable branch protection, Dependabot security updates or a GitHub `production` environment unless later explicitly authorized.
+4. Vercel + Cloudflare + Supabase and `faresuniform.uk` are selected. Apex/`www` DNS, Vercel verification, TLS and the canonical redirect are GREEN. Remaining GD-01/GD-02 work is production Vercel plan/spending, final Cloudflare proxy policy, DNS/certificate and private-access owner roles. GD-03 through GD-09 still require client/operator choices or physical/private evidence; GD-10 is deferred. Production remains NO-GO.
+5. Do not create production resources, purchase services, activate production secrets, migrate real data, make further domain/DNS changes, assign staff, invent hardware results or cut over without the corresponding explicit Gate D decisions and final production GO.
+6. Procurement planning/Purchase/MRP and `stock_valuation_layer` remain outside the accepted first-release scope.
 ## Constraints for every continuation
 
 Remote GitHub source edits and hosted execution only. No local/scratch source, builds or artifacts. No force push, broad Odoo exposure, real business data, `fu_uat` in staging/production, transaction pooling, routine provider-admin Odoo, paid upgrades or production cutover.
