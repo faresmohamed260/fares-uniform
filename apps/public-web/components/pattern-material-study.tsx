@@ -1,10 +1,11 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useReducedMotionPreference } from "./use-reduced-motion";
 import styles from "./pattern-material-study.module.css";
 
 export function PatternMaterialStudy() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionPreference();
   const duration = reduceMotion ? 0 : 0.8;
 
   return (

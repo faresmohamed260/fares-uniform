@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { useMemo, useState } from "react";
 import type { PublicLocale } from "@/lib/locale";
 import type { V2Look, V2ProjectResponse } from "@/lib/public-v2";
 import styles from "./project-continuity.module.css";
+import { useReducedMotionPreference } from "./use-reduced-motion";
 
 type Props = {
   project: V2ProjectResponse;
@@ -31,7 +32,7 @@ function initialState(project: V2ProjectResponse, role?: string, look?: string) 
 }
 
 export function ProjectContinuity({ project, locale, initialRole, initialLook }: Props) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionPreference();
   const seeded = useMemo(() => initialState(project, initialRole, initialLook), [project, initialRole, initialLook]);
   const [role, setRole] = useState(seeded.role);
   const [look, setLook] = useState(seeded.look);
@@ -76,7 +77,12 @@ export function ProjectContinuity({ project, locale, initialRole, initialLook }:
   const enquiryHref = `/${locale}?${enquiryParams.toString()}#enquiry`;
 
   return (
-    <section className={styles.section} aria-labelledby="continuity-title">
+    <section
+      className={styles.section}
+      aria-labelledby="continuity-title"
+      data-testid="project-continuity"
+      data-reduced-motion={reduceMotion ? "true" : "false"}
+    >
       <div className={styles.intro}>
         <span className="eyebrow">{ar ? "الأدوار والإطلالات" : "Roles and looks"}</span>
         <h2 id="continuity-title">

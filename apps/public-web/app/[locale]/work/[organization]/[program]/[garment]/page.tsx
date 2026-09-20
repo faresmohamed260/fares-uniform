@@ -134,7 +134,7 @@ export default async function GarmentInspection({ params, searchParams }: Props)
                 unoptimized
               />
             ) : (
-              <div className={styles.flatFallback} aria-label={ar ? "عرض توضيحي للقطعة" : "Garment presentation"}>
+              <div className={styles.flatFallback} role="img" aria-label={ar ? "عرض توضيحي للقطعة" : "Garment presentation"}>
                 <span className={styles.shoulder} />
                 <span className={styles.body} />
                 <span className={styles.centerSeam} />
