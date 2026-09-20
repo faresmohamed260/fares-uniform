@@ -4,7 +4,9 @@
 
 The client is Fares; the assistant acts as the professional software developer and gathers requirements from the client.
 
-This repository is the sole persistent project source of truth. At the start of every session read this file, PROJECT.md, docs/README.md, docs/DECISIONS.md, the active phase contract, and the relevant requirements and source files. Verify the current branch and commit before making changes.
+This repository is the sole persistent project source of truth. At the start of every session read this file, PROJECT.md, `docs/PROJECT_TRACKS.md`, docs/README.md, docs/DECISIONS.md, the active phase contract, and the relevant requirements and source files. Verify the current branch and commit before making changes.
+
+`docs/PROJECT_TRACKS.md` is the authoritative scope split/checklist index for the two independent delivery tracks: **Track A — public website** and **Track B — ERP/Odoo**. Do not combine their remaining-work checklists. `PROJECT.md` still owns the current active next action.
 
 Do not use session memory, prior-chat recollections, local files, or other projects to supply missing project facts. A new explicit client instruction can change a repository decision; record that change in the appropriate authoritative document. Record unknowns as unknowns and proposals as proposals.
 
@@ -29,6 +31,15 @@ For an allowed secret-management action, use this exact flow:
 7. Reset `C:\ChatGPT-Control\current-task.ps1` to exactly `Write-Output 'CHATGPT_CONTROL_READY'`.
 
 Keep project source, documentation edits, builds, tests and normal development on GitHub/hosted CI.
+
+## Delivery-track discipline
+
+Fares Uniform has two independent delivery tracks that share one repository but have different completion boundaries:
+
+- **Public website:** `apps/public-web`, client/project showcases including KGC, product/garment catalog, public enquiry, EN/AR, Pattern in Motion and R2-published media.
+- **ERP/Odoo:** internal POS, stock, preorders, production, B2B, access, reporting, state/recovery and production operations.
+
+Use `docs/PROJECT_TRACKS.md` for the durable checklist split. Public-site Phase 10 work does not by itself advance ERP Gate D. ERP production authorization does not by itself authorize public KGC/client publication or public-site cutover. For an unqualified “continue”, follow the active next action in `PROJECT.md`; when the user explicitly names a track, continue that track from its newest remote evidence.
 
 ## Planning and scope
 

@@ -4,7 +4,14 @@
 
 Work remotely in `faresmohamed260/fares-uniform` on active branch `phase-10/public-site-productionization`. Phase 10 is stacked on the unmerged `phase-9/public-site-kinetic-prototype` branch so the accepted visual/audit history remains in ancestry without merging PR #7; `main` remains the production/integration baseline. Read this file, `AGENTS.md`, `docs/README.md`, `docs/DECISIONS.md`, the Phase 10 contract/validation record and the Phase 9 visual authority before changing public-site work. Resolve the target branch HEAD and newest hosted evidence through GitHub before each write. Never infer current state from an old chat.
 
-This file owns current status and the next task. Phase contracts own scope and exit criteria; validation documents own historical evidence. Do not copy a second current-status log into the documentation index.
+This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns the durable separation and checklist index for the public-site and ERP/Odoo tracks. Phase contracts own scope and exit criteria; validation documents own historical evidence. Do not copy a second current-status log into the documentation index.
+
+## Delivery-track split
+
+- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.2 are GREEN; Workstream 10.3 is next. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
+- **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
+
+Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
 
 ## Active Phase 9 visual authority
 

@@ -485,3 +485,16 @@ The hosted publication proof creates one-hour account tokens scoped to exactly o
 Exact authority is commit `758cf5889e25e62e46db4e2c3c9cacd46105c6ab`. R2 run `35538533822`, job `106151844125`, proved 403 denial in both cross-bucket directions, exact SHA-256/content/cache metadata for the synthetic derivative, absence of the broad token from the data-plane step and successful cleanup. Companion Odoo run `35538533842`, job `106151844070`, passed 13 post-test methods / 23 addon tests with zero failures/errors and a repeatable public-addon upgrade.
 
 Odoo may retain private/public object keys and content hashes as internal publication metadata, but V2 public DTOs do not serialize them. Published media must use an approved browser-facing HTTPS origin and cannot use the R2 S3 API hostname. This work does not enable a public R2 hostname/custom domain, authorize KGC or other real-client publication, approve production launch, or resolve Gate D.
+
+
+## D-057 — Public website and ERP/Odoo are separate delivery tracks
+
+Status: Accepted by client, 2026-09-21.
+
+Fares clarified that the project must be tracked as two independent delivery streams rather than one combined remaining-work checklist.
+
+**Track A — Public website** covers the customer-facing Next.js experience: Fares marketing/brand presentation, client/project showcases such as KGC, garment/product catalog, public enquiry, English/Arabic RTL, Pattern in Motion and rights-approved R2 media publication. Phase 10 is the current active implementation contract for this track.
+
+**Track B — ERP/Odoo** covers the internal operational system: POS/offline operation, inventory, preorders/deposits/balances, returns/exchanges, production, B2B orders, permissions, reporting, sessions/attachments, cron/WebSocket continuity, recovery and production operations. Core MVP engineering and Phase 8 Gate C staging acceptance are already substantially complete; its remaining work is primarily Gate D, production ownership/operations, real-business configuration/onboarding and controlled production launch readiness.
+
+The authoritative durable checklist split is `docs/PROJECT_TRACKS.md`. `PROJECT.md` remains the sole owner of current branch/state/next action. Progress or authorization in one track does not imply progress or authorization in the other: ERP Gate D does not authorize public KGC/client publication or public-site cutover, and public-site Phase 10 work does not close ERP Gate D.

@@ -26,6 +26,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Odoo proof evidence](validation/ODOO_PROOF.md) | Hosted proof evidence |
 | [Phase 0B foundation](phases/PHASE_0B_FOUNDATION.md) | Foundation contract |
 | [Phase 0B UI evidence](validation/UI_FOUNDATION.md) | Hosted frontend evidence |
+| [Project delivery tracks](PROJECT_TRACKS.md) | Authoritative split and remaining-work checklists for the public website and ERP/Odoo tracks |
 | [Phase 1 contract](phases/PHASE_1_PRODUCTS_STOCK_ACCESS.md) | Products/stock/access |
 | [Phase 1 validation](validation/PHASE_1_PRODUCTS_STOCK.md) | Phase 1 evidence |
 | [Phase 2A contract](phases/PHASE_2A_RETAIL_CHECKOUT_OFFLINE.md) | Retail checkout/offline |
@@ -79,7 +80,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 
 ## Current work
 
-[PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. The active implementation contract is [Phase 10](phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md); [Phase 9](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) remains the visual/reference authority until production parity is proven. Phase 8/8A remain the authoritative completed/live-staging contracts and production remains Gate D NO-GO.
+[PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. [Project delivery tracks](PROJECT_TRACKS.md) is the authoritative durable split/checklist index for the separate public-site and ERP/Odoo tracks. The active implementation contract is [Phase 10](phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md); [Phase 9](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) remains the visual/reference authority until production parity is proven. Phase 8/8A remain the authoritative completed/live-staging contracts and production remains Gate D NO-GO.
 
 - [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md): client-authorized design/research boundary for the complete public-site redesign; preserves product/security/Gate D contracts and requires concept, kinetic and fidelity gates before implementation.
 - [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md): current uniform/fashion marketing research, interactive reference library, design-tool findings and three first-round concept directions.
