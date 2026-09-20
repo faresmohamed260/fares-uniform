@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from odoo import Command
+from odoo.exceptions import ValidationError
 from odoo.tests import HttpCase, tagged
 from odoo.tests.common import TransactionCase
 
