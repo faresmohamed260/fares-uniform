@@ -1,6 +1,6 @@
 # Phase 9 validation — public-site kinetic prototype
 
-Status: **TECHNICAL GREEN / PRESERVED-BOARD VISUAL PARITY ITERATION ACTIVE, 2026-09-19.**
+Status: **D-054 R2-BACKED D-053 RENDER GREEN / 8 OF 8 HOSTED JOURNEYS PASS / FINAL PROTOTYPE EVIDENCE READY FOR FARES SIGN-OFF, 2026-09-20.**
 
 Branch: `phase-9/public-site-kinetic-prototype`  
 Pull request: [#7](https://github.com/faresmohamed260/fares-uniform/pull/7)  
@@ -499,3 +499,26 @@ Commit `788d73c1f2341113c68ab3c8ef036c9e5589c3eb` moved the private-media gate a
 - approved reference-board staging/evidence upload: PASS.
 
 The current external blocker is therefore explicit and narrow: a disposable review identity must be able to read only the six Drive originals listed in the Phase 9 contract, and its service-account JSON must be stored as GitHub Actions secret `PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS`. Until that exists, there is no valid D-053 rendered authority and no side-by-side board parity claim. The last rendered authority remains `5826645eb17fb87cfe2399f34e439bf3bf52b74c` / run `35461716041`, which is historical pre-D-053 evidence only. PR #7 stays draft and production remains excluded.
+
+
+## Checkpoint 31 — R2-backed D-053 rendered authority and final parity pass
+
+D-054 replaced the blocked Google service-account delivery experiment with the selected Cloudflare R2 object-storage boundary. Hosted bootstrap run `35525401012`, job `106116558010`, created and verified `fares-uniform-media-public`, `fares-uniform-media-private` and `fares-uniform-backups` as private Standard buckets with public `r2.dev` access disabled and no custom domains. Bootstrap artifact `10609631325` has digest `sha256:dc775d36659811238c95cf6d58f8ac5bd2d54c7d9cdefdad400fab5c1468c2af`.
+
+One-shot migration run `35528055553`, job `106123589186`, transferred only the six D-053-authorized KGC originals to `fares-uniform-media-private/kgc/review/`. Each object was accepted only after exact expected byte-count and SHA-256 validation. Artifact `10609754706` has digest `sha256:cbad83ba1b45c6800f847da7f76176efa1eccab4cbbdd6d5b772a680179d4a2c`. Temporary hash-locked ingest infrastructure was torn down by GREEN run `35528399852`, job `106124509690`, and the temporary transfer/bridge workflows were removed from source.
+
+The active Phase 9 workflow now stages those six private R2 objects ephemerally, then `scripts/stage-kgc-review-media.mjs` verifies exact sizes and hashes before browser rendering. The initial R2-backed rendered run `35528122427` preserved RED evidence for two stale Playwright assertions that expected unoptimized image URLs even though Next.js correctly served the approved paths through `/_next/image?url=...`. Commit `8d68cc1edf788c22b6cd1a3273e1fea9b67f58c1` fixed the assertions by decoding the optimizer URL and requiring the exact underlying D-053 path; it did not relax the media identity check.
+
+Final rendered authority:
+- source: `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`;
+- push run: `35529953588`;
+- job: `106128675433`;
+- locked install, TypeScript typecheck and optimized production build: PASS;
+- private R2 KGC staging/provenance: PASS;
+- Playwright journeys: **8/8 PASS**;
+- artifact: `10610259627`;
+- artifact digest: `sha256:852ddd4842b562d18bc233bcc0e1db9df8a1497053e98aa5c5974738966971ac`.
+
+Fresh desktop, English mobile, Arabic RTL and inspector captures were compared directly with the four preserved Pattern in Motion boards. The final geometry pass restores the board-scale hero/model overlap, stage progression, serif hierarchy, KGC color rhythm, responsive fold and three-column inspector structure. The KGC landing/detail/inspector use original manifest-backed media only. Because the original KGC source set contains no truthful separated construction layers, the landing garment study and inspector intentionally use the D-048/D-053 flat/front-back fallback rather than reproduce the boards' invented exploded construction. That difference is a source-truth requirement, not an open synthetic-media defect.
+
+No technical P0/P1/P2 remains in the reviewed prototype states. Production `apps/public-web`, public client-media publication, a production R2 data-plane credential, deployment and Gate D remain outside this evidence. PR #7 stays draft pending Fares's explicit visual approval.

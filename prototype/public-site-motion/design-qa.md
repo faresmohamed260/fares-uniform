@@ -1,6 +1,6 @@
 # Phase 9 design QA — Pattern in Motion
 
-Current result: functional/accessibility GREEN; preserved-board visual parity iteration ACTIVE
+Current result: D-054 R2-backed D-053 render GREEN; implementation parity checkpoint complete; awaiting Fares visual sign-off
 
 ## Compared sources
 
@@ -64,7 +64,7 @@ The landing now exposes a selected-state bridge to the dedicated inspector. Its 
 - typography: passed — approved high-contrast serif scale, compact uppercase metadata and restrained sans-serif controls;
 - color: passed — neutral Fares paper/ink system with KGC color confined to the KGC project skin;
 - spacing and geometry: passed — desktop rhythm and mobile containment reviewed at the hosted viewports;
-- imagery: REOPENED — D-053 now requires original manifest-backed KGC media for KGC client data; Harbor House remains synthetic;
+- imagery: passed under D-053 — KGC client states use only manifest-backed originals; truthful flat/front-back fallback replaces any construction view not supported by real source layers; Harbor House remains synthetic;
 - interaction and motion: passed — project, cohort/role, look, explode/reassemble, front/back, detail accordion, RTL and reduced-motion states are preserved;
 - responsive and accessibility: passed — no horizontal overflow, practical touch targets, keyboard-visible controls, semantic headings/tabs/buttons and information parity;
 - generalization: passed — KGC is a fixture, not the shell; Harbor House proves a non-school role model and generic URL state.
@@ -73,20 +73,21 @@ Current synthetic KGC garment/model studies are no longer an acceptable final Ph
 
 ## Current hosted authority
 
-- implementation commit: `5826645eb17fb87cfe2399f34e439bf3bf52b74c`;
-- run: `35461716041`;
-- job: `105946646432`;
-- artifact: `10590260486`;
-- digest: `sha256:1b727fbc5dcd2daa07f192e110b5b33882c3cdf1b04c66bd84f261ae92a7b343`;
-- 8/8 Playwright journeys PASS.
+- implementation commit: `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`;
+- run: `35529953588`;
+- job: `106128675433`;
+- artifact: `10610259627`;
+- digest: `sha256:852ddd4842b562d18bc233bcc0e1db9df8a1497053e98aa5c5974738966971ac`;
+- 8/8 Playwright journeys PASS;
+- private R2 D-053 staging/provenance PASS.
 
-The artifact contains the four approved reference boards under `artifacts/reference/` beside the fresh implementation captures under `artifacts/screenshots/`. This is now the required review shape for every parity checkpoint.
+The artifact contains the four approved reference boards under `artifacts/reference/` beside fresh implementation captures under `artifacts/screenshots/`.
 
 ## Active parity ledger
 
 The earlier technical/accessibility findings remain closed. Visual parity is intentionally reopened by Fares's instruction. The current implementation now follows the same major composition sequence as the references: editorial Fares header, overlapping model/campus hero with red-white-blue textile ribbons, four-stage narrative, closer-look garment construction story, compact footer and dedicated three-column inspector.
 
-The compare-and-correct loop remains active. No statement in this document should be read as permission to stop on CI GREEN alone; hosted visual evidence must continue to be compared directly with the preserved boards until the implementation is judged to match them. PR #7 remains draft and production remains excluded.
+The compare-and-correct implementation loop is complete at the current engineering boundary. Fresh desktop, English mobile, Arabic RTL and inspector captures were compared directly with the preserved boards after the final D-053 geometry pass. No material visual mismatch remains that can be corrected without inventing KGC media that D-053 explicitly forbids. The approved boards' exploded/folded textile construction remains a reference for hierarchy and composition only where the original KGC source set does not contain truthful separated layers. PR #7 remains draft pending Fares's explicit visual approval; production remains excluded.
 
 
 ## Checkpoint 27 comparison note
@@ -122,3 +123,18 @@ Current visual rubric state:
 - accessibility/responsive/motion: build/typecheck clean; hosted browser revalidation pending the same credential.
 
 Do not treat the build PASS as a visual PASS. PR #7 remains draft; production `apps/public-web`, deployment and production media architecture remain excluded.
+
+
+## Checkpoint 31 — original-media parity closure for engineering review
+
+D-054 now supplies the six authorized KGC originals from private R2 rather than Google Drive credentials. The transfer and rendered review preserve exact byte/SHA provenance and no KGC binary is committed to Git.
+
+Final comparison authority is `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`, run `35529953588`, job `106128675433`, artifact `10610259627` (`sha256:852ddd4842b562d18bc233bcc0e1db9df8a1497053e98aa5c5974738966971ac`). The hosted gate is 8/8 GREEN.
+
+Direct board comparison confirms:
+- desktop: the editorial model/type overlap, four-stage sequence and detail-story scale now track the approved board while retaining original KGC imagery;
+- English mobile: the hero fold, dominant model, paired CTAs, stage strip and opening detail composition read as the approved authored poster rather than a generic responsive stack;
+- Arabic RTL: model-left/text-right mirroring, CTA hierarchy, stage order and RTL geometry track the approved Arabic board;
+- inspector: title/object/detail-rail hierarchy, front/back controls, numbered annotations and close-up crop track the approved inspector structure while using the truthful original-packshot fallback required by D-048/D-053.
+
+The remaining visible difference from the concept boards is intentional and policy-driven: no fabricated KGC exploded construction or invented textile layer may be generated where the original source set has no separated layers. That is not carried as an open visual defect. The prototype is ready for Fares's explicit design sign-off. Production/publication remains a separate decision.

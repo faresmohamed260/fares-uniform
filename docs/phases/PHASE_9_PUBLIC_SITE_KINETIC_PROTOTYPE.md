@@ -1,6 +1,6 @@
 # Phase 9 — Public-site kinetic prototype
 
-Status: **D-053 SOURCE/BUILD GREEN; HOSTED RENDER BLOCKED ON PRIVATE REVIEW CREDENTIAL; PRESERVED-BOARD VISUAL PARITY ITERATION ACTIVE; PRODUCTION PUBLIC-WEB AND DEPLOYMENT EXCLUDED.**
+Status: **D-054 R2-BACKED D-053 RENDER GREEN; 8/8 HOSTED JOURNEYS PASS; PRESERVED-BOARD IMPLEMENTATION READY FOR FARES SIGN-OFF; PRODUCTION PUBLIC-WEB AND DEPLOYMENT EXCLUDED.**
 
 Branch: `phase-9/public-site-kinetic-prototype`.
 
@@ -53,22 +53,22 @@ Build a repository-backed interactive prototype that proves the accepted Pattern
 
 ## Dependencies and architecture
 
-Use the repository-pinned Next.js/React/Motion/Playwright dependency set already proven by the public and review surfaces. Keep state local to the prototype and fixtures static. Phase 9 does not select a production media-storage/CDN/CMS architecture. Google Drive is the audited source location for the existing KGC originals, not an approved runtime asset service. GitHub must not become the client-media warehouse. Do not infer Cloudflare R2, Supabase Storage or another production service without a separate architecture decision.
+Use the repository-pinned Next.js/React/Motion/Playwright dependency set already proven by the public and review surfaces. Keep state local to the prototype and fixtures static. D-054 now selects Cloudflare R2 as the project object-storage layer while Google Drive remains the audited source/archive location for the existing KGC originals. GitHub remains source/evidence storage rather than a client-media warehouse. D-054 does not move Odoo database-backed attachments out of Supabase PostgreSQL, and production public delivery still requires a separately approved narrow data-plane credential and publication policy.
 
 ### Review-only KGC media staging
 
-For D-053 hosted review, the narrow delivery mechanism is **ephemeral runner-only staging from the private Google Drive source**. Git history stores only the manifest file IDs, filenames and implementation references. A GitHub-hosted Phase 9 runner authenticates with the review-only secret `PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS`, downloads only the six exact files below into ignored `public/review-media/kgc/` paths, renders/tests the prototype, and discards the runner. The original binaries are not committed, deployed, or used as a production runtime service. The script emits only filenames, byte counts and SHA-256 provenance into the review artifact.
+For D-053 hosted review, the six approved originals live privately under `fares-uniform-media-private/kgc/review/`. The GitHub-hosted runner downloads only those exact objects into ignored `public/review-media/kgc/` paths, validates expected byte counts and SHA-256 hashes, renders/tests the prototype, and discards the runner. The originals are never committed to Git and the private bucket has no public `r2.dev` endpoint or custom domain.
 
-| Review use | Drive file ID | Runner-only path |
-| --- | --- | --- |
-| Kindergarten / Summer worn anchor | `1-7KJddf0GBi48waU0zOfb_qQpF7FApmm` | `kindergarten-summer.png` |
-| Primary / Summer worn anchor | `1I5xEnC_plLnTwVnqBdrcja9l9lkSpVDa` | `primary-summer.png` |
-| Middle / Summer worn anchor | `1le12chTbBteOrrVIxy0D3hWUsGioY-xC` | `middle-summer.png` |
-| High / Summer worn anchor | `1x69utNsIog_mDU1KV-BrZ7yrIhDAyGwV` | `high-summer.png` |
-| High / Summer polo front packshot | `17z5LpOTT0-RqoxvKoa82LEb3E6SA3G1c` | `high-summer-polo-front.png` |
-| High / Summer polo back packshot | `14oTbQ4pyLzxu-2LKs6eZamSqQiasHozV` | `high-summer-polo-back.png` |
+| Review use | Drive source ID | Private R2 object | Runner-only file |
+| --- | --- | --- | --- |
+| Kindergarten / Summer worn anchor | `1-7KJddf0GBi48waU0zOfb_qQpF7FApmm` | `kgc/review/kindergarten-summer.png` | `kindergarten-summer.png` |
+| Primary / Summer worn anchor | `1I5xEnC_plLnTwVnqBdrcja9l9lkSpVDa` | `kgc/review/primary-summer.png` | `primary-summer.png` |
+| Middle / Summer worn anchor | `1le12chTbBteOrrVIxy0D3hWUsGioY-xC` | `kgc/review/middle-summer.png` | `middle-summer.png` |
+| High / Summer worn anchor | `1x69utNsIog_mDU1KV-BrZ7yrIhDAyGwV` | `kgc/review/high-summer.png` | `high-summer.png` |
+| High / Summer polo front packshot | `17z5LpOTT0-RqoxvKoa82LEb3E6SA3G1c` | `kgc/review/high-summer-polo-front.png` | `high-summer-polo-front.png` |
+| High / Summer polo back packshot | `14oTbQ4pyLzxu-2LKs6eZamSqQiasHozV` | `kgc/review/high-summer-polo-back.png` | `high-summer-polo-back.png` |
 
-The review identity must have no broader Drive access than necessary for those files and should be revoked after this review gate. Missing/invalid credentials or inaccessible files fail the workflow closed before build/render. This is a Phase 9 implementation detail, not a production media architecture decision.
+Bootstrap run `35525401012` / job `106116558010` verified the private R2 boundary. Transfer run `35528055553` / job `106123589186` verified the six exact objects. Temporary ingest infrastructure was removed by run `35528399852` / job `106124509690`. The broad `CLOUDFLARE_API_TOKEN` is currently confined to hosted provider/review staging; before production GO, production object access must use a narrow R2 credential limited to the required bucket and operations.
 
 ## Data and security
 
@@ -102,6 +102,8 @@ Compilation alone cannot close the kinetic gate. Fares must review the rendered 
 
 ## Exit criteria
 
-The last fully rendered authority remains pre-D-053 commit `5826645eb17fb87cfe2399f34e439bf3bf52b74c`, run `35461716041`, job `105946646432`, with 8/8 Playwright journeys and artifact `10590260486` (`sha256:1b727fbc5dcd2daa07f192e110b5b33882c3cdf1b04c66bd84f261ae92a7b343`).
+Current exact rendered authority is `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`. Push run `35529953588`, job `106128675433`, passes locked install, TypeScript typecheck, optimized production build, private R2 media staging and **8/8 Playwright journeys**. Review artifact `10610259627` has digest `sha256:852ddd4842b562d18bc233bcc0e1db9df8a1497053e98aa5c5974738966971ac` and contains the four immutable reference boards beside fresh desktop, English mobile, Arabic RTL and inspector captures.
 
-D-053 source authority is `788d73c1f2341113c68ab3c8ef036c9e5589c3eb`. Exact branch-head run `35517923107`, job `106096886755`, passes locked install, typecheck and optimized build, then fails closed at the private-media stage because `PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS` is absent. Rendered Playwright evidence is therefore not yet valid for D-053, and Phase 9 must not be called fully GREEN at this checkpoint. The next valid exit evidence requires the six authorized originals to stage successfully, the hosted journeys to pass, and the new desktop/mobile/RTL/inspector captures to be compared directly with the preserved boards. PR #7 remains draft. Production `apps/public-web` work and deployment remain separate approvals.
+The compare-and-correct implementation loop is complete at the engineering boundary: the final captures preserve the approved hierarchy and geometry while using D-053 original KGC media. The approved boards' invented/folded/exploded KGC construction imagery is intentionally not reproduced where no real separated source layers exist; D-048/D-053 require the annotated original front/back fallback instead. Harbor House still proves the synthetic explode/reassemble path and generalized organization model.
+
+All technical, responsive, RTL, keyboard, touch-target, reduced-motion and source-truth checks are GREEN. Fares's explicit visual approval remains the final human gate before any production public-site implementation is authorized. PR #7 remains draft. Production `apps/public-web`, public KGC publication, deployment and Gate D are separate approvals.
