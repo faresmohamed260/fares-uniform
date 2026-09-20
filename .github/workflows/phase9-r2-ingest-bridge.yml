@@ -74,7 +74,8 @@ jobs:
 
               let sourceUrl;
               try { sourceUrl = new URL(source); } catch { return new Response("Invalid source", { status: 400 }); }
-              if (sourceUrl.protocol !== "https:" || sourceUrl.hostname !== "sdmntprnortheu.oaiusercontent.com") {
+              const trustedSourceHost = /^sdmntpr[a-z0-9-]*\.oaiusercontent\.com$/i.test(sourceUrl.hostname);
+              if (sourceUrl.protocol !== "https:" || !trustedSourceHost) {
                 return new Response("Source host not allowed", { status: 403 });
               }
 
