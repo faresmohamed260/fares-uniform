@@ -1,6 +1,6 @@
 # Phase 10 validation — public-site productionization
 
-Status: **WORKSTREAMS 10.1–10.3 GREEN — WORKSTREAM 10.4 ACTIVE; SLICE A GREEN.**
+Status: **WORKSTREAMS 10.1–10.3 GREEN — WORKSTREAM 10.4 ACTIVE; SLICES A–B GREEN.**
 
 Branch: `phase-10/public-site-productionization`.
 
@@ -139,8 +139,37 @@ Companion exact foundation regression run `35542573884`, job `106162787065`, is 
 
 This closes engineering acceptance for Slice A only. Final visual parity is not claimed yet; the full compare-and-correct/sign-off boundary remains open through the remaining 10.4 slices.
 
-## Next validation boundary — Workstream 10.4 Slice B
+### Slice B — generic cohort/role lineup + look continuity
 
-Implement the generic cohort/role lineup and look-continuity path using V2 content capabilities, not organization identity or a fixed school-stage count. Preserve canonical EN/AR state, keyboard/touch access, no-price/no-stock/private-field boundaries and hosted rendered evidence beside the Phase 9 visual authority.
+#### Preserved RED
+
+- contract commit `f653e64915c4a233ccaec8019f7a3ad38b2f68e6` — `test: define generic cohort and look continuity`;
+- exact push run/job `35542784351` / `106163354327`;
+- result: **5 passed, 2 failed of 7**; all Slice A checks stayed GREEN;
+- the two new checks failed because the project route had no generic role rail, no role/look controls and no addressable direct-entry state;
+- artifact `10615432669`, digest `sha256:3d38a7c415cfa8c2c47f9cc4e4b8c6052049308586f2807e54bae3c420f8c363`.
+
+#### GREEN
+
+Implementation authority: `0eda6bcd6611b8790081ea90491c339efe1fa1b4` — `feat: add generic role and look continuity`.
+
+Exact Pattern push run `35543416489`, job `106165042260`, is **GREEN**:
+
+- locked install, typecheck and optimized production build passed;
+- 7/7 focused migration checks passed in 5.1s;
+- the synthetic hospitality fixture exposes three generic roles rather than school stages;
+- the shared `service` look persists from Front desk to Kitchen because the V2 look contract declares both cohorts;
+- switching to Facilities replaces the unsupported shared look with its first valid `utility` look;
+- addressed `role=facilities&look=outerwear` direct entry resolves in Arabic RTL;
+- active garment names follow the selected V2 look;
+- role/look state is reflected in the URL without introducing organization-specific branches;
+- no horizontal overflow or KGC/default school-stage assumptions are present;
+- artifact `10615691405`, digest `sha256:3eeda14a7e3d35d7383a8be0f39922eb288519c6f07e3624315573ae4937175c`.
+
+Exact foundation regression run `35543416418`, job `106165042091`, is GREEN with artifact `10615129214`, digest `sha256:1ecfc8b27d8dac861137ea7bef26ed65ecd35272a434581b49efe88c4d54f940`.
+
+## Next validation boundary — Workstream 10.4 Slice C
+
+Implement garment detail/inspection from V2 capabilities. Flat-mode garments must remain truthful flat/front-back presentations; exploded behavior may appear only when the contract and approved media support it. Use publication-safe synthetic evidence until real-client rights are explicitly approved. Preserve URL state, EN/AR, touch/keyboard/reduced-motion parity and the no-private-field boundary.
 
 Production launch, Gate D, real-client publication and PR merges remain separately gated.

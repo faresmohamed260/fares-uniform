@@ -53,13 +53,13 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 - [x] Fares introduction/home experience.
 - [x] Work/client/project discovery.
 - [x] Organization/program routes.
-- [ ] Cohort/role progression.
-- [ ] Complete-look continuity.
+- [x] Cohort/role progression.
+- [x] Complete-look continuity.
 - [ ] Garment detail and inspection.
 - [ ] Contextual transitions and motion.
 - [ ] Mobile and Arabic RTL interaction.
-- [ ] Remove prototype-only KGC branching and fixed-count assumptions.
-- [ ] Drive capabilities from content, not organization identity.
+- [x] Remove prototype-only KGC branching and fixed-count assumptions.
+- [x] Drive capabilities from content, not organization identity.
 - [ ] Compare every cohesive slice against the Phase 9 visual authority.
 
 #### A3 — KGC and future client publication

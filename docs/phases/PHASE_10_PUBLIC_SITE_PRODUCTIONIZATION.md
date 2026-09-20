@@ -1,6 +1,6 @@
 # Phase 10 — Public-site productionization
 
-Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.3 GREEN; WORKSTREAM 10.4 ACTIVE (INTRO/PROJECT ENTRY GREEN).**
+Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.3 GREEN; WORKSTREAM 10.4 ACTIVE (INTRO/PROJECT ENTRY + COHORT/LOOK CONTINUITY GREEN).**
 
 Authorization: Fares accepted this productionization plan on 2026-09-20 and authorized Phase 10 repository engineering, hosted CI and provider work required by this contract. Production launch/cutover, Gate D approval, real-client publication, price/stock exposure and merging PR #7 remain separately gated.
 
@@ -166,12 +166,14 @@ Slice A implementation: commit `18fe61434ae5aa9781d8433e9aefc0ecfb2cd1e6`. Exact
 
 The production slice is Fares-led and organization-agnostic, uses a bounded Motion material-study client island with reduced-motion handling, adds canonical `/[locale]/work/[organization]/[program]` routes, applies validated V2 visual-skin data through controlled CSS variables, and uses only the synthetic non-school Harbor House fixture. KGC remains unpublished and no client-ID branching was introduced. Final visual parity remains open while later 10.4 slices are migrated and compared.
 
+Slice B — generic cohort/role lineup + look continuity — is also **GREEN**. Preserved RED commit `f653e64915c4a233ccaec8019f7a3ad38b2f68e6`, run/job `35542784351` / `106163354327`, failed only the two new continuity checks (5 existing checks remained GREEN). Implementation `0eda6bcd6611b8790081ea90491c339efe1fa1b4` passed exact Pattern run/job `35543416489` / `106165042260` with 7/7 checks and foundation regression `35543416418` / `106165042091`. The component is driven entirely by V2 cohorts/looks/garments, preserves shared looks only where declared by the contract, keeps role/look state addressable in the URL, and proves a three-role non-school fixture in EN desktop and AR mobile.
+
 Port one scene/component at a time:
 1. Fares introduction — **GREEN**;
 2. selected work/project entry — **GREEN**;
-3. cohort/role lineup — **NEXT**;
-4. look continuity;
-5. garment inspection;
+3. cohort/role lineup — **GREEN**;
+4. look continuity — **GREEN**;
+5. garment inspection — **NEXT**;
 6. contextual enquiry.
 
 After each cohesive slice:
