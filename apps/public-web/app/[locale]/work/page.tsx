@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { requirePublicLocale } from "@/lib/locale";
@@ -20,7 +21,7 @@ export default async function WorkPage({ params }: Props) {
     <SiteHeader locale={locale} alternatePath="/work" />
     <main id="main-content">
       <section className="work-page-title"><span className="eyebrow">{ar ? "Fares Uniform · أعمالنا" : "Fares Uniform · Work"}</span><h1>{ar ? "أعمال مختارة" : "Selected work"}</h1><p>{ar ? "برامج زي موحّد منظّمة حول الجهة والبرنامج والأشخاص والملابس، دون بيانات تجارية أو تشغيلية." : "Uniform programs organized around the organization, program, people and garments, presented through the narrow public editorial boundary."}</p></section>
-      <section className="work-section" aria-label={ar ? "المشروعات المنشورة" : "Published projects"}><div className="work-grid">{data.items.map((item) => <article className="work-card" key={`${item.organization.slug}/${item.program.slug}`}><div><span className="work-meta">{item.organization.sector}</span><h2>{item.organization.name}</h2><h3>{item.program.title}</h3></div><p>{item.program.summary}</p></article>)}</div></section>
+      <section className="work-section" aria-label={ar ? "المشروعات المنشورة" : "Published projects"}><div className="work-grid">{data.items.map((item) => <article className="work-card" key={`${item.organization.slug}/${item.program.slug}`}><div><span className="work-meta">{item.organization.sector}</span><h2>{item.organization.name}</h2><h3>{item.program.title}</h3></div><p>{item.program.summary}</p><Link className="text-link" href={`/${locale}/work/${item.organization.slug}/${item.program.slug}`}>{ar ? "عرض المشروع" : "View project"}<b aria-hidden="true">↗</b></Link></article>)}</div></section>
     </main>
     <SiteFooter locale={locale} />
   </>;
