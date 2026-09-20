@@ -1,6 +1,6 @@
 # Phase 10 — Public-site productionization
 
-Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.2 GREEN; WORKSTREAM 10.3 NEXT.**
+Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.3 GREEN; WORKSTREAM 10.4 NEXT.**
 
 Authorization: Fares accepted this productionization plan on 2026-09-20 and authorized Phase 10 repository engineering, hosted CI and provider work required by this contract. Production launch/cutover, Gate D approval, real-client publication, price/stock exposure and merging PR #7 remain separately gated.
 
@@ -147,15 +147,15 @@ Exact-head GREEN: commit `758cf5889e25e62e46db4e2c3c9cacd46105c6ab`, publication
 KGC and other real-client publication remain unauthorized. The public bucket still has no browser delivery hostname/custom domain selected by this proof.
 
 ### 10.3 Public foundation RED -> GREEN
-Implement canonical locale routing, root document language/direction, fonts, metadata, error/404, schema client and basic Fares shell.
+Status: **GREEN.**
 
-Required evidence:
-- EN/AR SSR document attributes;
-- canonical/hreflang;
-- no horizontal overflow;
-- keyboard/focus;
-- no price/stock in rendered/RSC/network payload;
-- production build.
+Preserved RED: commit `9189c80ab8a603c19bfd735df3652e2d380220c1`, push run `35540594733`, job `106157401728`, failed five of six new browser requirements before the production locale foundation existed.
+
+Implementation commit `8421610dc2cc2806a4a2a270284c888092e4d956` added canonical `/[locale]` routing, server-rendered EN/AR document language/direction, deterministic Inter/Noto Sans Arabic typography, metadata/canonical/hreflang, a Fares-led production shell, V2 runtime schema validation, work discovery and branded 404 handling. A test-harness-only ambiguity between two valid “Explore our work” links was corrected by commit `4584dea94e1850a64923be1ce2e25d712e31d258`, whose exact push run `35542018665` passed all six browser checks.
+
+Final authority `df1d9741087466edead5c358556b91ca4371f910` adds the localized recoverable error boundary. Exact push run `35542111158`, job `106161514846`, passed typecheck, optimized production build and 6/6 Playwright checks. Artifact `10614518679`, digest `sha256:963b9e1585202ccae9c34f15e91f3eecb3d3c53ab6c6712a0d18a0969241d9f8`.
+
+Evidence covers EN/AR SSR document attributes, canonical/hreflang, keyboard focus, Arabic mobile/no horizontal overflow, Fares-led home, canonical work discovery, fail-closed unknown routes and no price/stock/private-field leakage in rendered/RSC/JSON response bodies. Production remains unlaunched.
 
 ### 10.4 Pattern in Motion migration loop
 Port one scene/component at a time:

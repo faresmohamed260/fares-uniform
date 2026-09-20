@@ -37,16 +37,16 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 
 #### A1 — Production public-web foundation
 
-- [ ] Canonical `/en` and `/ar` routing.
-- [ ] Server-rendered document `lang` and `dir`.
-- [ ] Deterministic production typography.
-- [ ] Canonical URLs, hreflang and metadata baseline.
-- [ ] Branded 404/error/loading/degraded-content behavior.
-- [ ] Source-controlled V2 client/runtime validation.
-- [ ] Base Fares-led shell/navigation/footer.
-- [ ] Keyboard/focus and no-horizontal-overflow baseline.
-- [ ] Hosted production build and EN/AR browser evidence.
-- [ ] Rendered/RSC/network proof that price, stock and private fields remain absent.
+- [x] Canonical `/en` and `/ar` routing.
+- [x] Server-rendered document `lang` and `dir`.
+- [x] Deterministic production typography.
+- [x] Canonical URLs, hreflang and metadata baseline.
+- [x] Branded 404/error/loading/degraded-content behavior.
+- [x] Source-controlled V2 client/runtime validation.
+- [x] Base Fares-led shell/navigation/footer.
+- [x] Keyboard/focus and no-horizontal-overflow baseline.
+- [x] Hosted production build and EN/AR browser evidence.
+- [x] Rendered/RSC/network proof that price, stock and private fields remain absent.
 
 #### A2 — Pattern in Motion production migration
 

@@ -1,6 +1,6 @@
 # Phase 10 validation — public-site productionization
 
-Status: **WORKSTREAMS 10.1–10.2 GREEN — WORKSTREAM 10.3 NEXT.**
+Status: **WORKSTREAMS 10.1–10.3 GREEN — WORKSTREAM 10.4 NEXT.**
 
 Branch: `phase-10/public-site-productionization`.
 
@@ -68,17 +68,44 @@ The Odoo contract now requires a hash-addressed public object identity for publi
 
 No KGC or other real-client asset was published. The public R2 bucket still has no browser delivery hostname/custom domain enabled by this work.
 
-## Next validation boundary — Workstream 10.3
+## Workstream 10.3 — production public-web foundation
 
-Implement the production `apps/public-web` foundation RED -> GREEN:
+### Preserved RED
 
-- canonical `/[locale]` routing for `en|ar`;
-- root document `lang` / `dir`;
-- deterministic typography;
-- metadata/canonical/hreflang and 404/error baseline;
-- source-controlled V2 schema client;
-- basic Fares-led shell;
-- no price/stock/private-field leakage in rendered/RSC/network payloads;
-- production build plus representative EN/AR hosted browser evidence.
+- contract commit `9189c80ab8a603c19bfd735df3652e2d380220c1` — `test: define Phase 10 public foundation`;
+- exact push run/job `35540594733` / `106157401728`;
+- result: **RED**, five of six new browser checks failed while the existing app still lacked canonical locale routing/document attributes/production shell behavior;
+- artifact `10614960527`, digest `sha256:cbb782525ab7e32eb89709fda1640a45621721b97056309f767678f1ccdd97ea`.
+
+### Implementation and harness correction
+
+Commit `8421610dc2cc2806a4a2a270284c888092e4d956` built the production foundation: canonical locale routes, SSR `lang`/`dir`, deterministic Inter/Noto Sans Arabic fonts, canonical/hreflang/OpenGraph metadata, Fares-led shell, branded localized routes/404, strict V2 runtime parsing and canonical work discovery. Typecheck and optimized build were GREEN. The remaining browser failure was not a product defect: the selector `getByRole("link", { name: "Explore our work" })` matched both the hero CTA and a selected-work link. Commit `4584dea94e1850a64923be1ce2e25d712e31d258` scoped the contract to the hero CTA without weakening the navigation requirement. Exact push run `35542018665` then passed 6/6 foundation checks; artifact `10614932515`, digest `sha256:d5d60cfabc38fd087590c8e24067916eaaf6a5c84e21b697609b27c6d7199ba9`.
+
+### Exact-head GREEN
+
+Final implementation authority: `df1d9741087466edead5c358556b91ca4371f910`.
+
+Exact push run `35542111158`, job `106161514846`, is **GREEN**:
+
+- locked dependency install passed;
+- TypeScript typecheck passed;
+- optimized Next.js production build passed;
+- 6/6 Phase 10 foundation Playwright checks passed in 4.0s;
+- root redirects canonically to `/en`;
+- `/en` and `/ar` return server-rendered document `lang`/`dir`;
+- canonical and EN/AR alternate metadata is present;
+- the English homepage is Fares-led rather than KGC-led;
+- keyboard focus and Arabic mobile RTL/no-overflow checks pass;
+- canonical work discovery passes;
+- rendered/RSC/JSON response capture remains free of price, stock, inventory, barcode, SKU, cost and EGP leakage terms;
+- unknown locale/route requests fail closed;
+- localized branded 404 and recoverable error boundaries are present;
+- artifact `10614518679`, digest `sha256:963b9e1585202ccae9c34f15e91f3eecb3d3c53ab6c6712a0d18a0969241d9f8`.
+
+No KGC or other real-client media was published and no production deployment/cutover occurred.
+
+## Next validation boundary — Workstream 10.4
+
+Migrate Pattern in Motion into the production app one cohesive slice at a time, beginning with the Fares introduction and selected-work/project entry, while preserving the Phase 9 rendered authority and the generic V2 content boundary. Each slice requires hosted rendered evidence and comparison/correction rather than wholesale prototype copying.
 
 Production launch, Gate D, real-client publication and PR merges remain separately gated.

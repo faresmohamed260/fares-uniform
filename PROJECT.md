@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.2 are GREEN; Workstream 10.3 is next. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
+- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.3 are GREEN; Workstream 10.4 is next. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -64,7 +64,11 @@ Exact-head publication authority is `758cf5889e25e62e46db4e2c3c9cacd46105c6ab`. 
 
 The same exact head passed Odoo V1+V2 regression run `35538533842`, job `106151844070`: 13 post-test methods / 23 addon tests, `0 failed, 0 error(s)`, followed by the repeatable public-addon upgrade. Artifact `10613553442` has digest `sha256:889da64179b041005c92a832dae10e818db4de394ff3b8fa01efc9c25e12ab6e`. Public DTOs keep private/public object identity and hashes internal and reject the R2 S3 API hostname as a browser-facing public URL.
 
-Next: Workstream 10.3 — production `apps/public-web` foundation RED -> GREEN: canonical EN/AR routing, document language/direction, deterministic fonts, metadata/SEO, V2 schema client and the base Fares shell. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
+Workstream 10.3 is GREEN. Preserved contract RED commit `9189c80ab8a603c19bfd735df3652e2d380220c1` failed exact push run `35540594733`, job `106157401728`, with five of six new foundation checks RED before canonical locale routing and the new production shell existed. Implementation commit `8421610dc2cc2806a4a2a270284c888092e4d956` introduced the canonical `/[locale]` production structure, deterministic Inter/Noto Sans Arabic fonts, server-rendered `lang`/`dir`, metadata/canonical/hreflang, Fares-led shell, strict V2 runtime client and representative work route. Its first browser run exposed only an ambiguous test locator because the page correctly contained two “Explore our work” links; commit `4584dea94e1850a64923be1ce2e25d712e31d258` narrowed the test to the hero CTA and passed exact push run `35542018665`.
+
+Final 10.3 authority is `df1d9741087466edead5c358556b91ca4371f910`, which added the localized fail-safe public error boundary. Exact push run `35542111158`, job `106161514846`, passed locked install, TypeScript typecheck, optimized Next.js production build and **6/6 Phase 10 browser checks** covering root canonical redirect, EN/AR SSR document attributes, Fares-led canonical/hreflang metadata, keyboard focus, Arabic mobile RTL/no overflow, work discovery, payload no-leak checks and fail-closed unknown routes. Artifact `10614518679` has digest `sha256:963b9e1585202ccae9c34f15e91f3eecb3d3c53ab6c6712a0d18a0969241d9f8`.
+
+Next: Workstream 10.4 — migrate Pattern in Motion into `apps/public-web` one cohesive scene at a time, starting with the Fares introduction/selected-work entry and preserving the Phase 9 visual authority. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
 
 ## Delivery state
 
