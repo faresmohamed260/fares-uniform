@@ -172,3 +172,58 @@ test("addressed Arabic role/look state survives direct entry and stays RTL", asy
   await expectNoOverflow(page);
   await capture(page, "pattern-continuity-ar-mobile.png");
 });
+
+
+test("active garment enters a canonical flat inspection route with addressed context", async ({ page }) => {
+  await page.goto("/en/work/harbor-house/service-program?role=facilities&look=utility");
+
+  const garments = page.getByTestId("active-garments");
+  const overshirt = garments.getByRole("link", { name: "Utility overshirt" });
+  await expect(overshirt).toHaveAttribute(
+    "href",
+    "/en/work/harbor-house/service-program/utility-overshirt?role=facilities&look=utility",
+  );
+
+  await overshirt.click();
+  await expect(page).toHaveURL(
+    /\/en\/work\/harbor-house\/service-program\/utility-overshirt\?role=facilities&look=utility$/,
+  );
+  await expect(page.getByTestId("inspection-rig")).toHaveAttribute("data-inspection-mode", "flat");
+  await expect(page.getByTestId("inspection-rig")).toHaveAttribute("data-exploded", "false");
+  await expect(page.getByTestId("explode-toggle")).toHaveCount(0);
+  await expect(page.getByTestId("inspection-garment")).toHaveText("Utility overshirt");
+  await expect(page.getByRole("link", { name: "Back to program" })).toHaveAttribute(
+    "href",
+    "/en/work/harbor-house/service-program?role=facilities&look=utility",
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /\/en\/work\/harbor-house\/service-program\/utility-overshirt$/,
+  );
+  await expectNoOverflow(page);
+  await capture(page, "pattern-inspection-en-desktop.png");
+});
+
+test("Arabic flat inspection preserves locale, context and truthful capability", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(
+    "/ar/work/harbor-house/service-program/field-jacket?role=facilities&look=outerwear",
+  );
+
+  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByTestId("inspection-garment")).toHaveText("سترة ميدانية");
+  await expect(page.getByTestId("inspection-rig")).toHaveAttribute("data-inspection-mode", "flat");
+  await expect(page.getByTestId("inspection-rig")).toHaveAttribute("data-exploded", "false");
+  await expect(page.getByTestId("explode-toggle")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "العودة إلى البرنامج" })).toHaveAttribute(
+    "href",
+    "/ar/work/harbor-house/service-program?role=facilities&look=outerwear",
+  );
+  await expectNoOverflow(page);
+  await capture(page, "pattern-inspection-ar-mobile.png");
+});
+
+test("unknown garment identity fails closed", async ({ request }) => {
+  expect((await request.get("/en/work/harbor-house/service-program/not-a-garment")).status()).toBe(404);
+});
