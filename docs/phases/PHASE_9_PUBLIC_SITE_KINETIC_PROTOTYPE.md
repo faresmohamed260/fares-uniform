@@ -23,7 +23,7 @@ Build a repository-backed interactive prototype that proves the accepted Pattern
 - isolated Next.js prototype under `prototype/public-site-motion`;
 - stable Fares shell and project-scoped visual skins;
 - typed organization/program/cohort/look/garment fixture model;
-- KGC National as one private-review fixture, including only the explicitly authorized canonical crest and campus photo plus synthetic garment/model media;
+- KGC National as one private-review fixture using original manifest-backed KGC media under D-053;
 - one clearly synthetic non-school organization;
 - cohort/role and look selection with shared-versus-unique continuity;
 - generic inspect, explode and reassemble interaction;
@@ -36,7 +36,7 @@ Build a repository-backed interactive prototype that proves the accepted Pattern
 
 - edits to `apps/public-web` or any Odoo addon/API;
 - Vercel/Supabase/provider mutation or deployment;
-- use of KGC or other client media beyond the two project-scoped assets explicitly authorized in D-051;
+- use of KGC media outside the D-053 manifest-backed review set, or use of any other client media without explicit authorization;
 - prices, stock, customer/private records or broad Odoo routes;
 - CMS, production routing, enquiry submission integration or analytics;
 - production Gate D approval.
@@ -45,7 +45,7 @@ Build a repository-backed interactive prototype that proves the accepted Pattern
 
 - the Fares shell is neutral and consistent; project colors/motifs remain local to the selected project;
 - internal data uses generic `cohorts`, not fixed school stages;
-- the prototype uses rights-safe synthetic model and garment review media, including tactile assembled/exploded studies, solely to evaluate hierarchy and motion; they are not approved production media;
+- KGC uses original manifest-backed review media only; synthetic model/garment media remains permitted for the clearly synthetic Harbor House fixture and other explicitly synthetic non-client studies;
 - the approved reference hierarchy governs the hero: project eyebrow, “Designed as one. Worn for years.” headline, paired calls to action, editorial organization imagery and restrained program metadata;
 - project discovery is an editorial rail, not a marketplace card grid;
 - inspection is reversible, URL-independent local prototype state;
@@ -53,11 +53,11 @@ Build a repository-backed interactive prototype that proves the accepted Pattern
 
 ## Dependencies and architecture
 
-Use the repository-pinned Next.js/React/Motion/Playwright dependency set already proven by the public and review surfaces. Keep state local to the prototype and fixtures static. Do not add a runtime service, database, secret or external client-media dependency.
+Use the repository-pinned Next.js/React/Motion/Playwright dependency set already proven by the public and review surfaces. Keep state local to the prototype and fixtures static. Phase 9 does not select a production media-storage/CDN/CMS architecture. Google Drive is the audited source location for the existing KGC originals, not an approved runtime asset service. GitHub must not become the client-media warehouse. If hosted review requires a delivery mechanism for the exact authorized subset, choose the smallest review-only mechanism that preserves these boundaries and document it before use; do not infer Cloudflare R2, Supabase Storage or another production service without a separate architecture decision.
 
 ## Data and security
 
-All prototype records are synthetic or explicitly marked review fixtures. By D-051, the canonical KGC crest and campus photo are the only Drive binaries authorized for this Phase 9 review implementation; they are optimized, stored only under the isolated prototype and selected through project-scoped data. No KGC model/garment binary, private record or other client media is copied into GitHub. Public catalog restrictions remain unchanged.
+All prototype records are synthetic or explicitly marked review fixtures. D-053 supersedes D-051's narrow KGC-media limit for this isolated review: original KGC worn/model anchors, matched/used packshots, crest and campus recorded in `docs/ui/KGC_MEDIA_MANIFEST.md` are authorized as KGC visual truth. Synthetic KGC people/garments and fabricated KGC construction layers are prohibited. The manifest remains an inventory/provenance map, not a runtime-storage contract. Do not infer that the originals belong in GitHub or that Google Drive should serve the public site. Public catalog restrictions remain unchanged.
 
 ## Hosted validation
 
@@ -87,4 +87,4 @@ Compilation alone cannot close the kinetic gate. Fares must review the rendered 
 
 ## Exit criteria
 
-Phase 9 remains technically GREEN while preserved-board parity iteration is active. Current authority `534bd40744a4cfcab835a5334d4d8d12165158d8`, run `35461456159`, job `105945954701`, passes 8/8 Playwright journeys; artifact `10588974373` (`sha256:e8ac425d156ad26e8935f132679d0b4db8b079ceb04e698eb7f997aa3922a1ee`) packages the immutable approved reference boards with the fresh rendered evidence. Fares instructed the implementation to keep iterating until it matches those boards and to keep authoritative docs current during the loop. PR #7 remains draft. Production `apps/public-web` work and deployment remain separate approvals.
+Phase 9 remains technically GREEN while preserved-board parity iteration is active. Current rendered implementation authority `5826645eb17fb87cfe2399f34e439bf3bf52b74c`, run `35461716041`, job `105946646432`, passes 8/8 Playwright journeys; artifact `10590260486` (`sha256:1b727fbc5dcd2daa07f192e110b5b33882c3cdf1b04c66bd84f261ae92a7b343`) is the latest verified render authority before the D-053 media-policy correction. Fares instructed the implementation to keep iterating until it matches those boards and to keep authoritative docs current during the loop. PR #7 remains draft. Production `apps/public-web` work and deployment remain separate approvals.

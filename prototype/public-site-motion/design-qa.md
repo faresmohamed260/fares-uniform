@@ -64,20 +64,20 @@ The landing now exposes a selected-state bridge to the dedicated inspector. Its 
 - typography: passed — approved high-contrast serif scale, compact uppercase metadata and restrained sans-serif controls;
 - color: passed — neutral Fares paper/ink system with KGC color confined to the KGC project skin;
 - spacing and geometry: passed — desktop rhythm and mobile containment reviewed at the hosted viewports;
-- imagery: passed — authorized KGC crest and campus are project-scoped; synthetic model/garment studies remain labeled and Harbor House removes KGC identity;
+- imagery: REOPENED — D-053 now requires original manifest-backed KGC media for KGC client data; Harbor House remains synthetic;
 - interaction and motion: passed — project, cohort/role, look, explode/reassemble, front/back, detail accordion, RTL and reduced-motion states are preserved;
 - responsive and accessibility: passed — no horizontal overflow, practical touch targets, keyboard-visible controls, semantic headings/tabs/buttons and information parity;
 - generalization: passed — KGC is a fixture, not the shell; Harbor House proves a non-school role model and generic URL state.
 
-Intentional constraints are not defects: the approved references are visual direction rather than production client photography; synthetic garment/model media remain clearly disclosed, and production `apps/public-web` plus deployment are outside Phase 9.
+Current synthetic KGC garment/model studies are no longer an acceptable final Phase 9 substitution after D-053. They are historical prototype evidence only. Production `apps/public-web`, production media-storage architecture and deployment remain outside Phase 9.
 
 ## Current hosted authority
 
-- implementation commit: `534bd40744a4cfcab835a5334d4d8d12165158d8`;
-- run: `35461456159`;
-- job: `105945954701`;
-- artifact: `10588974373`;
-- digest: `sha256:e8ac425d156ad26e8935f132679d0b4db8b079ceb04e698eb7f997aa3922a1ee`;
+- implementation commit: `5826645eb17fb87cfe2399f34e439bf3bf52b74c`;
+- run: `35461716041`;
+- job: `105946646432`;
+- artifact: `10590260486`;
+- digest: `sha256:1b727fbc5dcd2daa07f192e110b5b33882c3cdf1b04c66bd84f261ae92a7b343`;
 - 8/8 Playwright journeys PASS.
 
 The artifact contains the four approved reference boards under `artifacts/reference/` beside the fresh implementation captures under `artifacts/screenshots/`. This is now the required review shape for every parity checkpoint.
@@ -94,3 +94,12 @@ The compare-and-correct loop remains active. No statement in this document shoul
 The current hosted evidence is materially closer to the committed boards than checkpoint 21: the desktop hero model and serif headline occupy more of the first composition, the mobile EN/AR crops now read as the same authored poster rather than a generic responsive page, the stage sequence is constrained to girls-only KGC review media, and the inspector preserves the three-column title/object/detail-rail structure.
 
 Open visual work remains visible and intentional: the desktop textile ribbons still intrude farther into the copy field than the reference, the High stage portrait needs a tighter editorial crop, the first inspector detail crop still reads more diagrammatically than the approved textile macro, and the landing garment study remains cleaner/more separated than the folded tactile reference. Those are the next compare-and-correct targets.
+
+
+## Checkpoint 29 handoff note — original KGC media, no storage redesign
+
+D-053 changes the visual-content rule for KGC: the next parity iteration must use the original KGC media catalogued in `docs/ui/KGC_MEDIA_MANIFEST.md` rather than synthetic KGC substitutes.
+
+This is not authorization to redesign production media infrastructure. The Phase 9 prototype must not turn GitHub into a client-image warehouse, must not serve the public runtime from Google Drive, and must not invent a Cloudflare R2/Supabase Storage/CMS decision. If the hosted review needs a delivery path for the small subset visible in the approved boards, that is a narrow Phase 9 implementation detail and must remain review-scoped unless separately promoted by an architecture decision.
+
+The next visual loop starts with the exact KGC assets required for the approved High/Summer hero, four-stage progression and inspector, replaces the synthetic KGC imagery, uses truthful flat/front-back annotation when no real exploded layers exist, then reruns the same preserved-board comparison. Harbor House remains the synthetic non-school proof.

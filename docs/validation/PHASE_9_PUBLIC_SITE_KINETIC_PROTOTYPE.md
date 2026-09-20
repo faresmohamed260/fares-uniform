@@ -453,3 +453,20 @@ Checkpoint 27 is the current verified visual authority:
 - current captures: desktop `1440×3378`, English mobile `390×1800`, Arabic mobile `390×1727`, English inspector `1440×1109`.
 
 Checkpoint 27 further matched the approved desktop scale, kept the English and Arabic model crops closer to the boards, removed the duplicated High-stage crop in favor of the dedicated synthetic High model, and increased the inspector/title hierarchy. The parity loop remains open: remaining visible differences are being corrected rather than reclassified as acceptable deviations. PR #7 stays draft; production remains excluded.
+
+
+## Checkpoint 29 — Phase 9 scope/media-policy reconciliation
+
+Fares clarified the active Phase 9 goal after D-053: continue matching the approved Pattern in Motion boards using the **original KGC assets as KGC visual truth**, while keeping the work inside the existing isolated prototype boundary.
+
+This clarification deliberately does **not** create a production media-storage architecture. It does not authorize or select Google Drive as a runtime asset service, GitHub as a client-photo store, Cloudflare R2, Supabase Storage, a CMS or a new ingestion platform. Google Drive remains the audited source location for the current KGC originals, and `docs/ui/KGC_MEDIA_MANIFEST.md` remains the source/provenance map.
+
+The next implementation checkpoint must:
+- make only the exact original KGC assets required by the approved review states available to the isolated hosted prototype through a narrowly documented review-only mechanism;
+- replace synthetic KGC hero, stage, garment and inspector imagery with original manifest-backed media;
+- use the D-048 annotated flat/front-back fallback wherever truthful exploded construction media does not exist;
+- keep Harbor House clearly synthetic and prove the generalization boundary;
+- rerun the hosted 8-journey gate and compare fresh desktop, English mobile, Arabic RTL and inspector captures directly with the four approved boards;
+- keep PR #7 draft and leave `apps/public-web`, provider architecture and deployment untouched.
+
+The last rendered implementation authority before this reconciliation remains `5826645eb17fb87cfe2399f34e439bf3bf52b74c`, run `35461716041`, job `105946646432`, artifact `10590260486` (`sha256:1b727fbc5dcd2daa07f192e110b5b33882c3cdf1b04c66bd84f261ae92a7b343`). The later D-053 documentation commit is policy lineage, not a new rendered-design authority.
