@@ -56,10 +56,19 @@ jobs:
       - name: Production build
         run: npm run build
 
-      - name: Stage private KGC review media
+      - name: Stage private KGC review media from R2
         env:
-          PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS: ${{ secrets.PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS }}
-        run: node scripts/stage-kgc-review-media.mjs
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: "9b0bf4a19a68badb653f984151b62fd2"
+        run: |
+          mkdir -p public/review-media/kgc
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/kindergarten-summer.png --file public/review-media/kgc/kindergarten-summer.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/primary-summer.png --file public/review-media/kgc/primary-summer.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/middle-summer.png --file public/review-media/kgc/middle-summer.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/high-summer.png --file public/review-media/kgc/high-summer.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/high-summer-polo-front.png --file public/review-media/kgc/high-summer-polo-front.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/high-summer-polo-back.png --file public/review-media/kgc/high-summer-polo-back.png --remote
+          node scripts/stage-kgc-review-media.mjs
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
