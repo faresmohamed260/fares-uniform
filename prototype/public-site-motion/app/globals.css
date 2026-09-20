@@ -2391,3 +2391,240 @@ img { user-select: none; }
     inset: 0 50% -5% -44%;
   }
 }
+
+
+/* Checkpoint 29: D-053 original-media board-proportion correction */
+@media (min-width: 1121px) {
+  .hero-building::after {
+    background: linear-gradient(90deg, rgba(251,250,246,.94) 0%, rgba(251,250,246,.54) 22%, rgba(251,250,246,.06) 58%, rgba(251,250,246,.10) 100%);
+  }
+  .hero-building img {
+    filter: saturate(.58) brightness(1.10) contrast(.90);
+    opacity: .72;
+  }
+  .hero-model {
+    inset: 20px -8% -120px -40%;
+  }
+  .hero-model img {
+    object-position: center top;
+    transform: scale(1.10);
+    transform-origin: center top;
+  }
+
+  .detail-story {
+    min-height: 1010px;
+    grid-template-columns: minmax(360px, .74fr) minmax(640px, 1.26fr);
+    gap: 48px;
+  }
+  .detail-copy h2 {
+    max-width: 440px;
+    font-size: clamp(90px, 7.8vw, 124px);
+  }
+  .detail-visual {
+    min-height: 860px;
+  }
+  .detail-garment {
+    inset: 30px 245px 70px 24px;
+  }
+  .detail-garment img {
+    transform: rotate(-2deg) scale(.92);
+    transform-origin: center;
+  }
+  .detail-callouts {
+    top: 54px;
+    width: 260px;
+  }
+  .detail-callouts strong {
+    color: var(--ink);
+  }
+
+  .explode-grid {
+    grid-template-columns: minmax(420px, .92fr) minmax(590px, 1.10fr) minmax(360px, .78fr);
+  }
+  .explode-intro h1 {
+    max-width: 430px;
+    font-size: clamp(92px, 7.4vw, 124px);
+  }
+  .explode-media {
+    inset: 58px 2% 52px 0;
+  }
+  .explode-media img {
+    transform: rotate(0deg) scale(.88);
+    transform-origin: center;
+  }
+  .explode-spot:nth-of-type(1) { top: 12%; right: 12%; }
+  .explode-spot:nth-of-type(2) { top: 25%; right: 8%; }
+  .explode-spot:nth-of-type(3) { top: 38%; right: 6%; }
+  .explode-spot:nth-of-type(4) { top: 51%; right: 5%; }
+  .explode-spot:nth-of-type(5) { top: 64%; right: 7%; }
+  .explode-spot:nth-of-type(6) { top: 77%; right: 11%; }
+
+  .explode-detail-preview.preview-0::after {
+    content: none !important;
+  }
+  .explode-detail-preview.preview-0 img {
+    object-position: center 0%;
+    transform: scale(5.0);
+    transform-origin: 50% 0%;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    min-height: 760px;
+  }
+  .hero-copy {
+    width: 58%;
+    padding: 52px 0 24px 20px;
+  }
+  .hero-eyebrow {
+    max-width: 190px;
+    margin-bottom: 18px;
+    font-size: 8px;
+  }
+  .hero h1 {
+    max-width: 205px;
+    font-size: 54px;
+    line-height: .90;
+  }
+  .hero-copy > p {
+    max-width: 184px;
+    margin-top: 20px;
+    font-size: 12px;
+    line-height: 1.48;
+  }
+  .hero-actions {
+    width: 205px;
+    gap: 9px;
+    margin-top: 22px;
+  }
+  .primary-action,
+  .secondary-action {
+    width: 205px;
+    min-height: 48px;
+    padding-inline: 14px;
+    font-size: 10.5px;
+  }
+  .hero-meta {
+    width: 175px;
+    margin-top: 22px;
+    padding-top: 13px;
+    font-size: 6.5px;
+  }
+  .hero-visual {
+    inset: 78px 0 auto;
+    height: 760px;
+    min-height: 760px;
+  }
+  .hero-model {
+    inset: 84px -17% -68px 31%;
+  }
+  .hero-model img {
+    object-position: center top;
+    transform: scale(1.08);
+    transform-origin: center top;
+  }
+  .hero-script {
+    top: 70px;
+    right: 10px;
+    width: 105px;
+    font-size: 14px;
+  }
+  .hero-side-note {
+    right: 12px;
+    bottom: 58px;
+    width: 92px;
+    font-size: 6.5px;
+  }
+
+  .stage-heading {
+    padding: 26px 18px 14px;
+    font-size: 30px;
+  }
+  .stage-photo {
+    height: 148px;
+  }
+  .stage-label {
+    min-height: 68px;
+    padding: 11px 4px 24px;
+  }
+  .stage-label strong {
+    font-size: 12px;
+  }
+
+  .detail-story {
+    min-height: 940px;
+    padding-top: 50px;
+  }
+  .detail-copy {
+    width: 56%;
+    max-width: 220px;
+  }
+  .detail-copy h2 {
+    max-width: 215px;
+    font-size: 58px;
+    line-height: .88;
+  }
+  .detail-copy > p {
+    max-width: 205px;
+    font-size: 13px;
+  }
+  .detail-visual {
+    top: 112px;
+    right: -30%;
+    width: 86%;
+    min-height: 735px;
+  }
+  .detail-garment {
+    inset: 30px 4px 118px -18px;
+  }
+  .detail-garment img {
+    transform: rotate(-2deg) scale(.92);
+    transform-origin: center;
+  }
+  .detail-callouts {
+    left: -54vw;
+    right: 34vw;
+    bottom: 4px;
+  }
+
+  [dir="rtl"] .hero-copy {
+    width: 60%;
+    padding: 52px 20px 24px 0;
+  }
+  [dir="rtl"] .hero h1 {
+    width: 196px;
+    max-width: 196px;
+    font-size: 48px;
+    line-height: 1.04;
+  }
+  [dir="rtl"] .hero-copy > p {
+    width: 184px;
+    max-width: 184px;
+    font-size: 12px;
+  }
+  [dir="rtl"] .hero-actions,
+  [dir="rtl"] .primary-action,
+  [dir="rtl"] .secondary-action {
+    width: 205px;
+  }
+  [dir="rtl"] .hero-model {
+    inset: 84px 31% -68px -17%;
+  }
+  [dir="rtl"] .hero-model img {
+    object-position: center top;
+    transform: scale(1.08);
+    transform-origin: center top;
+  }
+  [dir="rtl"] .hero-ribbons {
+    inset: 0 45% -5% -52%;
+  }
+  [dir="rtl"] .detail-visual {
+    right: auto;
+    left: -30%;
+  }
+  [dir="rtl"] .detail-callouts {
+    left: 34vw;
+    right: -54vw;
+  }
+}
