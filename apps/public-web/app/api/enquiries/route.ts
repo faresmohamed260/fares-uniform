@@ -111,13 +111,17 @@ function validate(body: unknown): ValidationResult {
   };
 }
 
-function requestIp(request: Request) {
+function requestRateIdentity(request: Request) {
+  if (process.env.FU_PUBLIC_PROVIDER === "fixture") {
+    const fixtureKey = request.headers.get("x-fares-ci-rate-key")?.trim();
+    if (fixtureKey) return `fixture:${fixtureKey}`;
+  }
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   return forwarded || request.headers.get("x-real-ip")?.trim() || "unknown";
 }
 
 function consumeRate(request: Request, now = Date.now()) {
-  const key = enquiryRateKey(requestIp(request));
+  const key = enquiryRateKey(requestRateIdentity(request));
   for (const [entryKey, entry] of rateEntries) {
     if (now - entry.startedAt >= RATE_WINDOW_MS) rateEntries.delete(entryKey);
   }

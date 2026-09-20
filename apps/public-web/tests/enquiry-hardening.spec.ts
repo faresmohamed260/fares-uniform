@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -27,26 +27,39 @@ async function formToken(page: Page) {
   return (await form.getAttribute("data-form-token"))!;
 }
 
-function guardedHeaders(token: string, ip = "198.51.100.20") {
-  return {
-    "Content-Type": "application/json",
-    "Origin": ORIGIN,
-    "X-Fares-Enquiry-Token": token,
-    "X-Forwarded-For": ip,
-  };
-}
-
-async function post(
-  request: APIRequestContext,
+async function browserPost(
+  page: Page,
   token: string,
   body: Record<string, unknown>,
-  ip = "198.51.100.20",
+  rateKey = "default",
   extraHeaders: Record<string, string> = {},
 ) {
-  return request.post(API, {
-    headers: { ...guardedHeaders(token, ip), ...extraHeaders },
-    data: body,
-  });
+  return page.evaluate(
+    async ({ api, tokenValue, bodyValue, keyValue, headersValue }) => {
+      const response = await fetch(api, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Fares-Enquiry-Token": tokenValue,
+          "X-Fares-CI-Rate-Key": keyValue,
+          ...headersValue,
+        },
+        body: JSON.stringify(bodyValue),
+      });
+      return {
+        status: response.status,
+        body: await response.json(),
+        retryAfter: response.headers.get("retry-after"),
+      };
+    },
+    {
+      api: API,
+      tokenValue: token,
+      bodyValue: body,
+      keyValue: rateKey,
+      headersValue: extraHeaders,
+    },
+  );
 }
 
 test("enquiry boundary fails closed without same-origin form proof", async ({ request }) => {
@@ -88,91 +101,91 @@ test("browser form sends the unchanged nine-field intake with a form proof heade
   ]);
 });
 
-test("request parsing is content-type and body-size bounded before business processing", async ({ page, request }) => {
+test("request parsing is content-type and body-size bounded before business processing", async ({ page }) => {
   const token = await formToken(page);
 
-  const wrongType = await request.post(API, {
-    headers: {
-      ...guardedHeaders(token, "198.51.100.21"),
-      "Content-Type": "text/plain",
-    },
-    data: JSON.stringify(payload({ idempotency_key: "phase10-hardening-type" })),
-  });
-  expect(wrongType.status()).toBe(415);
-  expect(await wrongType.json()).toEqual({ error: "unsupported_media_type" });
+  const wrongType = await browserPost(
+    page,
+    token,
+    payload({ idempotency_key: "phase10-hardening-type" }),
+    "content-type",
+    { "Content-Type": "text/plain" },
+  );
+  expect(wrongType.status).toBe(415);
+  expect(wrongType.body).toEqual({ error: "unsupported_media_type" });
 
-  const oversized = await post(
-    request,
+  const oversized = await browserPost(
+    page,
     token,
     payload({
       idempotency_key: "phase10-hardening-large",
       message: "x".repeat(20_000),
     }),
-    "198.51.100.22",
+    "oversized",
   );
-  expect(oversized.status()).toBe(413);
-  expect(await oversized.json()).toEqual({ error: "request_too_large" });
+  expect(oversized.status).toBe(413);
+  expect(oversized.body).toEqual({ error: "request_too_large" });
 });
 
-test("per-runtime rate safety net fails closed with a stable 429", async ({ page, request }) => {
+test("per-runtime rate safety net fails closed with a stable 429", async ({ page }) => {
   const token = await formToken(page);
-  const ip = "198.51.100.73";
+  const rateKey = "rate-window-proof";
 
   for (let index = 0; index < 5; index += 1) {
-    const response = await post(
-      request,
+    const response = await browserPost(
+      page,
       token,
       payload({ idempotency_key: `phase10-rate-${index}` }),
-      ip,
+      rateKey,
     );
-    expect(response.status()).toBe(201);
+    expect(response.status).toBe(201);
   }
 
-  const limited = await post(
-    request,
+  const limited = await browserPost(
+    page,
     token,
     payload({ idempotency_key: "phase10-rate-blocked" }),
-    ip,
+    rateKey,
   );
-  expect(limited.status()).toBe(429);
-  expect(await limited.json()).toEqual({ error: "rate_limited" });
-  expect(Number(limited.headers()["retry-after"])).toBeGreaterThan(0);
+  expect(limited.status).toBe(429);
+  expect(limited.body).toEqual({ error: "rate_limited" });
+  expect(Number(limited.retryAfter)).toBeGreaterThan(0);
 });
 
-test("upstream timeout and outage map to stable public errors", async ({ page, request }) => {
+test("upstream timeout and outage map to stable public errors", async ({ page }) => {
   const token = await formToken(page);
 
-  const timeout = await post(
-    request,
+  const timeout = await browserPost(
+    page,
     token,
     payload({ idempotency_key: "phase10-timeout" }),
-    "198.51.100.30",
+    "timeout-proof",
     { "X-Fares-CI-Upstream": "timeout" },
   );
-  expect(timeout.status()).toBe(504);
-  expect(await timeout.json()).toEqual({ error: "service_timeout" });
+  expect(timeout.status).toBe(504);
+  expect(timeout.body).toEqual({ error: "service_timeout" });
 
-  const unavailable = await post(
-    request,
+  const unavailable = await browserPost(
+    page,
     token,
     payload({ idempotency_key: "phase10-unavailable" }),
-    "198.51.100.31",
+    "unavailable-proof",
     { "X-Fares-CI-Upstream": "unavailable" },
   );
-  expect(unavailable.status()).toBe(503);
-  expect(await unavailable.json()).toEqual({ error: "service_unavailable" });
+  expect(unavailable.status).toBe(503);
+  expect(unavailable.body).toEqual({ error: "service_unavailable" });
 });
 
-test("validation stays stable and route logging is privacy-safe", async ({ page, request }) => {
+test("validation stays stable and route logging is privacy-safe", async ({ page }) => {
   const token = await formToken(page);
-  const invalid = await post(
-    request,
+  const invalid = await browserPost(
+    page,
     token,
     payload({ idempotency_key: "phase10-invalid", unexpected: "private-value" }),
-    "198.51.100.32",
+    "validation-proof",
   );
-  expect(invalid.status()).toBe(400);
-  expect(await invalid.json()).toEqual({ error: "invalid_request" });
+  expect(invalid.status).toBe(400);
+  expect(invalid.body).toEqual({ error: "invalid_request" });
 
   const source = await readFile(
     path.join(process.cwd(), "app", "api", "enquiries", "route.ts"),
