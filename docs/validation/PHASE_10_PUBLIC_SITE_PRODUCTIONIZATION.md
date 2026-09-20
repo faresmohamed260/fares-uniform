@@ -78,4 +78,4 @@ The first 10.2 candidate adds:
 - a separate publication workflow that has no `CLOUDFLARE_API_TOKEN` binding and requires bucket-scoped private-read and public-read/write S3 credentials;
 - cross-bucket denial assertions, immutable hash-addressed public object identity and non-secret artifact evidence.
 
-The first hosted publication run must fail closed if the four narrow R2 secrets are not configured. Preserve that provider RED; do not substitute the broad Cloudflare token into the publication job.
+The first hosted publication run `35537516748` failed closed at credential preflight because no narrow R2 credentials existed. That provider RED is preserved. The implementation proof now mints one-hour bucket-scoped account tokens in a control-plane step, gives only derived narrow S3 credentials to the data-plane step, asserts cross-bucket denial, and revokes both tokens in cleanup. The broad Cloudflare token remains absent from the data-plane step.

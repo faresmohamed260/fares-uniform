@@ -1,6 +1,6 @@
 # Phase 10 R2 publication boundary
 
-Status: **WORKSTREAM 10.2 RED CONTRACT — NARROW CREDENTIAL PROOF PENDING.**
+Status: **WORKSTREAM 10.2 RED PRESERVED — EPHEMERAL NARROW-CREDENTIAL PROOF IN EXECUTION.**
 
 This runbook governs the Phase 10 private-source to public-derivative object boundary. It does not authorize public KGC/client publication, a production cutover, a public custom domain or broad browser/storage credentials.
 
@@ -14,14 +14,16 @@ The first publication proof uses only a deterministic synthetic SVG under `phase
 
 ## Credential split
 
-Ordinary publication proof must use S3-compatible R2 credentials scoped to one required bucket and operation class:
+The hosted proof creates short-lived **account-owned R2 API tokens** through the control plane and immediately derives their S3-compatible credentials. Each token is scoped to exactly one bucket and one permission group:
 
-- `R2_PRIVATE_MEDIA_READ_ACCESS_KEY_ID` / `R2_PRIVATE_MEDIA_READ_SECRET_ACCESS_KEY`: **Object Read**, bucket `fares-uniform-media-private` only;
-- `R2_PUBLIC_MEDIA_RW_ACCESS_KEY_ID` / `R2_PUBLIC_MEDIA_RW_SECRET_ACCESS_KEY`: **Object Read & Write**, bucket `fares-uniform-media-public` only.
+- private token: **Workers R2 Storage Bucket Item Read** on `fares-uniform-media-private` only;
+- public token: **Workers R2 Storage Bucket Item Write** on `fares-uniform-media-public` only.
 
-The broad repository secret `CLOUDFLARE_API_TOKEN` is not an ordinary data-plane credential. It may be used by the one-shot synthetic seed/control-plane proof and existing provider administration only. It must not be injected into the narrow publication job, Odoo, browser code or the public Next.js runtime.
+Each token expires within one hour and is explicitly revoked in an `always()` cleanup step. The data-plane publication step receives only the derived narrow Access Key ID / Secret Access Key values. It does not receive `CLOUDFLARE_API_TOKEN`.
 
-Cloudflare documents bucket-scoped R2 API tokens for S3 clients, and the S3 endpoint is `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`. Secret values are never committed or logged.
+The broad repository secret `CLOUDFLARE_API_TOKEN` remains control-plane only: it may mint/revoke the short-lived narrow tokens and perform provider administration, but it is not an ordinary R2 object data-plane credential and must not enter Odoo, browser code or the public Next.js runtime.
+
+Cloudflare's current R2 authentication contract defines the R2 S3 Access Key ID as the token ID and the Secret Access Key as the SHA-256 of the token value. The S3 endpoint is `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`. Secret values are masked, runner-local, never committed and never uploaded as evidence.
 
 ## Synthetic publication proof
 
@@ -29,14 +31,17 @@ The one-shot seed workflow creates a fixed synthetic SVG and puts it into the pr
 
 The publication workflow then:
 
-1. requires all four narrow credential secrets before mutation;
-2. downloads the exact hash-pinned private synthetic source through the private read-only credential;
-3. writes an immutable hash-addressed object under `projects/synthetic-phase10/publication-proof/` in the public bucket through the public read/write credential;
-4. reads it back and verifies SHA-256, content type, cache policy and metadata;
-5. proves the private credential is denied on the public bucket;
-6. proves the public credential is denied on the private bucket;
-7. proves `CLOUDFLARE_API_TOKEN` is absent from the publication job;
-8. uploads only non-secret evidence.
+1. resolves the current Cloudflare account-token permission groups under the control-plane credential;
+2. creates one-hour bucket-scoped private-read and public-read/write account tokens;
+3. derives and masks their S3 credentials without logging the token values;
+4. downloads the exact hash-pinned private synthetic source through the private read-only credential;
+5. writes an immutable hash-addressed object under `projects/synthetic-phase10/publication-proof/` in the public bucket through the public read/write credential;
+6. reads it back and verifies SHA-256, content type, cache policy and metadata;
+7. proves the private credential is denied on the public bucket;
+8. proves the public credential is denied on the private bucket;
+9. proves `CLOUDFLARE_API_TOKEN` is absent from the data-plane step;
+10. revokes both ephemeral account tokens even if later proof steps fail;
+11. uploads only non-secret evidence.
 
 The public bucket's browser delivery hostname is intentionally not enabled by this proof. A stable public media origin/custom-domain decision remains a later publication/production boundary. Merely moving a synthetic object into the public-media bucket does not publish a real client or authorize production traffic.
 
@@ -46,7 +51,7 @@ The public bucket's browser delivery hostname is intentionally not enabled by th
 
 ## Failure handling
 
-- Missing narrow secrets: fail before any public-bucket mutation.
+- Control-plane credential cannot create bucket-scoped account tokens: fail before any public-bucket mutation.
 - Hash mismatch: fail closed; do not publish.
 - Cross-bucket credential succeeds unexpectedly: fail as a privilege-boundary violation.
 - Private R2 API URL accepted as public delivery URL: fail the Odoo contract.
