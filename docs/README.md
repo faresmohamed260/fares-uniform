@@ -12,6 +12,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Roles and permissions](requirements/ROLES_AND_PERMISSIONS.md) | Role/access design |
 | [Product and finished-stock rules](requirements/PRODUCT_AND_STOCK_RULES.md) | Product/design/size/code/location/movement foundation |
 | [Foundation architecture](architecture/FOUNDATION_ARCHITECTURE.md) | System ownership/data/offline/integration contracts |
+| [Public site production architecture review](architecture/PUBLIC_SITE_PRODUCTION_ARCHITECTURE_REVIEW.md) | Impartial current-state audit, production blockers, target architecture and remediation plan for preserving Pattern in Motion without prototype debt |
 | [Design system](ui/DESIGN_SYSTEM.md) | UI/RTL/accessibility direction |
 | [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md) | Authorized public-site redesign boundary, marketing/interaction principles, research process and design/kinetic/fidelity gates |
 | [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md) | Current fashion/uniform market research, high-expression interactive references, tool/library findings and concept hypotheses |
@@ -62,6 +63,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 8 commercial staging readiness](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) | Staging ownership, live-proof and GO/NO-GO parent contract |
 | [Phase 8A free-tier staging execution](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md) | Live Supabase/Vercel execution status, RED-to-green provider evidence and remaining Gate C work |
 | [Phase 9 public-site kinetic prototype](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) | Authorized isolated Pattern in Motion prototype, multi-organization boundary and hosted kinetic acceptance contract |
+| [Phase 10 proposed public-site productionization](phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md) | Proposed/not-yet-authorized execution contract for migrating the approved kinetic prototype into the real public app |
 | [Phase 9 kinetic prototype validation](validation/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) | Exact RED-to-green hosted build, browser, responsive/RTL, reduced-motion and rendered-evidence record |
 | [Phase 9 design QA](../prototype/public-site-motion/design-qa.md) | Approved-reference comparisons, responsive states, findings history and final visual result |
 | [Phase 8 staging secret inventory](operations/PHASE_8_STAGING_SECRET_INVENTORY.md) | Staging secret names/purpose/custody/rotation without secret values |

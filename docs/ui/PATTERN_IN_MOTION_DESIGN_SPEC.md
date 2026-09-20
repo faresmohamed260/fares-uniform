@@ -237,7 +237,7 @@ The review prototype must prove the reusable system, not only the KGC scene:
 3. Data-driven cohort/role lineup with no fixed count.
 4. Shared-versus-unique garment continuity.
 5. Generic inspect/explode/reassemble state.
-6. One complete KGC National fixture using private/synthetic review media.
+6. One complete KGC National fixture using manifest-backed original private review media under D-053.
 7. At least one clearly synthetic non-school fixture to expose school-specific assumptions.
 8. English desktop, English mobile and Arabic RTL mobile.
 9. Keyboard, touch and reduced-motion paths.

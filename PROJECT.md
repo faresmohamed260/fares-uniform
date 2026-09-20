@@ -20,6 +20,27 @@ PR #7 remains draft pending Fares's explicit visual approval. Production `apps/p
 
 Continuation order: verify current branch HEAD and latest Phase 9 run, then use this checkpoint as the current prototype handoff. Do not revive the superseded Google service-account path. Further changes should be driven by Fares's design feedback or a separately authorized production/public-media phase.
 
+## Public-site production architecture audit
+
+A professional architecture audit is complete at branch baseline `257a26dcf2c9b42e718238023b0264c6f30fda2a`: [Public site production architecture review](docs/architecture/PUBLIC_SITE_PRODUCTION_ARCHITECTURE_REVIEW.md).
+
+The audit preserves the approved Pattern in Motion goal but concludes that the Phase 9 prototype must **not** be promoted wholesale into `apps/public-web`. The current production app and the visual prototype are separate Next.js architectures, the production five-field catalog contract cannot express the approved multi-organization project model, and the prototype contains review-only KGC branching, append-only CSS overrides, query-state/i18n shortcuts and no real enquiry integration.
+
+The recommended productionization direction is:
+- keep `apps/public-web` as the single production frontend;
+- add a versioned Odoo public editorial/showcase contract rather than hard-coding projects in frontend source;
+- keep Odoo as business/editorial publication authority and R2 as media-byte authority;
+- promote only rights-approved derivatives from private to public R2;
+- use canonical `/en` and `/ar` server-rendered routes;
+- render static story content as Server Components and hydrate only interaction islands;
+- remove organization-ID branching and drive inspection/motion from content capabilities;
+- rebuild the final settled visual CSS into semantic tokens/component-scoped styles while preserving `4120c33…` as the visual authority;
+- integrate contextual enquiry, abuse/error hardening, SEO, cache/resilience, accessibility and performance gates before cutover.
+
+A proposed execution-ready contract is recorded at [Phase 10 public-site productionization](docs/phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md). Its status is **PROPOSED / NOT YET AUTHORIZED**. No production runtime code was changed by this audit.
+
+Next decision: Fares reviews/accepts or revises the architecture plan. After explicit acceptance and Phase 9 visual sign-off, close/merge Phase 9 only if separately authorized, then execute Phase 10 on a dedicated branch. Production launch/Gate D remain NO-GO.
+
 ## Delivery state
 
 Phases 0–7 are complete within their documented repository/CI scope. This covers product/stock/access, offline POS, preorders/collection, returns/exchanges, production queues, business orders, public catalog/enquiry, reporting, integrated synthetic UAT, Arabic polish, recovery packaging and stateless Vercel adaptation.
