@@ -64,6 +64,25 @@ export default async function GarmentInspection({ params, searchParams }: Props)
 
   const ar = locale === "ar";
   const context = programContext(project, query.role, query.look);
+  const selectedCohort = query.role
+    ? project.cohorts.find((cohort) => cohort.slug === query.role)
+    : undefined;
+  const selectedLook = query.look && selectedCohort
+    ? project.looks.find(
+        (look) =>
+          look.slug === query.look &&
+          look.cohorts.includes(selectedCohort.slug) &&
+          look.garments.includes(item.slug),
+      )
+    : undefined;
+  const enquiryParams = new URLSearchParams({
+    organization: project.organization.slug,
+    program: project.program.slug,
+  });
+  if (selectedCohort) enquiryParams.set("role", selectedCohort.slug);
+  if (selectedLook) enquiryParams.set("look", selectedLook.slug);
+  enquiryParams.set("garment", item.slug);
+  const enquiryHref = `/${locale}?${enquiryParams.toString()}#enquiry`;
   const programPath = `/${locale}/work/${project.organization.slug}/${project.program.slug}`;
   const alternatePath = `/work/${project.organization.slug}/${project.program.slug}/${item.slug}`;
   const layerMedia = item.media.filter((media) => media.view === "layer");
@@ -93,6 +112,10 @@ export default async function GarmentInspection({ params, searchParams }: Props)
               <span>{ar ? "طريقة العرض" : "Inspection mode"}</span>
               <strong>{canExplode ? (ar ? "طبقات موثقة" : "Documented layers") : (ar ? "عرض مسطح موثوق" : "Truthful flat view")}</strong>
             </div>
+            <Link className="primary-button" href={enquiryHref}>
+              {ar ? "ناقش هذه القطعة" : "Discuss this garment"}
+              <span aria-hidden="true">↗</span>
+            </Link>
           </div>
 
           <div

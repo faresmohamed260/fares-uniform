@@ -67,6 +67,13 @@ export function ProjectContinuity({ project, locale, initialRole, initialLook }:
   }
 
   const ar = locale === "ar";
+  const enquiryParams = new URLSearchParams({
+    organization: project.organization.slug,
+    program: project.program.slug,
+    role,
+    look: activeLook?.slug ?? "",
+  });
+  const enquiryHref = `/${locale}?${enquiryParams.toString()}#enquiry`;
 
   return (
     <section className={styles.section} aria-labelledby="continuity-title">
@@ -152,6 +159,10 @@ export function ProjectContinuity({ project, locale, initialRole, initialLook }:
               </li>
             ))}
           </ul>
+          <Link className="primary-button" href={enquiryHref}>
+            {ar ? "ناقش هذه الإطلالة" : "Discuss this look"}
+            <span aria-hidden="true">↗</span>
+          </Link>
         </div>
       </div>
     </section>
