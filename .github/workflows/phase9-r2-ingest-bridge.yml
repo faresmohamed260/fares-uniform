@@ -16,13 +16,16 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - name: Deploy temporary hash-locked ingest Worker
+      - name: Deploy temporary encrypted hash-locked ingest Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -euo pipefail
           test -n "$CLOUDFLARE_API_TOKEN"
           mkdir -p /tmp/r2-ingest
+
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out /tmp/r2-ingest/private.pem
+          openssl pkey -in /tmp/r2-ingest/private.pem -pubout -out /tmp/r2-ingest/public.pem
 
           cat > /tmp/r2-ingest/wrangler.toml <<'TOML'
           name = "fares-uniform-phase9-r2-ingest"
@@ -48,27 +51,62 @@ jobs:
 
           const hex = (buffer) => [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, "0")).join("");
 
+          const fromBase64Url = (value) => {
+            const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+            const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+            const raw = atob(padded);
+            return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+          };
+
+          const privateKeyBytes = (pem) => {
+            const body = pem.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s+/g, "");
+            const raw = atob(body);
+            return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+          };
+
+          const decryptEnvelope = async (url, privatePem) => {
+            const encryptedKey = fromBase64Url(url.searchParams.get("ek") || "");
+            const iv = fromBase64Url(url.searchParams.get("iv") || "");
+            const ciphertext = fromBase64Url(url.searchParams.get("ct") || "");
+            if (encryptedKey.length === 0 || iv.length !== 12 || ciphertext.length < 17) {
+              throw new Error("Invalid encrypted envelope");
+            }
+
+            const privateKey = await crypto.subtle.importKey(
+              "pkcs8",
+              privateKeyBytes(privatePem),
+              { name: "RSA-OAEP", hash: "SHA-256" },
+              false,
+              ["decrypt"],
+            );
+            const aesRaw = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, privateKey, encryptedKey);
+            const aesKey = await crypto.subtle.importKey("raw", aesRaw, "AES-GCM", false, ["decrypt"]);
+            const plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, aesKey, ciphertext);
+            const decoded = new TextDecoder().decode(plaintext);
+            const splitAt = decoded.indexOf("\n");
+            if (splitAt < 1) throw new Error("Invalid payload");
+            return { key: decoded.slice(0, splitAt), source: decoded.slice(splitAt + 1) };
+          };
+
           export default {
             async fetch(request, env) {
               const url = new URL(request.url);
               if (request.method === "GET" && url.pathname === "/health") {
-                return Response.json({ ok: true, bucket: "fares-uniform-media-private", expected: Object.keys(EXPECTED).length });
+                return Response.json({ ok: true, bucket: "fares-uniform-media-private", expected: Object.keys(EXPECTED).length, sealed: true });
               }
-              if (!["GET", "POST"].includes(request.method) || url.pathname !== "/ingest") {
+              if (request.method !== "GET" || url.pathname !== "/ingest-sealed") {
                 return new Response("Not found", { status: 404 });
               }
 
-              let key = "";
-              let source = "";
-              if (request.method === "GET") {
-                key = String(url.searchParams.get("key") || "");
-                source = String(url.searchParams.get("source") || "");
-              } else {
-                let body;
-                try { body = await request.json(); } catch { return new Response("Invalid JSON", { status: 400 }); }
-                key = String(body?.key || "");
-                source = String(body?.source || "");
+              let payload;
+              try {
+                payload = await decryptEnvelope(url, env.INGEST_PRIVATE_KEY);
+              } catch {
+                return new Response("Invalid encrypted envelope", { status: 400 });
               }
+
+              const key = String(payload.key || "");
+              const source = String(payload.source || "");
               const expected = EXPECTED[key];
               if (!expected) return new Response("Key not allowed", { status: 403 });
 
@@ -107,14 +145,28 @@ jobs:
 
           cd /tmp/r2-ingest
           npx --yes wrangler@4.135.0 deploy --config wrangler.toml 2>&1 | tee deploy.log
+          npx --yes wrangler@4.135.0 secret put INGEST_PRIVATE_KEY --config wrangler.toml < private.pem
+
           grep -Eo 'https://[^ ]+workers\.dev' deploy.log | tail -n1 > worker-url.txt
           test -s worker-url.txt
           worker_url="$(cat worker-url.txt)"
-          curl --fail --silent --show-error "$worker_url/health" | tee health.json
-          jq -e '.ok == true and .expected == 6 and .bucket == "fares-uniform-media-private"' health.json >/dev/null
+
+          ok=0
+          for attempt in $(seq 1 12); do
+            if curl --fail --silent --show-error "$worker_url/health" -o health.json; then
+              if jq -e '.ok == true and .expected == 6 and .sealed == true and .bucket == "fares-uniform-media-private"' health.json >/dev/null; then
+                ok=1
+                break
+              fi
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
+
+          echo "PHASE9_INGEST_PUBLIC_KEY_B64=$(base64 -w0 public.pem)"
 
           mkdir -p "$GITHUB_WORKSPACE/r2-bridge-evidence"
-          cp worker-url.txt health.json "$GITHUB_WORKSPACE/r2-bridge-evidence/"
+          cp worker-url.txt health.json public.pem "$GITHUB_WORKSPACE/r2-bridge-evidence/"
 
       - name: Upload bridge evidence
         uses: actions/upload-artifact@v5
