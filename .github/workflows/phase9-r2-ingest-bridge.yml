@@ -1,4 +1,4 @@
-name: Phase 9 R2 ingest bridge
+name: Phase 9 R2 ingest bridge cleanup
 
 on:
   push:
@@ -12,166 +12,30 @@ permissions:
   contents: read
 
 jobs:
-  deploy-ingest-bridge:
+  cleanup:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
-      - name: Deploy temporary encrypted hash-locked ingest Worker
+      - name: Delete temporary ingest Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -euo pipefail
-          test -n "$CLOUDFLARE_API_TOKEN"
-          mkdir -p /tmp/r2-ingest
+          account_id="9b0bf4a19a68badb653f984151b62fd2"
+          script_name="fares-uniform-phase9-r2-ingest"
+          endpoint="https://api.cloudflare.com/client/v4/accounts/$account_id/workers/scripts/$script_name"
 
-          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out /tmp/r2-ingest/private.pem
-          openssl pkey -in /tmp/r2-ingest/private.pem -pubout -out /tmp/r2-ingest/public.pem
+          response="$(curl --fail-with-body --silent --show-error             -X DELETE             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             "$endpoint")"
+          jq -e '.success == true' <<<"$response" >/dev/null
+          echo "Temporary Phase 9 ingest Worker deleted"
 
-          cat > /tmp/r2-ingest/wrangler.toml <<'TOML'
-          name = "fares-uniform-phase9-r2-ingest"
-          main = "worker.mjs"
-          compatibility_date = "2026-09-20"
-          account_id = "9b0bf4a19a68badb653f984151b62fd2"
-          workers_dev = true
-
-          [[r2_buckets]]
-          binding = "KGC_BUCKET"
-          bucket_name = "fares-uniform-media-private"
-          TOML
-
-          cat > /tmp/r2-ingest/worker.mjs <<'JS'
-          const EXPECTED = {
-            "kindergarten-summer.png": { bytes: 1567756, sha256: "c479be57cc8ffa0ed170c8453420f99cb4d9fa3969a53141b81730e9830a1e35" },
-            "primary-summer.png": { bytes: 1566281, sha256: "df47288be770489c702ff4de298556e74e0233abaa042f2355ef634cb4bcaa8e" },
-            "middle-summer.png": { bytes: 1576808, sha256: "9d87d962941f1ff921c448405382ccbde661a64b874d8f262407cb25e54ed1a1" },
-            "high-summer.png": { bytes: 1590254, sha256: "c7a38596770d069f41a27c0d2f6dfb9f8f877a7a82e7b001b892d198183a8fbb" },
-            "high-summer-polo-front.png": { bytes: 2069587, sha256: "38b26d959b98331d6944fcbcfaa84b418ac39d7cb24743752cc7357893dcb587" },
-            "high-summer-polo-back.png": { bytes: 1887466, sha256: "a38bffa2cadfd20bee2cf948a8f4f86b3d4f4d185a262577a9f3f2139709a5b7" }
-          };
-
-          const hex = (buffer) => [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, "0")).join("");
-
-          const fromBase64Url = (value) => {
-            const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
-            const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
-            const raw = atob(padded);
-            return Uint8Array.from(raw, (c) => c.charCodeAt(0));
-          };
-
-          const privateKeyBytes = (pem) => {
-            const body = pem.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s+/g, "");
-            const raw = atob(body);
-            return Uint8Array.from(raw, (c) => c.charCodeAt(0));
-          };
-
-          const decryptEnvelope = async (url, privatePem) => {
-            const encryptedKey = fromBase64Url(url.searchParams.get("ek") || "");
-            const iv = fromBase64Url(url.searchParams.get("iv") || "");
-            const ciphertext = fromBase64Url(url.searchParams.get("ct") || "");
-            if (encryptedKey.length === 0 || iv.length !== 12 || ciphertext.length < 17) {
-              throw new Error("Invalid encrypted envelope");
-            }
-
-            const privateKey = await crypto.subtle.importKey(
-              "pkcs8",
-              privateKeyBytes(privatePem),
-              { name: "RSA-OAEP", hash: "SHA-256" },
-              false,
-              ["decrypt"],
-            );
-            const aesRaw = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, privateKey, encryptedKey);
-            const aesKey = await crypto.subtle.importKey("raw", aesRaw, "AES-GCM", false, ["decrypt"]);
-            const plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, aesKey, ciphertext);
-            const decoded = new TextDecoder().decode(plaintext);
-            const splitAt = decoded.indexOf("\n");
-            if (splitAt < 1) throw new Error("Invalid payload");
-            return { key: decoded.slice(0, splitAt), source: decoded.slice(splitAt + 1) };
-          };
-
-          export default {
-            async fetch(request, env) {
-              const url = new URL(request.url);
-              if (request.method === "GET" && url.pathname === "/health") {
-                return Response.json({ ok: true, bucket: "fares-uniform-media-private", expected: Object.keys(EXPECTED).length, sealed: true });
-              }
-              if (request.method !== "GET" || url.pathname !== "/ingest-sealed") {
-                return new Response("Not found", { status: 404 });
-              }
-
-              let payload;
-              try {
-                payload = await decryptEnvelope(url, env.INGEST_PRIVATE_KEY);
-              } catch {
-                return new Response("Invalid encrypted envelope", { status: 400 });
-              }
-
-              const key = String(payload.key || "");
-              const source = String(payload.source || "");
-              const expected = EXPECTED[key];
-              if (!expected) return new Response("Key not allowed", { status: 403 });
-
-              let sourceUrl;
-              try { sourceUrl = new URL(source); } catch { return new Response("Invalid source", { status: 400 }); }
-              const trustedSourceHost = /^sdmntpr[a-z0-9-]*\.oaiusercontent\.com$/i.test(sourceUrl.hostname);
-              if (sourceUrl.protocol !== "https:" || !trustedSourceHost) {
-                return new Response("Source host not allowed", { status: 403 });
-              }
-
-              const objectKey = "kgc/review/" + key;
-              const existing = await env.KGC_BUCKET.head(objectKey);
-              if (existing?.customMetadata?.sha256 === expected.sha256 && existing.size === expected.bytes) {
-                return Response.json({ ok: true, key: objectKey, bytes: existing.size, sha256: expected.sha256, state: "already-present" });
-              }
-              if (existing) return new Response("Existing object does not match expected provenance", { status: 409 });
-
-              const upstream = await fetch(source, { redirect: "follow" });
-              if (!upstream.ok) return new Response("Source fetch failed", { status: 502 });
-              const contentType = (upstream.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
-              if (contentType !== "image/png") return new Response("Unexpected content type", { status: 415 });
-
-              const bytes = await upstream.arrayBuffer();
-              if (bytes.byteLength !== expected.bytes) return new Response("Unexpected byte count", { status: 422 });
-              const digest = hex(await crypto.subtle.digest("SHA-256", bytes));
-              if (digest !== expected.sha256) return new Response("SHA-256 mismatch", { status: 422 });
-
-              await env.KGC_BUCKET.put(objectKey, bytes, {
-                httpMetadata: { contentType: "image/png" },
-                customMetadata: { sha256: digest, source: "kgc-drive-d053" }
-              });
-              return Response.json({ ok: true, key: objectKey, bytes: bytes.byteLength, sha256: digest, state: "uploaded" });
-            }
-          };
-          JS
-
-          cd /tmp/r2-ingest
-          npx --yes wrangler@4.135.0 deploy --config wrangler.toml 2>&1 | tee deploy.log
-          npx --yes wrangler@4.135.0 secret put INGEST_PRIVATE_KEY --config wrangler.toml < private.pem
-
-          grep -Eo 'https://[^ ]+workers\.dev' deploy.log | tail -n1 > worker-url.txt
-          test -s worker-url.txt
-          worker_url="$(cat worker-url.txt)"
-
-          ok=0
           for attempt in $(seq 1 12); do
-            if curl --fail --silent --show-error "$worker_url/health" -o health.json; then
-              if jq -e '.ok == true and .expected == 6 and .sealed == true and .bucket == "fares-uniform-media-private"' health.json >/dev/null; then
-                ok=1
-                break
-              fi
+            status="$(curl --silent --output /dev/null --write-out '%{http_code}'               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"               "$endpoint")"
+            if [ "$status" = "404" ]; then
+              echo "Deletion verified"
+              exit 0
             fi
             sleep 5
           done
-          test "$ok" -eq 1
-
-          echo "PHASE9_INGEST_PUBLIC_KEY_B64=$(base64 -w0 public.pem)"
-
-          mkdir -p "$GITHUB_WORKSPACE/r2-bridge-evidence"
-          cp worker-url.txt health.json public.pem "$GITHUB_WORKSPACE/r2-bridge-evidence/"
-
-      - name: Upload bridge evidence
-        uses: actions/upload-artifact@v5
-        with:
-          name: phase9-r2-ingest-bridge-${{ github.sha }}
-          path: r2-bridge-evidence
-          if-no-files-found: error
-          retention-days: 2
+          echo "Worker deletion did not settle to 404" >&2
+          exit 1
