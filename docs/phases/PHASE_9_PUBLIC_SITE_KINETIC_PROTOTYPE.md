@@ -1,6 +1,6 @@
 # Phase 9 — Public-site kinetic prototype
 
-Status: **TECHNICAL GREEN / PRESERVED-BOARD VISUAL PARITY ITERATION ACTIVE; PRODUCTION PUBLIC-WEB AND DEPLOYMENT EXCLUDED.**
+Status: **D-053 SOURCE/BUILD GREEN; HOSTED RENDER BLOCKED ON PRIVATE REVIEW CREDENTIAL; PRESERVED-BOARD VISUAL PARITY ITERATION ACTIVE; PRODUCTION PUBLIC-WEB AND DEPLOYMENT EXCLUDED.**
 
 Branch: `phase-9/public-site-kinetic-prototype`.
 
@@ -102,4 +102,6 @@ Compilation alone cannot close the kinetic gate. Fares must review the rendered 
 
 ## Exit criteria
 
-Phase 9 remains technically GREEN while preserved-board parity iteration is active. Current rendered implementation authority `5826645eb17fb87cfe2399f34e439bf3bf52b74c`, run `35461716041`, job `105946646432`, passes 8/8 Playwright journeys; artifact `10590260486` (`sha256:1b727fbc5dcd2daa07f192e110b5b33882c3cdf1b04c66bd84f261ae92a7b343`) is the latest verified render authority before the D-053 media-policy correction. Fares instructed the implementation to keep iterating until it matches those boards and to keep authoritative docs current during the loop. PR #7 remains draft. Production `apps/public-web` work and deployment remain separate approvals.
+The last fully rendered authority remains pre-D-053 commit `5826645eb17fb87cfe2399f34e439bf3bf52b74c`, run `35461716041`, job `105946646432`, with 8/8 Playwright journeys and artifact `10590260486` (`sha256:1b727fbc5dcd2daa07f192e110b5b33882c3cdf1b04c66bd84f261ae92a7b343`).
+
+D-053 source authority is `788d73c1f2341113c68ab3c8ef036c9e5589c3eb`. Exact branch-head run `35517923107`, job `106096886755`, passes locked install, typecheck and optimized build, then fails closed at the private-media stage because `PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS` is absent. Rendered Playwright evidence is therefore not yet valid for D-053, and Phase 9 must not be called fully GREEN at this checkpoint. The next valid exit evidence requires the six authorized originals to stage successfully, the hosted journeys to pass, and the new desktop/mobile/RTL/inspector captures to be compared directly with the preserved boards. PR #7 remains draft. Production `apps/public-web` work and deployment remain separate approvals.

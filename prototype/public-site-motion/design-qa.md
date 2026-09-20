@@ -103,3 +103,22 @@ D-053 changes the visual-content rule for KGC: the next parity iteration must us
 This is not authorization to redesign production media infrastructure. The Phase 9 prototype must not turn GitHub into a client-image warehouse, must not serve the public runtime from Google Drive, and must not invent a Cloudflare R2/Supabase Storage/CMS decision. If the hosted review needs a delivery path for the small subset visible in the approved boards, that is a narrow Phase 9 implementation detail and must remain review-scoped unless separately promoted by an architecture decision.
 
 The next visual loop starts with the exact KGC assets required for the approved High/Summer hero, four-stage progression and inspector, replaces the synthetic KGC imagery, uses truthful flat/front-back annotation when no real exploded layers exist, then reruns the same preserved-board comparison. Harbor House remains the synthetic non-school proof.
+
+
+## Checkpoint 30 — original KGC source wired; rendered review blocked on private credential
+
+The D-053 implementation is now source-complete for the approved High/Summer review state. KGC hero/stage imagery resolves only to the four manifest-backed Summer worn anchors. The KGC closer-look view uses the original High/Summer front packshot. The KGC inspector uses the separately photographed original front/back High/Summer polo packshots as an annotated flat-view fallback, with no synthetic KGC model, garment, exploded layer or mirrored pseudo-back. Harbor House keeps the synthetic explode/reassemble interaction so the organization-agnostic boundary remains explicit.
+
+The delivery path is runner-only and review-scoped: exactly six private Drive originals are downloaded into an ignored directory during hosted CI, used for build/render review, and discarded with the runner. Git history contains no new client-image binaries and the implementation does not make Drive a runtime asset service.
+
+Hosted source validation at `788d73c1f2341113c68ab3c8ef036c9e5589c3eb`, run `35517923107`, job `106096886755`, passes locked install, TypeScript typecheck and optimized production build. Rendering is intentionally blocked because the private review secret `PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS` is not configured. Therefore imagery/parity is **not re-closed** at this checkpoint: the pre-D-053 artifact `10590260486` remains historical comparison evidence, and a fresh desktop/mobile/RTL/inspector artifact is required after the credential gate is satisfied.
+
+Current visual rubric state:
+- composition: pending fresh D-053 render comparison;
+- typography/color/geometry: previously GREEN but must be rechecked with the real-media crops;
+- imagery: source correction implemented, **hosted rendered proof blocked**;
+- KGC inspection truthfulness: source behavior corrected to D-048 flat front/back fallback;
+- Harbor House generalization: source behavior preserved as synthetic;
+- accessibility/responsive/motion: build/typecheck clean; hosted browser revalidation pending the same credential.
+
+Do not treat the build PASS as a visual PASS. PR #7 remains draft; production `apps/public-web`, deployment and production media architecture remain excluded.

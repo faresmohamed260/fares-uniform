@@ -470,3 +470,32 @@ The next implementation checkpoint must:
 - keep PR #7 draft and leave `apps/public-web`, provider architecture and deployment untouched.
 
 The last rendered implementation authority before this reconciliation remains `5826645eb17fb87cfe2399f34e439bf3bf52b74c`, run `35461716041`, job `105946646432`, artifact `10590260486` (`sha256:1b727fbc5dcd2daa07f192e110b5b33882c3cdf1b04c66bd84f261ae92a7b343`). The later D-053 documentation commit is policy lineage, not a new rendered-design authority.
+
+
+## Checkpoint 30 — D-053 original-media implementation and fail-closed hosted boundary
+
+Implementation commit `b97126216d0792739ee30f280167eb896a12c4b8` replaced the default KGC High/Summer review path with manifest-backed original-media references and removed the historical synthetic KGC substitutes from that path. The four KGC stage cards now resolve to their original Summer worn/model anchors, the hero resolves to the original High/Summer worn anchor, and the High/Summer garment story resolves to the matched original front packshot. The dedicated KGC inspector uses the D-048 annotated flat-view fallback with the separately photographed original front/back packshots; it no longer fabricates exploded construction or mirrors a synthetic image. Harbor House retains the explicitly synthetic explode/reassemble path.
+
+The review-only delivery mechanism is intentionally narrow: `scripts/stage-kgc-review-media.mjs` downloads exactly six D-053 Drive file IDs to ignored runner-only `public/review-media/kgc/` paths, emits filename/byte-count/SHA-256 provenance, and never commits or deploys those originals. The workflow fails closed when the review credential is absent. No Google Drive runtime delivery, GitHub client-photo library, R2, Supabase Storage, CMS or production ingestion decision was introduced.
+
+First exact-head RED evidence:
+- implementation commit: `b97126216d0792739ee30f280167eb896a12c4b8`;
+- run: `35517884607`;
+- job: `106096788537`;
+- exact checkout/toolchain: PASS;
+- private KGC media staging: **FAIL**, because `PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS` was empty;
+- install/typecheck/build/render: skipped by the early fail-closed gate;
+- no synthetic fallback or public file sharing occurred.
+
+Commit `788d73c1f2341113c68ab3c8ef036c9e5589c3eb` moved the private-media gate after build so code validation remains available without weakening the privacy boundary. Fresh exact branch-head evidence:
+- run: `35517923107`;
+- job: `106096886755`;
+- checkout: PASS;
+- locked install: PASS;
+- TypeScript typecheck: PASS;
+- optimized Next.js production build: PASS;
+- private KGC media staging: **FAIL**, solely because `PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS` is not configured;
+- Chromium and rendered Playwright journeys: skipped;
+- approved reference-board staging/evidence upload: PASS.
+
+The current external blocker is therefore explicit and narrow: a disposable review identity must be able to read only the six Drive originals listed in the Phase 9 contract, and its service-account JSON must be stored as GitHub Actions secret `PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS`. Until that exists, there is no valid D-053 rendered authority and no side-by-side board parity claim. The last rendered authority remains `5826645eb17fb87cfe2399f34e439bf3bf52b74c` / run `35461716041`, which is historical pre-D-053 evidence only. PR #7 stays draft and production remains excluded.
