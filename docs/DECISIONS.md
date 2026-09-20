@@ -456,7 +456,7 @@ Current hosted review authority `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`, run 
 
 Google Drive remains the audited source/archive location for the existing KGC collection, but it is no longer the hosted Phase 9 delivery dependency. GitHub remains source/evidence storage rather than a client-photo warehouse. Odoo database-backed attachments remain in Supabase PostgreSQL; D-054 does not move that operational state into R2.
 
-Repository secret `CLOUDFLARE_API_TOKEN` is the broad Cloudflare control-plane credential supplied by Fares. In the current isolated prototype it is confined to hosted provider/review staging and is never exposed to browser code, Odoo runtime or the public application. Before any production object data plane is approved, replace that broad credential with a narrowly scoped R2 credential limited to the required bucket and operations.
+Repository secret `CLOUDFLARE_API_TOKEN` is the broad Cloudflare control-plane credential supplied by Fares. It remains control-plane/provider-administration only and is never exposed to browser code, Odoo runtime or the public application. Phase 10 Workstream 10.2 proved that object data-plane access can use short-lived account tokens scoped to one bucket and operation class, with cross-bucket denial and explicit revocation; ordinary object operations do not require the broad token.
 
 Production publication, backup retention/RPO/RTO, any future residency requirement, public bucket/custom-domain policy and production launch remain separately gated.
 
@@ -472,3 +472,16 @@ The accepted public architecture keeps Odoo as operational and public-editorial/
 Private originals remain private. Only explicitly rights/publication-approved derivatives may enter the public media path. Browser/runtime code never receives broad Cloudflare, Odoo staff or database credentials, price, stock or private operational data. The broad `CLOUDFLARE_API_TOKEN` remains control-plane/review legacy; ordinary production R2 data-plane operations require narrow purpose-specific credentials.
 
 This decision authorizes Phase 10 repository engineering, hosted validation and provider work required by the phase contract. It does not authorize production launch/cutover, Gate D approval, public publication of KGC or another real client, merging PR #7, price/stock exposure or unrelated ERP/POS redesign. Production remains NO-GO until the existing release gates and a separate explicit production authorization are satisfied.
+
+
+## D-056 — R2 publication uses ephemeral bucket-scoped data-plane credentials
+
+Status: Evidence-backed architecture decision, 2026-09-20; real-client publication and production launch remain unauthorized.
+
+Phase 10 Workstream 10.2 establishes the accepted object-publication credential boundary. Provider/control-plane work may use the existing broad `CLOUDFLARE_API_TOKEN` to create and revoke short-lived Cloudflare account tokens, but R2 object data-plane steps must not receive that broad token.
+
+The hosted publication proof creates one-hour account tokens scoped to exactly one bucket and permission group: private-media Object Read and public-media Object Write. Their S3-compatible credentials remain masked and runner-local. Cross-bucket access must fail, and both account tokens must be revoked in unconditional cleanup.
+
+Exact authority is commit `758cf5889e25e62e46db4e2c3c9cacd46105c6ab`. R2 run `35538533822`, job `106151844125`, proved 403 denial in both cross-bucket directions, exact SHA-256/content/cache metadata for the synthetic derivative, absence of the broad token from the data-plane step and successful cleanup. Companion Odoo run `35538533842`, job `106151844070`, passed 13 post-test methods / 23 addon tests with zero failures/errors and a repeatable public-addon upgrade.
+
+Odoo may retain private/public object keys and content hashes as internal publication metadata, but V2 public DTOs do not serialize them. Published media must use an approved browser-facing HTTPS origin and cannot use the R2 S3 API hostname. This work does not enable a public R2 hostname/custom domain, authorize KGC or other real-client publication, approve production launch, or resolve Gate D.

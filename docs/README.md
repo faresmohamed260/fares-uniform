@@ -65,6 +65,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 9 public-site kinetic prototype](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) | Authorized isolated Pattern in Motion prototype, multi-organization boundary and hosted kinetic acceptance contract |
 | [Phase 10 public-site productionization](phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md) | Authorized active contract for migrating the approved kinetic prototype into the real public app without carrying prototype-only architecture debt |
 | [Phase 10 productionization validation](validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md) | Workstream-by-workstream RED-to-GREEN evidence for the V2 contract, R2 publication boundary and production frontend migration |
+| [Phase 10 R2 publication operations](operations/PHASE_10_R2_PUBLICATION.md) | Private-source/public-derivative bucket boundary, ephemeral narrow credentials, synthetic proof and failure rules |
 | [Phase 9 kinetic prototype validation](validation/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) | Exact RED-to-green hosted build, browser, responsive/RTL, reduced-motion and rendered-evidence record |
 | [Phase 9 design QA](../prototype/public-site-motion/design-qa.md) | Approved-reference comparisons, responsive states, findings history and final visual result |
 | [Phase 8 staging secret inventory](operations/PHASE_8_STAGING_SECRET_INVENTORY.md) | Staging secret names/purpose/custody/rotation without secret values |
@@ -87,6 +88,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 - [KGC National media manifest](ui/KGC_MEDIA_MANIFEST.md): complete 66-file Drive audit with 20 authoritative worn/model anchors, 36 matched packshots, 8 extra/unmatched packshots, 2 supporting references and stable Drive IDs; no binaries or publication approval.
 - [Pattern in Motion design specification](ui/PATTERN_IN_MOTION_DESIGN_SPEC.md): Fares-selected bright editorial direction with a stable Fares shell, data-driven organization/program/cohort skins, generic garment continuity, `/explodeview` review state, mobile/RTL compositions and kinetic acceptance criteria; KGC is the first validation fixture, not the global identity.
 - [Staging repair and cleanup evidence](validation/PHASE_8_HANDOFF_REPAIR.md): current repair results and preserved RED evidence.
+- [Phase 10 R2 publication operations](operations/PHASE_10_R2_PUBLICATION.md): GREEN synthetic publication boundary using short-lived bucket-scoped R2 credentials; real-client publication and public delivery origin remain gated.
 - [Workflow guide](operations/WORKFLOW_GUIDE.md): retained workflows, retired diagnostic entry points and execution precautions.
 - [Staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md): current monitoring/alert/privacy proof and active default-branch schedule and remaining production-owner boundary.
 - [Release integration validation](validation/RELEASE_INTEGRATION.md): exact candidate, hosted gates, stack audit and merged PR #6/default-branch integration boundary.

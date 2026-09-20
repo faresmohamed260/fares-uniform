@@ -1,6 +1,6 @@
 # Phase 10 — Public-site productionization
 
-Status: **AUTHORIZED / ACTIVE — WORKSTREAM 10.1 GREEN; WORKSTREAM 10.2 NEXT.**
+Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.2 GREEN; WORKSTREAM 10.3 NEXT.**
 
 Authorization: Fares accepted this productionization plan on 2026-09-20 and authorized Phase 10 repository engineering, hosted CI and provider work required by this contract. Production launch/cutover, Gate D approval, real-client publication, price/stock exposure and merging PR #7 remain separately gated.
 
@@ -136,14 +136,15 @@ Required evidence:
 - V1 remains GREEN.
 
 ### 10.2 R2 publication boundary RED -> GREEN
-Prove with synthetic media:
-- private object cannot be addressed through public DTO;
-- approved derivative can be promoted to public bucket;
-- public DTO contains only public media metadata;
-- narrow credentials work;
-- broad Cloudflare token is not needed by ordinary public-web runtime.
+Status: **GREEN.**
 
-Do not use KGC as the first publication proof unless publication rights have been explicitly approved.
+Preserved provider RED: commit `874a32e5bc9304df8aa8b67ddda4086f24513e23`, run `35537516748`, job `106149079993`, failed closed before public-bucket mutation because no narrow R2 credentials existed.
+
+Synthetic private-source seed: commit `5ca8dfea51bc52160a64d1a8471c47e33b925cd6`, run `35538270515`, job `106151129369`, proved exact source hash and retained no public delivery endpoint on the private bucket.
+
+Exact-head GREEN: commit `758cf5889e25e62e46db4e2c3c9cacd46105c6ab`, publication run `35538533822` / job `106151844125`, plus V1+V2 contract run `35538533842` / job `106151844070`. The hosted proof used one-hour bucket-scoped account tokens, asserted cross-bucket `403` denial both ways, verified the hash-addressed synthetic public derivative, kept the broad Cloudflare token out of the data-plane step, revoked both narrow tokens, and preserved private/public storage metadata as non-serialized Odoo publication state.
+
+KGC and other real-client publication remain unauthorized. The public bucket still has no browser delivery hostname/custom domain selected by this proof.
 
 ### 10.3 Public foundation RED -> GREEN
 Implement canonical locale routing, root document language/direction, fonts, metadata, error/404, schema client and basic Fares shell.

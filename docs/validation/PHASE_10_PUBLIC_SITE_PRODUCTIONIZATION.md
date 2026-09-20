@@ -1,81 +1,84 @@
 # Phase 10 validation — public-site productionization
 
-Status: **WORKSTREAM 10.1 GREEN — WORKSTREAM 10.2 RED CONTRACT CANDIDATE.**
+Status: **WORKSTREAMS 10.1–10.2 GREEN — WORKSTREAM 10.3 NEXT.**
 
 Branch: `phase-10/public-site-productionization`.
 
 Draft review: PR #8 is stacked against `phase-9/public-site-kinetic-prototype`; PR #7 remains draft and unmerged.
 
-Production status: **NO-GO.** Phase 10 authorization covers repository engineering, hosted CI and provider work required by the accepted contract; it does not authorize production launch/cutover, Gate D approval, public KGC/client publication, price/stock exposure or merging PR #7.
+Production status: **NO-GO.** Phase 10 authorization covers repository engineering, hosted CI and provider work required by the accepted contract. It does not authorize production launch/cutover, Gate D approval, public KGC/client publication, price/stock exposure or merging PR #7/#8.
 
 ## Workstream 10.1 — V2 public contract
 
-The V2 contract is source-controlled in `contracts/public-api-v2.openapi.json` and covers exact public home/work/project response shapes, strict EN/AR locale behavior, organization/program/cohort/look/garment/media relationships, strict publication filtering and unknown/unpublished slug fail-closed behavior.
-
-The implementation adds dedicated Odoo editorial/publication models while keeping operational `product.template` truth separate. Public serializers expose only allowlisted public slugs/content/media. Tests explicitly seed operational price, SKU and private R2 object-key values and prove they do not cross the public boundary. Rights-private media and draft records are absent. V1 catalog/enquiry tests run in the same addon test suite.
-
 ### Preserved RED
 
-- contract commit: `dceb1b5f35dcd6837cf6509d6e2a24eb98b3a435` — `test: define Phase 10 V2 public contract`;
-- run: `35535262459`;
-- job: `106143034778`;
+- commit `dceb1b5f35dcd6837cf6509d6e2a24eb98b3a435` — `test: define Phase 10 V2 public contract`;
+- run/job `35535262459` / `106143034778`;
 - result: **RED**, `4 failed, 0 error(s) of 12 tests`;
-- root cause: the contract tests correctly required `fu.public.organization` and the new public editorial graph before those models/routes existed;
-- V1 test cases still executed in the same run;
-- artifact: `10612795839`;
-- digest: `sha256:88a248d91dacb1af36ee6458875fbfc80b8ab76e4d79218ff1c904b8a32ec6c9`.
+- root cause: the contract correctly required the new public editorial graph before those models/routes existed;
+- artifact `10612795839`, digest `sha256:88a248d91dacb1af36ee6458875fbfc80b8ab76e4d79218ff1c904b8a32ec6c9`.
 
-The RED assertions were not weakened or removed.
+### GREEN
 
-### Exact-head GREEN
+Implementation commit `1d53cb0aa6d26cc8753db3af7f122fb1b5b46e3d`, run `35535480047`, job `106143624278`, passed the exact source-controlled V2 OpenAPI contract, V1 regressions and repeatable `fu_core,fu_public_api` upgrade. Odoo reported 12 post-test methods / `fu_public_api: 22 tests` and `0 failed, 0 error(s)`. Artifact `10612715734` has digest `sha256:1227670137d266e016e6c925d54d529347cf9526df0d04d228934c7f0c2974a9`.
 
-- implementation commit: `1d53cb0aa6d26cc8753db3af7f122fb1b5b46e3d` — `feat: implement V2 public editorial boundary`;
-- exact push run: `35535480047`;
-- job: `106143624278`;
-- result: **GREEN**;
-- runtime evidence recorded `fares_sha=1d53cb0aa6d26cc8753db3af7f122fb1b5b46e3d` and pinned Odoo `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`;
-- Odoo executed 12 post-test methods, reported `fu_public_api: 22 tests`, and finished `0 failed, 0 error(s)`;
-- the same job then completed a repeatable `fu_core,fu_public_api` upgrade;
-- artifact: `10612715734`;
-- digest: `sha256:1227670137d266e016e6c925d54d529347cf9526df0d04d228934c7f0c2974a9`.
-
-Contract assertions cover:
-
-- exact V2 home/work/project payload keys;
-- strict `en|ar` locale requirement;
-- unpublished/unknown organization-program paths fail closed;
-- draft cohorts/garments/programs are absent;
-- rights-private media is absent;
-- no internal database IDs or operational product IDs;
-- no price/cost/stock fields;
-- no SKU/barcode;
-- no private R2 object keys or rights/admin publication metadata;
-- V1 public catalog/enquiry regressions remain GREEN.
-
-A later PR-triggered integration run may use GitHub's synthetic merge SHA; it is supplementary only. The exact-head push run above is the Workstream 10.1 implementation authority.
-
-## Next validation boundary — Workstream 10.2
-
-Use synthetic media first to prove:
-
-- private R2 source objects cannot be addressed through public DTOs;
-- only rights/publication-approved derivatives can enter the public bucket;
-- narrow purpose-specific data-plane credentials work;
-- ordinary public-web runtime does not require the broad `CLOUDFLARE_API_TOKEN`;
-- browser-visible output contains no R2 credentials/private keys.
-
-Do not use KGC or another real client for the first publication proof without explicit publication approval.
-
+Contract coverage includes strict EN/AR locale behavior, unpublished/unknown 404 behavior, organization/program/cohort/look/garment/media relationships, no operational IDs, no price/cost/stock, no SKU/barcode and no private R2/admin metadata in public payloads.
 
 ## Workstream 10.2 — R2 publication boundary
 
-Contract checkpoint: **RED expected.**
+### Preserved provider RED
 
-The first 10.2 candidate adds:
+- commit `874a32e5bc9304df8aa8b67ddda4086f24513e23`;
+- publication run/job `35537516748` / `106149079993`;
+- result: **RED before mutation** because no narrow R2 credentials existed;
+- artifact `10612704649`, digest `sha256:e3e1d3b4e2db25a8b430f146ac3857609100458d6951fcc0842252747f1f96d6`.
 
-- an Odoo contract that treats private/public R2 object identities and content hash as internal-only metadata and rejects the R2 S3 API/private bucket as a browser-facing public URL;
-- a one-shot synthetic private-source seed using the existing broad control-plane token only;
-- a separate publication workflow that has no `CLOUDFLARE_API_TOKEN` binding and requires bucket-scoped private-read and public-read/write S3 credentials;
-- cross-bucket denial assertions, immutable hash-addressed public object identity and non-secret artifact evidence.
+The broad Cloudflare token was not substituted into the object data-plane step to obtain GREEN.
 
-The first hosted publication run `35537516748` failed closed at credential preflight because no narrow R2 credentials existed. That provider RED is preserved. The implementation proof now mints one-hour bucket-scoped account tokens in a control-plane step, gives only derived narrow S3 credentials to the data-plane step, asserts cross-bucket denial, and revokes both tokens in cleanup. The broad Cloudflare token remains absent from the data-plane step.
+### Synthetic private-source seed
+
+Commit `5ca8dfea51bc52160a64d1a8471c47e33b925cd6`, run `35538270515`, job `106151129369`, wrote and read back the deterministic synthetic source at `phase10/synthetic/source/media-publication-proof-v1.svg`, verified SHA-256 `9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb`, and reconfirmed the private bucket has no managed public delivery or custom domain. Artifact `10613679190` has digest `sha256:8e9663769797259e1620f8fb7241447476853e379adec0f870edcf5784627003`.
+
+### Exact-head GREEN
+
+Implementation authority: `758cf5889e25e62e46db4e2c3c9cacd46105c6ab`.
+
+R2 publication run `35538533822`, job `106151844125`, is **GREEN**:
+
+- minted one-hour private-read and public-write Cloudflare account tokens scoped to exactly one R2 bucket each;
+- derived masked S3 credentials on-runner;
+- object data-plane step had no `CLOUDFLARE_API_TOKEN`;
+- private-read credential fetched only the private source and received HTTP `403` against the public bucket;
+- public-write credential wrote/read the public derivative and received HTTP `403` against the private bucket;
+- public derivative was 507 bytes and hash-addressed at `projects/synthetic-phase10/publication-proof/media-9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb.svg`;
+- SHA-256, content type, immutable cache control and object metadata matched;
+- both ephemeral account tokens were revoked in the unconditional cleanup step;
+- artifact `10613846012`, digest `sha256:cdead7ddffa0ba393600e2b674bd0da872ee652f0a2f2ae1f408610084905bf2`.
+
+The same exact head passed Odoo public-contract run `35538533842`, job `106151844070`:
+
+- 13 post-test methods;
+- `fu_public_api: 23 tests`;
+- `0 failed, 0 error(s)`;
+- repeatable `fu_core,fu_public_api` upgrade GREEN;
+- runtime identity `fares_sha=758cf5889e25e62e46db4e2c3c9cacd46105c6ab`, pinned Odoo `1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf`;
+- artifact `10613553442`, digest `sha256:889da64179b041005c92a832dae10e818db4de394ff3b8fa01efc9c25e12ab6e`.
+
+The Odoo contract now requires a hash-addressed public object identity for published media, forbids private/public R2 object identity and hashes from the public DTO, and rejects `*.r2.cloudflarestorage.com` as a browser-facing public media URL.
+
+No KGC or other real-client asset was published. The public R2 bucket still has no browser delivery hostname/custom domain enabled by this work.
+
+## Next validation boundary — Workstream 10.3
+
+Implement the production `apps/public-web` foundation RED -> GREEN:
+
+- canonical `/[locale]` routing for `en|ar`;
+- root document `lang` / `dir`;
+- deterministic typography;
+- metadata/canonical/hreflang and 404/error baseline;
+- source-controlled V2 schema client;
+- basic Fares-led shell;
+- no price/stock/private-field leakage in rendered/RSC/network payloads;
+- production build plus representative EN/AR hosted browser evidence.
+
+Production launch, Gate D, real-client publication and PR merges remain separately gated.

@@ -49,7 +49,15 @@ Implementation commit `1d53cb0aa6d26cc8753db3af7f122fb1b5b46e3d` added the small
 
 The V2 boundary is source-controlled in `contracts/public-api-v2.openapi.json`; tests prove strict EN/AR locale behavior, unknown/unpublished slug 404s, rights-private records absent, and no operational IDs, price, stock, SKU/barcode or private R2 object keys in the public payload. Detailed evidence is in [Phase 10 validation](docs/validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md).
 
-Next: Workstream 10.2 must prove the private-to-rights-approved public R2 publication boundary with synthetic media and purpose-specific narrow credentials. The broad Cloudflare token remains control-plane/review legacy only. Production launch, Gate D and real-client publication remain NO-GO.
+Workstream 10.2 is GREEN. Synthetic seed commit `5ca8dfea51bc52160a64d1a8471c47e33b925cd6` produced the deterministic private source object in `fares-uniform-media-private` at run `35538270515`, job `106151129369`, while reconfirming the private bucket has no managed `r2.dev` delivery and no custom domain. Artifact `10613679190` has digest `sha256:8e9663769797259e1620f8fb7241447476853e379adec0f870edcf5784627003`.
+
+The required provider RED is preserved at commit `874a32e5bc9304df8aa8b67ddda4086f24513e23`, run `35537516748`, job `106149079993`: the publication workflow failed closed before mutation because no narrow R2 credentials existed. Artifact `10612704649` has digest `sha256:e3e1d3b4e2db25a8b430f146ac3857609100458d6951fcc0842252747f1f96d6`.
+
+Exact-head publication authority is `758cf5889e25e62e46db4e2c3c9cacd46105c6ab`. Run `35538533822`, job `106151844125`, is GREEN using one-hour bucket-scoped Cloudflare account tokens: private-read was denied `403` on the public bucket, public-write was denied `403` on the private bucket, the 507-byte synthetic derivative matched SHA-256 `9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb`, immutable cache metadata was verified, the broad Cloudflare token was absent from the data-plane step, and both ephemeral tokens were revoked in cleanup. Artifact `10613846012` has digest `sha256:cdead7ddffa0ba393600e2b674bd0da872ee652f0a2f2ae1f408610084905bf2`.
+
+The same exact head passed Odoo V1+V2 regression run `35538533842`, job `106151844070`: 13 post-test methods / 23 addon tests, `0 failed, 0 error(s)`, followed by the repeatable public-addon upgrade. Artifact `10613553442` has digest `sha256:889da64179b041005c92a832dae10e818db4de394ff3b8fa01efc9c25e12ab6e`. Public DTOs keep private/public object identity and hashes internal and reject the R2 S3 API hostname as a browser-facing public URL.
+
+Next: Workstream 10.3 — production `apps/public-web` foundation RED -> GREEN: canonical EN/AR routing, document language/direction, deterministic fonts, metadata/SEO, V2 schema client and the base Fares shell. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
 
 ## Delivery state
 
