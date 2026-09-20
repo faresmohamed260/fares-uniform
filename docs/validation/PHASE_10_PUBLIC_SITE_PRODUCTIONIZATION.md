@@ -201,8 +201,41 @@ Exact Pattern push run `35543688161`, job `106165752586`, is **GREEN**:
 
 Exact foundation regression run `35543688160`, job `106165752798`, is GREEN with artifact `10615780599`, digest `sha256:c203f1d2d447b7dafebf259d2a79e05ecb3e5feb7f0a9749e1edd81fa3b50916`.
 
-## Next validation boundary — Workstream 10.4 Slice D
+## Workstream 10.4 Slice D — contextual enquiry handoff
 
-Preserve contextual enquiry state from organization/program/role/look/garment into the existing public enquiry flow without expanding the public data boundary. This slice should establish the front-end context handoff only; rate limits, body bounds, timeouts, abuse/error mapping and privacy-safe logging remain Workstream 10.6.
+### Preserved RED
 
-Production launch, Gate D, real-client publication and PR merges remain separately gated.
+- contract commit `670b37261ae7904214d88f6b9b217b783c897726` — `test: define contextual enquiry handoff`;
+- exact Pattern push run/job `35543839523` / `106166197034`;
+- typecheck and optimized production build passed;
+- first 10 migration checks remained GREEN;
+- the two new enquiry-context journeys failed because project/look and garment views did not yet expose context-preserving enquiry links;
+- RED artifact `10615199878`, digest `sha256:d33a9f986b6e4ea5294b3621def84bb069a3b8bb9faf5b6a319de84c0630ef0f`.
+
+### GREEN
+
+Implementation authority: `ea13f40a7897b51994066e2a0be011e559d3056d` — `feat: preserve project context into enquiries`.
+
+Exact Pattern push run `35544749528`, job `106168556671`, is **GREEN**:
+
+- locked dependency install, typecheck and optimized Next production build passed;
+- 12/12 Pattern migration Playwright checks passed in 9.7s;
+- selected role/look state produces a canonical contextual enquiry link;
+- the homepage validates organization/program/role/look/garment slugs through the V2 public project boundary before prefilling any form state;
+- EN project/look handoff prefills the public organization, sector and human-readable role/look description;
+- AR garment handoff preserves organization/program/role/look/garment context and prefills the localized garment description;
+- the submitted request retains the exact existing nine-field public intake schema;
+- showcase context does not misuse the catalog-only `source_product_slug` field;
+- no new private IDs, operational fields, price, stock or storage metadata enter the browser or POST payload;
+- existing idempotency generation/submission remains unchanged;
+- artifact `10616606046`, digest `sha256:5578394a2b9f43165942e1dfe3bada34593134d10dea07e38a40c96125bb4c0a`.
+
+Exact foundation regression run `35544749469`, job `106168556339`, is also **GREEN** with 6/6 foundation checks. Artifact `10615896677`, digest `sha256:0a3e4b35957883bc8fdf491a0f5df0bf757bfea037104d3bed906eba4f67acff`.
+
+This closes the functional context-handoff slice only. Rate limits, body-size enforcement, timeout/error mapping and privacy-safe logging remain Workstream 10.6.
+
+## Next validation boundary — Workstream 10.5
+
+Harden accessibility and motion across the migrated production experience: keyboard semantics, focus visibility, practical touch targets, EN/AR keyboard paths, reduced-motion information parity, media alt/degraded-media behavior and representative automated accessibility evidence. Do not use this work to weaken the accepted Pattern in Motion hierarchy or to publish KGC/real-client media.
+
+Final visual compare-and-correct remains open. Production launch, Gate D, real-client publication and PR merges remain separately gated.

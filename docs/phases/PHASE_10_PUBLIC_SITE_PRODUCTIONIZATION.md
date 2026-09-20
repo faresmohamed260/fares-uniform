@@ -158,7 +158,7 @@ Final authority `df1d9741087466edead5c358556b91ca4371f910` adds the localized re
 Evidence covers EN/AR SSR document attributes, canonical/hreflang, keyboard focus, Arabic mobile/no horizontal overflow, Fares-led home, canonical work discovery, fail-closed unknown routes and no price/stock/private-field leakage in rendered/RSC/JSON response bodies. Production remains unlaunched.
 
 ### 10.4 Pattern in Motion migration loop
-Status: **ACTIVE. Slice A — Fares introduction + selected-work/project entry — GREEN.**
+Status: **ACTIVE. Functional migration Slices A–D are GREEN; final visual compare-and-correct remains open.**
 
 Preserved RED: commit `50e518e2366b4b268ca15a43dbc9f3a7687038cd`, run `35542377221`, job `106162244837`, failed 4/5 focused migration checks because project cards did not resolve to canonical project routes and the generic project route did not yet exist. RED artifact `10615062850`, digest `sha256:63a7d3f78896f5f627766a2710a69c6c0d63c7522318c08b5ba55b4c4799b60e`.
 
@@ -170,13 +170,15 @@ Slice B — generic cohort/role lineup + look continuity — is also **GREEN**. 
 
 Slice C — garment detail/inspection — is **GREEN**. Preserved RED commit `0e6ee64bed055e1b333d25bec8fa005c3209760c`, run/job `35543546283` / `106165415096`, kept all eight prior checks GREEN and failed only the two new inspection journeys. Implementation `204b7ce0bf82e1f6a32fbb739ac93e3559598324` passed exact Pattern run/job `35543688161` / `106165752586` with 10/10 checks and foundation regression `35543688160` / `106165752798`. Garment URLs preserve valid role/look context, unknown garments fail closed, and the inspection rig falls back to flat presentation unless both `inspection_mode=exploded` and published layer media are present. This intentionally preserves the D-053 source-truth rule.
 
+Slice D — contextual enquiry handoff — is **GREEN**. Preserved RED commit `670b37261ae7904214d88f6b9b217b783c897726`, run/job `35543839523` / `106166197034`, kept 10/10 prior migration checks GREEN while the two new context-handoff journeys failed because the links and form prefill did not yet exist. Implementation `ea13f40a7897b51994066e2a0be011e559d3056d` passed exact Pattern run/job `35544749528` / `106168556671` with 12/12 checks and exact foundation regression `35544749469` / `106168556339` with 6/6 checks. Project/look and garment views now carry only validated public slugs to the homepage; the server resolves those slugs through the V2 public project contract and prefills the existing organization, sector and message fields. The enquiry POST schema was not expanded, `source_product_slug` remains empty for showcase-context enquiries, and Odoo idempotency behavior is untouched.
+
 Port one scene/component at a time:
 1. Fares introduction — **GREEN**;
 2. selected work/project entry — **GREEN**;
 3. cohort/role lineup — **GREEN**;
 4. look continuity — **GREEN**;
 5. garment inspection — **GREEN (truthful flat fallback; exploded only when published layer capability exists)**;
-6. contextual enquiry — **NEXT**.
+6. contextual enquiry — **GREEN**.
 
 After each cohesive slice:
 - hosted render;
