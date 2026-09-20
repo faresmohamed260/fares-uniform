@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Fares Uniform Public API V2",
+    "version": "2.0.0",
+    "description": "Allowlisted published editorial/showcase contract. Operational IDs, price, stock and private media/storage metadata are never public."
+  },
+  "paths": {
+    "/fu/public/v2/home": {
+      "get": {
+        "parameters": [{"$ref": "#/components/parameters/Language"}],
+        "responses": {
+          "200": {"description": "Published featured work.", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HomeResponse"}}}},
+          "400": {"$ref": "#/components/responses/InvalidLocale"}
+        }
+      }
+    },
+    "/fu/public/v2/work": {
+      "get": {
+        "parameters": [{"$ref": "#/components/parameters/Language"}],
+        "responses": {
+          "200": {"description": "Published work summaries.", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/WorkResponse"}}}},
+          "400": {"$ref": "#/components/responses/InvalidLocale"}
+        }
+      }
+    },
+    "/fu/public/v2/work/{organization}/{program}": {
+      "get": {
+        "parameters": [
+          {"$ref": "#/components/parameters/Language"},
+          {"name": "organization", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Slug"}},
+          {"name": "program", "in": "path", "required": true, "schema": {"$ref": "#/components/schemas/Slug"}}
+        ],
+        "responses": {
+          "200": {"description": "One published organization/program project.", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProjectResponse"}}}},
+          "400": {"$ref": "#/components/responses/InvalidLocale"},
+          "404": {"description": "Unknown or unpublished organization/program.", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/NotFound"}}}}
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "Language": {"name": "lang", "in": "query", "required": true, "schema": {"type": "string", "enum": ["en", "ar"]}}
+    },
+    "responses": {
+      "InvalidLocale": {"description": "Missing or unsupported locale.", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/InvalidLocale"}}}}
+    },
+    "schemas": {
+      "Slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 120},
+      "InvalidLocale": {"type": "object", "additionalProperties": false, "required": ["error"], "properties": {"error": {"const": "invalid_locale"}}},
+      "NotFound": {"type": "object", "additionalProperties": false, "required": ["error"], "properties": {"error": {"const": "not_found"}}},
+      "Organization": {
+        "type": "object", "additionalProperties": false, "required": ["slug", "name", "sector"],
+        "properties": {
+          "slug": {"$ref": "#/components/schemas/Slug"},
+          "name": {"type": "string", "minLength": 1, "maxLength": 160},
+          "sector": {"type": "string", "maxLength": 120}
+        }
+      },
+      "ProgramSummary": {
+        "type": "object", "additionalProperties": false, "required": ["slug", "title", "summary"],
+        "properties": {
+          "slug": {"$ref": "#/components/schemas/Slug"},
+          "title": {"type": "string", "minLength": 1, "maxLength": 160},
+          "summary": {"type": "string", "maxLength": 1000}
+        }
+      },
+      "WorkSummary": {
+        "type": "object", "additionalProperties": false, "required": ["organization", "program"],
+        "properties": {
+          "organization": {"$ref": "#/components/schemas/Organization"},
+          "program": {"$ref": "#/components/schemas/ProgramSummary"}
+        }
+      },
+      "HomeResponse": {
+        "type": "object", "additionalProperties": false, "required": ["featured_work"],
+        "properties": {"featured_work": {"type": "array", "items": {"$ref": "#/components/schemas/WorkSummary"}}}
+      },
+      "WorkResponse": {
+        "type": "object", "additionalProperties": false, "required": ["items"],
+        "properties": {"items": {"type": "array", "items": {"$ref": "#/components/schemas/WorkSummary"}}}
+      },
+      "VisualSkin": {
+        "type": "object", "additionalProperties": false, "required": ["accent", "accent_secondary", "motif"],
+        "properties": {
+          "accent": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+          "accent_secondary": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+          "motif": {"type": "string", "maxLength": 80}
+        }
+      },
+      "Program": {
+        "type": "object", "additionalProperties": false, "required": ["slug", "title", "summary", "brief", "visual_skin"],
+        "properties": {
+          "slug": {"$ref": "#/components/schemas/Slug"},
+          "title": {"type": "string", "minLength": 1, "maxLength": 160},
+          "summary": {"type": "string", "maxLength": 1000},
+          "brief": {"type": "string", "maxLength": 2000},
+          "visual_skin": {"$ref": "#/components/schemas/VisualSkin"}
+        }
+      },
+      "Cohort": {
+        "type": "object", "additionalProperties": false, "required": ["slug", "label", "tagline", "order"],
+        "properties": {
+          "slug": {"$ref": "#/components/schemas/Slug"},
+          "label": {"type": "string", "minLength": 1, "maxLength": 160},
+          "tagline": {"type": "string", "maxLength": 500},
+          "order": {"type": "integer", "minimum": 0}
+        }
+      },
+      "Look": {
+        "type": "object", "additionalProperties": false, "required": ["slug", "label", "cohorts", "garments", "order"],
+        "properties": {
+          "slug": {"$ref": "#/components/schemas/Slug"},
+          "label": {"type": "string", "minLength": 1, "maxLength": 160},
+          "cohorts": {"type": "array", "items": {"$ref": "#/components/schemas/Slug"}},
+          "garments": {"type": "array", "items": {"$ref": "#/components/schemas/Slug"}},
+          "order": {"type": "integer", "minimum": 0}
+        }
+      },
+      "PublicMedia": {
+        "type": "object", "additionalProperties": false, "required": ["url", "role", "view", "width", "height", "decorative", "alt", "caption"],
+        "properties": {
+          "url": {"type": "string", "format": "uri"},
+          "role": {"type": "string", "enum": ["hero", "lineup", "garment", "detail", "social"]},
+          "view": {"type": "string", "enum": ["worn", "front", "back", "detail", "layer"]},
+          "width": {"type": "integer", "minimum": 1},
+          "height": {"type": "integer", "minimum": 1},
+          "decorative": {"type": "boolean"},
+          "alt": {"type": "string", "maxLength": 500},
+          "caption": {"type": "string", "maxLength": 1000}
+        }
+      },
+      "Garment": {
+        "type": "object", "additionalProperties": false, "required": ["slug", "name", "category", "inspection_mode", "media"],
+        "properties": {
+          "slug": {"$ref": "#/components/schemas/Slug"},
+          "name": {"type": "string", "minLength": 1, "maxLength": 160},
+          "category": {"type": "string", "maxLength": 120},
+          "inspection_mode": {"type": "string", "enum": ["flat", "exploded"]},
+          "media": {"type": "array", "items": {"$ref": "#/components/schemas/PublicMedia"}}
+        }
+      },
+      "ProjectResponse": {
+        "type": "object", "additionalProperties": false, "required": ["organization", "program", "cohorts", "looks", "garments", "media"],
+        "properties": {
+          "organization": {"$ref": "#/components/schemas/Organization"},
+          "program": {"$ref": "#/components/schemas/Program"},
+          "cohorts": {"type": "array", "items": {"$ref": "#/components/schemas/Cohort"}},
+          "looks": {"type": "array", "items": {"$ref": "#/components/schemas/Look"}},
+          "garments": {"type": "array", "items": {"$ref": "#/components/schemas/Garment"}},
+          "media": {"type": "array", "items": {"$ref": "#/components/schemas/PublicMedia"}}
+        }
+      }
+    }
+  }
+}
