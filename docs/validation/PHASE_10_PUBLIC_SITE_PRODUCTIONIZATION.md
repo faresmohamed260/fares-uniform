@@ -1,6 +1,6 @@
 # Phase 10 validation — public-site productionization
 
-Status: **WORKSTREAMS 10.1–10.3 GREEN — WORKSTREAM 10.4 ACTIVE; SLICES A–B GREEN.**
+Status: **WORKSTREAMS 10.1–10.3 GREEN — WORKSTREAM 10.4 ACTIVE; SLICES A–C GREEN.**
 
 Branch: `phase-10/public-site-productionization`.
 
@@ -168,8 +168,41 @@ Exact Pattern push run `35543416489`, job `106165042260`, is **GREEN**:
 
 Exact foundation regression run `35543416418`, job `106165042091`, is GREEN with artifact `10615129214`, digest `sha256:1ecfc8b27d8dac861137ea7bef26ed65ecd35272a434581b49efe88c4d54f940`.
 
-## Next validation boundary — Workstream 10.4 Slice C
+### Slice C — truthful garment detail/inspection
 
-Implement garment detail/inspection from V2 capabilities. Flat-mode garments must remain truthful flat/front-back presentations; exploded behavior may appear only when the contract and approved media support it. Use publication-safe synthetic evidence until real-client rights are explicitly approved. Preserve URL state, EN/AR, touch/keyboard/reduced-motion parity and the no-private-field boundary.
+#### Preserved RED
+
+- contract commit `0e6ee64bed055e1b333d25bec8fa005c3209760c` — `test: define truthful garment inspection`;
+- exact push run/job `35543546283` / `106165415096`;
+- result: **8 passed, 2 failed of 10**; all prior Pattern slices remained GREEN;
+- EN failed because the active garment had no canonical inspection link;
+- AR failed because the garment route did not exist, so the localized document attributes were absent on the 404 surface;
+- unknown garment 404 already passed;
+- artifact `10615646955`, digest `sha256:65990e5784583f11b89d7251d5a95a7fb39ab5f4d47e55f2cc896332a0b02946`.
+
+#### GREEN
+
+Implementation authority: `204b7ce0bf82e1f6a32fbb739ac93e3559598324` — `feat: add truthful flat garment inspection`.
+
+Exact Pattern push run `35543688161`, job `106165752586`, is **GREEN**:
+
+- locked install, typecheck and optimized Next production build passed;
+- 10/10 Pattern migration checks passed in 7.4s;
+- active garments link to canonical locale/project/garment routes while preserving valid role/look context;
+- EN inspection exposes the synthetic Utility overshirt in truthful flat mode and returns to the same Facilities/Utility state;
+- AR mobile inspection exposes the synthetic field jacket in RTL and preserves Facilities/Outerwear context;
+- unknown garment identity fails closed;
+- canonical/hreflang metadata is emitted on garment routes;
+- `data-inspection-mode` and `data-exploded` expose truthful capability state for browser verification;
+- no explode control is rendered when separated published layers are unavailable;
+- implementation only permits exploded presentation when the V2 garment says `inspection_mode=exploded` **and** published `view=layer` media exists;
+- no KGC/real-client media is used or published;
+- artifact `10615144689`, digest `sha256:66d84f155f99ce60ee8d98e6fe3995a9f5478226d2d3dbbfc06ecd9d6e1e0c5c`.
+
+Exact foundation regression run `35543688160`, job `106165752798`, is GREEN with artifact `10615780599`, digest `sha256:c203f1d2d447b7dafebf259d2a79e05ecb3e5feb7f0a9749e1edd81fa3b50916`.
+
+## Next validation boundary — Workstream 10.4 Slice D
+
+Preserve contextual enquiry state from organization/program/role/look/garment into the existing public enquiry flow without expanding the public data boundary. This slice should establish the front-end context handoff only; rate limits, body bounds, timeouts, abuse/error mapping and privacy-safe logging remain Workstream 10.6.
 
 Production launch, Gate D, real-client publication and PR merges remain separately gated.

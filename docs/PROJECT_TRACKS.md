@@ -55,9 +55,9 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 - [x] Organization/program routes.
 - [x] Cohort/role progression.
 - [x] Complete-look continuity.
-- [ ] Garment detail and inspection.
+- [x] Garment detail and inspection.
 - [ ] Contextual transitions and motion.
-- [ ] Mobile and Arabic RTL interaction.
+- [x] Mobile and Arabic RTL interaction.
 - [x] Remove prototype-only KGC branching and fixed-count assumptions.
 - [x] Drive capabilities from content, not organization identity.
 - [ ] Compare every cohesive slice against the Phase 9 visual authority.

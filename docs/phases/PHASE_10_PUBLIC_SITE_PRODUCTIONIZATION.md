@@ -1,6 +1,6 @@
 # Phase 10 — Public-site productionization
 
-Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.3 GREEN; WORKSTREAM 10.4 ACTIVE (INTRO/PROJECT ENTRY + COHORT/LOOK CONTINUITY GREEN).**
+Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.3 GREEN; WORKSTREAM 10.4 ACTIVE (SLICES A–C GREEN).**
 
 Authorization: Fares accepted this productionization plan on 2026-09-20 and authorized Phase 10 repository engineering, hosted CI and provider work required by this contract. Production launch/cutover, Gate D approval, real-client publication, price/stock exposure and merging PR #7 remain separately gated.
 
@@ -168,13 +168,15 @@ The production slice is Fares-led and organization-agnostic, uses a bounded Moti
 
 Slice B — generic cohort/role lineup + look continuity — is also **GREEN**. Preserved RED commit `f653e64915c4a233ccaec8019f7a3ad38b2f68e6`, run/job `35542784351` / `106163354327`, failed only the two new continuity checks (5 existing checks remained GREEN). Implementation `0eda6bcd6611b8790081ea90491c339efe1fa1b4` passed exact Pattern run/job `35543416489` / `106165042260` with 7/7 checks and foundation regression `35543416418` / `106165042091`. The component is driven entirely by V2 cohorts/looks/garments, preserves shared looks only where declared by the contract, keeps role/look state addressable in the URL, and proves a three-role non-school fixture in EN desktop and AR mobile.
 
+Slice C — garment detail/inspection — is **GREEN**. Preserved RED commit `0e6ee64bed055e1b333d25bec8fa005c3209760c`, run/job `35543546283` / `106165415096`, kept all eight prior checks GREEN and failed only the two new inspection journeys. Implementation `204b7ce0bf82e1f6a32fbb739ac93e3559598324` passed exact Pattern run/job `35543688161` / `106165752586` with 10/10 checks and foundation regression `35543688160` / `106165752798`. Garment URLs preserve valid role/look context, unknown garments fail closed, and the inspection rig falls back to flat presentation unless both `inspection_mode=exploded` and published layer media are present. This intentionally preserves the D-053 source-truth rule.
+
 Port one scene/component at a time:
 1. Fares introduction — **GREEN**;
 2. selected work/project entry — **GREEN**;
 3. cohort/role lineup — **GREEN**;
 4. look continuity — **GREEN**;
-5. garment inspection — **NEXT**;
-6. contextual enquiry.
+5. garment inspection — **GREEN (truthful flat fallback; exploded only when published layer capability exists)**;
+6. contextual enquiry — **NEXT**.
 
 After each cohesive slice:
 - hosted render;

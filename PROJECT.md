@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.3 are GREEN; Workstream 10.4 is ACTIVE. Intro/project-entry and generic cohort/look-continuity slices are GREEN; garment inspection is next. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
+- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.3 are GREEN; Workstream 10.4 is ACTIVE. Intro/project-entry, cohort/look continuity and truthful flat garment inspection are GREEN; contextual enquiry handoff is next. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -76,7 +76,11 @@ Workstream 10.4 Slice B is GREEN. Contract commit `f653e64915c4a233ccaec8019f7a3
 
 Implementation commit `0eda6bcd6611b8790081ea90491c339efe1fa1b4` added a generic V2-driven role/look continuity island and a three-role synthetic hospitality fixture. Shared looks persist when valid across roles; role changes replace only unsupported looks; selected role/look state is URL-addressable; active garment identity follows the selected look; Arabic direct-entry and RTL are preserved. No school-stage count or organization identity controls the component. Exact Pattern run `35543416489`, job `106165042260`, passed typecheck, optimized build and **7/7 migration checks**; artifact `10615691405` has digest `sha256:3eeda14a7e3d35d7383a8be0f39922eb288519c6f07e3624315573ae4937175c`. Exact foundation regression run `35543416418`, job `106165042091`, is GREEN; artifact `10615129214`, digest `sha256:1ecfc8b27d8dac861137ea7bef26ed65ecd35272a434581b49efe88c4d54f940`.
 
-Next: continue Workstream 10.4 with garment detail/inspection, using capability-driven flat/exploded behavior and synthetic/publication-safe media only. Final visual parity/sign-off remains open until the compare-and-correct loop is complete. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
+Workstream 10.4 Slice C is GREEN. Contract commit `0e6ee64bed055e1b333d25bec8fa005c3209760c` preserved RED at run `35543546283`, job `106165415096`: 8 existing checks passed while the two new inspection journeys failed because active garments were not links and the canonical garment route did not exist. RED artifact `10615646955` has digest `sha256:65990e5784583f11b89d7251d5a95a7fb39ab5f4d47e55f2cc896332a0b02946`.
+
+Implementation commit `204b7ce0bf82e1f6a32fbb739ac93e3559598324` added canonical `/[locale]/work/[organization]/[program]/[garment]` routes, context-preserving garment links, localized metadata, a truthful flat-view fallback and a capability check that permits exploded presentation only when both the V2 garment contract and published layer media support it. The synthetic fixture remains flat, so no unsupported exploded construction is fabricated. Exact Pattern run `35543688161`, job `106165752586`, passed typecheck, optimized build and **10/10 migration checks**; artifact `10615144689` has digest `sha256:66d84f155f99ce60ee8d98e6fe3995a9f5478226d2d3dbbfc06ecd9d6e1e0c5c`. Exact foundation regression run `35543688160`, job `106165752798`, is GREEN; artifact `10615780599`, digest `sha256:c203f1d2d447b7dafebf259d2a79e05ecb3e5feb7f0a9749e1edd81fa3b50916`.
+
+Next: continue Workstream 10.4 with contextual enquiry handoff from project/role/look/garment state. Backend enquiry hardening remains Workstream 10.6; this next slice should only preserve validated public context into the existing enquiry flow. Final visual parity/sign-off remains open. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
 
 ## Delivery state
 
