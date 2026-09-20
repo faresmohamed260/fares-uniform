@@ -54,14 +54,21 @@ jobs:
               if (request.method === "GET" && url.pathname === "/health") {
                 return Response.json({ ok: true, bucket: "fares-uniform-media-private", expected: Object.keys(EXPECTED).length });
               }
-              if (request.method !== "POST" || url.pathname !== "/ingest") {
+              if (!["GET", "POST"].includes(request.method) || url.pathname !== "/ingest") {
                 return new Response("Not found", { status: 404 });
               }
 
-              let body;
-              try { body = await request.json(); } catch { return new Response("Invalid JSON", { status: 400 }); }
-              const key = String(body?.key || "");
-              const source = String(body?.source || "");
+              let key = "";
+              let source = "";
+              if (request.method === "GET") {
+                key = String(url.searchParams.get("key") || "");
+                source = String(url.searchParams.get("source") || "");
+              } else {
+                let body;
+                try { body = await request.json(); } catch { return new Response("Invalid JSON", { status: 400 }); }
+                key = String(body?.key || "");
+                source = String(body?.source || "");
+              }
               const expected = EXPECTED[key];
               if (!expected) return new Response("Key not allowed", { status: 403 });
 
