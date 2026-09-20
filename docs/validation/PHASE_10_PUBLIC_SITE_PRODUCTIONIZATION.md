@@ -1,6 +1,6 @@
 # Phase 10 validation — public-site productionization
 
-Status: **WORKSTREAM 10.1 GREEN — WORKSTREAM 10.2 NEXT.**
+Status: **WORKSTREAM 10.1 GREEN — WORKSTREAM 10.2 RED CONTRACT CANDIDATE.**
 
 Branch: `phase-10/public-site-productionization`.
 
@@ -65,3 +65,17 @@ Use synthetic media first to prove:
 - browser-visible output contains no R2 credentials/private keys.
 
 Do not use KGC or another real client for the first publication proof without explicit publication approval.
+
+
+## Workstream 10.2 — R2 publication boundary
+
+Contract checkpoint: **RED expected.**
+
+The first 10.2 candidate adds:
+
+- an Odoo contract that treats private/public R2 object identities and content hash as internal-only metadata and rejects the R2 S3 API/private bucket as a browser-facing public URL;
+- a one-shot synthetic private-source seed using the existing broad control-plane token only;
+- a separate publication workflow that has no `CLOUDFLARE_API_TOKEN` binding and requires bucket-scoped private-read and public-read/write S3 credentials;
+- cross-bucket denial assertions, immutable hash-addressed public object identity and non-secret artifact evidence.
+
+The first hosted publication run must fail closed if the four narrow R2 secrets are not configured. Preserve that provider RED; do not substitute the broad Cloudflare token into the publication job.

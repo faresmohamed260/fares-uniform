@@ -1,0 +1,168 @@
+name: Phase 10 R2 publication boundary
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - ".github/workflows/phase10-r2-publication.yml"
+      - "addons/fu_public_api/**"
+      - "contracts/public-api-v2.openapi.json"
+      - "docs/operations/PHASE_10_R2_PUBLICATION.md"
+      - "docs/validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-r2-publication-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  CLOUDFLARE_ACCOUNT_ID: "9b0bf4a19a68badb653f984151b62fd2"
+  PRIVATE_BUCKET: "fares-uniform-media-private"
+  PUBLIC_BUCKET: "fares-uniform-media-public"
+  PRIVATE_KEY: "phase10/synthetic/source/media-publication-proof-v1.svg"
+  EXPECTED_SHA256: "9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb"
+
+jobs:
+  publish-synthetic-derivative:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      R2_PRIVATE_MEDIA_READ_ACCESS_KEY_ID: ${{ secrets.R2_PRIVATE_MEDIA_READ_ACCESS_KEY_ID }}
+      R2_PRIVATE_MEDIA_READ_SECRET_ACCESS_KEY: ${{ secrets.R2_PRIVATE_MEDIA_READ_SECRET_ACCESS_KEY }}
+      R2_PUBLIC_MEDIA_RW_ACCESS_KEY_ID: ${{ secrets.R2_PUBLIC_MEDIA_RW_ACCESS_KEY_ID }}
+      R2_PUBLIC_MEDIA_RW_SECRET_ACCESS_KEY: ${{ secrets.R2_PUBLIC_MEDIA_RW_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Checkout exact publication candidate
+        uses: actions/checkout@v5
+
+      - name: Verify exact source
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Prove narrow credential configuration before mutation
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/phase10-r2
+          missing=0
+          for name in             R2_PRIVATE_MEDIA_READ_ACCESS_KEY_ID             R2_PRIVATE_MEDIA_READ_SECRET_ACCESS_KEY             R2_PUBLIC_MEDIA_RW_ACCESS_KEY_ID             R2_PUBLIC_MEDIA_RW_SECRET_ACCESS_KEY
+          do
+            if [ -n "${!name:-}" ]; then
+              echo "$name=present" >> evidence/phase10-r2/credential-preflight.txt
+            else
+              echo "$name=missing" >> evidence/phase10-r2/credential-preflight.txt
+              missing=1
+            fi
+          done
+          test "$missing" -eq 0
+
+      - name: Install isolated S3 client
+        run: python -m pip install --disable-pip-version-check --no-cache-dir boto3==1.40.48
+
+      - name: Promote synthetic derivative with bucket-scoped credentials
+        env:
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          import boto3
+          from botocore.config import Config
+          from botocore.exceptions import ClientError
+
+          account = os.environ["CLOUDFLARE_ACCOUNT_ID"]
+          endpoint = f"https://{account}.r2.cloudflarestorage.com"
+          private_bucket = os.environ["PRIVATE_BUCKET"]
+          public_bucket = os.environ["PUBLIC_BUCKET"]
+          private_key = os.environ["PRIVATE_KEY"]
+          expected = os.environ["EXPECTED_SHA256"]
+          public_key = f"projects/synthetic-phase10/publication-proof/media-{expected}.svg"
+
+          assert not os.environ.get("CLOUDFLARE_API_TOKEN"), "broad Cloudflare token must not enter the publication job"
+
+          cfg = Config(signature_version="s3v4", retries={"max_attempts": 3, "mode": "standard"})
+          private = boto3.client(
+              "s3",
+              endpoint_url=endpoint,
+              region_name="auto",
+              aws_access_key_id=os.environ["R2_PRIVATE_MEDIA_READ_ACCESS_KEY_ID"],
+              aws_secret_access_key=os.environ["R2_PRIVATE_MEDIA_READ_SECRET_ACCESS_KEY"],
+              config=cfg,
+          )
+          public = boto3.client(
+              "s3",
+              endpoint_url=endpoint,
+              region_name="auto",
+              aws_access_key_id=os.environ["R2_PUBLIC_MEDIA_RW_ACCESS_KEY_ID"],
+              aws_secret_access_key=os.environ["R2_PUBLIC_MEDIA_RW_SECRET_ACCESS_KEY"],
+              config=cfg,
+          )
+
+          source = private.get_object(Bucket=private_bucket, Key=private_key)["Body"].read()
+          actual = hashlib.sha256(source).hexdigest()
+          assert actual == expected, (actual, expected)
+
+          public.put_object(
+              Bucket=public_bucket,
+              Key=public_key,
+              Body=source,
+              ContentType="image/svg+xml",
+              CacheControl="public, max-age=31536000, immutable",
+              Metadata={"sha256": expected, "source": "phase10-synthetic"},
+          )
+          published = public.get_object(Bucket=public_bucket, Key=public_key)
+          body = published["Body"].read()
+          assert hashlib.sha256(body).hexdigest() == expected
+          assert published["ContentType"] == "image/svg+xml"
+          assert published["CacheControl"] == "public, max-age=31536000, immutable"
+          assert published["Metadata"].get("sha256") == expected
+
+          def require_cross_bucket_denial(client, bucket, key):
+              try:
+                  client.head_object(Bucket=bucket, Key=key)
+              except ClientError as exc:
+                  status = exc.response.get("ResponseMetadata", {}).get("HTTPStatusCode")
+                  code = exc.response.get("Error", {}).get("Code", "")
+                  assert status in {401, 403}, (status, code)
+                  return {"http_status": status, "code": code}
+              raise AssertionError(f"credential unexpectedly accessed {bucket}/{key}")
+
+          private_to_public = require_cross_bucket_denial(private, public_bucket, public_key)
+          public_to_private = require_cross_bucket_denial(public, private_bucket, private_key)
+
+          evidence = {
+              "source_sha": os.environ["GITHUB_SHA"],
+              "private_bucket": private_bucket,
+              "private_key": private_key,
+              "public_bucket": public_bucket,
+              "public_key": public_key,
+              "sha256": expected,
+              "bytes": len(body),
+              "content_type": published["ContentType"],
+              "cache_control": published["CacheControl"],
+              "private_credential_public_bucket_denial": private_to_public,
+              "public_credential_private_bucket_denial": public_to_private,
+              "broad_cloudflare_token_in_publication_job": False,
+              "synthetic": True,
+          }
+          Path("evidence/phase10-r2/publication.json").write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(evidence, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload publication-boundary evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase10-r2-publication-${{ github.sha }}
+          path: evidence/phase10-r2
+          if-no-files-found: warn
+          retention-days: 14

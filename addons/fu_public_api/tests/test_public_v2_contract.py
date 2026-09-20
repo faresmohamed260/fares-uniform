@@ -17,6 +17,10 @@ FORBIDDEN_PUBLIC_KEYS = {
     "default_code",
     "barcode",
     "private_object_key",
+    "public_object_key",
+    "content_hash",
+    "source_classification",
+    "credit",
     "rights_state",
     "publication_state",
 }
@@ -78,6 +82,10 @@ class TestFaresPublicV2Schema(TransactionCase):
             "default_code",
             "barcode",
             "private_object_key",
+            "public_object_key",
+            "content_hash",
+            "source_classification",
+            "credit",
             "rights_state",
             "publication_state",
         ):
@@ -189,6 +197,8 @@ class V2FixtureMixin:
                 "view": "worn",
                 "public_url": "https://media.example.invalid/projects/synthetic-academy/national-program/hero-a1b2c3.png",
                 "private_object_key": "synthetic/private/source/hero.png",
+                "public_object_key": "projects/synthetic-academy/national-program/hero-9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb.png",
+                "content_hash": "9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb",
                 "width": 1600,
                 "height": 2000,
                 "decorative": False,
@@ -209,6 +219,8 @@ class V2FixtureMixin:
                 "view": "front",
                 "public_url": "https://media.example.invalid/projects/synthetic-academy/national-program/polo-front-a1b2c3.png",
                 "private_object_key": "synthetic/private/source/polo-front.png",
+                "public_object_key": "projects/synthetic-academy/national-program/polo-front-9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb.png",
+                "content_hash": "9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb",
                 "width": 1200,
                 "height": 1500,
                 "decorative": False,
@@ -297,6 +309,30 @@ class TestFaresPublicV2Models(V2FixtureMixin, TransactionCase):
         self.assertNotIn("INTERNAL-P10", serialized)
         self.assertNotIn("9876.54", serialized)
         self.assertNotIn("synthetic/private/source/", serialized)
+        self.assertNotIn("r2.cloudflarestorage.com", serialized)
+
+    def test_published_media_requires_immutable_public_object_identity_and_public_delivery_url(self):
+        organization, program, _private_program = self._build_v2_fixture()
+        del organization
+        media_model = self._model("fu.public.media")
+        with self.assertRaises(ValidationError):
+            media_model.create(
+                {
+                    "program_id": program.id,
+                    "role": "hero",
+                    "view": "worn",
+                    "public_url": "https://9b0bf4a19a68badb653f984151b62fd2.r2.cloudflarestorage.com/fares-uniform-media-private/private.svg",
+                    "private_object_key": "phase10/synthetic/source/private.svg",
+                    "public_object_key": "projects/synthetic-academy/national-program/private-9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb.svg",
+                    "content_hash": "9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb",
+                    "width": 1200,
+                    "height": 1500,
+                    "decorative": False,
+                    "alt_en": "Must not expose the private R2 API endpoint.",
+                    "rights_state": "approved",
+                    "publication_state": "published",
+                }
+            )
 
 
 @tagged("post_install", "-at_install")
