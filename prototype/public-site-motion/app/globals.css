@@ -2628,3 +2628,177 @@ img { user-select: none; }
     right: -54vw;
   }
 }
+
+
+/* Checkpoint 30: integrate original studio media into the approved editorial field */
+.kgc-project .hero-model {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 91%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 91%, transparent 100%);
+}
+.kgc-project .detail-garment img,
+.explode-viewer[data-inspection-mode="flat"] .explode-media img {
+  mix-blend-mode: multiply;
+}
+
+@media (min-width: 1121px) {
+  .kgc-project .hero-model {
+    inset: -10px 5% -245px -56%;
+  }
+  .kgc-project .hero-model img {
+    object-position: center top;
+    transform: scale(1.34);
+    transform-origin: center top;
+  }
+  .kgc-project .hero-ribbons {
+    inset: 0 -20% -7% 10%;
+  }
+  .kgc-project .hero-ribbons span:nth-child(1) { bottom: 505px; }
+  .kgc-project .hero-ribbons span:nth-child(2) { bottom: 365px; }
+  .kgc-project .hero-ribbons span:nth-child(3) { bottom: 225px; }
+
+  .kgc-project .stage-grid::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    left: 30px;
+    right: 30px;
+    height: 500px;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,.12) 0 2px, rgba(255,255,255,0) 2px 8px),
+      linear-gradient(105deg, #c81731 0 24%, #f0eee8 24% 49%, #122b45 49% 74%, #c81731 74% 100%);
+  }
+
+  .kgc-project .detail-story {
+    min-height: 920px;
+  }
+  .kgc-project .detail-visual {
+    min-height: 780px;
+  }
+  .kgc-project .detail-garment {
+    inset: 22px 250px 56px 12px;
+  }
+  .kgc-project .detail-garment img {
+    transform: rotate(-3deg) scale(.98);
+  }
+}
+
+@media (max-width: 760px) {
+  .kgc-project .hero {
+    min-height: 735px;
+  }
+  .kgc-project .hero-visual {
+    height: 735px;
+    min-height: 735px;
+  }
+  .kgc-project .hero-model {
+    inset: 42px -32% -150px 18%;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  }
+  .kgc-project .hero-model img {
+    object-position: center top;
+    transform: scale(1.46);
+    transform-origin: center top;
+  }
+  .kgc-project .hero-ribbons {
+    inset: 0 -48% -4% 38%;
+  }
+  .kgc-project .hero-ribbons span:nth-child(1) { bottom: 240px; }
+  .kgc-project .hero-ribbons span:nth-child(2) { bottom: 180px; }
+  .kgc-project .hero-ribbons span:nth-child(3) { bottom: 120px; }
+  .kgc-project .hero-script {
+    top: 18px;
+    right: 6px;
+    width: 98px;
+    font-size: 13px;
+    line-height: 1.05;
+  }
+
+  .kgc-project .stage-grid::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    left: 6px;
+    right: 6px;
+    height: 148px;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,.12) 0 1px, rgba(255,255,255,0) 1px 5px),
+      linear-gradient(105deg, #c81731 0 24%, #f0eee8 24% 49%, #122b45 49% 74%, #c81731 74% 100%);
+  }
+
+  .kgc-project .detail-story {
+    min-height: 760px;
+    padding-bottom: 28px;
+    overflow: hidden;
+  }
+  .kgc-project .detail-copy {
+    width: 58%;
+    max-width: 224px;
+  }
+  .kgc-project .detail-visual {
+    top: 70px;
+    right: -19%;
+    width: 77%;
+    min-height: 610px;
+  }
+  .kgc-project .detail-garment {
+    inset: 55px -6px 92px -10px;
+  }
+  .kgc-project .detail-garment img {
+    transform: rotate(-3deg) scale(.96);
+  }
+  .kgc-project .detail-callouts {
+    top: 86px;
+    right: -2px;
+    bottom: auto;
+    left: auto;
+    width: 116px;
+    display: grid;
+    grid-template-columns: 1fr;
+    border-top: 0;
+  }
+  .kgc-project .detail-callouts li {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 0;
+    border-inline-end: 0;
+  }
+  .kgc-project .detail-callouts span {
+    width: 22px;
+    height: 22px;
+    font-size: 7px;
+  }
+  .kgc-project .detail-callouts strong {
+    padding: 0;
+    font-size: 8px;
+    line-height: 1.1;
+  }
+  .kgc-project .sharing-note {
+    right: 0;
+    bottom: 18px;
+    font-size: 7px;
+  }
+
+  [dir="rtl"].kgc-project .hero-model {
+    inset: 42px 18% -150px -32%;
+  }
+  [dir="rtl"].kgc-project .hero-ribbons {
+    inset: 0 38% -4% -48%;
+  }
+  [dir="rtl"].kgc-project .detail-visual {
+    right: auto;
+    left: -19%;
+  }
+  [dir="rtl"].kgc-project .detail-callouts {
+    right: auto;
+    left: -2px;
+  }
+  [dir="rtl"].kgc-project .sharing-note {
+    right: auto;
+    left: 0;
+  }
+}
