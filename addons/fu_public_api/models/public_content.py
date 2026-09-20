@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlparse
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -367,6 +368,7 @@ class FuPublicMedia(models.Model):
     )
     public_url = fields.Char(size=1000)
     private_object_key = fields.Char(size=512)
+    public_object_key = fields.Char(size=512)
     width = fields.Integer()
     height = fields.Integer()
     decorative = fields.Boolean(default=False)
@@ -400,6 +402,8 @@ class FuPublicMedia(models.Model):
         "publication_state",
         "rights_state",
         "public_url",
+        "public_object_key",
+        "content_hash",
         "width",
         "height",
         "decorative",
@@ -411,8 +415,17 @@ class FuPublicMedia(models.Model):
                 continue
             if record.rights_state != "approved":
                 raise ValidationError(_("Published public media requires approved rights."))
-            if not (record.public_url or "").startswith("https://"):
+            public_url = record.public_url or ""
+            if not public_url.startswith("https://"):
                 raise ValidationError(_("Published public media requires an HTTPS public URL."))
+            hostname = (urlparse(public_url).hostname or "").lower()
+            if hostname.endswith(".r2.cloudflarestorage.com"):
+                raise ValidationError(_("Published public media cannot use the private R2 S3 API endpoint."))
+            content_hash = (record.content_hash or "").lower()
+            if not re.fullmatch(r"[0-9a-f]{64}", content_hash):
+                raise ValidationError(_("Published public media requires a SHA-256 content hash."))
+            if not record.public_object_key or content_hash not in record.public_object_key.lower():
+                raise ValidationError(_("Published public media requires a hash-addressed public object key."))
             if record.width <= 0 or record.height <= 0:
                 raise ValidationError(_("Published public media requires positive dimensions."))
             if not record.decorative and not (record.alt_en or "").strip():

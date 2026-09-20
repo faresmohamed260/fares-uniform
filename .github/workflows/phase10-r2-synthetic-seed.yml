@@ -32,15 +32,7 @@ jobs:
       - name: Create deterministic synthetic media fixture
         run: |
           set -euo pipefail
-          cat > phase10-synthetic-source.svg <<'SVG'
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1500" viewBox="0 0 1200 1500">
-  <rect width="1200" height="1500" fill="#f4f1eb"/>
-  <path d="M210 290h780v920H210z" fill="#17324d"/>
-  <path d="M210 520h780v100H210z" fill="#b33b46"/>
-  <text x="600" y="760" text-anchor="middle" font-family="sans-serif" font-size="54" fill="#ffffff">SYNTHETIC PHASE 10</text>
-  <text x="600" y="835" text-anchor="middle" font-family="sans-serif" font-size="34" fill="#ffffff">R2 PUBLICATION PROOF</text>
-</svg>
-SVG
+          printf '%s' 'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIDxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIGZpbGw9IiNmNGYxZWIiLz4KICA8cGF0aCBkPSJNMjEwIDI5MGg3ODB2OTIwSDIxMHoiIGZpbGw9IiMxNzMyNGQiLz4KICA8cGF0aCBkPSJNMjEwIDUyMGg3ODB2MTAwSDIxMHoiIGZpbGw9IiNiMzNiNDYiLz4KICA8dGV4dCB4PSI2MDAiIHk9Ijc2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTQiIGZpbGw9IiNmZmZmZmYiPlNZTlRIRVRJQyBQSEFTRSAxMDwvdGV4dD4KICA8dGV4dCB4PSI2MDAiIHk9IjgzNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzQiIGZpbGw9IiNmZmZmZmYiPlIyIFBVQkxJQ0FUSU9OIFBST09GPC90ZXh0Pgo8L3N2Zz4K' | base64 -d > phase10-synthetic-source.svg
           test "$(sha256sum phase10-synthetic-source.svg | awk '{print $1}')" = "$EXPECTED_SHA256"
 
       - name: Seed private synthetic source through control-plane credential
