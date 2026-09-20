@@ -459,3 +459,16 @@ Google Drive remains the audited source/archive location for the existing KGC co
 Repository secret `CLOUDFLARE_API_TOKEN` is the broad Cloudflare control-plane credential supplied by Fares. In the current isolated prototype it is confined to hosted provider/review staging and is never exposed to browser code, Odoo runtime or the public application. Before any production object data plane is approved, replace that broad credential with a narrowly scoped R2 credential limited to the required bucket and operations.
 
 Production publication, backup retention/RPO/RTO, any future residency requirement, public bucket/custom-domain policy and production launch remain separately gated.
+
+
+## D-055 — Phase 10 public-site productionization architecture accepted
+
+Status: Accepted by client, 2026-09-20.
+
+Fares accepted the production architecture review and authorized execution of Phase 10 on `phase-10/public-site-productionization`. `apps/public-web` remains the single production public application; the Phase 9 prototype remains visual/reference evidence until parity is proven and must not be copied wholesale into production.
+
+The accepted public architecture keeps Odoo as operational and public-editorial/publication authority, Cloudflare R2 as media-byte storage, and Next.js/Vercel as presentation, localized routing, SEO and public-cache layers. Phase 10 introduces versioned allowlisted V2 organization/program/cohort/look/garment/media DTOs while preserving V1, uses public slugs rather than browser-supplied internal IDs, and requires capability-driven interactions with no organization-ID branching in generic components.
+
+Private originals remain private. Only explicitly rights/publication-approved derivatives may enter the public media path. Browser/runtime code never receives broad Cloudflare, Odoo staff or database credentials, price, stock or private operational data. The broad `CLOUDFLARE_API_TOKEN` remains control-plane/review legacy; ordinary production R2 data-plane operations require narrow purpose-specific credentials.
+
+This decision authorizes Phase 10 repository engineering, hosted validation and provider work required by the phase contract. It does not authorize production launch/cutover, Gate D approval, public publication of KGC or another real client, merging PR #7, price/stock exposure or unrelated ERP/POS redesign. Production remains NO-GO until the existing release gates and a separate explicit production authorization are satisfied.

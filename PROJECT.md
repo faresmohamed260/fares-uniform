@@ -2,7 +2,7 @@
 
 ## Start here
 
-Work remotely in `faresmohamed260/fares-uniform` on active branch `phase-9/public-site-kinetic-prototype`; `main` remains the unchanged production/integration baseline for this prototype. The completed `phase-8/commercial-staging-readiness` branch and all earlier phase branches remain preserved. Read this file, `AGENTS.md`, `docs/README.md`, `docs/DECISIONS.md`, the Phase 8/8A contracts and the active Phase 9 contract. Resolve the target branch HEAD through GitHub before each write. Never infer current state from an old chat.
+Work remotely in `faresmohamed260/fares-uniform` on active branch `phase-10/public-site-productionization`. Phase 10 is stacked on the unmerged `phase-9/public-site-kinetic-prototype` branch so the accepted visual/audit history remains in ancestry without merging PR #7; `main` remains the production/integration baseline. Read this file, `AGENTS.md`, `docs/README.md`, `docs/DECISIONS.md`, the Phase 10 contract/validation record and the Phase 9 visual authority before changing public-site work. Resolve the target branch HEAD and newest hosted evidence through GitHub before each write. Never infer current state from an old chat.
 
 This file owns current status and the next task. Phase contracts own scope and exit criteria; validation documents own historical evidence. Do not copy a second current-status log into the documentation index.
 
@@ -18,7 +18,7 @@ The preserved Pattern in Motion boards remain the visual design authority. Fresh
 
 PR #7 remains draft pending Fares's explicit visual approval. Production `apps/public-web`, public KGC publication, launch and Gate D remain NO-GO. The broad repository secret `CLOUDFLARE_API_TOKEN` is currently confined to hosted provider/review staging; any production object data plane must replace it with a narrowly scoped R2 credential before production GO.
 
-Continuation order: verify current branch HEAD and latest Phase 9 run, then use this checkpoint as the current prototype handoff. Do not revive the superseded Google service-account path. Further changes should be driven by Fares's design feedback or a separately authorized production/public-media phase.
+Use this Phase 9 checkpoint as the visual authority while Phase 10 productionization proceeds. Do not revive the superseded Google service-account path, publish KGC by inference or rewrite the prototype merely to simplify production architecture. PR #7 remains draft unless Fares separately authorizes its merge/state change.
 
 ## Public-site production architecture audit
 
@@ -37,9 +37,19 @@ The recommended productionization direction is:
 - rebuild the final settled visual CSS into semantic tokens/component-scoped styles while preserving `4120c33…` as the visual authority;
 - integrate contextual enquiry, abuse/error hardening, SEO, cache/resilience, accessibility and performance gates before cutover.
 
-A proposed execution-ready contract is recorded at [Phase 10 public-site productionization](docs/phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md). Its status is **PROPOSED / NOT YET AUTHORIZED**. No production runtime code was changed by this audit.
+Fares accepted the execution-ready [Phase 10 public-site productionization](docs/phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md) plan on 2026-09-20 and authorized repository engineering, hosted CI and provider work required by that contract. This authorization does **not** merge PR #7, approve production launch/cutover, approve Gate D, publish KGC/other real-client media, expose price/stock or broaden privileges.
 
-Next decision: Fares reviews/accepts or revises the architecture plan. After explicit acceptance and Phase 9 visual sign-off, close/merge Phase 9 only if separately authorized, then execute Phase 10 on a dedicated branch. Production launch/Gate D remain NO-GO.
+## Active Phase 10 productionization
+
+Phase 10 runs on `phase-10/public-site-productionization`; draft PR #8 is intentionally stacked against `phase-9/public-site-kinetic-prototype`. PR #7 remains draft and unmerged.
+
+Workstream 10.1 is GREEN. The contract-only commit `dceb1b5f35dcd6837cf6509d6e2a24eb98b3a435` preserved the required RED at run `35535262459`, job `106143034778`: the V1 tests remained present while the new V2 model tests failed because `fu.public.organization` and the new editorial graph did not yet exist (`4 failed, 0 error(s)`). Artifact `10612795839` has digest `sha256:88a248d91dacb1af36ee6458875fbfc80b8ab76e4d79218ff1c904b8a32ec6c9`.
+
+Implementation commit `1d53cb0aa6d26cc8753db3af7f122fb1b5b46e3d` added the smallest dedicated organization/program/cohort/look/garment/media models, strict publication/rights filtering, V2 home/work/project GET routes and exact public serializers while retaining V1. Exact-head push run `35535480047`, job `106143624278`, is GREEN: Odoo executed 12 post-test methods, reported `fu_public_api: 22 tests`, finished with `0 failed, 0 error(s)`, and then completed the repeatable `fu_core,fu_public_api` upgrade. Artifact `10612715734` has digest `sha256:1227670137d266e016e6c925d54d529347cf9526df0d04d228934c7f0c2974a9`.
+
+The V2 boundary is source-controlled in `contracts/public-api-v2.openapi.json`; tests prove strict EN/AR locale behavior, unknown/unpublished slug 404s, rights-private records absent, and no operational IDs, price, stock, SKU/barcode or private R2 object keys in the public payload. Detailed evidence is in [Phase 10 validation](docs/validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md).
+
+Next: Workstream 10.2 must prove the private-to-rights-approved public R2 publication boundary with synthetic media and purpose-specific narrow credentials. The broad Cloudflare token remains control-plane/review legacy only. Production launch, Gate D and real-client publication remain NO-GO.
 
 ## Delivery state
 

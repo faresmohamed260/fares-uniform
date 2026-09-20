@@ -1,8 +1,10 @@
 # Phase 10 — Public-site productionization
 
-Status: **PROPOSED / NOT YET AUTHORIZED FOR IMPLEMENTATION.**
+Status: **AUTHORIZED / ACTIVE — WORKSTREAM 10.1 GREEN; WORKSTREAM 10.2 NEXT.**
 
-Proposed branch after Phase 9 closure: `phase-10/public-site-productionization`.
+Authorization: Fares accepted this productionization plan on 2026-09-20 and authorized Phase 10 repository engineering, hosted CI and provider work required by this contract. Production launch/cutover, Gate D approval, real-client publication, price/stock exposure and merging PR #7 remain separately gated.
+
+Active branch: `phase-10/public-site-productionization`, stacked on the unmerged Phase 9 branch.
 
 Primary architecture authority: `docs/architecture/PUBLIC_SITE_PRODUCTION_ARCHITECTURE_REVIEW.md`.
 
@@ -23,7 +25,7 @@ The phase must preserve the premium kinetic visual goal while making the impleme
 
 ## Starting evidence
 
-- Phase 9 current documentation HEAD: `257a26dcf2c9b42e718238023b0264c6f30fda2a`;
+- Phase 9 audit/documentation HEAD at Phase 10 branch-off: `168aea8b9d21b8ed9db38083bf4c13f0933a418b`;
 - Phase 9 rendered implementation authority: `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`;
 - render run/job: `35529953588` / `106128675433`;
 - artifact: `10610259627`, digest `sha256:852ddd4842b562d18bc233bcc0e1db9df8a1497053e98aa5c5974738966971ac`;
@@ -93,7 +95,7 @@ Next server code consumes exact V2 DTOs through the private Odoo binding and cac
 ### Interaction is capability-driven
 No component may branch on `kgc-national`, another organization slug, a fixed cohort count, or “real client vs synthetic” inferred from identity. Inspection mode and motion behavior come from validated capabilities.
 
-## Proposed route contract
+## Target route contract
 
 - `/[locale]`;
 - `/[locale]/work`;
@@ -105,7 +107,7 @@ Supported locales initially: `en`, `ar`.
 
 Unknown published content must 404; no silent fallback to another organization.
 
-## Proposed V2 content contract
+## V2 content contract
 
 The source-controlled schema must cover:
 - organization;
@@ -124,9 +126,9 @@ Internal rights/admin data is not serialized to the browser. Public media DTOs i
 ## Execution sequence
 
 ### 10.1 Contract RED -> GREEN
-Write contract tests first for the desired V2 payload, forbidden fields, locale behavior, publication state and strict unknown-slug behavior.
+Status: **GREEN.** Preserved RED commit `dceb1b5f35dcd6837cf6509d6e2a24eb98b3a435` failed as intended before the V2 editorial models existed; implementation commit `1d53cb0aa6d26cc8753db3af7f122fb1b5b46e3d` passed exact-head run `35535480047`, job `106143624278`, including V1+V2 addon tests and a repeatable public-addon upgrade. Exact evidence is recorded in `docs/validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md`.
 
-Then implement the smallest Odoo public editorial model/serializer needed to make those tests GREEN.
+The accepted sequence remains the rule for later contract extensions: write exact tests first, preserve meaningful RED, then implement the smallest Odoo public editorial/serializer boundary needed to make those tests GREEN.
 
 Required evidence:
 - exact addon tests;
@@ -234,7 +236,7 @@ Minimum representative journeys:
 
 ## Documentation outputs
 
-- accepted architecture decision(s) after Fares approves this plan;
+- accepted Phase 10 authorization and any subsequent durable architecture decisions;
 - V2 public contract/schema;
 - updated public integration architecture;
 - R2 media publication/operations contract;

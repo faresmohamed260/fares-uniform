@@ -63,7 +63,8 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 8 commercial staging readiness](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) | Staging ownership, live-proof and GO/NO-GO parent contract |
 | [Phase 8A free-tier staging execution](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md) | Live Supabase/Vercel execution status, RED-to-green provider evidence and remaining Gate C work |
 | [Phase 9 public-site kinetic prototype](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) | Authorized isolated Pattern in Motion prototype, multi-organization boundary and hosted kinetic acceptance contract |
-| [Phase 10 proposed public-site productionization](phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md) | Proposed/not-yet-authorized execution contract for migrating the approved kinetic prototype into the real public app |
+| [Phase 10 public-site productionization](phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md) | Authorized active contract for migrating the approved kinetic prototype into the real public app without carrying prototype-only architecture debt |
+| [Phase 10 productionization validation](validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md) | Workstream-by-workstream RED-to-GREEN evidence for the V2 contract, R2 publication boundary and production frontend migration |
 | [Phase 9 kinetic prototype validation](validation/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) | Exact RED-to-green hosted build, browser, responsive/RTL, reduced-motion and rendered-evidence record |
 | [Phase 9 design QA](../prototype/public-site-motion/design-qa.md) | Approved-reference comparisons, responsive states, findings history and final visual result |
 | [Phase 8 staging secret inventory](operations/PHASE_8_STAGING_SECRET_INVENTORY.md) | Staging secret names/purpose/custody/rotation without secret values |
@@ -77,7 +78,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 
 ## Current work
 
-[PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. The active implementation contract is [Phase 9](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md). Phase 8/8A remain the authoritative completed/live-staging contracts and production remains Gate D NO-GO.
+[PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. The active implementation contract is [Phase 10](phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md); [Phase 9](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) remains the visual/reference authority until production parity is proven. Phase 8/8A remain the authoritative completed/live-staging contracts and production remains Gate D NO-GO.
 
 - [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md): client-authorized design/research boundary for the complete public-site redesign; preserves product/security/Gate D contracts and requires concept, kinetic and fidelity gates before implementation.
 - [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md): current uniform/fashion marketing research, interactive reference library, design-tool findings and three first-round concept directions.
