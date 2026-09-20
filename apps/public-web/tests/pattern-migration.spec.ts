@@ -227,3 +227,68 @@ test("Arabic flat inspection preserves locale, context and truthful capability",
 test("unknown garment identity fails closed", async ({ request }) => {
   expect((await request.get("/en/work/harbor-house/service-program/not-a-garment")).status()).toBe(404);
 });
+
+
+test("selected role and look hand off validated context into the enquiry form", async ({ page }) => {
+  await page.goto("/en/work/harbor-house/service-program");
+  await page.getByTestId("cohort-facilities").click();
+  await page.getByTestId("look-outerwear").click();
+
+  const discuss = page.getByRole("link", { name: "Discuss this look" });
+  await expect(discuss).toHaveAttribute(
+    "href",
+    "/en?organization=harbor-house&program=service-program&role=facilities&look=outerwear#enquiry",
+  );
+  await discuss.click();
+
+  await expect(page).toHaveURL(
+    /\/en\?organization=harbor-house&program=service-program&role=facilities&look=outerwear#enquiry$/,
+  );
+  await expect(page.getByLabel("Organization")).toHaveValue("Harbor House");
+  await expect(page.getByLabel("Sector / use case")).toHaveValue("Hospitality");
+  await expect(page.getByLabel("What are you looking for?")).toHaveValue(
+    /Facilities.*Outerwear/,
+  );
+});
+
+test("Arabic garment enquiry preserves public context without expanding the intake schema", async ({ page }) => {
+  await page.goto(
+    "/ar/work/harbor-house/service-program/field-jacket?role=facilities&look=outerwear",
+  );
+
+  const discuss = page.getByRole("link", { name: "ناقش هذه القطعة" });
+  await expect(discuss).toHaveAttribute(
+    "href",
+    "/ar?organization=harbor-house&program=service-program&role=facilities&look=outerwear&garment=field-jacket#enquiry",
+  );
+  await discuss.click();
+
+  await expect(page.getByLabel("الجهة")).toHaveValue("هاربور هاوس");
+  await expect(page.getByLabel("القطاع / الاستخدام")).toHaveValue("الضيافة");
+  await expect(page.getByLabel("ما الذي تبحث عنه؟")).toHaveValue(/سترة ميدانية/);
+
+  await page.getByLabel("الاسم").fill("اختبار سياق");
+  await page.getByLabel("الهاتف").fill("01000000000");
+
+  const requestPromise = page.waitForRequest(
+    (request) => request.url().endsWith("/api/enquiries") && request.method() === "POST",
+  );
+  await page.getByRole("button", { name: "إرسال الاستفسار" }).click();
+  const request = await requestPromise;
+  const payload = request.postDataJSON() as Record<string, unknown>;
+  expect(Object.keys(payload).sort()).toEqual([
+    "contact_name",
+    "email",
+    "idempotency_key",
+    "language",
+    "message",
+    "organization_name",
+    "phone",
+    "sector",
+    "source_product_slug",
+  ]);
+  expect(payload.organization_name).toBe("هاربور هاوس");
+  expect(payload.sector).toBe("الضيافة");
+  expect(String(payload.message)).toContain("سترة ميدانية");
+  expect(payload.source_product_slug).toBe("");
+});
