@@ -142,10 +142,17 @@ function consumeRate(request: Request, now = Date.now()) {
 }
 
 function sameOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  if (!origin) return false;
+  const originValue = request.headers.get("origin");
+  if (!originValue) return false;
   try {
-    return new URL(origin).origin === new URL(request.url).origin;
+    const origin = new URL(originValue);
+    const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+    const host = forwardedHost || request.headers.get("host")?.trim();
+    if (!host || origin.host !== host) return false;
+
+    const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+    if (forwardedProto && origin.protocol !== `${forwardedProto}:`) return false;
+    return true;
   } catch {
     return false;
   }
