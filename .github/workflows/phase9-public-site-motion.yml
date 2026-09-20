@@ -47,11 +47,6 @@ jobs:
           node --version
           npm --version
 
-      - name: Stage private KGC review media
-        env:
-          PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS: ${{ secrets.PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS }}
-        run: node scripts/stage-kgc-review-media.mjs
-
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
 
@@ -60,6 +55,11 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+      - name: Stage private KGC review media
+        env:
+          PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS: ${{ secrets.PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS }}
+        run: node scripts/stage-kgc-review-media.mjs
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
