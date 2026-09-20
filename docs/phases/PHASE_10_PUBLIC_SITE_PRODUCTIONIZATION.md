@@ -1,6 +1,6 @@
 # Phase 10 — Public-site productionization
 
-Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.3 GREEN; WORKSTREAM 10.4 NEXT.**
+Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.3 GREEN; WORKSTREAM 10.4 ACTIVE (INTRO/PROJECT ENTRY GREEN).**
 
 Authorization: Fares accepted this productionization plan on 2026-09-20 and authorized Phase 10 repository engineering, hosted CI and provider work required by this contract. Production launch/cutover, Gate D approval, real-client publication, price/stock exposure and merging PR #7 remain separately gated.
 
@@ -158,10 +158,18 @@ Final authority `df1d9741087466edead5c358556b91ca4371f910` adds the localized re
 Evidence covers EN/AR SSR document attributes, canonical/hreflang, keyboard focus, Arabic mobile/no horizontal overflow, Fares-led home, canonical work discovery, fail-closed unknown routes and no price/stock/private-field leakage in rendered/RSC/JSON response bodies. Production remains unlaunched.
 
 ### 10.4 Pattern in Motion migration loop
+Status: **ACTIVE. Slice A — Fares introduction + selected-work/project entry — GREEN.**
+
+Preserved RED: commit `50e518e2366b4b268ca15a43dbc9f3a7687038cd`, run `35542377221`, job `106162244837`, failed 4/5 focused migration checks because project cards did not resolve to canonical project routes and the generic project route did not yet exist. RED artifact `10615062850`, digest `sha256:63a7d3f78896f5f627766a2710a69c6c0d63c7522318c08b5ba55b4c4799b60e`.
+
+Slice A implementation: commit `18fe61434ae5aa9781d8433e9aefc0ecfb2cd1e6`. Exact Pattern run `35542574565`, job `106162789534`, passed typecheck, optimized build and 5/5 Playwright checks. Artifact `10615636464`, digest `sha256:63d55b84618639b6a16c6cdbf96e232d68138d5e1953614a986774399161bd3e`, stages the current EN desktop and AR mobile captures beside the approved Phase 9 landing boards. Foundation regression run `35542573884`, job `106162787065`, is also GREEN.
+
+The production slice is Fares-led and organization-agnostic, uses a bounded Motion material-study client island with reduced-motion handling, adds canonical `/[locale]/work/[organization]/[program]` routes, applies validated V2 visual-skin data through controlled CSS variables, and uses only the synthetic non-school Harbor House fixture. KGC remains unpublished and no client-ID branching was introduced. Final visual parity remains open while later 10.4 slices are migrated and compared.
+
 Port one scene/component at a time:
-1. Fares introduction;
-2. selected work/project entry;
-3. cohort/role lineup;
+1. Fares introduction — **GREEN**;
+2. selected work/project entry — **GREEN**;
+3. cohort/role lineup — **NEXT**;
 4. look continuity;
 5. garment inspection;
 6. contextual enquiry.

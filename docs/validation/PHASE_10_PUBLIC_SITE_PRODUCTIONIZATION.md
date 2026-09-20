@@ -1,6 +1,6 @@
 # Phase 10 validation — public-site productionization
 
-Status: **WORKSTREAMS 10.1–10.3 GREEN — WORKSTREAM 10.4 NEXT.**
+Status: **WORKSTREAMS 10.1–10.3 GREEN — WORKSTREAM 10.4 ACTIVE; SLICE A GREEN.**
 
 Branch: `phase-10/public-site-productionization`.
 
@@ -104,8 +104,43 @@ Exact push run `35542111158`, job `106161514846`, is **GREEN**:
 
 No KGC or other real-client media was published and no production deployment/cutover occurred.
 
-## Next validation boundary — Workstream 10.4
+## Workstream 10.4 — Pattern in Motion production migration
 
-Migrate Pattern in Motion into the production app one cohesive slice at a time, beginning with the Fares introduction and selected-work/project entry, while preserving the Phase 9 rendered authority and the generic V2 content boundary. Each slice requires hosted rendered evidence and comparison/correction rather than wholesale prototype copying.
+### Slice A — Fares introduction + selected-work/project entry
+
+#### Preserved RED
+
+- contract commit `50e518e2366b4b268ca15a43dbc9f3a7687038cd` — `test: define first Pattern in Motion production slice`;
+- exact push run/job `35542377221` / `106162244837`;
+- typecheck and optimized production build passed before the focused browser contract;
+- focused result: **4 failed, 1 passed of 5**;
+- failures were the intended missing production behavior: selected-work/project cards had no canonical project destination and `/en|ar/work/harbor-house/service-program` returned 404;
+- RED artifact `10615062850`, digest `sha256:63a7d3f78896f5f627766a2710a69c6c0d63c7522318c08b5ba55b4c4799b60e`, retained traces/failure captures and the committed Phase 9 landing boards.
+
+#### GREEN
+
+Implementation authority: `18fe61434ae5aa9781d8433e9aefc0ecfb2cd1e6` — `feat: migrate Pattern intro and project entry`.
+
+Exact Pattern push run `35542574565`, job `106162789534`, is **GREEN**:
+
+- locked dependency install, typecheck and optimized Next production build passed;
+- 5/5 focused Playwright checks passed in 4.0s;
+- Fares introduction retains the approved “Designed as one. Worn together.” hierarchy and supporting copy;
+- a reduced-motion-aware Motion material-study island supplies the first bounded kinetic production element without copying the prototype architecture;
+- selected work and work discovery link to canonical `/[locale]/work/[organization]/[program]` routes;
+- synthetic Harbor House resolves in EN and AR, with canonical/hreflang metadata and RTL/no-overflow checks;
+- unknown/unpublished project identity fails closed with 404;
+- project skin comes from validated V2 `visual_skin` values through controlled CSS variables rather than organization-ID branching;
+- no KGC/client asset is used or published;
+- rendered/RSC/JSON response capture remains free of price, stock, inventory, barcode, SKU, cost and private publication metadata terms;
+- artifact `10615636464`, digest `sha256:63d55b84618639b6a16c6cdbf96e232d68138d5e1953614a986774399161bd3e`, contains fresh EN desktop/AR mobile captures and the approved Phase 9 landing reference boards.
+
+Companion exact foundation regression run `35542573884`, job `106162787065`, is GREEN with artifact `10614559213`, digest `sha256:c39fd9a7473a96d175e0f53acb7ab3db536b23d66d46bd135b65d9d763828aa3`.
+
+This closes engineering acceptance for Slice A only. Final visual parity is not claimed yet; the full compare-and-correct/sign-off boundary remains open through the remaining 10.4 slices.
+
+## Next validation boundary — Workstream 10.4 Slice B
+
+Implement the generic cohort/role lineup and look-continuity path using V2 content capabilities, not organization identity or a fixed school-stage count. Preserve canonical EN/AR state, keyboard/touch access, no-price/no-stock/private-field boundaries and hosted rendered evidence beside the Phase 9 visual authority.
 
 Production launch, Gate D, real-client publication and PR merges remain separately gated.

@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.3 are GREEN; Workstream 10.4 is next. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
+- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.3 are GREEN; Workstream 10.4 is ACTIVE. The Fares introduction/selected-work/project-entry slice is GREEN; cohort/role progression is next. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -68,7 +68,11 @@ Workstream 10.3 is GREEN. Preserved contract RED commit `9189c80ab8a603c19bfd735
 
 Final 10.3 authority is `df1d9741087466edead5c358556b91ca4371f910`, which added the localized fail-safe public error boundary. Exact push run `35542111158`, job `106161514846`, passed locked install, TypeScript typecheck, optimized Next.js production build and **6/6 Phase 10 browser checks** covering root canonical redirect, EN/AR SSR document attributes, Fares-led canonical/hreflang metadata, keyboard focus, Arabic mobile RTL/no overflow, work discovery, payload no-leak checks and fail-closed unknown routes. Artifact `10614518679` has digest `sha256:963b9e1585202ccae9c34f15e91f3eecb3d3c53ab6c6712a0d18a0969241d9f8`.
 
-Next: Workstream 10.4 — migrate Pattern in Motion into `apps/public-web` one cohesive scene at a time, starting with the Fares introduction/selected-work entry and preserving the Phase 9 visual authority. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
+Workstream 10.4 is ACTIVE. The first production migration slice is GREEN. Contract commit `50e518e2366b4b268ca15a43dbc9f3a7687038cd` preserved a meaningful RED in run `35542377221`, job `106162244837`: 4 of 5 Pattern migration checks failed because selected-work cards were not canonical project links and `/[locale]/work/[organization]/[program]` did not exist. RED artifact `10615062850` has digest `sha256:63a7d3f78896f5f627766a2710a69c6c0d63c7522318c08b5ba55b4c4799b60e` and includes the committed Phase 9 reference boards beside failure captures.
+
+Implementation commit `18fe61434ae5aa9781d8433e9aefc0ecfb2cd1e6` migrated the Fares introduction/selected-work entry and generic project introduction into `apps/public-web`: deterministic editorial display typography, a reduced-motion-aware Motion material-study island, canonical selected-work/project links, generic V2 project routing, controlled project-skin CSS variables, EN/AR canonical metadata and RTL project presentation. It contains no KGC/client-ID branching and uses only the synthetic Harbor House fixture. Exact Pattern push run `35542574565`, job `106162789534`, passed typecheck, optimized build and **5/5 Pattern migration checks**; artifact `10615636464`, digest `sha256:63d55b84618639b6a16c6cdbf96e232d68138d5e1953614a986774399161bd3e`, contains the current EN desktop/AR mobile captures plus the approved Phase 9 landing boards. Exact foundation regression run `35542573884`, job `106162787065`, is also GREEN; artifact `10614559213`, digest `sha256:c39fd9a7473a96d175e0f53acb7ab3db536b23d66d46bd135b65d9d763828aa3`.
+
+Next: continue Workstream 10.4 with the generic cohort/role lineup and look-continuity slice, driven by V2 fixture capabilities rather than organization identity. Final visual parity/sign-off remains open until the later compare-and-correct loop is complete. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
 
 ## Delivery state
 

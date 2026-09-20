@@ -50,9 +50,9 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 
 #### A2 — Pattern in Motion production migration
 
-- [ ] Fares introduction/home experience.
-- [ ] Work/client/project discovery.
-- [ ] Organization/program routes.
+- [x] Fares introduction/home experience.
+- [x] Work/client/project discovery.
+- [x] Organization/program routes.
 - [ ] Cohort/role progression.
 - [ ] Complete-look continuity.
 - [ ] Garment detail and inspection.
