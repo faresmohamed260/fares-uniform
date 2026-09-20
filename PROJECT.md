@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.3 are GREEN; Workstream 10.4 functional migration slices A–D are GREEN. Workstream 10.5 accessibility/motion hardening is next; final visual compare-and-correct remains open. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
+- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.5 are GREEN at their current engineering boundaries. Workstream 10.6 enquiry hardening is next; final visual compare-and-correct remains open. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -84,7 +84,11 @@ Workstream 10.4 Slice D — contextual enquiry handoff — is GREEN. Contract co
 
 Implementation commit `ea13f40a7897b51994066e2a0be011e559d3056d` added context-preserving project/look and garment enquiry links and server-side validation of organization/program/role/look/garment query state before prefilling the existing enquiry form. The public intake schema remains unchanged: context is represented only through the already-approved organization, sector and message fields, and project/garment handoff does not misuse `source_product_slug`. Exact Pattern run `35544749528`, job `106168556671`, passed typecheck, optimized build and **12/12 migration checks**; artifact `10616606046`, digest `sha256:5578394a2b9f43165942e1dfe3bada34593134d10dea07e38a40c96125bb4c0a`. Exact foundation regression run `35544749469`, job `106168556339`, passed **6/6 foundation checks**; artifact `10615896677`, digest `sha256:0a3e4b35957883bc8fdf491a0f5df0bf757bfea037104d3bed906eba4f67acff`.
 
-Next: Workstream 10.5 — accessibility and motion hardening across the migrated production routes, including keyboard semantics, practical touch targets, reduced-motion parity, media/fallback accessibility and representative EN/AR checks. Workstream 10.6 remains the separate backend enquiry-hardening boundary. Final visual parity/sign-off remains open. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
+Workstream 10.5 is GREEN. Contract commit `fda94d17891a662cabee45838284196583b41442` preserved RED at run `35544957759`, job `106169106750`: 1/4 accessibility/motion journeys passed while three failed on a 40px mobile skip target, reduced-motion preference not reaching the Motion island, and the synthetic flat garment fallback lacking an image role. RED artifact `10616451586` has digest `sha256:d328c59136d4a24e75649f4256135eb4754923d5bbf4f84408f02421b1227602`.
+
+Implementation commit `c0163d43d6003dd56c8431e1f865a1524c9e5646` added a browser-native reduced-motion preference hook, exposes reduced-motion state on the project continuity island, gives degraded flat garment presentation an accessible image role/name, and enforces practical 44px+ navigation/garment touch targets without changing the accepted information hierarchy. Exact accessibility run `35545089864`, job `106169454594`, passed **4/4** checks in 3.9s; artifact `10616402000`, digest `sha256:b1972ebd65d745607616a44bf3756a92f1d72e8e47d8367641f41984fdf0a6f3`. Exact Pattern regression `35545089857`, job `106169454628`, passed 12/12; exact foundation regression `35545089859`, job `106169454615`, passed 6/6.
+
+Next: Workstream 10.6 — harden the public enquiry boundary while preserving the existing nine-field intake contract and Odoo idempotency/append-only semantics: bounded request body, timeout, stable public error mapping, anti-bot/rate boundary and privacy-safe logging. Final visual parity/sign-off remains open. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
 
 ## Delivery state
 

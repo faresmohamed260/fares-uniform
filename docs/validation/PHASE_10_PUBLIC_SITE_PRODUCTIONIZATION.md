@@ -234,8 +234,43 @@ Exact foundation regression run `35544749469`, job `106168556339`, is also **GRE
 
 This closes the functional context-handoff slice only. Rate limits, body-size enforcement, timeout/error mapping and privacy-safe logging remain Workstream 10.6.
 
-## Next validation boundary — Workstream 10.5
+## Workstream 10.5 — accessibility and motion hardening
 
-Harden accessibility and motion across the migrated production experience: keyboard semantics, focus visibility, practical touch targets, EN/AR keyboard paths, reduced-motion information parity, media alt/degraded-media behavior and representative automated accessibility evidence. Do not use this work to weaken the accepted Pattern in Motion hierarchy or to publish KGC/real-client media.
+### Preserved RED
 
-Final visual compare-and-correct remains open. Production launch, Gate D, real-client publication and PR merges remain separately gated.
+- contract commit `fda94d17891a662cabee45838284196583b41442` — `test: define Phase 10 accessibility and motion gate`;
+- exact push run/job `35544957759` / `106169106750`;
+- typecheck and optimized build passed before browser validation;
+- focused result: **1 passed, 3 failed of 4**;
+- mobile skip target measured 40px high against the 44px minimum;
+- Motion material-study evidence stayed `data-reduced-motion=false` under a browser reduced-motion preference;
+- degraded synthetic garment presentation had an aria-label but no semantic image role;
+- RED artifact `10616451586`, digest `sha256:d328c59136d4a24e75649f4256135eb4754923d5bbf4f84408f02421b1227602`.
+
+### GREEN
+
+Implementation authority: `c0163d43d6003dd56c8431e1f865a1524c9e5646` — `feat: harden accessibility and reduced motion`.
+
+Exact accessibility/motion push run `35545089864`, job `106169454594`, is **GREEN**:
+
+- locked install, typecheck and optimized Next production build passed;
+- 4/4 focused Playwright checks passed in 3.9s;
+- skip/navigation/role/look/garment/enquiry touch targets meet the tested 44px minimum on the representative mobile path;
+- focus-visible styling remains keyboard-observable;
+- EN and Arabic role/look controls activate from the keyboard and preserve the same state/information;
+- a browser-native media-query bridge makes reduced-motion preference deterministic and leaves the same project/look/garment information available;
+- synthetic degraded garment fallback is exposed as a named image role instead of an unlabeled visual-only shape;
+- representative semantic scan reports no duplicate IDs, missing `img[alt]`, positive tabindex or unnamed interactive controls;
+- representative mobile and reduced-motion captures are retained in the evidence artifact;
+- artifact `10616402000`, digest `sha256:b1972ebd65d745607616a44bf3756a92f1d72e8e47d8367641f41984fdf0a6f3`.
+
+Exact regressions on the same SHA are GREEN:
+
+- Pattern migration run/job `35545089857` / `106169454628`: 12/12, artifact `10616327131`, digest `sha256:d907acab5200b4151830968189e3a4c4380ec90b46f724480b808f5840c34a5a`;
+- public foundation run/job `35545089859` / `106169454615`: 6/6, artifact `10616716330`, digest `sha256:6700fa4128038edb75ca7ffb332cdaf9e67b08ddb182ddcb8d518452ce5e5c8d`.
+
+## Next validation boundary — Workstream 10.6
+
+Harden the existing public enquiry boundary without expanding its business schema or weakening Odoo idempotency/append-only behavior. Required RED -> GREEN evidence must cover a bounded request body, request/upstream timeout, stable public error mapping, an explicit anti-bot/rate boundary and privacy-safe logging, while retaining EN/AR contextual enquiry journeys.
+
+Production launch, Gate D, real-client publication and PR merges remain separately gated.

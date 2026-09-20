@@ -56,7 +56,7 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 - [x] Cohort/role progression.
 - [x] Complete-look continuity.
 - [x] Garment detail and inspection.
-- [ ] Contextual transitions and motion.
+- [x] Contextual transitions and motion.
 - [x] Mobile and Arabic RTL interaction.
 - [x] Remove prototype-only KGC branching and fixed-count assumptions.
 - [x] Drive capabilities from content, not organization identity.
@@ -94,9 +94,9 @@ KGC review assets already exist, but **review use is not public-publication auth
 - [ ] Cache/revalidate published public content.
 - [ ] Retain stale published content during transient Odoo failure.
 - [ ] Sitemap, robots, canonical, hreflang and route metadata.
-- [ ] Keyboard, focus, touch-target and automated accessibility proof.
-- [ ] Reduced-motion parity.
-- [ ] Desktop/mobile/Arabic RTL rendered evidence.
+- [x] Keyboard, focus, touch-target and automated accessibility proof.
+- [x] Reduced-motion parity.
+- [x] Desktop/mobile/Arabic RTL rendered evidence.
 - [ ] Performance/resource budget evidence.
 - [ ] Full Playwright production journeys.
 - [ ] Retire obsolete executable prototype code only after parity is proven.

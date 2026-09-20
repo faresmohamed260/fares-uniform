@@ -187,12 +187,13 @@ After each cohesive slice:
 - no direct copy of checkpoint override CSS.
 
 ### 10.5 Accessibility and motion hardening
-- maintained Tabs/Sheet/Accordion semantics;
-- Motion reduced-motion variants;
-- touch targets;
-- EN/AR keyboard paths;
-- media alt state;
-- low-capability/degraded-media fallback.
+Status: **GREEN.**
+
+Preserved RED: commit `fda94d17891a662cabee45838284196583b41442`, run/job `35544957759` / `106169106750`, passed 1/4 focused checks and failed three real accessibility/motion gaps: a 40px mobile skip target, reduced-motion preference not reaching the Motion material island, and the synthetic flat garment fallback lacking an accessible image role. RED artifact `10616451586`, digest `sha256:d328c59136d4a24e75649f4256135eb4754923d5bbf4f84408f02421b1227602`.
+
+Implementation `c0163d43d6003dd56c8431e1f865a1524c9e5646` passes exact accessibility run/job `35545089864` / `106169454594` with 4/4 checks. It adds a browser-native reduced-motion preference bridge, reduced-motion state evidence on project continuity, practical 44px+ touch targets for the affected navigation/garment interactions, a named image role for the degraded flat garment fallback, EN/AR keyboard activation checks, focus-visible evidence, no-overflow checks and a deterministic semantic scan for duplicate IDs, missing image alt attributes, positive tabindex and unnamed controls. Artifact `10616402000`, digest `sha256:b1972ebd65d745607616a44bf3756a92f1d72e8e47d8367641f41984fdf0a6f3`.
+
+Exact regressions remain GREEN: Pattern run/job `35545089857` / `106169454628` (12/12; artifact `10616327131`, digest `sha256:d907acab5200b4151830968189e3a4c4380ec90b46f724480b808f5840c34a5a`) and foundation run/job `35545089859` / `106169454615` (6/6; artifact `10616716330`, digest `sha256:6700fa4128038edb75ca7ffb332cdaf9e67b08ddb182ddcb8d518452ce5e5c8d`).
 
 ### 10.6 Enquiry integration
 Preserve current Odoo idempotency and append-only rules while adding validated public context.
