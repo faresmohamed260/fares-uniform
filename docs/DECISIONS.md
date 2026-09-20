@@ -439,7 +439,7 @@ Synthetic media remains permitted for clearly synthetic non-client fixtures such
 
 ## D-054 — Cloudflare R2 object storage
 
-Status: Accepted by client and provider bootstrap verified, 2026-09-20.
+Status: Accepted by client and provider bootstrap/migration verified, 2026-09-20. Production publication and launch remain unauthorized.
 
 Cloudflare R2 is the selected Fares Uniform object-storage provider. This resolves the previously open media/object-store provider choice without changing Vercel application hosting or Supabase PostgreSQL ownership.
 
@@ -448,8 +448,14 @@ The initial bucket split is:
 - `fares-uniform-media-private` for private source/review media;
 - `fares-uniform-backups` for off-host backup objects.
 
-Hosted run `35525401012`, job `106116558010`, at source `86e00e9413745369bb7e922ca9e0d3d39722ade9` created and verified all three as Standard, private buckets with public r2.dev access disabled and no custom domains. Artifact `10609631325` has digest `sha256:dc775d36659811238c95cf6d58f8ac5bd2d54c7d9cdefdad400fab5c1468c2af`. Automatic placement resolved to WNAM; no data-residency requirement has been accepted.
+Hosted bootstrap run `35525401012`, job `106116558010`, at source `86e00e9413745369bb7e922ca9e0d3d39722ade9` created and verified all three as Standard, private buckets with public `r2.dev` access disabled and no custom domains. Artifact `10609631325` has digest `sha256:dc775d36659811238c95cf6d58f8ac5bd2d54c7d9cdefdad400fab5c1468c2af`. Automatic placement resolved to WNAM; no data-residency requirement has been accepted.
 
-Google Drive remains the audited source/archive location for existing KGC originals during migration. GitHub remains source/evidence storage rather than a client-photo warehouse. Odoo database-backed attachments remain in Supabase PostgreSQL; D-054 does not move that operational state into R2.
+For the D-053 Phase 9 review, only the six approved KGC originals were migrated from the audited Drive source into `fares-uniform-media-private/kgc/review/`. One-shot transfer run `35528055553`, job `106123589186`, verified every object against the expected byte count and SHA-256 before acceptance; artifact `10609754706` has digest `sha256:cbad83ba1b45c6800f847da7f76176efa1eccab4cbbdd6d5b772a680179d4a2c`. The temporary hash-locked ingest Worker was removed by GREEN cleanup run `35528399852`, job `106124509690`; the temporary transfer/bridge workflows were then removed from source.
 
-Production publication, backup retention/RPO/RTO, and any future residency requirement remain separately gated.
+Current hosted review authority `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`, run `35529953588`, job `106128675433`, stages those six private R2 objects ephemerally on the runner, verifies provenance, and passes all 8 Playwright journeys. Artifact `10610259627` has digest `sha256:852ddd4842b562d18bc233bcc0e1db9df8a1497053e98aa5c5974738966971ac`.
+
+Google Drive remains the audited source/archive location for the existing KGC collection, but it is no longer the hosted Phase 9 delivery dependency. GitHub remains source/evidence storage rather than a client-photo warehouse. Odoo database-backed attachments remain in Supabase PostgreSQL; D-054 does not move that operational state into R2.
+
+Repository secret `CLOUDFLARE_API_TOKEN` is the broad Cloudflare control-plane credential supplied by Fares. In the current isolated prototype it is confined to hosted provider/review staging and is never exposed to browser code, Odoo runtime or the public application. Before any production object data plane is approved, replace that broad credential with a narrowly scoped R2 credential limited to the required bucket and operations.
+
+Production publication, backup retention/RPO/RTO, any future residency requirement, public bucket/custom-domain policy and production launch remain separately gated.
