@@ -1,0 +1,91 @@
+name: Phase 9 R2 bootstrap
+
+on:
+  push:
+    branches:
+      - phase-9/public-site-kinetic-prototype
+    paths:
+      - ".github/workflows/phase9-r2-bootstrap.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provision-r2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Provision private R2 buckets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+
+          api_get() {
+            curl --fail-with-body --silent --show-error --retry 3 \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              "$1"
+          }
+
+          zone_json="$(api_get 'https://api.cloudflare.com/client/v4/zones?name=faresuniform.uk')"
+          jq -e '.success == true and (.result | length) == 1' <<<"$zone_json" >/dev/null
+          account_id="$(jq -r '.result[0].account.id' <<<"$zone_json")"
+          zone_id="$(jq -r '.result[0].id' <<<"$zone_json")"
+          test -n "$account_id"
+          test -n "$zone_id"
+          echo "Cloudflare account and faresuniform.uk zone resolved"
+
+          list_json="$(api_get "https://api.cloudflare.com/client/v4/accounts/$account_id/r2/buckets")"
+          jq -e '.success == true' <<<"$list_json" >/dev/null
+
+          for bucket in fares-uniform-media-public fares-uniform-media-private fares-uniform-backups; do
+            if ! jq -e --arg bucket "$bucket" '.result.buckets[]? | select(.name == $bucket)' <<<"$list_json" >/dev/null; then
+              response="$(
+                curl --fail-with-body --silent --show-error --retry 3 \
+                  -X POST \
+                  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                  -H "Content-Type: application/json" \
+                  "https://api.cloudflare.com/client/v4/accounts/$account_id/r2/buckets" \
+                  --data "$(jq -nc --arg name "$bucket" '{name:$name,storageClass:"Standard"}')"
+              )"
+              jq -e '.success == true' <<<"$response" >/dev/null
+              echo "created $bucket"
+            else
+              echo "already exists $bucket"
+            fi
+          done
+
+          mkdir -p r2-evidence
+          for bucket in fares-uniform-media-public fares-uniform-media-private fares-uniform-backups; do
+            bucket_json="$(api_get "https://api.cloudflare.com/client/v4/accounts/$account_id/r2/buckets/$bucket")"
+            jq -e '.success == true and .result.storage_class == "Standard"' <<<"$bucket_json" >/dev/null
+
+            managed_json="$(api_get "https://api.cloudflare.com/client/v4/accounts/$account_id/r2/buckets/$bucket/domains/managed")"
+            jq -e '.success == true and .result.enabled == false' <<<"$managed_json" >/dev/null
+
+            custom_json="$(api_get "https://api.cloudflare.com/client/v4/accounts/$account_id/r2/buckets/$bucket/domains/custom")"
+            jq -e '.success == true and (.result.domains | length) == 0' <<<"$custom_json" >/dev/null
+
+            jq -nc \
+              --arg name "$bucket" \
+              --arg storage_class "$(jq -r '.result.storage_class' <<<"$bucket_json")" \
+              --arg location "$(jq -r '.result.location // "automatic"' <<<"$bucket_json")" \
+              '{name:$name,storage_class:$storage_class,location:$location,r2_dev_enabled:false,custom_domains:0}' \
+              >> r2-evidence/buckets.ndjson
+          done
+
+          jq -s --arg account_id "$account_id" --arg zone_id "$zone_id" \
+            '{account_id:$account_id,zone_id:$zone_id,buckets:.}' \
+            r2-evidence/buckets.ndjson > r2-evidence/bootstrap.json
+          jq . r2-evidence/bootstrap.json
+
+      - name: Upload non-secret R2 evidence
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase9-r2-bootstrap-${{ github.sha }}
+          path: r2-evidence/bootstrap.json
+          if-no-files-found: error
+          retention-days: 14
