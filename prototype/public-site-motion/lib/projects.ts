@@ -26,6 +26,8 @@ export type Project = {
   heroEyebrow: LocalizedText;
   storyTitle: LocalizedText;
   heroModelSrc?: string;
+  cohortMediaSrc?: Record<string, string>;
+  inspectionMedia?: Record<string, { frontSrc: string; backSrc?: string; mode: "flat" | "synthetic-exploded" }>;
   synthetic: boolean;
   identity?: {
     logoSrc: string;
@@ -57,7 +59,20 @@ export const projects: Project[] = [
     sector: { en: "Education · review fixture", ar: "التعليم · نموذج للمراجعة" },
     heroEyebrow: { en: "Schools today. A brighter tomorrow.", ar: "مدارس اليوم. غد أكثر إشراقاً." },
     storyTitle: { en: "Purpose in every layer.", ar: "غرض في كل طبقة." },
-    heroModelSrc: "/media/kgc-hero-model.webp",
+    heroModelSrc: "/review-media/kgc/high-summer.png",
+    cohortMediaSrc: {
+      kindergarten: "/review-media/kgc/kindergarten-summer.png",
+      primary: "/review-media/kgc/primary-summer.png",
+      middle: "/review-media/kgc/middle-summer.png",
+      high: "/review-media/kgc/high-summer.png",
+    },
+    inspectionMedia: {
+      "high:summer": {
+        frontSrc: "/review-media/kgc/high-summer-polo-front.png",
+        backSrc: "/review-media/kgc/high-summer-polo-back.png",
+        mode: "flat",
+      },
+    },
     synthetic: false,
     identity: {
       logoSrc: "/media/kgc-logo.webp",

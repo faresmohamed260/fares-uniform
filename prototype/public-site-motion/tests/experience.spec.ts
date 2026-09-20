@@ -25,6 +25,16 @@ test("approved English desktop landing keeps the High Summer story", async ({ pa
   await expect(location).toBeVisible();
   await expect.poll(() => heroModel.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await expect.poll(() => location.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+  await expect(heroModel).toHaveAttribute("src", /\/review-media\/kgc\/high-summer\.png/);
+  const expectedStageMedia = {
+    kindergarten: "kindergarten-summer.png",
+    primary: "primary-summer.png",
+    middle: "middle-summer.png",
+    high: "high-summer.png",
+  };
+  for (const [stage, file] of Object.entries(expectedStageMedia)) {
+    await expect(page.getByTestId(`cohort-${stage}`).locator("img")).toHaveAttribute("src", new RegExp(`/review-media/kgc/${file.replace(".", "\\.")}`));
+  }
 
   await expect(page.getByTestId("open-explodeview")).toHaveAttribute(
     "href",
@@ -97,33 +107,37 @@ test("keyboard focus opens the selected full study", async ({ page }) => {
   await expect(page.getByTestId("explode-project")).toHaveText("KGC");
   await expect(page.getByTestId("explode-cohort")).toHaveText("High");
   await expect(page.getByTestId("explode-look")).toHaveText("Summer polo");
-  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
+  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-inspection-mode", "flat");
+  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "false");
 });
 
-test("approved KGC inspector explodes and reassembles the Summer polo", async ({ page }) => {
+test("approved KGC inspector uses original front and back packshots", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/explodeview?organization=kgc-national&program=national&role=high&garment=summer&lang=en");
-  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
-  const garment = page.getByTestId("garment-rig").locator("img").first();
+  const rig = page.getByTestId("garment-rig");
+  await expect(rig).toHaveAttribute("data-inspection-mode", "flat");
+  await expect(rig).toHaveAttribute("data-exploded", "false");
+  await expect(page.getByTestId("explode-toggle")).toHaveCount(0);
+  const garment = rig.locator("img").first();
   await expect(garment).toBeVisible();
+  await expect(garment).toHaveAttribute("src", /\/review-media\/kgc\/high-summer-polo-front\.png/);
   await expect.poll(() => garment.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+  await page.getByTestId("view-back").click();
+  await expect(garment).toHaveAttribute("src", /\/review-media\/kgc\/high-summer-polo-back\.png/);
+  await page.getByTestId("view-front").click();
+  await expect(garment).toHaveAttribute("src", /\/review-media\/kgc\/high-summer-polo-front\.png/);
   await expectNoOverflow(page);
   await page.waitForTimeout(500);
   await capture(page, "phase9-explodeview-en.png");
-
-  await page.getByTestId("explode-toggle").click();
-  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "false");
-  await page.getByTestId("explode-toggle").click();
-  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
 });
 
 test("reduced motion preserves inspector state and information", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/explodeview?organization=kgc-national&program=national&role=high&garment=summer&lang=en");
   await expect(page.locator("main")).toHaveAttribute("data-reduced-motion", "true");
-  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
-  await page.getByTestId("explode-toggle").click();
+  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-inspection-mode", "flat");
   await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "false");
+  await expect(page.getByTestId("explode-toggle")).toHaveCount(0);
   await expect(page.getByRole("complementary").getByRole("button")).toHaveCount(6);
 });
 
@@ -134,7 +148,10 @@ test("generic Arabic inspector accepts organization role and garment state", asy
   await expect(page.getByTestId("explode-project")).toHaveText("هاربور هاوس");
   await expect(page.getByTestId("explode-cohort")).toHaveText("المرافق");
   await expect(page.getByTestId("explode-look")).toHaveText("الملابس الخارجية");
+  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-inspection-mode", "synthetic-exploded");
   await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "true");
+  await page.getByTestId("explode-toggle").click();
+  await expect(page.getByTestId("garment-rig")).toHaveAttribute("data-exploded", "false");
   await expectNoOverflow(page);
   await capture(page, "phase9-explodeview-ar.png");
 });

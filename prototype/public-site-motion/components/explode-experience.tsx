@@ -6,7 +6,7 @@ import { Accessibility, ArrowUpRight, Languages, RotateCcw } from "lucide-react"
 import { useEffect, useState, type CSSProperties } from "react";
 import type { Cohort, Locale, Look, Project } from "@/lib/projects";
 
-const details = {
+const genericDetails = {
   en: [
     ["Collar & rib", "The signature collar, with integrated rib and contrasting stripes, shapes the identity of the uniform."],
     ["Main fabric", "A durable everyday textile selected for repeated wear and easy care."],
@@ -22,6 +22,25 @@ const details = {
     ["الشارة المطرزة", "تظل علامة المؤسسة دقيقة ومتينة من دون أن تطغى على القطعة."],
     ["تفاصيل الخياطة", "خطوط مدعمة تدعم الحركة وطول الاستخدام."],
     ["البنطال", "طبقة سفلية منسقة تكمل لغة الزي وتدعم الحركة."],
+  ],
+} as const;
+
+const kgcDetails = {
+  en: [
+    ["Collar & rib", "The original front packshot records the ribbed collar and its contrasting stripe treatment."],
+    ["Red body", "The original front view records the red main body without generated texture or reconstructed layers."],
+    ["Diagonal panel", "The navy-and-white diagonal panel is read directly from the original packshot."],
+    ["KGC badge", "The visible chest badge is shown in its recorded front placement."],
+    ["Sleeve finish", "The short sleeves and cuff edges are presented from the original front view."],
+    ["Front / back", "Use the view controls to compare the separately photographed original front and back packshots."],
+  ],
+  ar: [
+    ["الياقة والحواف", "تسجل صورة الأمام الأصلية الياقة المحاكة ومعالجتها المخططة المتباينة."],
+    ["الجسم الأحمر", "تعرض صورة الأمام الأصلية الجسم الأحمر من دون نسيج مولد أو طبقات معاد بناؤها."],
+    ["اللوح القطري", "يظهر اللوح القطري الكحلي والأبيض مباشرة من صورة المنتج الأصلية."],
+    ["شارة KGC", "تظهر شارة الصدر في موضعها المسجل في صورة الأمام."],
+    ["نهاية الأكمام", "تظهر الأكمام القصيرة وحوافها من صورة الأمام الأصلية."],
+    ["الأمام / الخلف", "استخدم أزرار العرض للمقارنة بين صورتي الأمام والخلف الأصليتين المنفصلتين."],
   ],
 } as const;
 
@@ -49,24 +68,34 @@ export function ExplodeExperience({ project, cohort, look, initialLocale }: Prop
   const reduced = usePrefersReducedMotion();
   const isArabic = locale === "ar";
   const isKgc = project.id === "kgc-national";
+  const inspection = project.inspectionMedia?.[`${cohort.id}:${look.id}`];
+  const flatMode = isKgc;
+  const hasBack = Boolean(inspection?.backSrc);
+  const flatFrontSrc = inspection?.frontSrc ?? project.cohortMediaSrc?.[cohort.id] ?? project.heroModelSrc ?? "";
+  const flatBackSrc = inspection?.backSrc ?? flatFrontSrc;
+  const syntheticAssembledSrc = look.variant === "polo" ? "/media/uniform-polo-assembled.webp" : "/media/uniform-assembled-editorial.webp";
+  const syntheticExplodedSrc = look.variant === "polo" ? "/media/uniform-polo-exploded.webp" : "/media/uniform-exploded-transparent.webp";
+  const activeSrc = flatMode ? (back ? flatBackSrc : flatFrontSrc) : exploded ? syntheticExplodedSrc : syntheticAssembledSrc;
+  const activeDetails = flatMode ? kgcDetails[locale] : genericDetails[locale];
+
   const labels = isArabic
     ? {
         work: "أعمالنا", programs: "البرامج", process: "المنهج", about: "عن فارس",
         discuss: "ناقش هذا البرنامج", title: "غرض في كل طبقة.",
-        intro: isKgc ? "فحص بصري لبنية زي المرحلة الثانوية وتفاصيله." : "فحص بصري لبنية نظام الزي وتفاصيله.",
+        intro: flatMode ? "فحص موثق يعتمد على صور KGC الأصلية للأمام والخلف من دون اختلاق طبقات بناء." : "فحص بصري لبنية نظام الزي وتفاصيله.",
         reassemble: "إعادة التجميع", explode: "فك الطبقات", front: "الأمام", back: "الخلف",
-        reduced: "الحركة المخفّضة: عرض الطبقات", note: "نموذج تفاعلي للمراجعة — الصور التخيلية ليست أصول إنتاج معتمدة.",
+        reduced: flatMode ? "عرض مسطح موثق" : "الحركة المخفّضة: عرض الطبقات",
+        note: flatMode ? "صور KGC أصلية من البيان المعتمد — عرض مسطح للأمام والخلف ولا توجد طبقات بناء مختلقة." : "نموذج تفاعلي للمراجعة — الصور التخيلية تخص النموذج غير العميل فقط.",
       }
     : {
         work: "Work", programs: "Programs", process: "Process", about: "About",
         discuss: "Discuss this program", title: "Purpose in every layer.",
-        intro: isKgc ? "A visual inspection of the High-stage uniform." : "A visual inspection of the uniform system.",
+        intro: flatMode ? "A documented inspection using the original KGC front and back packshots, without fabricated construction layers." : "A visual inspection of the uniform system.",
         reassemble: "Reassemble", explode: "Explode layers", front: "Front", back: "Back",
-        reduced: "Reduced motion: view layers", note: "Interactive review prototype — synthetic media is not approved production imagery.",
+        reduced: flatMode ? "Documented flat view" : "Reduced motion: view layers",
+        note: flatMode ? "Manifest-backed original KGC packshots — annotated front/back fallback with no fabricated construction layers." : "Interactive review prototype — synthetic media belongs only to the synthetic non-client fixture.",
       };
 
-  const assembledSrc = look.variant === "polo" ? "/media/uniform-polo-assembled.webp" : "/media/uniform-assembled-editorial.webp";
-  const explodedSrc = look.variant === "polo" ? "/media/uniform-polo-exploded.webp" : "/media/uniform-exploded-transparent.webp";
   const style = { "--explode-accent": project.skin.accent, "--explode-ink": project.skin.ink } as CSSProperties;
 
   useEffect(() => {
@@ -102,17 +131,19 @@ export function ExplodeExperience({ project, cohort, look, initialLocale }: Prop
           <h1>{labels.title}</h1>
           <p>{labels.intro}</p>
           <div className="explode-controls">
-            <button
-              className="is-primary"
-              type="button"
-              data-testid="explode-toggle"
-              onClick={() => setExploded((value) => !value)}
-            >
-              {exploded ? <RotateCcw aria-hidden="true" /> : <ArrowUpRight aria-hidden="true" />}
-              {exploded ? labels.reassemble : labels.explode}
-            </button>
-            <button type="button" aria-pressed={!back} onClick={() => setBack(false)}>{labels.front}</button>
-            <button type="button" aria-pressed={back} onClick={() => setBack(true)}>{labels.back}</button>
+            {!flatMode && (
+              <button
+                className="is-primary"
+                type="button"
+                data-testid="explode-toggle"
+                onClick={() => setExploded((value) => !value)}
+              >
+                {exploded ? <RotateCcw aria-hidden="true" /> : <ArrowUpRight aria-hidden="true" />}
+                {exploded ? labels.reassemble : labels.explode}
+              </button>
+            )}
+            <button data-testid="view-front" type="button" aria-pressed={!back} onClick={() => setBack(false)}>{labels.front}</button>
+            <button data-testid="view-back" type="button" aria-pressed={back} disabled={flatMode && !hasBack} onClick={() => setBack(true)}>{labels.back}</button>
           </div>
           <div className="explode-reduced"><Accessibility aria-hidden="true" />{labels.reduced}</div>
           <div className="explode-meta">
@@ -126,18 +157,19 @@ export function ExplodeExperience({ project, cohort, look, initialLocale }: Prop
         <motion.div
           className="explode-viewer"
           data-testid="garment-rig"
-          data-exploded={exploded}
+          data-inspection-mode={flatMode ? "flat" : "synthetic-exploded"}
+          data-exploded={flatMode ? "false" : String(exploded)}
           animate={{ opacity: 1 }}
           initial={{ opacity: 0.2 }}
         >
           <motion.div
             className="explode-media"
-            animate={{ scaleX: back ? -1 : 1, scale: exploded ? 1 : 0.82 }}
+            animate={{ scaleX: 1, scale: flatMode ? 1 : exploded ? 1 : 0.82 }}
             transition={{ duration: reduced ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Image src={exploded ? explodedSrc : assembledSrc} alt="" fill priority sizes="(max-width: 760px) 100vw, 46vw" />
+            <Image src={activeSrc} alt="" fill priority sizes="(max-width: 760px) 100vw, 46vw" />
           </motion.div>
-          {[1, 2, 3, 4, 5, 6, 7].map((item) => <span className="explode-spot" key={item}>0{item}</span>)}
+          {activeDetails.map((_, index) => <span className="explode-spot" key={index}>0{index + 1}</span>)}
         </motion.div>
 
         <aside className="explode-details" aria-label={isArabic ? "تفاصيل القطعة" : "Garment details"}>
@@ -147,7 +179,7 @@ export function ExplodeExperience({ project, cohort, look, initialLocale }: Prop
             <span data-testid="explode-look"> {look.name[locale]}</span>
           </p>
           <div className="explode-detail-list">
-            {details[locale].map(([title, body], index) => {
+            {activeDetails.map(([title, body], index) => {
               const open = index === openDetail;
               return (
                 <section className="explode-detail-item" key={title}>
@@ -157,7 +189,7 @@ export function ExplodeExperience({ project, cohort, look, initialLocale }: Prop
                   {open && (
                     <>
                       <div className={`explode-detail-preview preview-${index}`}>
-                        <Image src={index === 0 ? explodedSrc : assembledSrc} alt="" fill sizes="320px" />
+                        <Image src={activeSrc} alt="" fill sizes="320px" />
                       </div>
                       <p>{body}</p>
                     </>

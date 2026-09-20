@@ -53,7 +53,22 @@ Build a repository-backed interactive prototype that proves the accepted Pattern
 
 ## Dependencies and architecture
 
-Use the repository-pinned Next.js/React/Motion/Playwright dependency set already proven by the public and review surfaces. Keep state local to the prototype and fixtures static. Phase 9 does not select a production media-storage/CDN/CMS architecture. Google Drive is the audited source location for the existing KGC originals, not an approved runtime asset service. GitHub must not become the client-media warehouse. If hosted review requires a delivery mechanism for the exact authorized subset, choose the smallest review-only mechanism that preserves these boundaries and document it before use; do not infer Cloudflare R2, Supabase Storage or another production service without a separate architecture decision.
+Use the repository-pinned Next.js/React/Motion/Playwright dependency set already proven by the public and review surfaces. Keep state local to the prototype and fixtures static. Phase 9 does not select a production media-storage/CDN/CMS architecture. Google Drive is the audited source location for the existing KGC originals, not an approved runtime asset service. GitHub must not become the client-media warehouse. Do not infer Cloudflare R2, Supabase Storage or another production service without a separate architecture decision.
+
+### Review-only KGC media staging
+
+For D-053 hosted review, the narrow delivery mechanism is **ephemeral runner-only staging from the private Google Drive source**. Git history stores only the manifest file IDs, filenames and implementation references. A GitHub-hosted Phase 9 runner authenticates with the review-only secret `PHASE9_KGC_REVIEW_GOOGLE_CREDENTIALS`, downloads only the six exact files below into ignored `public/review-media/kgc/` paths, renders/tests the prototype, and discards the runner. The original binaries are not committed, deployed, or used as a production runtime service. The script emits only filenames, byte counts and SHA-256 provenance into the review artifact.
+
+| Review use | Drive file ID | Runner-only path |
+| --- | --- | --- |
+| Kindergarten / Summer worn anchor | `1-7KJddf0GBi48waU0zOfb_qQpF7FApmm` | `kindergarten-summer.png` |
+| Primary / Summer worn anchor | `1I5xEnC_plLnTwVnqBdrcja9l9lkSpVDa` | `primary-summer.png` |
+| Middle / Summer worn anchor | `1le12chTbBteOrrVIxy0D3hWUsGioY-xC` | `middle-summer.png` |
+| High / Summer worn anchor | `1x69utNsIog_mDU1KV-BrZ7yrIhDAyGwV` | `high-summer.png` |
+| High / Summer polo front packshot | `17z5LpOTT0-RqoxvKoa82LEb3E6SA3G1c` | `high-summer-polo-front.png` |
+| High / Summer polo back packshot | `14oTbQ4pyLzxu-2LKs6eZamSqQiasHozV` | `high-summer-polo-back.png` |
+
+The review identity must have no broader Drive access than necessary for those files and should be revoked after this review gate. Missing/invalid credentials or inaccessible files fail the workflow closed before build/render. This is a Phase 9 implementation detail, not a production media architecture decision.
 
 ## Data and security
 
@@ -69,7 +84,7 @@ The exact implementation commit must pass:
 4. Playwright desktop English journey;
 5. project switch to the synthetic non-school fixture;
 6. cohort/role and look state changes;
-7. explode and reassemble behavior;
+7. D-048 annotated original front/back behavior for KGC where no truthful exploded layers exist, plus explode/reassemble behavior for the synthetic Harbor House fixture;
 8. keyboard-visible focus;
 9. Arabic RTL;
 10. mobile overflow and touch target checks;

@@ -18,7 +18,7 @@ const copy = {
     genericExplore: "Explore this program",
     stageHeading: "One program · four stages",
     detailKicker: "A closer look",
-    detailBody: "Premium fabrics. Lasting construction. Considered in every detail — so students can move, learn and belong.",
+    detailBody: "Original KGC packshots preserve the exact polo silhouette, diagonal color blocking, crest placement and separately photographed front and back views.",
     genericDetailBody: "A coordinated uniform system shaped around the people, roles and daily work it supports.",
     look: "Other looks",
     footerLine: "Egyptian by heritage. Global by standards.",
@@ -43,7 +43,7 @@ const copy = {
     genericExplore: "استكشف هذا البرنامج",
     stageHeading: "برنامج واحد · أربع مراحل",
     detailKicker: "نظرة أقرب",
-    detailBody: "خامات مميزة. صناعة تدوم. عناية بكل تفصيل ليتمكن الطلاب من الحركة والتعلم والانتماء.",
+    detailBody: "تحافظ صور KGC الأصلية على شكل البولو وتوزيع الألوان القطري وموضع الشارة وصورتي الأمام والخلف المنفصلتين.",
     genericDetailBody: "نظام زي متناسق مصمم حول الأشخاص والأدوار والعمل اليومي الذي يخدمه.",
     look: "إطلالات أخرى",
     footerLine: "مصري الجذور. بمعايير عالمية.",
@@ -62,6 +62,11 @@ const copy = {
 const detailLabels = {
   en: ["Collar & rib", "Main fabric", "Diagonal panel", "Embroidered badge", "Seam detail", "Trousers"],
   ar: ["الياقة والحواف", "الخامة الأساسية", "اللوح القطري", "الشارة المطرزة", "تفاصيل الخياطة", "البنطال"],
+} as const;
+
+const kgcDetailLabels = {
+  en: ["Collar & rib", "Red body", "Diagonal panel", "KGC badge", "Sleeve finish", "Front / back"],
+  ar: ["الياقة والحواف", "الجسم الأحمر", "اللوح القطري", "شارة KGC", "نهاية الأكمام", "الأمام / الخلف"],
 } as const;
 
 function firstLook(project: Project, cohortId: string) {
@@ -103,16 +108,24 @@ export function PatternExperience({
   const project = seededProject;
   const text = copy[locale];
   const cohort = project.cohorts.find((item) => item.id === cohortId) ?? project.cohorts[0];
-  const availableLooks = project.looks.filter((item) => cohort.lookIds.includes(item.id));
-  const look = availableLooks.find((item) => item.id === lookId) ?? availableLooks[0];
   const isKgc = project.id === "kgc-national";
+  const availableLooks = project.looks.filter(
+    (item) => cohort.lookIds.includes(item.id) && (!isKgc || item.id === "summer"),
+  );
+  const look = availableLooks.find((item) => item.id === lookId) ?? availableLooks[0];
   const heroTitle = isKgc ? text.heroTitle : text.genericTitle;
   const heroSub = isKgc ? text.heroSub : text.genericSub;
   const heroAction = isKgc ? text.explore : text.genericExplore;
   const detailBody = isKgc ? text.detailBody : text.genericDetailBody;
   const detailMotto = isKgc ? text.motto : text.genericMotto;
-  const stageSource = isKgc ? "/media/synthetic-cohort-lineup.webp" : "/media/fares-team-editorial.webp";
-  const explodedSrc = look.variant === "polo" ? "/media/uniform-polo-exploded.webp" : "/media/uniform-exploded-transparent.webp";
+  const stageSource = "/media/fares-team-editorial.webp";
+  const kgcInspection = project.inspectionMedia?.[`${cohort.id}:${look.id}`];
+  const detailMediaSrc = isKgc
+    ? kgcInspection?.frontSrc ?? project.cohortMediaSrc?.[cohort.id] ?? project.heroModelSrc ?? ""
+    : look.variant === "polo"
+      ? "/media/uniform-polo-exploded.webp"
+      : "/media/uniform-exploded-transparent.webp";
+  const activeDetailLabels = isKgc ? kgcDetailLabels[locale] : detailLabels[locale];
   const inspectorHref = "/explodeview?organization=" + project.id + "&program=" + project.programId + "&role=" + cohort.id + "&garment=" + look.id + "&lang=" + locale;
 
   useEffect(() => {
@@ -224,8 +237,8 @@ export function PatternExperience({
         <div className={"stage-grid stage-count-" + project.cohorts.length} role="tablist" data-testid="cohort-rail">
           {project.cohorts.map((item, index) => {
             const active = item.id === cohort.id;
-            const stageImage = isKgc && item.id === "high" && project.heroModelSrc ? project.heroModelSrc : stageSource;
-            const position = isKgc ? (item.id === "high" ? 50 : index < 2 ? 0 : 66.67) : project.cohorts.length > 1 ? (index / (project.cohorts.length - 1)) * 100 : 50;
+            const stageImage = isKgc ? project.cohortMediaSrc?.[item.id] ?? project.heroModelSrc ?? "" : stageSource;
+            const position = isKgc ? 50 : project.cohorts.length > 1 ? (index / (project.cohorts.length - 1)) * 100 : 50;
             return (
               <button
                 className={"stage-card " + (active ? "is-active" : "")}
@@ -283,7 +296,12 @@ export function PatternExperience({
           </div>
         </div>
 
-        <div className="detail-visual" data-testid="garment-rig" data-exploded="true">
+        <div
+          className="detail-visual"
+          data-testid="garment-rig"
+          data-inspection-mode={isKgc ? "flat" : "synthetic-exploded"}
+          data-exploded={isKgc ? "false" : "true"}
+        >
           <motion.div
             className="detail-garment"
             key={project.id + "-" + look.id}
@@ -291,10 +309,10 @@ export function PatternExperience({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Image src={explodedSrc} alt="" fill priority sizes="(max-width: 760px) 100vw, 64vw" />
+            <Image src={detailMediaSrc} alt="" fill priority sizes="(max-width: 760px) 100vw, 64vw" />
           </motion.div>
           <ol className="detail-callouts" aria-label={locale === "ar" ? "تفاصيل القطعة" : "Garment details"}>
-            {detailLabels[locale].map((label, index) => (
+            {activeDetailLabels.map((label, index) => (
               <li key={label}><span>0{index + 1}</span><strong>{label}</strong></li>
             ))}
           </ol>
