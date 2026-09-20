@@ -15,3 +15,5 @@
 .not-found h1{font-size:clamp(48px,7vw,82px);letter-spacing:-.055em;margin:0 0 18px}
 .not-found p{line-height:1.7;color:rgba(18,60,52,.68)}
 @media(max-width:700px){.work-section,.work-page-title{width:min(100% - 28px,1180px)}.work-grid{grid-template-columns:1fr}.work-card{min-height:210px}}
+.copy-ar{display:none}[lang="ar"] .copy-en{display:none}[lang="ar"] .copy-ar{display:inline}
+.error-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
