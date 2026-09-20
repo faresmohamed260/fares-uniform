@@ -2802,3 +2802,113 @@ img { user-select: none; }
     left: 0;
   }
 }
+
+
+/* Checkpoint 30: final D-053 hero fold and portrait framing */
+@media (min-width: 1121px) {
+  .hero-model {
+    inset: -24px -18% -165px -47%;
+  }
+  .hero-model img {
+    object-position: center top;
+    transform: scale(1.30);
+    transform-origin: center top;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    min-height: 590px;
+  }
+  .hero-copy {
+    width: 56%;
+    padding-top: 34px;
+  }
+  .hero h1 {
+    max-width: 188px;
+    font-size: 50px;
+  }
+  .hero-copy > p {
+    max-width: 170px;
+    margin-top: 16px;
+    font-size: 11px;
+  }
+  .hero-actions {
+    width: 188px;
+    margin-top: 17px;
+  }
+  .primary-action,
+  .secondary-action {
+    width: 188px;
+    min-height: 46px;
+  }
+  .hero-meta {
+    width: 160px;
+    margin-top: 17px;
+  }
+  .hero-visual {
+    inset: 78px 0 auto;
+    height: 590px;
+    min-height: 590px;
+  }
+  .hero-model {
+    inset: 18px -37% -105px 12%;
+  }
+  .hero-model img {
+    object-position: center top;
+    transform: scale(1.62);
+    transform-origin: center top;
+  }
+  .hero-ribbons {
+    inset: 0 -48% -6% 27%;
+  }
+  .hero-ribbons span:nth-child(1) { bottom: 220px; }
+  .hero-ribbons span:nth-child(2) { bottom: 158px; }
+  .hero-ribbons span:nth-child(3) { bottom: 96px; }
+  .hero-script {
+    top: 24px;
+    right: 4px;
+    width: 88px;
+    font-size: 12px;
+  }
+  .hero-side-note {
+    bottom: 34px;
+  }
+
+  [dir="rtl"] .hero {
+    min-height: 590px;
+  }
+  [dir="rtl"] .hero-copy {
+    width: 56%;
+    padding: 34px 18px 20px 0;
+  }
+  [dir="rtl"] .hero h1 {
+    width: 188px;
+    max-width: 188px;
+    font-size: 44px;
+  }
+  [dir="rtl"] .hero-copy > p {
+    width: 172px;
+    max-width: 172px;
+    font-size: 11px;
+  }
+  [dir="rtl"] .hero-actions,
+  [dir="rtl"] .primary-action,
+  [dir="rtl"] .secondary-action {
+    width: 188px;
+  }
+  [dir="rtl"] .hero-model {
+    inset: 18px 36% -105px -29%;
+  }
+  [dir="rtl"] .hero-model img {
+    object-position: center top;
+    transform: scale(1.62);
+    transform-origin: center top;
+  }
+  [dir="rtl"] .hero-ribbons {
+    inset: 0 39% -6% -42%;
+  }
+  [dir="rtl"] .hero-ribbons span:nth-child(1) { bottom: 220px; }
+  [dir="rtl"] .hero-ribbons span:nth-child(2) { bottom: 158px; }
+  [dir="rtl"] .hero-ribbons span:nth-child(3) { bottom: 96px; }
+}
