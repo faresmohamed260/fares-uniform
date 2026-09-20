@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { useMemo, useState } from "react";
 import type { PublicLocale } from "@/lib/locale";
@@ -142,8 +143,12 @@ export function ProjectContinuity({ project, locale, initialRole, initialLook }:
             {garments.map((garment, index) => (
               <li key={garment.slug}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{garment.name}</strong>
-                <small>{garment.category}</small>
+                <Link
+                  href={`/${locale}/work/${project.organization.slug}/${project.program.slug}/${garment.slug}?role=${role}&look=${activeLook?.slug ?? ""}`}
+                >
+                  <strong>{garment.name}</strong>
+                  <small>{garment.category}</small>
+                </Link>
               </li>
             ))}
           </ul>
