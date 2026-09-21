@@ -42,12 +42,13 @@ export function SiteHeader({ locale, alternatePath = "" }: { locale: PublicLocal
         <Link className="nav-cta" href={`/${locale}#enquiry`}>{text.contact}<span aria-hidden="true">→</span></Link>
       </nav>
       <div className="mobile-header-actions">
+        <Link className="mobile-quick-cta" href={`/${locale}#enquiry`} aria-label={text.contact}><span aria-hidden="true">↗</span></Link>
         <Link className="language-switch" href={`/${other}${alternatePath}`} hrefLang={other}>{text.language}</Link>
         <details className="mobile-menu">
           <summary aria-label={locale === "ar" ? "افتح قائمة التنقل" : "Open navigation menu"}>
             <span /><span /><span />
           </summary>
-          <nav className="mobile-menu-panel" aria-label={locale === "ar" ? "التنقل على الهاتف" : "Mobile navigation"}>
+          <nav className="mobile-menu-panel" aria-label={locale === "ar" ? "قائمة الموقع" : "Mobile navigation"}>
             <Link href={`/${locale}/work`}>{text.work}<span aria-hidden="true">↗</span></Link>
             <Link href={`/${locale}#catalog`}>{text.catalog}<span aria-hidden="true">↘</span></Link>
             <Link href={`/${locale}#process`}>{text.process}<span aria-hidden="true">↘</span></Link>
