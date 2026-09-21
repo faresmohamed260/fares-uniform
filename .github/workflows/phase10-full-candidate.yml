@@ -106,7 +106,7 @@ jobs:
           cp ../../docs/ui/assets/approved-pattern-in-motion/approved-desktop-landing.png evidence/phase10-full-candidate/reference/
           cp ../../docs/ui/assets/approved-pattern-in-motion/approved-mobile-landing-en.png evidence/phase10-full-candidate/reference/
           cp ../../docs/ui/assets/approved-pattern-in-motion/approved-mobile-landing-ar.png evidence/phase10-full-candidate/reference/
-          cp ../../docs/ui/assets/approved-pattern-in-motion/approved-desktop-inspector.png evidence/phase10-full-candidate/reference/
+          cp ../../docs/ui/assets/approved-pattern-in-motion/approved-garment-inspector.png evidence/phase10-full-candidate/reference/
           sha256sum evidence/phase10-full-candidate/reference/approved-*.png > evidence/phase10-full-candidate/reference/SHA256SUMS.txt
           {
             echo "fares_sha=$GITHUB_SHA"
