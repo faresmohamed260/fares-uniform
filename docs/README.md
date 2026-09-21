@@ -14,13 +14,14 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Foundation architecture](architecture/FOUNDATION_ARCHITECTURE.md) | System ownership/data/offline/integration contracts |
 | [Public site production architecture review](architecture/PUBLIC_SITE_PRODUCTION_ARCHITECTURE_REVIEW.md) | Impartial current-state audit, production blockers, target architecture and remediation plan for preserving Pattern in Motion without prototype debt |
 | [Design system](ui/DESIGN_SYSTEM.md) | UI/RTL/accessibility direction |
+| [Repo-first UI/UX workflow](ui/REPO_FIRST_UI_UX_WORKFLOW.md) | Mandatory browser-native design authority, approval, implementation and regression process; generated images/screenshots are not implementation specifications |
 | [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md) | Authorized public-site redesign boundary, marketing/interaction principles, research process and design/kinetic/fidelity gates |
 | [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md) | Current fashion/uniform market research, high-expression interactive references, tool/library findings and concept hypotheses |
 | [Public site showcase and historical-work requirements](ui/PUBLIC_SITE_SHOWCASE_CONTENT_REQUIREMENTS.md) | Real-client/project showcase content model, publication/privacy gate, product-photography standard and layered/exploded product-view requirements |
 | [GPT-6 Astra web-design research](ui/GPT6_ASTRA_WEB_DESIGN_RESEARCH.md) | Verified Astra/Scrollcraft/Higgsfield examples, prompt/workflow findings and Fares adoption plan |
 | [KGC National media manifest](ui/KGC_MEDIA_MANIFEST.md) | Canonical Drive-backed KGC inventory: authoritative model anchors, matched packshots, extra/unmatched assets and stable file references |
-| [Pattern in Motion design specification](ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) | Selected multi-organization public-site direction, reusable content/layer contracts, responsive/RTL treatment and kinetic prototype acceptance |
-| [Approved Pattern in Motion boards](ui/assets/approved-pattern-in-motion/README.md) | Immutable pre-implementation desktop, mobile EN, mobile AR and garment-inspector visual references with checksums and usage boundaries |
+| [Pattern in Motion design specification](ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) | Historical selected creative direction and reusable product/content ideas; superseded by D-059 as implementation authority |
+| [Approved Pattern in Motion boards](ui/assets/approved-pattern-in-motion/README.md) | Historical pre-implementation concept/reference boards; inspiration/regression evidence only, never an implementation specification |
 | [Phase 0](phases/PHASE_0_DISCOVERY.md) | Discovery closure |
 | [Phase 0A hosted proof](phases/PHASE_0A_ODOO_PROOF.md) | Odoo proof contract |
 | [Odoo proof evidence](validation/ODOO_PROOF.md) | Hosted proof evidence |
