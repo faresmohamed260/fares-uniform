@@ -60,7 +60,8 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 - [x] Mobile and Arabic RTL interaction.
 - [x] Remove prototype-only KGC branching and fixed-count assumptions.
 - [x] Drive capabilities from content, not organization identity.
-- [ ] Compare every cohesive slice against the Phase 9 visual authority.
+- [x] Compare every cohesive slice against the Phase 9 visual authority.
+- [ ] Obtain Fares's explicit rendered-parity acceptance for the production candidate.
 
 #### A3 — KGC and future client publication
 

@@ -1,6 +1,6 @@
 # Phase 10 — Public-site productionization
 
-Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.8 GREEN AT ENGINEERING/HOSTED-VALIDATION BOUNDARIES; RENDERED PARITY ACCEPTANCE NEXT.**
+Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.8 GREEN; ENGINEERING RENDERED COMPARE-AND-CORRECT COMPLETE; FARES VISUAL ACCEPTANCE NEXT.**
 
 Authorization: Fares accepted this productionization plan on 2026-09-20 and authorized Phase 10 repository engineering, hosted CI and provider work required by this contract. Production launch/cutover, Gate D approval, real-client publication, price/stock exposure and merging PR #7 remain separately gated.
 
@@ -248,6 +248,18 @@ Exact full-candidate push run/job `35609594487` / `106365093566` is GREEN:
 - artifact `10643791534`, digest `sha256:e5cd1f2cb3bbd0efc09a109a73e0f51b58f8788f5223d267e816b29048c902ff`.
 
 This closes Workstream 10.8 engineering validation. It does **not** assert Fares's visual-parity acceptance.
+
+### Rendered compare-and-correct checkpoint
+Status: **ENGINEERING PARITY CORRECTION COMPLETE / FARES ACCEPTANCE PENDING.**
+
+The latest compare/correct sequence is:
+- `5b1929abb6bca3ce695a12e25bf0b11d07027587` — corrected the production shell, editorial geometry, homepage/project/catalog/process composition and truthful garment-inspector visual treatment against the Phase 9 Pattern in Motion authority without importing KGC-specific branching or the prototype checkpoint cascade;
+- `7d756ae904fd3c34364cc17cf9120db22a7c0281` — restored a dedicated mobile Pattern navigation surface;
+- `ae7f2230b9255cd3d5c3272f767744534762df23` — retained the mobile project/enquiry CTA semantics after the navigation correction.
+
+Exact latest-head full-candidate push run/job `35615691978` / `106385683974` is GREEN at `ae7f2230b9255cd3d5c3272f767744534762df23`. Artifact `10646012719`, digest `sha256:46991f2354ffe7cd285b99aeac5502c4c958ab4702a501e876d2cde1d08c8c4c`, stages the corrected production captures beside the preserved Phase 9 desktop, EN mobile, AR mobile and garment-inspector authority boards. Same-head Pattern, foundation, accessibility/motion, enquiry and cache/SEO push workflows are all GREEN.
+
+This satisfies the engineering compare-and-correct requirement. Exit criterion 10 remains open until Fares explicitly accepts the rendering.
 
 Run the full productionization matrix on one exact SHA.
 

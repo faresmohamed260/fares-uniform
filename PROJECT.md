@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.8 are GREEN at their engineering/hosted-validation boundaries, including the stable synthetic-only R2 browser origin and one exact full hosted candidate. The next boundary is rendered parity review/acceptance against the Phase 9 visual authority; production remains NO-GO. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
+- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.8 are GREEN, and the engineering rendered compare-and-correct pass is complete on the latest exact candidate. The current checkpoint is **Fares visual acceptance** of that production rendering against the Phase 9 authority; production remains NO-GO. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -208,10 +208,23 @@ D-053 KGC content truth is now backed by D-054 Cloudflare R2 storage. The six ap
 
 The implementation checkpoint is ready for Fares's explicit visual sign-off. PR #7 stays draft; production `apps/public-web`, public client-media publication, deployment and Gate D remain excluded.
 
+## Rendered parity checkpoint
+
+The engineering compare-and-correct pass is complete against Phase 9 visual authority `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`.
+
+Correction sequence:
+- `5b1929abb6bca3ce695a12e25bf0b11d07027587` — restored the editorial Fares shell, Pattern geometry, project/catalog/process composition and truthful garment-inspector presentation without copying prototype-only KGC branches or checkpoint CSS;
+- `7d756ae904fd3c34364cc17cf9120db22a7c0281` — restored dedicated mobile Pattern navigation while retaining canonical EN/AR routes;
+- `ae7f2230b9255cd3d5c3272f767744534762df23` — preserved the mobile project/enquiry CTA semantics after the navigation correction.
+
+Exact latest-head full-candidate push run `35615691978`, job `106385683974`, is GREEN on `ae7f2230b9255cd3d5c3272f767744534762df23`: foundation 6/6, Pattern 12/12, accessibility/motion 4/4, enquiry hardening 6/6, rendered-candidate 4/4 and cache/SEO/resilience/performance 4/4. Artifact `10646012719`, digest `sha256:46991f2354ffe7cd285b99aeac5502c4c958ab4702a501e876d2cde1d08c8c4c`, contains the latest production captures together with the preserved Phase 9 desktop/mobile/RTL/inspector authority boards. Same-head focused push workflows for Pattern, foundation, accessibility, enquiry and cache/SEO are also GREEN.
+
+This reaches the next human checkpoint: **Fares visual acceptance**. Engineering parity correction is complete; acceptance itself is intentionally not inferred.
+
 ## Next tasks, in order
 
-1. **Track A / Phase 10:** execute Workstream 10.8 on one exact `phase-10/public-site-productionization` SHA. Require static-quality/typecheck/build plus all public foundation, Pattern migration, accessibility/motion, enquiry-hardening and cache/SEO/performance journeys. Retain public/private R2 browser-origin proof on the same candidate SHA when provider workflow paths are touched.
-2. Compare fresh production `apps/public-web` desktop/mobile/RTL/inspector captures directly against Phase 9 authority `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`. Correct production visual drift without copying prototype-only KGC branching or checkpoint CSS. Fares visual acceptance remains required before Phase 10 can be called implementation-complete.
+1. **Track A / Phase 10:** Fares reviews the latest production rendering at the rendered-parity checkpoint and either accepts it or identifies specific visual drift. Do not call Phase 10 implementation-complete before that explicit acceptance.
+2. After acceptance, retire or explicitly evidence-retain the obsolete executable Phase 9 prototype as required by the Phase 10 exit criteria, then synchronize closure/migration/rollback documentation. This still does not authorize launch.
 3. Keep KGC and all real-client publication gated. `media.faresuniform.uk` currently serves only the deterministic synthetic publication object; do not promote KGC/client derivatives without explicit publication authorization and rights/publication records.
 4. Keep PR #7 and PR #8 draft/unmerged unless Fares explicitly authorizes their disposition. Do not launch/cut over production.
 5. **Track B / ERP:** Gate D remains a separate production-operations track. Public-site progress does not close it.

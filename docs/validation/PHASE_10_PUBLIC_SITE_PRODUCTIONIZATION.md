@@ -1,6 +1,6 @@
 # Phase 10 validation — public-site productionization
 
-Status: **WORKSTREAMS 10.1–10.8 GREEN AT ENGINEERING/HOSTED-VALIDATION BOUNDARIES — RENDERED PARITY ACCEPTANCE NEXT.**
+Status: **WORKSTREAMS 10.1–10.8 GREEN — ENGINEERING RENDERED COMPARE-AND-CORRECT COMPLETE — FARES VISUAL ACCEPTANCE NEXT.**
 
 Branch: `phase-10/public-site-productionization`.
 
@@ -391,8 +391,30 @@ Exact push run `35609594487`, job `106365093566`, is **GREEN** on `cef36c8f3acec
 
 No KGC or other real-client media was published. No production cutover, PR merge or ERP/Gate-D action occurred.
 
-## Next validation boundary — rendered parity acceptance
+## Rendered parity engineering checkpoint
 
-Workstream 10.8 engineering validation is complete. The remaining Phase 10 closure boundary is direct rendered compare-and-correct against visual authority `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256` and explicit Fares acceptance of the production rendering. The Phase 9 executable prototype remains non-runtime evidence/reference only while this review is open.
+The direct engineering compare-and-correct pass against visual authority `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256` is complete.
 
-Do not mark Phase 10 implementation-complete, retire the evidence boundary, merge PR #7/#8, publish KGC/real-client media or launch production until the required acceptance/authorization is explicit.
+Corrections:
+- `5b1929abb6bca3ce695a12e25bf0b11d07027587` corrected Fares shell/editorial geometry, homepage/project/catalog/process composition and the truthful garment inspector;
+- `7d756ae904fd3c34364cc17cf9120db22a7c0281` restored dedicated mobile Pattern navigation;
+- `ae7f2230b9255cd3d5c3272f767744534762df23` preserved the mobile project/enquiry CTA semantics.
+
+Exact latest-head push evidence at `ae7f2230b9255cd3d5c3272f767744534762df23`:
+- full candidate run/job `35615691978` / `106385683974` — GREEN;
+- foundation: 6/6;
+- Pattern migration: 12/12;
+- accessibility/motion: 4/4;
+- enquiry hardening: 6/6;
+- rendered candidate: 4/4;
+- cache/SEO/resilience/performance: 4/4;
+- full-candidate artifact `10646012719`, digest `sha256:46991f2354ffe7cd285b99aeac5502c4c958ab4702a501e876d2cde1d08c8c4c`;
+- same-head Pattern run `35615691966`, foundation `35615691851`, accessibility/motion `35615691899`, enquiry `35615691876` and cache/SEO `35615692133` are GREEN.
+
+The artifact contains current production captures and the preserved Phase 9 desktop/mobile/RTL/inspector authority boards. No KGC or real-client media was published.
+
+## Next validation boundary — Fares visual acceptance
+
+The next checkpoint is now human acceptance, not additional autonomous engineering. Fares must explicitly accept the corrected production rendering or identify specific remaining drift. Until then, Phase 10 is not implementation-complete and the Phase 9 executable prototype is retained as evidence/reference.
+
+Do not retire that evidence boundary, merge PR #7/#8, publish KGC/real-client media or launch production until the required acceptance/authorization is explicit.
