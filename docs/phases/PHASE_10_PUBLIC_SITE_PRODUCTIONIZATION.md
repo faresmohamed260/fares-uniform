@@ -1,6 +1,6 @@
 # Phase 10 — Public-site productionization
 
-Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.8 GREEN; ENGINEERING RENDERED COMPARE-AND-CORRECT COMPLETE; FARES VISUAL ACCEPTANCE NEXT.**
+Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.8 ENGINEERING-GREEN; D-059 UI/UX AUTHORITY RESET ACTIVE; BROWSER-NATIVE DESIGN AUTHORITY NEXT.**
 
 Authorization: Fares accepted this productionization plan on 2026-09-20 and authorized Phase 10 repository engineering, hosted CI and provider work required by this contract. Production launch/cutover, Gate D approval, real-client publication, price/stock exposure and merging PR #7 remain separately gated.
 
@@ -8,9 +8,18 @@ Active branch: `phase-10/public-site-productionization`, stacked on the unmerged
 
 Primary architecture authority: `docs/architecture/PUBLIC_SITE_PRODUCTION_ARCHITECTURE_REVIEW.md`.
 
+## D-059 UI/UX authority amendment — 2026-09-21
+
+Fares rejected image-led UI implementation before Phase 10 visual acceptance. The engineering workstreams and their hosted evidence remain valid, but the previous static-board/rendered-parity model no longer governs design approval.
+
+From this point forward, `docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md` is mandatory. The Phase 9 PNG boards/prototype and current Phase 10 preview are historical/reference or engineering evidence only. Generated images/screenshots must not be reverse-engineered as the UI specification. The next design authority must be repository-owned and browser-native, and Fares must explicitly approve an exact Git commit before visual implementation-complete can be claimed.
+
+This amendment does not reopen already-proven Odoo/R2/security/enquiry/cache/SEO foundations unless new UI work changes their contracts. It does reopen the visual/interaction completion boundary.
+
+
 ## Goal
 
-Move the approved Pattern in Motion experience into the real `apps/public-web` production surface without carrying prototype-only architecture debt.
+Productionize the public site in `apps/public-web` without carrying prototype-only architecture debt, while re-establishing visual/interaction authority through the D-059 repo-first browser-native workflow.
 
 The phase must preserve the premium kinetic visual goal while making the implementation:
 - organization-agnostic;
@@ -57,7 +66,7 @@ Architecture cleanup is not permission to turn the site into a conventional card
 4. Server Component + client-island frontend structure.
 5. Semantic tokens and component-scoped production styling.
 6. Maintained accessible primitives for generic controls.
-7. Port of the approved Pattern in Motion visual/interaction system.
+7. Repo-first browser-native public-site design authority and production integration, preserving useful Pattern in Motion creative principles without using static boards as an implementation specification.
 8. Contextual enquiry integration and abuse/error hardening.
 9. SEO, metadata, sitemap/robots and deterministic typography.
 10. Cache/resilience behavior for read-only public content.
@@ -294,7 +303,7 @@ Minimum representative journeys:
 - SEO route/metadata checks;
 - cache/failure behavior;
 - rendered desktop/mobile/RTL/inspector evidence;
-- direct compare-and-correct against the accepted Phase 9 visual authority;
+- regression comparison against the exact Fares-approved browser-native Git authority produced under D-059; historical Phase 9 boards may be retained as non-authoritative context;
 - exact artifact/run/job/SHA recorded in validation docs.
 
 ## Documentation outputs
@@ -310,7 +319,7 @@ Minimum representative journeys:
 ## Exit criteria
 
 Phase 10 may be called implementation-complete only when:
-1. `apps/public-web` contains the approved experience and production integration;
+1. `apps/public-web` contains the Fares-approved browser-native experience and production integration from an exact Git authority established under D-059;
 2. there is no organization-ID branching in generic public components;
 3. homepage is Fares-led;
 4. EN/AR canonical routing/SEO is correct;
@@ -319,7 +328,7 @@ Phase 10 may be called implementation-complete only when:
 7. public data and browser payloads expose no price/stock/private records;
 8. enquiry is contextual, hardened and Odoo-idempotent;
 9. accessibility/reduced-motion/performance gates pass;
-10. rendered parity is accepted by Fares;
+10. Fares has explicitly approved the browser-native UI/UX authority commit and the production implementation is verified against that coded authority; static/generated image boards are not the acceptance specification;
 11. obsolete prototype executable code is retired or explicitly retained only for evidence;
 12. all exact hosted evidence is recorded.
 
