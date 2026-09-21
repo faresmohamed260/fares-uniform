@@ -129,7 +129,7 @@ jobs:
           remote_head="$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | awk '{print $1}')"
           test "$remote_head" = "$GITHUB_SHA"
 
-          payload="$(jq -cn             --arg name "$REVIEW_PROJECT"             --arg project "$REVIEW_PROJECT_ID"             --arg repo "$GITHUB_REPOSITORY"             --arg ref "$GITHUB_REF_NAME"             --arg sha "$GITHUB_SHA"             '{
+          payload="$(jq -cn             --arg name "$REVIEW_PROJECT"             --arg project "$REVIEW_PROJECT_ID"             --arg repo "$GITHUB_REPOSITORY"             --argjson repo_id 1359148133             --arg ref "$GITHUB_REF_NAME"             --arg sha "$GITHUB_SHA"             '{
               name:$name,
               project:$project,
               gitSource:{type:"github",repo:$repo,repoId:$repo_id,ref:$ref,sha:$sha},
