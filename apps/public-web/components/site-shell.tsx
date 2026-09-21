@@ -2,8 +2,24 @@ import Link from "next/link";
 import { alternateLocale, type PublicLocale } from "@/lib/locale";
 
 const copy = {
-  en: { work: "Work", catalog: "Catalog", contact: "Start a project", language: "العربية", location: "Alexandria · Egypt", skip: "Skip to content" },
-  ar: { work: "أعمالنا", catalog: "الكتالوج", contact: "ابدأ مشروعًا", language: "English", location: "الإسكندرية · مصر", skip: "انتقل إلى المحتوى" },
+  en: {
+    work: "Work",
+    catalog: "Programs",
+    process: "Process",
+    contact: "Start a project",
+    language: "العربية",
+    location: "Alexandria · Egypt",
+    skip: "Skip to content",
+  },
+  ar: {
+    work: "أعمالنا",
+    catalog: "البرامج",
+    process: "العملية",
+    contact: "ابدأ مشروعًا",
+    language: "English",
+    location: "الإسكندرية · مصر",
+    skip: "انتقل إلى المحتوى",
+  },
 };
 
 export function SiteHeader({ locale, alternatePath = "" }: { locale: PublicLocale; alternatePath?: string }) {
@@ -12,12 +28,18 @@ export function SiteHeader({ locale, alternatePath = "" }: { locale: PublicLocal
   return <>
     <a className="skip-link" href="#main-content">{text.skip}</a>
     <header className="site-header">
-      <Link className="brand" href={`/${locale}`}><span className="brand-mark" aria-hidden="true">FU</span><span>Fares Uniform</span></Link>
+      <Link className="brand" href={`/${locale}`} aria-label="Fares Uniform">
+        <span className="brand-wordmark" aria-hidden="true">
+          <strong>FARES</strong>
+          <small>UNIFORM</small>
+        </span>
+      </Link>
       <nav aria-label={locale === "ar" ? "التنقل الرئيسي" : "Primary navigation"}>
         <Link href={`/${locale}/work`}>{text.work}</Link>
         <Link href={`/${locale}#catalog`}>{text.catalog}</Link>
-        <Link className="nav-cta" href={`/${locale}#enquiry`}>{text.contact}</Link>
+        <Link href={`/${locale}#process`}>{text.process}</Link>
         <Link className="language-switch" href={`/${other}${alternatePath}`} hrefLang={other}>{text.language}</Link>
+        <Link className="nav-cta" href={`/${locale}#enquiry`}>{text.contact}<span aria-hidden="true">→</span></Link>
       </nav>
     </header>
   </>;

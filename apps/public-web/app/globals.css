@@ -19,3 +19,56 @@
 .error-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
 
 [lang="ar"] .hero h1,[lang="ar"] .section-heading h2,[lang="ar"] .process-section h2,[lang="ar"] .enquiry-intro h2,[lang="ar"] .detail-copy h1,[lang="ar"] .work-card h2,[lang="ar"] .work-card h3,[lang="ar"] .work-page-title h1,[lang="ar"] .not-found h1{font-family:var(--font-arabic-display),var(--font-arabic),serif;letter-spacing:0}
+
+
+/* Phase 10 rendered-parity correction: stable Fares shell + editorial Pattern in Motion geometry */
+:root{--fu-canvas:#f7f4ec;--fu-ink:#0c3a34;--fu-line:rgba(12,58,52,.14);--fu-soft:#d8e4dc;--fu-paper:#fffdf7;--fu-warm:#dfc9ac}
+html{background:var(--fu-canvas)}
+.site-header{width:min(1320px,calc(100% - 64px));min-height:112px;border-bottom:0;position:relative;z-index:20}
+.site-header::after{content:"";position:absolute;inset:auto 0 0;height:1px;background:linear-gradient(90deg,transparent,var(--fu-line) 8%,var(--fu-line) 92%,transparent)}
+.brand{gap:0}
+.brand-wordmark{display:grid;justify-items:center;line-height:1;color:#0b3030}
+.brand-wordmark strong{font-family:var(--font-display),serif;font-size:31px;font-weight:600;letter-spacing:.17em}
+.brand-wordmark small{margin-top:2px;font-size:8px;font-weight:800;letter-spacing:.5em;padding-inline-start:.5em}
+.site-header nav{gap:30px;font-size:12px;font-weight:760}
+.nav-cta{padding:0 19px;border-radius:999px;background:#0d473f;gap:18px}
+.language-switch{border:0;border-inline-start:1px solid var(--fu-line);border-radius:0;padding-inline:18px}
+.hero{width:min(1320px,calc(100% - 64px));min-height:760px;padding:68px 0 84px;grid-template-columns:minmax(0,.88fr) minmax(440px,1.12fr);gap:26px;position:relative}
+.hero-copy{max-width:660px;position:relative;z-index:3}
+.hero .pill{border:0;border-radius:0;background:transparent;padding:0 0 14px;letter-spacing:.22em;border-bottom:3px solid #a66f54}
+.hero h1{font-size:clamp(78px,8vw,124px);line-height:.82;letter-spacing:-.078em;margin:30px 0 26px;max-width:690px}
+.hero p{max-width:510px;font-size:17px;line-height:1.6}
+.hero-actions{margin-top:30px}
+.primary-button,.secondary-button{border-radius:4px;min-height:54px;padding-inline:22px}
+.secondary-button{background:transparent;border-color:rgba(12,58,52,.3)}
+.work-section{width:min(1320px,calc(100% - 64px));padding:40px 0 118px}
+.work-section>.eyebrow{padding-bottom:14px;border-bottom:3px solid #a66f54}
+.work-section .section-heading{margin:28px 0 32px}
+.work-section .section-heading h2{font-size:clamp(48px,5.2vw,74px);max-width:850px}
+.work-grid{grid-template-columns:1fr;gap:0;margin-top:18px}
+.work-card{position:relative;min-height:340px;border:0;border-radius:0;padding:44px 48px;background:linear-gradient(120deg,#103d38 0%,#103d38 61%,#dbe5dc 61%,#f2eadf 100%);color:#f7f4ec;overflow:hidden;box-shadow:none}
+.work-card::after{content:"";position:absolute;width:52%;height:58px;right:-8%;top:49%;background:#b87858;transform:rotate(-24deg);opacity:.65}
+.work-card>div,.work-card>.text-link{position:relative;z-index:2;max-width:58%}
+.work-card h2,.work-card h3{font-size:clamp(42px,4.6vw,68px);line-height:.9;margin:14px 0}
+.work-card p{color:rgba(247,244,236,.76);font-size:15px}
+.work-card .work-meta{color:#d8e8df}
+.work-card .text-link{border-color:rgba(255,255,255,.25);color:#fff}
+.catalog-section,.process-section,.enquiry-panel{width:min(1320px,calc(100% - 64px))}
+.catalog-section{padding:96px 0 110px}
+.catalog-section .section-heading h2{font-size:clamp(46px,5vw,72px)}
+.catalog-grid{gap:16px;align-items:start}
+.catalog-card{border-radius:0;box-shadow:none;background:rgba(255,255,255,.72)}
+.catalog-card:nth-child(2){margin-top:50px}.catalog-card:nth-child(3){margin-top:100px}
+.catalog-image{aspect-ratio:4/5;background:linear-gradient(145deg,#dce7df,#f0e8db)}
+.catalog-image::after{content:"";position:absolute;width:140%;height:38px;left:-20%;bottom:12%;background:rgba(12,58,52,.08);transform:rotate(-22deg)}
+.catalog-copy{padding:26px 24px 28px}
+.process-section{padding:96px 0 110px}
+.process-section h2{font-size:clamp(48px,5vw,76px)}
+.process-section li{min-height:150px}
+.enquiry-panel{margin-top:12px;margin-bottom:70px;padding:72px;background:#103d38;color:#f7f4ec;grid-template-columns:.7fr 1.3fr}
+.enquiry-intro p{color:rgba(247,244,236,.72)}
+.enquiry-form input,.enquiry-form textarea{background:rgba(255,255,255,.96);border-color:rgba(255,255,255,.2);color:#123c34}
+.enquiry-form .primary-button{background:#f7f4ec;color:#103d38}
+footer{width:min(1320px,calc(100% - 64px));padding-top:34px}
+@media(max-width:850px){.site-header,.hero,.work-section,.catalog-section,.process-section,.enquiry-panel,footer{width:min(100% - 34px,1320px)}.site-header{min-height:92px}.site-header nav{gap:10px}.site-header nav>a:not(.language-switch):not(.nav-cta){display:none}.brand-wordmark strong{font-size:25px}.hero{grid-template-columns:1fr;min-height:auto;padding:50px 0 74px;gap:0}.hero-copy{max-width:720px}.hero h1{font-size:clamp(62px,12vw,92px);max-width:720px}.work-card>div,.work-card>.text-link{max-width:72%}.catalog-card:nth-child(2),.catalog-card:nth-child(3){margin-top:0}.enquiry-panel{padding:46px 34px}}
+@media(max-width:600px){.site-header,.hero,.work-section,.catalog-section,.process-section,.enquiry-panel,footer{width:min(100% - 28px,1320px)}.site-header{min-height:82px}.brand-wordmark strong{font-size:22px}.brand-wordmark small{font-size:6px}.nav-cta{padding-inline:13px}.language-switch{padding-inline:10px}.hero{padding:40px 0 56px}.hero .pill{font-size:9px}.hero h1{font-size:61px;line-height:.86;margin:24px 0 20px}.hero p{font-size:15px;max-width:330px}.hero-actions{display:grid;grid-template-columns:1fr}.hero-actions a{width:100%}.work-section{padding:24px 0 80px}.work-section .section-heading h2{font-size:44px}.work-card{min-height:310px;padding:30px 24px;background:linear-gradient(160deg,#103d38 0%,#103d38 70%,#e7ded0 70%)}.work-card>div,.work-card>.text-link{max-width:100%}.work-card h2,.work-card h3{font-size:40px}.work-card::after{width:82%;right:-30%;top:62%}.catalog-section,.process-section{padding:72px 0}.catalog-section .section-heading h2,.process-section h2{font-size:44px}.catalog-grid{grid-template-columns:1fr}.catalog-image{aspect-ratio:4/4.6}.enquiry-panel{padding:38px 22px;margin-bottom:36px}.enquiry-intro h2{font-size:46px}}

@@ -135,9 +135,14 @@ export default async function GarmentInspection({ params, searchParams }: Props)
               />
             ) : (
               <div className={styles.flatFallback} role="img" aria-label={ar ? "عرض توضيحي للقطعة" : "Garment presentation"}>
+                <span className={styles.sleeveLeft} />
+                <span className={styles.sleeveRight} />
                 <span className={styles.shoulder} />
                 <span className={styles.body} />
+                <span className={styles.collarLeft} />
+                <span className={styles.collarRight} />
                 <span className={styles.centerSeam} />
+                <span className={styles.hem} />
               </div>
             )}
             <span className={styles.modeTag}>{canExplode ? (ar ? "طبقات" : "Layers") : (ar ? "مسطح" : "Flat")}</span>
@@ -151,6 +156,11 @@ export default async function GarmentInspection({ params, searchParams }: Props)
                 ? "عندما لا تتوفر طبقات منفصلة معتمدة، تبقى القطعة في عرض مسطح بدلاً من اختراع بنية غير موثقة."
                 : "When approved separated layers are unavailable, the garment stays in a flat presentation rather than inventing unsupported construction."}
             </p>
+            <ol className={styles.factList}>
+              <li><span>01</span><div><strong>{ar ? "البرنامج" : "Program"}</strong><small>{project.program.title}</small></div></li>
+              <li><span>02</span><div><strong>{ar ? "الفئة" : "Category"}</strong><small>{item.category}</small></div></li>
+              <li><span>03</span><div><strong>{ar ? "العرض" : "Presentation"}</strong><small>{canExplode ? (ar ? "طبقات موثقة" : "Documented layers") : (ar ? "عرض مسطح موثوق" : "Truthful flat view")}</small></div></li>
+            </ol>
           </aside>
         </section>
       </main>
