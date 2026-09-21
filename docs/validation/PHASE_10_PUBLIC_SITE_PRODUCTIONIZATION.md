@@ -418,3 +418,22 @@ The artifact contains current production captures and the preserved Phase 9 desk
 The next checkpoint is now human acceptance, not additional autonomous engineering. Fares must explicitly accept the corrected production rendering or identify specific remaining drift. Until then, Phase 10 is not implementation-complete and the Phase 9 executable prototype is retained as evidence/reference.
 
 Do not retire that evidence boundary, merge PR #7/#8, publish KGC/real-client media or launch production until the required acceptance/authorization is explicit.
+
+
+## Visual-acceptance review deployment
+
+Fares requested a browser-accessible review deployment at the Phase 10 visual-acceptance checkpoint. The deployment boundary is deliberately separate from the production project and client-publication boundary.
+
+Review deployment evidence:
+- isolated Vercel project: `fares-uniform-phase10-review`, project `prj_KOtSJDZbngMRU4lZEqmwXjIgnkRj`;
+- source-controlled workflow: `.github/workflows/phase10-review-preview.yml`;
+- GREEN workflow run/job: `35624066871` / `106413950164`;
+- exact READY review deployment: `dpl_38WagekDQv8ieFi9MdWDuonUtpGv`;
+- review hostname: `fares-uniform-phase10-review-6k85j638v.vercel.app`;
+- deployment workflow commit: `d8f130db4579ac1c41bae3303d38c0c983194ebe`;
+- visual application baseline: `2dbd586d15d940aac7d78c09273c1ab46a3b31a0`; the workflow refuses deployment when `apps/public-web` differs from that baseline;
+- target is non-production and the isolated project receives only `FU_PUBLIC_PROVIDER=fixture` for preview;
+- rendered English review route returned HTTP 200 with `lang=en`, `dir=ltr`, the approved Fares hero and the synthetic Harbor House/program/catalog content;
+- Vercel marks the preview `noindex`.
+
+The existing real `fares-uniform` Vercel project remains on Phase 8 deployment `dpl_Ba34KhzW7AZ6aBY7poz1DeaQa3rg` / application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`. No `faresuniform.uk` cutover occurred. No KGC or real-client media was published. This review deployment supplies the human visual-acceptance surface only and does not satisfy or bypass the explicit acceptance requirement.
