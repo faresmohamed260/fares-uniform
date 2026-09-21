@@ -45,7 +45,8 @@ test("garment inspector is truthful front/back photography, not fabricated explo
   await expect(back).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator('img[src*="high-summer-polo-back.png"]').first()).toBeVisible();
   await expect(page.getByText(/If we don’t have a real layer/)).toBeVisible();
-  await expect(page.getByRole("button", { name: /explode|reassemble/i })).toHaveCount(0);\n  await expect(page.locator('img[src*="exploded"]')).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /explode|reassemble/i })).toHaveCount(0);
+  await expect(page.locator('img[src*="exploded"]')).toHaveCount(0);
 
   await page.screenshot({ path: "artifacts/design-garment-desktop-en.png", fullPage: true });
 });
