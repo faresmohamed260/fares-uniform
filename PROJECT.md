@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.5 are GREEN at their current engineering boundaries. Workstream 10.6 enquiry hardening is next; final visual compare-and-correct remains open. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
+- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.6 are GREEN at their current engineering boundaries. Workstream 10.7 cache/resilience/SEO/performance is next; final visual compare-and-correct remains open. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, Pattern in Motion and public R2 media.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -88,7 +88,13 @@ Workstream 10.5 is GREEN. Contract commit `fda94d17891a662cabee45838284196583b41
 
 Implementation commit `c0163d43d6003dd56c8431e1f865a1524c9e5646` added a browser-native reduced-motion preference hook, exposes reduced-motion state on the project continuity island, gives degraded flat garment presentation an accessible image role/name, and enforces practical 44px+ navigation/garment touch targets without changing the accepted information hierarchy. Exact accessibility run `35545089864`, job `106169454594`, passed **4/4** checks in 3.9s; artifact `10616402000`, digest `sha256:b1972ebd65d745607616a44bf3756a92f1d72e8e47d8367641f41984fdf0a6f3`. Exact Pattern regression `35545089857`, job `106169454628`, passed 12/12; exact foundation regression `35545089859`, job `106169454615`, passed 6/6.
 
-Next: Workstream 10.6 — harden the public enquiry boundary while preserving the existing nine-field intake contract and Odoo idempotency/append-only semantics: bounded request body, timeout, stable public error mapping, anti-bot/rate boundary and privacy-safe logging. Final visual parity/sign-off remains open. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
+Workstream 10.6 is GREEN. Contract commit `f333b7789cb9812a2ed51fe0c69c81b938b7c9af` preserved the broad RED at run `35545407380`, job `106170291685`: all six hardening journeys failed before the production route had the required form-proof, bounded-body, rate, timeout and privacy-safe error behavior. RED artifact `10616432546`, digest `sha256:35012b9563f518dccea76d2d670507a2859f18dfb0120d998b65a170b6b3ac31`.
+
+Implementation commit `fbb6183f4e09dcc2885d16d4b3c502abe8d91109` added a signed short-lived form proof, 16 KiB bounded JSON reader, stable public errors, 8-second Odoo upstream timeout, per-runtime rate safety net and privacy-safe event/status logging. Run `35545612786` improved to 3/6 and exposed a real reverse-proxy origin mismatch. Test-only commit `0ef73122ae4d952bf4b21dbef2ecd1fcb58a6951` preserved that RED through real browser-origin fetches. Final fix `408a381032736b62ab44d4eefd31782839c68512` validates Origin against the trusted forwarded host/proto boundary.
+
+Exact 10.6 authority is `408a381032736b62ab44d4eefd31782839c68512`. Enquiry run `35545824164`, job `106171404548`, passed **6/6** hardening checks; artifact `10616248547`, digest `sha256:d86381373a2bca8306bcad6e935740f680f48988db740f652de8234ea9580130`. Same-SHA regressions are GREEN: Pattern run/job `35545824166` / `106171404365`, foundation `35545824177` / `106171404378`, and accessibility/motion `35545824174` / `106171404358`.
+
+Next: Workstream 10.7 — cache/revalidate published public content, prove stale published content survives a transient Odoo failure, add sitemap/robots/SEO route evidence, enforce a resource/performance budget, keep only critical media eager and verify the synthetic public-R2 cache contract. Final visual parity/sign-off remains open. Production launch, Gate D, public KGC/client publication and PR #7/#8 merge remain NO-GO.
 
 ## Delivery state
 
