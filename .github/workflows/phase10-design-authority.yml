@@ -8,12 +8,24 @@ on:
       - "prototype/public-site-design-authority/**"
       - "docs/ui/PUBLIC_SITE_BROWSER_DESIGN_AUTHORITY.md"
       - "docs/ui/PUBLIC_SITE_DESIGN_TOKENS.md"
+      - "docs/ui/ASTRA_10K_SCROLLCRAFT_WORKFLOW.md"
+      - "docs/ui/scrollcraft/**"
+      - ".agents/skills/fares-scrollcraft/**"
+      - ".agents/skills/scroll-craft"
+      - ".agents/vendor/gpt-6-astra-10k-websites"
+      - ".gitmodules"
       - ".github/workflows/phase10-design-authority.yml"
   pull_request:
     paths:
       - "prototype/public-site-design-authority/**"
       - "docs/ui/PUBLIC_SITE_BROWSER_DESIGN_AUTHORITY.md"
       - "docs/ui/PUBLIC_SITE_DESIGN_TOKENS.md"
+      - "docs/ui/ASTRA_10K_SCROLLCRAFT_WORKFLOW.md"
+      - "docs/ui/scrollcraft/**"
+      - ".agents/skills/fares-scrollcraft/**"
+      - ".agents/skills/scroll-craft"
+      - ".agents/vendor/gpt-6-astra-10k-websites"
+      - ".gitmodules"
       - ".github/workflows/phase10-design-authority.yml"
   workflow_dispatch:
 
@@ -45,6 +57,7 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
+          submodules: recursive
 
       - name: Verify exact source
         run: |
@@ -60,6 +73,39 @@ jobs:
 
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Stage pinned Scrollcraft engine
+        run: |
+          set -euo pipefail
+          SCROLLCRAFT_PIN="0b816225945e45380397d6a0487efa3c98916858"
+          ASTRA_PIN="e05e451ecd1e371536ef3c310fa273e12b98db7a"
+          SCROLLCRAFT_ROOT="../../.agents/skills/scroll-craft"
+          ASTRA_ROOT="../../.agents/vendor/gpt-6-astra-10k-websites"
+
+          test "$(git -C "$SCROLLCRAFT_ROOT" rev-parse HEAD)" = "$SCROLLCRAFT_PIN"
+          test "$(git -C "$ASTRA_ROOT" rev-parse HEAD)" = "$ASTRA_PIN"
+
+          ENGINE="$SCROLLCRAFT_ROOT/plugins/nateherk-design/skills/scroll-craft/engine"
+          test -f "$ENGINE/scrollcraft.js"
+          test -f "$ENGINE/scrollcraft.css"
+          mkdir -p public/scrollcraft artifacts
+          cp "$ENGINE/scrollcraft.js" public/scrollcraft/scrollcraft.js
+          cp "$ENGINE/scrollcraft.css" public/scrollcraft/scrollcraft.css
+
+          {
+            echo "scrollcraft_pin=$SCROLLCRAFT_PIN"
+            echo "astra_10k_pin=$ASTRA_PIN"
+            sha256sum public/scrollcraft/scrollcraft.js
+            sha256sum public/scrollcraft/scrollcraft.css
+          } | tee artifacts/scrollcraft-engine.sha256
+
+          {
+            echo "### Pinned design workflow"
+            echo
+            echo "- Scrollcraft: `$SCROLLCRAFT_PIN`"
+            echo "- GPT-6 Astra 10K workflow reference: `$ASTRA_PIN`"
+            echo "- Engine copied unmodified from pinned Scrollcraft source"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Stage current real KGC review media
         env:
