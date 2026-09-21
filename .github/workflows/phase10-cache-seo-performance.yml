@@ -34,6 +34,7 @@ jobs:
       ODOO_BASE_URL: http://127.0.0.1:4173/api/fixture-odoo
       ODOO_DB_NAME: fixture
       PUBLIC_CACHE_REVALIDATE_SECONDS: "1"
+      FU_ENQUIRY_FORM_SECRET: phase10-cache-fixture-form-proof-only
     defaults:
       run:
         working-directory: apps/public-web

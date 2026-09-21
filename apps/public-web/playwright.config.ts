@@ -4,7 +4,7 @@ const serverEnv: Record<string, string> = {
   FU_PUBLIC_PROVIDER: process.env.FU_PUBLIC_PROVIDER ?? "fixture",
   PUBLIC_SITE_ORIGIN: process.env.PUBLIC_SITE_ORIGIN ?? "https://faresuniform.uk",
 };
-for (const name of ["ODOO_BASE_URL", "ODOO_DB_NAME", "PUBLIC_CACHE_REVALIDATE_SECONDS"]) {
+for (const name of ["ODOO_BASE_URL", "ODOO_DB_NAME", "PUBLIC_CACHE_REVALIDATE_SECONDS", "FU_ENQUIRY_FORM_SECRET"]) {
   const value = process.env[name];
   if (value) serverEnv[name] = value;
 }
