@@ -196,14 +196,17 @@ Implementation `c0163d43d6003dd56c8431e1f865a1524c9e5646` passes exact accessibi
 Exact regressions remain GREEN: Pattern run/job `35545089857` / `106169454628` (12/12; artifact `10616327131`, digest `sha256:d907acab5200b4151830968189e3a4c4380ec90b46f724480b808f5840c34a5a`) and foundation run/job `35545089859` / `106169454615` (6/6; artifact `10616716330`, digest `sha256:6700fa4128038edb75ca7ffb332cdaf9e67b08ddb182ddcb8d518452ce5e5c8d`).
 
 ### 10.6 Enquiry integration
-Preserve current Odoo idempotency and append-only rules while adding validated public context.
+Status: **GREEN.**
 
-Add:
-- bounded body size;
-- stable public error mapping;
-- timeout;
-- anti-bot/rate boundary;
-- privacy-safe logging.
+Preserved RED: contract commit `f333b7789cb9812a2ed51fe0c69c81b938b7c9af`, run/job `35545407380` / `106170291685`, failed all six hardening journeys before the route had the required form-proof/body/rate/timeout/privacy boundary. RED artifact `10616432546`, digest `sha256:35012b9563f518dccea76d2d670507a2859f18dfb0120d998b65a170b6b3ac31`.
+
+Implementation `fbb6183f4e09dcc2885d16d4b3c502abe8d91109` added the intended controls but run/job `35545612786` / `106170837881` passed only 3/6 and exposed the reverse-proxy origin mismatch. Test authority `0ef73122ae4d952bf4b21dbef2ecd1fcb58a6951` retained that RED through browser-origin probes. Final fix `408a381032736b62ab44d4eefd31782839c68512` validates the browser Origin against trusted forwarded host/proto headers.
+
+Exact final enquiry run/job `35545824164` / `106171404548` passes 6/6 checks. Artifact `10616248547`, digest `sha256:d86381373a2bca8306bcad6e935740f680f48988db740f652de8234ea9580130`.
+
+The GREEN boundary includes a signed short-lived same-origin form proof, unchanged nine-field public intake schema, 16 KiB maximum JSON body, stable public errors, 8-second Odoo upstream timeout, a fail-closed per-runtime rate safety net with `Retry-After`, and privacy-safe event/status logging. Odoo idempotency and append-only semantics remain unchanged.
+
+Same-SHA public regressions are GREEN: Pattern `35545824166` / `106171404365`, foundation `35545824177` / `106171404378`, accessibility/motion `35545824174` / `106171404358`.
 
 ### 10.7 Cache, resilience, SEO and performance
 - read-only public content cached/revalidated;
