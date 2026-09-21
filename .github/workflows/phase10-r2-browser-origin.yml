@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase10-r2-browser-origin-${{ github.ref }}
+  group: phase10-r2-browser-origin-\${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -30,7 +30,7 @@ env:
 jobs:
   browser-origin:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout exact candidate
         uses: actions/checkout@v5
@@ -38,62 +38,227 @@ jobs:
       - name: Verify exact source
         run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
 
-      - name: Verify browser-origin contract
+      - name: Resolve provider state and mint public-bucket read proof
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -euo pipefail
           test -n "$CLOUDFLARE_API_TOKEN"
           mkdir -p evidence/phase10-r2-browser
 
           api_get() {
-            curl --fail-with-body --silent --show-error --retry 3               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"               -H "Content-Type: application/json"               "$1"
+            curl --fail-with-body --silent --show-error --retry 3 \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              "$1"
           }
 
           zone_json="$(api_get "https://api.cloudflare.com/client/v4/zones?name=$SITE_ZONE&account.id=$CLOUDFLARE_ACCOUNT_ID&status=active&per_page=50")"
           jq -e '.success == true and (.result | length) == 1' <<<"$zone_json" >/dev/null
           zone_id="$(jq -r '.result[0].id' <<<"$zone_json")"
+          echo "::add-mask::$zone_id"
+          echo "CLOUDFLARE_ZONE_ID=$zone_id" >> "$GITHUB_ENV"
 
           public_domains="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PUBLIC_BUCKET/domains/custom")"
           private_domains="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PRIVATE_BUCKET/domains/custom")"
+          public_managed="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PUBLIC_BUCKET/domains/managed")"
           private_managed="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PRIVATE_BUCKET/domains/managed")"
 
           jq -e '.success == true' <<<"$public_domains" >/dev/null
           jq -e '.success == true and ((.result.domains // []) | length) == 0' <<<"$private_domains" >/dev/null
+          jq -e '.success == true and (.result.enabled == false)' <<<"$public_managed" >/dev/null
           jq -e '.success == true and (.result.enabled == false)' <<<"$private_managed" >/dev/null
 
-          jq -n             --arg source_sha "$GITHUB_SHA"             --arg zone_id "$zone_id"             --arg media_domain "$MEDIA_DOMAIN"             --argjson public_domains "$(jq '.result.domains // []' <<<"$public_domains")"             --argjson private_domains "$(jq '.result.domains // []' <<<"$private_domains")"             --argjson private_managed "$(jq '.result' <<<"$private_managed")"             '{
+          permission_json="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/permission_groups")"
+          read_permission="$(jq -r '.result[] | select(.name == "Workers R2 Storage Bucket Item Read") | .id' <<<"$permission_json" | head -n1)"
+          test -n "$read_permission"
+          expires_on="$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%SZ')"
+          resource="com.cloudflare.edge.r2.bucket.$CLOUDFLARE_ACCOUNT_ID"_default_"$PUBLIC_BUCKET"
+          body="$(jq -nc \
+            --arg name "fares-phase10-browser-origin-read-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            --arg expires_on "$expires_on" \
+            --arg resource "$resource" \
+            --arg permission_id "$read_permission" \
+            '{name:$name,expires_on:$expires_on,policies:[{effect:"allow",resources:{($resource):"*"},permission_groups:[{id:$permission_id}]}]}')"
+          token_response="$(
+            curl --fail-with-body --silent --show-error --retry 3 \
+              -X POST \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens" \
+              --data "$body"
+          )"
+          jq -e '.success == true and (.result.id | length) > 0 and (.result.value | length) > 0' <<<"$token_response" >/dev/null
+          token_id="$(jq -r '.result.id' <<<"$token_response")"
+          token_value="$(jq -r '.result.value' <<<"$token_response")"
+          secret_access_key="$(printf '%s' "$token_value" | sha256sum | awk '{print $1}')"
+          echo "::add-mask::$token_id"
+          echo "::add-mask::$token_value"
+          echo "::add-mask::$secret_access_key"
+          echo "R2_PUBLIC_READ_ACCESS_KEY_ID=$token_id" >> "$GITHUB_ENV"
+          echo "R2_PUBLIC_READ_SECRET_ACCESS_KEY=$secret_access_key" >> "$GITHUB_ENV"
+          echo "R2_PUBLIC_READ_TOKEN_ID=$token_id" >> "$GITHUB_ENV"
+
+          jq -n \
+            --arg source_sha "$GITHUB_SHA" \
+            --arg media_domain "$MEDIA_DOMAIN" \
+            --argjson public_domains "$(jq '.result.domains // []' <<<"$public_domains")" \
+            --argjson private_domains "$(jq '.result.domains // []' <<<"$private_domains")" \
+            --argjson public_managed "$(jq '.result' <<<"$public_managed")" \
+            --argjson private_managed "$(jq '.result' <<<"$private_managed")" \
+            '{
               source_sha:$source_sha,
-              zone_id:$zone_id,
               media_domain:$media_domain,
               public_custom_domains:$public_domains,
               private_custom_domains:$private_domains,
+              public_managed_domain:$public_managed,
               private_managed_domain:$private_managed
-            }' > evidence/phase10-r2-browser/provider-state.json
+            }' > evidence/phase10-r2-browser/provider-state-before.json
 
+      - name: Install isolated S3 client
+        run: python -m pip install --disable-pip-version-check --no-cache-dir boto3==1.40.48
+
+      - name: Prove public bucket contains only the synthetic publication object
+        env:
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: |
+          set -euo pipefail
+          test -z "\${CLOUDFLARE_API_TOKEN:-}"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          import boto3
+          from botocore.config import Config
+
+          endpoint = f"https://{os.environ['CLOUDFLARE_ACCOUNT_ID']}.r2.cloudflarestorage.com"
+          client = boto3.client(
+              "s3",
+              endpoint_url=endpoint,
+              region_name="auto",
+              aws_access_key_id=os.environ["R2_PUBLIC_READ_ACCESS_KEY_ID"],
+              aws_secret_access_key=os.environ["R2_PUBLIC_READ_SECRET_ACCESS_KEY"],
+              config=Config(signature_version="s3v4", retries={"max_attempts": 3, "mode": "standard"}),
+          )
+          result = client.list_objects_v2(Bucket=os.environ["PUBLIC_BUCKET"])
+          keys = sorted(item["Key"] for item in result.get("Contents", []))
+          expected = [os.environ["PUBLIC_KEY"]]
+          assert keys == expected, {"expected": expected, "actual": keys}
+          Path("evidence/phase10-r2-browser/public-inventory.json").write_text(
+              json.dumps({"synthetic_only": True, "keys": keys}, indent=2) + "\\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Attach and verify stable public media domain
+        env:
+          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+
+          api_get() {
+            curl --fail-with-body --silent --show-error --retry 3 \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              "$1"
+          }
+
+          list_url="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PUBLIC_BUCKET/domains/custom"
+          public_domains="$(api_get "$list_url")"
           target_count="$(jq --arg d "$MEDIA_DOMAIN" '[.result.domains[]? | select(.domain == $d and .enabled == true)] | length' <<<"$public_domains")"
-          if [ "$target_count" -ne 1 ]; then
-            echo "Expected enabled R2 custom domain $MEDIA_DOMAIN is not configured on $PUBLIC_BUCKET" >&2
+
+          if [ "$target_count" -eq 0 ]; then
+            attach_body="$(jq -nc --arg domain "$MEDIA_DOMAIN" --arg zoneId "$CLOUDFLARE_ZONE_ID" '{domain:$domain,enabled:true,zoneId:$zoneId}')"
+            attached="$(
+              curl --fail-with-body --silent --show-error --retry 3 \
+                -X POST \
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                -H "Content-Type: application/json" \
+                "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PUBLIC_BUCKET/domains/custom" \
+                --data "$attach_body"
+            )"
+            jq -e '.success == true' <<<"$attached" >/dev/null
+          elif [ "$target_count" -ne 1 ]; then
+            echo "Unexpected duplicate or invalid $MEDIA_DOMAIN custom-domain state" >&2
             exit 1
           fi
 
-          target="$(jq --arg d "$MEDIA_DOMAIN" '.result.domains[] | select(.domain == $d)' <<<"$public_domains")"
-          jq -e '(.status.ownership == "active") and (.status.ssl == "active")' <<<"$target" >/dev/null
+          domain_url="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PUBLIC_BUCKET/domains/custom/$MEDIA_DOMAIN"
+          ready=false
+          for attempt in $(seq 1 60); do
+            target="$(api_get "$domain_url")"
+            if jq -e '.success == true and .result.enabled == true and .result.status.ownership == "active" and .result.status.ssl == "active"' <<<"$target" >/dev/null; then
+              ready=true
+              jq '.result' <<<"$target" > evidence/phase10-r2-browser/domain-ready.json
+              break
+            fi
+            sleep 5
+          done
+          test "$ready" = true
 
           url="https://$MEDIA_DOMAIN/$PUBLIC_KEY"
-          curl --fail-with-body --silent --show-error --retry 5 --retry-all-errors             --dump-header evidence/phase10-r2-browser/headers-first.txt             --output evidence/phase10-r2-browser/object.bin             "$url"
+          fetched=false
+          for attempt in $(seq 1 30); do
+            if curl --fail-with-body --silent --show-error \
+              --dump-header evidence/phase10-r2-browser/headers-first.txt \
+              --output evidence/phase10-r2-browser/object.bin \
+              "$url"; then
+              fetched=true
+              break
+            fi
+            sleep 5
+          done
+          test "$fetched" = true
+
           actual="$(sha256sum evidence/phase10-r2-browser/object.bin | awk '{print $1}')"
           test "$actual" = "$EXPECTED_SHA256"
           grep -qi '^cache-control: public, max-age=31536000, immutable' evidence/phase10-r2-browser/headers-first.txt
 
-          curl --fail-with-body --silent --show-error --retry 5 --retry-all-errors             --dump-header evidence/phase10-r2-browser/headers-second.txt             --output /dev/null             "$url"
-          grep -Eqi '^cf-cache-status: (HIT|REVALIDATED)' evidence/phase10-r2-browser/headers-second.txt
+          cache_hit=false
+          for attempt in $(seq 1 10); do
+            curl --fail-with-body --silent --show-error \
+              --dump-header evidence/phase10-r2-browser/headers-cache.txt \
+              --output /dev/null \
+              "$url"
+            if grep -Eqi '^cf-cache-status: (HIT|REVALIDATED)' evidence/phase10-r2-browser/headers-cache.txt; then
+              cache_hit=true
+              break
+            fi
+            sleep 2
+          done
+          test "$cache_hit" = true
+
+          private_domains="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PRIVATE_BUCKET/domains/custom")"
+          private_managed="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PRIVATE_BUCKET/domains/managed")"
+          jq -e '.success == true and ((.result.domains // []) | length) == 0' <<<"$private_domains" >/dev/null
+          jq -e '.success == true and (.result.enabled == false)' <<<"$private_managed" >/dev/null
+
+      - name: Revoke ephemeral public-bucket read token
+        if: always()
+        env:
+          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          token_id="\${R2_PUBLIC_READ_TOKEN_ID:-}"
+          if [ -n "$token_id" ]; then
+            response="$(
+              curl --fail-with-body --silent --show-error --retry 3 \
+                -X DELETE \
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                -H "Content-Type: application/json" \
+                "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/$token_id"
+            )"
+            jq -e '.success == true' <<<"$response" >/dev/null
+          fi
 
       - name: Upload browser-origin evidence
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase10-r2-browser-origin-${{ github.sha }}
+          name: phase10-r2-browser-origin-\${{ github.sha }}
           path: evidence/phase10-r2-browser
           if-no-files-found: warn
           retention-days: 14
