@@ -67,6 +67,18 @@ Compose representative pages from the tokens/components in a non-production desi
 
 At minimum, review the active homepage, work/project, catalog/garment, garment inspection and enquiry surfaces in representative desktop/mobile and EN/AR/RTL states.
 
+### Real-content review requirement
+
+The design review must not be an empty shell, grey-box demo, or placeholder-only component gallery. It must use the project's **current available real assets and truthful current content context** wherever those assets are authorized for review.
+
+Rules:
+- use existing Fares/KGC garment packshots, worn/model anchors, organization/context imagery and other present project media when available and permitted for review;
+- use private/review-scoped media from its approved private source in a protected non-production preview rather than publishing it merely to make the design look complete;
+- preserve the existing asset-to-program/garment relationships and do not invent missing garments, client work, people, construction layers or business claims;
+- where a necessary design state has no real asset, use an explicitly neutral/illustrative placeholder that cannot be mistaken for real client evidence; generated fake client/product imagery is not permitted;
+- design with realistic copy lengths and current content shapes so spacing, hierarchy, transitions and responsive behavior are evaluated under real conditions;
+- publication permission remains separate from review permission. Showing an asset in the protected design-review environment never authorizes public R2 publication or production launch.
+
 ### Motion and physics
 
 Motion-heavy ideas are designed in code. Each exceptional interaction defines its trigger/end state, interruption/reversal, keyboard/touch behavior where relevant, reduced-motion behavior with information parity, performance/fallback and whether behavior is generic or content-capability-driven.
