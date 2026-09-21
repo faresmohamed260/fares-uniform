@@ -1,6 +1,6 @@
 # Phase 10 validation — public-site productionization
 
-Status: **WORKSTREAMS 10.1–10.3 GREEN — WORKSTREAM 10.4 ACTIVE; SLICES A–C GREEN.**
+Status: **WORKSTREAMS 10.1–10.8 GREEN AT ENGINEERING/HOSTED-VALIDATION BOUNDARIES — RENDERED PARITY ACCEPTANCE NEXT.**
 
 Branch: `phase-10/public-site-productionization`.
 
@@ -358,8 +358,41 @@ Exact provider GREEN:
 
 No KGC or other real-client object entered the public bucket.
 
-## Next validation boundary — Workstream 10.8
+## Workstream 10.8 — full hosted candidate
 
-Run the full Phase 10 productionization matrix on one exact SHA. Add a source-controlled static-quality gate, execute the complete foundation/Pattern/accessibility/enquiry/cache matrix, retain synthetic-only R2/publication boundaries, capture representative EN desktop + AR mobile + inspector/reduced-motion evidence, and compare the production captures against Phase 9 visual authority `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`.
+### Preserved RED
 
-Phase 10 still cannot close until Fares accepts rendered parity and the prototype-retirement/migration boundary is resolved. Production launch, Gate D, real-client publication and PR merges remain separately gated.
+- contract commit `633523683f73a6a74e75577ce01582350268fcf4` — `test: define Phase 10 full hosted candidate`;
+- exact push run/job `35566791616` / `106230128427`;
+- static-quality, typecheck, optimized build, foundation 6/6, Pattern 12/12, accessibility 4/4, enquiry 6/6, rendered-candidate 4/4 and cache/SEO 4/4 all passed;
+- the job remained RED because its evidence-staging step referenced nonexistent `approved-desktop-inspector.png` instead of the committed `approved-garment-inspector.png`;
+- RED artifact `10624089408`, digest `sha256:cec4c3be7260b68c4746ec1b7543d0060e2da8219a6339ade4a553ae5af620ee`.
+
+### GREEN
+
+Workflow correction: `0f5f3528a4eb67953bcb14c5740433a2e2d2bb80` — `fix: stage approved inspector visual authority`.
+
+A follow-up cleanup `cef36c8f3acec7748ffeb3d955ad1186edf8b57f` removed a redundant resilience proof harness added after the authoritative Workstream 10.7 gate; no production behavior was weakened or removed.
+
+Exact push run `35609594487`, job `106365093566`, is **GREEN** on `cef36c8f3acec7748ffeb3d955ad1186edf8b57f`:
+
+- source/static-quality gate passed;
+- TypeScript typecheck and optimized Next production build passed;
+- foundation matrix: 6/6;
+- Pattern migration matrix: 12/12;
+- accessibility/motion matrix: 4/4;
+- enquiry-hardening matrix: 6/6;
+- rendered full-candidate matrix: 4/4;
+- cache/SEO/resilience/performance matrix: 4/4;
+- candidate evidence covers EN desktop, AR mobile, truthful flat inspector and reduced-motion paths;
+- cache evidence covers transient upstream 503 with retained published content;
+- accepted Phase 9 desktop landing, EN mobile landing, AR mobile landing and garment-inspector boards were staged beside the production captures;
+- artifact `10643791534`, digest `sha256:e5cd1f2cb3bbd0efc09a109a73e0f51b58f8788f5223d267e816b29048c902ff`.
+
+No KGC or other real-client media was published. No production cutover, PR merge or ERP/Gate-D action occurred.
+
+## Next validation boundary — rendered parity acceptance
+
+Workstream 10.8 engineering validation is complete. The remaining Phase 10 closure boundary is direct rendered compare-and-correct against visual authority `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256` and explicit Fares acceptance of the production rendering. The Phase 9 executable prototype remains non-runtime evidence/reference only while this review is open.
+
+Do not mark Phase 10 implementation-complete, retire the evidence boundary, merge PR #7/#8, publish KGC/real-client media or launch production until the required acceptance/authorization is explicit.

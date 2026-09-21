@@ -98,7 +98,7 @@ KGC review assets already exist, but **review use is not public-publication auth
 - [x] Reduced-motion parity.
 - [x] Desktop/mobile/Arabic RTL rendered evidence.
 - [x] Performance/resource budget evidence.
-- [ ] Full Playwright production journeys.
+- [x] Full Playwright production journeys.
 - [ ] Retire obsolete executable prototype code only after parity is proven.
 
 ### Public-site completion boundary

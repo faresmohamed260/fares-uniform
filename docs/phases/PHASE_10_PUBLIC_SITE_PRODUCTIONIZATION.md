@@ -1,6 +1,6 @@
 # Phase 10 — Public-site productionization
 
-Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.3 GREEN; WORKSTREAM 10.4 ACTIVE (SLICES A–C GREEN).**
+Status: **AUTHORIZED / ACTIVE — WORKSTREAMS 10.1–10.8 GREEN AT ENGINEERING/HOSTED-VALIDATION BOUNDARIES; RENDERED PARITY ACCEPTANCE NEXT.**
 
 Authorization: Fares accepted this productionization plan on 2026-09-20 and authorized Phase 10 repository engineering, hosted CI and provider work required by this contract. Production launch/cutover, Gate D approval, real-client publication, price/stock exposure and merging PR #7 remain separately gated.
 
@@ -228,6 +228,27 @@ Browser-media authority: provider RED `164beaad01d2c30bbbcc232ddf940e7614cace93`
 No real-client publication was authorized or performed.
 
 ### 10.8 Full hosted candidate
+Status: **GREEN at the hosted engineering boundary.**
+
+Preserved RED: contract commit `633523683f73a6a74e75577ce01582350268fcf4`, push run/job `35566791616` / `106230128427`. The source/static-quality gate, typecheck, optimized build and all six functional/browser matrices were already GREEN; the job failed only while staging visual-authority evidence because the workflow referenced nonexistent `approved-desktop-inspector.png`. RED artifact `10624089408`, digest `sha256:cec4c3be7260b68c4746ec1b7543d0060e2da8219a6339ade4a553ae5af620ee`.
+
+Workflow correction `0f5f3528a4eb67953bcb14c5740433a2e2d2bb80` replaced that stale filename with the committed `approved-garment-inspector.png`. Cleanup authority `cef36c8f3acec7748ffeb3d955ad1186edf8b57f` removed a redundant resilience harness without changing the production implementation.
+
+Exact full-candidate push run/job `35609594487` / `106365093566` is GREEN:
+- source/static-quality gate passed;
+- TypeScript typecheck passed;
+- optimized production build passed;
+- foundation 6/6;
+- Pattern migration 12/12;
+- accessibility/motion 4/4;
+- enquiry hardening 6/6;
+- full-candidate rendered journeys 4/4;
+- cache/SEO/resilience/performance 4/4;
+- Phase 9 desktop landing, EN mobile landing, AR mobile landing and garment-inspector authority boards were staged beside current production captures;
+- artifact `10643791534`, digest `sha256:e5cd1f2cb3bbd0efc09a109a73e0f51b58f8788f5223d267e816b29048c902ff`.
+
+This closes Workstream 10.8 engineering validation. It does **not** assert Fares's visual-parity acceptance.
+
 Run the full productionization matrix on one exact SHA.
 
 Minimum representative journeys:
