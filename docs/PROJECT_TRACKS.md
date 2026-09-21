@@ -83,8 +83,8 @@ KGC review assets already exist, but **review use is not public-publication auth
 - [ ] Preserve strict no-price/no-stock behavior.
 - [x] Catalog/project/garment-to-enquiry context.
 - [x] EN and AR enquiry journeys.
-- [ ] Request-size, timeout, anti-bot/rate and stable-error boundaries.
-- [ ] Preserve Odoo idempotency and append-only enquiry behavior.
+- [x] Request-size, timeout, anti-bot/rate and stable-error boundaries.
+- [x] Preserve Odoo idempotency and append-only enquiry behavior.
 
 #### A5 — Public media, resilience, SEO and quality
 
