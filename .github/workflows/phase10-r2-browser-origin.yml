@@ -1,0 +1,99 @@
+name: Phase 10 R2 browser origin
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - ".github/workflows/phase10-r2-browser-origin.yml"
+      - "docs/operations/PHASE_10_R2_PUBLICATION.md"
+      - "docs/validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-r2-browser-origin-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  CLOUDFLARE_ACCOUNT_ID: "9b0bf4a19a68badb653f984151b62fd2"
+  PUBLIC_BUCKET: "fares-uniform-media-public"
+  PRIVATE_BUCKET: "fares-uniform-media-private"
+  MEDIA_DOMAIN: "media.faresuniform.uk"
+  SITE_ZONE: "faresuniform.uk"
+  EXPECTED_SHA256: "9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb"
+  PUBLIC_KEY: "projects/synthetic-phase10/publication-proof/media-9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb.svg"
+
+jobs:
+  browser-origin:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v5
+
+      - name: Verify exact source
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Verify browser-origin contract
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          mkdir -p evidence/phase10-r2-browser
+
+          api_get() {
+            curl --fail-with-body --silent --show-error --retry 3               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"               -H "Content-Type: application/json"               "$1"
+          }
+
+          zone_json="$(api_get "https://api.cloudflare.com/client/v4/zones?name=$SITE_ZONE&account.id=$CLOUDFLARE_ACCOUNT_ID&status=active&per_page=50")"
+          jq -e '.success == true and (.result | length) == 1' <<<"$zone_json" >/dev/null
+          zone_id="$(jq -r '.result[0].id' <<<"$zone_json")"
+
+          public_domains="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PUBLIC_BUCKET/domains/custom")"
+          private_domains="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PRIVATE_BUCKET/domains/custom")"
+          private_managed="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PRIVATE_BUCKET/domains/managed")"
+
+          jq -e '.success == true' <<<"$public_domains" >/dev/null
+          jq -e '.success == true and ((.result.domains // []) | length) == 0' <<<"$private_domains" >/dev/null
+          jq -e '.success == true and (.result.enabled == false)' <<<"$private_managed" >/dev/null
+
+          jq -n             --arg source_sha "$GITHUB_SHA"             --arg zone_id "$zone_id"             --arg media_domain "$MEDIA_DOMAIN"             --argjson public_domains "$(jq '.result.domains // []' <<<"$public_domains")"             --argjson private_domains "$(jq '.result.domains // []' <<<"$private_domains")"             --argjson private_managed "$(jq '.result' <<<"$private_managed")"             '{
+              source_sha:$source_sha,
+              zone_id:$zone_id,
+              media_domain:$media_domain,
+              public_custom_domains:$public_domains,
+              private_custom_domains:$private_domains,
+              private_managed_domain:$private_managed
+            }' > evidence/phase10-r2-browser/provider-state.json
+
+          target_count="$(jq --arg d "$MEDIA_DOMAIN" '[.result.domains[]? | select(.domain == $d and .enabled == true)] | length' <<<"$public_domains")"
+          if [ "$target_count" -ne 1 ]; then
+            echo "Expected enabled R2 custom domain $MEDIA_DOMAIN is not configured on $PUBLIC_BUCKET" >&2
+            exit 1
+          fi
+
+          target="$(jq --arg d "$MEDIA_DOMAIN" '.result.domains[] | select(.domain == $d)' <<<"$public_domains")"
+          jq -e '(.status.ownership == "active") and (.status.ssl == "active")' <<<"$target" >/dev/null
+
+          url="https://$MEDIA_DOMAIN/$PUBLIC_KEY"
+          curl --fail-with-body --silent --show-error --retry 5 --retry-all-errors             --dump-header evidence/phase10-r2-browser/headers-first.txt             --output evidence/phase10-r2-browser/object.bin             "$url"
+          actual="$(sha256sum evidence/phase10-r2-browser/object.bin | awk '{print $1}')"
+          test "$actual" = "$EXPECTED_SHA256"
+          grep -qi '^cache-control: public, max-age=31536000, immutable' evidence/phase10-r2-browser/headers-first.txt
+
+          curl --fail-with-body --silent --show-error --retry 5 --retry-all-errors             --dump-header evidence/phase10-r2-browser/headers-second.txt             --output /dev/null             "$url"
+          grep -Eqi '^cf-cache-status: (HIT|REVALIDATED)' evidence/phase10-r2-browser/headers-second.txt
+
+      - name: Upload browser-origin evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase10-r2-browser-origin-${{ github.sha }}
+          path: evidence/phase10-r2-browser
+          if-no-files-found: warn
+          retention-days: 14
