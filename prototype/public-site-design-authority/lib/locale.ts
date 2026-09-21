@@ -1,8 +1,10 @@
+import { notFound } from "next/navigation";
+
 export type Locale = "en" | "ar";
 
 export function requireLocale(value: string): Locale {
   if (value === "en" || value === "ar") return value;
-  throw new Error("Unsupported locale");
+  notFound();
 }
 
 export function direction(locale: Locale) {

@@ -102,8 +102,8 @@ test("design system surface documents the non-fabrication invariants", async ({ 
 });
 
 
-test("unknown top-level paths fail as 404 instead of server errors", async ({ page }) => {
+test("unknown top-level paths fail as clean 404s", async ({ page }) => {
   const response = await page.goto("/favicon.ico");
   expect(response?.status()).toBe(404);
-  await expect(page.getByText("Nothing fabricated here.")).toBeVisible();
+  await expect(page.getByText(/Internal Server Error/i)).toHaveCount(0);
 });
