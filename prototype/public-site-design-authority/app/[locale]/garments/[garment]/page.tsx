@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { GarmentInspector } from "@/components/garment-inspector";
+import { AtelierInspector } from "@/components/atelier-inspector";
+import { EditorialFooter } from "@/components/editorial-footer";
 import { media } from "@/lib/data";
 import { requireLocale } from "@/lib/locale";
 import { notFound } from "next/navigation";
@@ -11,35 +11,30 @@ export default async function GarmentPage({ params }: { params: Promise<{ locale
   const ar = locale === "ar";
 
   return (
-    <main id="main-content" className="garment-page">
-      <header className="garment-hero">
-        <div className="garment-hero-copy">
-          <span className="kicker">KGC National · High · Summer</span>
-          <h1>{ar ? "قميص أكاديمي قصير الأكمام" : "Short-sleeve academic polo"}</h1>
-          <p>{ar ? "معاينة تعتمد فقط على الصورة الحقيقية من الأمام والخلف وسياق الارتداء المطابق." : "An inspection grounded only in the real front/back packshots and their matched worn context."}</p>
-          <Link className="inline-arrow" href={`/${locale}/work/kgc/national`}>{ar ? "العودة إلى البرنامج" : "Back to the program"}<span aria-hidden="true">↗</span></Link>
+    <main id="main-content" className="garment-atelier">
+      <section className="garment-context-spread" data-sc-act="flow" data-sc-drift="#f3f0e8">
+        <div className="garment-context-copy">
+          <span className="micro-label">KGC NATIONAL / HIGH / SUMMER</span>
+          <h1>{ar ? "من الإطلالة إلى القطعة، من دون فقد السياق." : "From worn look to garment, without losing context."}</h1>
+          <p>{ar ? "هذه المعاينة تستخدم فقط الصور الحقيقية الحالية: سياق الارتداء والصورة الأمامية والخلفية المطابقتان." : "This inspection uses only the current real sources: the worn context and its matched front/back packshots."}</p>
+          <a href={`/${locale}/work/kgc/national`}>{ar ? "العودة إلى البرنامج" : "Back to the program"} ↗</a>
         </div>
-        <figure className="garment-worn-anchor">
+        <figure data-sc-reveal={ar ? "left" : "right"} data-sc-reveal-at="0.05 0.68">
           <img src={media.kgc.high} alt={ar ? "سياق ارتداء قميص High الصيفي" : "Worn context for the High summer polo"} />
-          <figcaption>{ar ? "نقطة الحقيقة · إطلالة مرتداة" : "Truth anchor · worn look"}</figcaption>
+          <figcaption>{ar ? "نقطة الحقيقة / إطلالة مرتداة" : "TRUTH ANCHOR / WORN LOOK"}</figcaption>
         </figure>
-      </header>
-
-      <section className="full-inspection">
-        <GarmentInspector locale={locale} />
       </section>
 
-      <section className="inspection-method">
-        <span className="kicker">{ar ? "حدود الحقيقة" : "Truth boundary"}</span>
-        <div>
-          <h2>{ar ? "إذا لم نملك طبقة حقيقية، لا نخترعها." : "If we don’t have a real layer, we don’t invent one."}</h2>
-          <p>{ar ? "هذا التصميم يستخدم انتقالات وتكبيرات وتعليقات فوق الصور الأصلية فقط. يمكن لاحقاً إضافة انفجار حقيقي للقطعة عندما تتوفر صور أو هندسة فعلية تدعمه." : "This design uses transitions, crops and annotations over the original photography only. A true exploded construction view can be added later when real separated media or geometry supports it."}</p>
-        </div>
+      <section className="garment-technical sc-section" data-sc-act="flow" data-sc-drift="#ede9df">
+        <AtelierInspector locale={locale} />
       </section>
 
-      <section className="project-next">
-        <div><span className="kicker">{ar ? "هل نبدأ من هنا؟" : "Start from this context"}</span><h2>{ar ? "من قطعة محددة إلى برنامج كامل." : "From one garment to a complete program."}</h2></div>
-        <Link className="button button-dark" href={`/${locale}/enquiry?context=kgc-national-high-summer-polo`}>{ar ? "ناقش برنامجك" : "Discuss your program"}<span aria-hidden="true">↗</span></Link>
+      <section className="garment-truth-note sc-section" data-sc-act="flow">
+        <span className="micro-label" data-sc-in>{ar ? "حدود الحقيقة" : "TRUTH BOUNDARY"}</span>
+        <h2 data-sc-in>{ar ? "إذا لم نملك طبقة حقيقية، لا نخترعها." : "If we do not have a real layer, we do not invent one."}</h2>
+        <p data-sc-in>{ar ? "يمكن إضافة عرض تركيبي حقيقي عندما تتوفر صور منفصلة أو هندسة فعلية تدعمه. حتى ذلك الوقت، التفاصيل تأتي من المصدر الفوتوغرافي نفسه." : "A true construction view can be added when separated source photography or real geometry supports it. Until then, detail comes from the photographic source itself."}</p>
+        <a href={`/${locale}/enquiry?context=kgc-national-high-summer-polo`} data-sc-in>{ar ? "ابدأ من هذه القطعة" : "Start from this garment"} ↗</a>
+        <EditorialFooter locale={locale} />
       </section>
     </main>
   );

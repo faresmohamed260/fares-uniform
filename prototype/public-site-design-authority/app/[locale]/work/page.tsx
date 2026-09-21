@@ -1,42 +1,54 @@
-import Link from "next/link";
-import { Reveal } from "@/components/reveal";
-import { copy, media, sectors, stages } from "@/lib/data";
+import { EditorialFooter } from "@/components/editorial-footer";
+import { media, sectors, stages } from "@/lib/data";
 import { requireLocale } from "@/lib/locale";
 
 export default async function WorkIndex({ params }: { params: Promise<{ locale: string }> }) {
   const locale = requireLocale((await params).locale);
-  const t = copy[locale];
-  return (
-    <main id="main-content" className="page-shell">
-      <header className="editorial-page-header">
-        <span className="kicker">{locale === "ar" ? "أرشيف العمل" : "Work archive"}</span>
-        <h1>{t.workTitle}</h1>
-        <p>{t.workBody}</p>
-      </header>
+  const ar = locale === "ar";
 
-      <section className="work-feature">
-        <div className="work-feature-media">
-          <img src={media.kgc.campus} alt={locale === "ar" ? "مبنى KGC" : "KGC campus"} />
-          <div className="work-model-strip">{stages.map(stage => <img key={stage.id} src={stage.image} alt="" />)}</div>
+  return (
+    <main id="main-content" className="work-collection">
+      <section className="work-object-one" data-sc-act="flow" data-sc-drift="#142b49">
+        <div className="work-object-bg" data-sc-parallax="-0.05"><img src={media.kgc.campus} alt="" /></div>
+        <div className="work-object-copy">
+          <span className="micro-label">01 / {ar ? "التعليم" : "EDUCATION"}</span>
+          <img src={media.kgc.logo} alt="" className="work-object-logo" />
+          <h1>KGC<br/>National</h1>
+          <dl>
+            <div><dt>{ar ? "البرنامج" : "Program"}</dt><dd>National</dd></div>
+            <div><dt>{ar ? "المراحل" : "Stages"}</dt><dd>04</dd></div>
+            <div><dt>{ar ? "الحالة" : "Status"}</dt><dd>{ar ? "وسائط مراجعة حقيقية" : "Real review media"}</dd></div>
+          </dl>
+          <a href={`/${locale}/work/kgc/national`}>{ar ? "ادخل البرنامج" : "Enter the program"} <span>↗</span></a>
         </div>
-        <div className="work-feature-copy">
-          <div className="work-meta"><span>01</span><strong>{locale === "ar" ? "التعليم" : "Education"}</strong></div>
-          <img className="work-logo" src={media.kgc.logo} alt="" />
-          <h2>KGC National</h2>
-          <p>{locale === "ar" ? "منظومة زي مدرسي بأربع مراحل، مع إطلالات حقيقية حالية للمراجعة واستمرارية من الشخص إلى القطعة." : "A four-stage school uniform program with current real review looks and continuity from wearer to garment."}</p>
-          <Link className="button button-dark" href={`/${locale}/work/kgc/national`}>{locale === "ar" ? "استكشف المشروع" : "Explore project"}<span aria-hidden="true">↗</span></Link>
+        <div className="work-object-models" aria-label={ar ? "مراحل KGC الأربع" : "Four KGC stages"}>
+          {stages.map((stage, index) => (
+            <figure key={stage.id} data-sc-parallax={index % 2 ? "0.035" : "-0.025"}>
+              <img src={stage.image} alt={stage.name[locale]} />
+              <figcaption><span>0{index + 1}</span>{stage.name[locale]}</figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 
-      <section className="work-capabilities">
-        <Reveal>
-          <span className="kicker">{locale === "ar" ? "مساحة النمو" : "Capability index"}</span>
-          <h2>{locale === "ar" ? "لا نخترع أرشيفاً لإكمال الشبكة." : "We don’t invent an archive to fill a grid."}</h2>
-          <p>{locale === "ar" ? "تظهر المشاريع هنا عندما تتوفر مادة حقيقية وحق مراجعة أو نشر واضح. وحتى ذلك الوقت، تبقى القطاعات لغة قدرة فقط." : "Projects appear here when real material and a clear review/publication basis exist. Until then, sectors remain capability vocabulary only."}</p>
-        </Reveal>
-        <div className="sector-lines compact">
-          {sectors.map((sector, index) => <div key={sector.en}><span>0{index + 1}</span><strong>{sector[locale]}</strong></div>)}
+      <section className="work-folio sc-section" data-sc-act="flow" data-sc-drift="#f3f0e8">
+        <header data-sc-in>
+          <span className="micro-label">02 / {ar ? "فهرس القدرة" : "CAPABILITY INDEX"}</span>
+          <h2>{ar ? "الأرشيف لا يحتاج إلى عملاء خياليين ليبدو كاملاً." : "The archive does not need fictional clients to feel complete."}</h2>
+          <p>{ar ? "المشروع الحقيقي يظهر كقصة كاملة. القطاعات الأخرى تبقى لغة قدرة إلى أن تتوفر مادة حقيقية وحقوق واضحة." : "A real project appears as a complete story. Other sectors remain capability vocabulary until real material and a clear rights basis exist."}</p>
+        </header>
+        <div className="work-folio-list" data-sc-stagger="65">
+          {sectors.map((sector, index) => (
+            <div key={sector.en} data-sc-in><span>0{index + 1}</span><strong>{sector[locale]}</strong><small>{index === 0 ? (ar ? "مشروع مراجعة حالي" : "current review project") : (ar ? "قدرة" : "capability")}</small></div>
+          ))}
         </div>
+      </section>
+
+      <section className="work-colophon sc-section" data-sc-act="flow">
+        <span className="micro-label" data-sc-in>03 / {ar ? "قاعدة الأرشيف" : "ARCHIVE RULE"}</span>
+        <p data-sc-in>{ar ? "كل اسم، كل صورة، وكل نتيجة هنا يجب أن تستند إلى عمل حقيقي قابل للمراجعة." : "Every name, image and outcome here must be backed by real, reviewable work."}</p>
+        <a href={`/${locale}/enquiry`} data-sc-in>{ar ? "ناقش برنامجاً جديداً" : "Discuss a new program"} ↗</a>
+        <EditorialFooter locale={locale} />
       </section>
     </main>
   );
