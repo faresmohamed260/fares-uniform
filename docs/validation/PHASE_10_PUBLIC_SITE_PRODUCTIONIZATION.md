@@ -269,8 +269,47 @@ Exact regressions on the same SHA are GREEN:
 - Pattern migration run/job `35545089857` / `106169454628`: 12/12, artifact `10616327131`, digest `sha256:d907acab5200b4151830968189e3a4c4380ec90b46f724480b808f5840c34a5a`;
 - public foundation run/job `35545089859` / `106169454615`: 6/6, artifact `10616716330`, digest `sha256:6700fa4128038edb75ca7ffb332cdaf9e67b08ddb182ddcb8d518452ce5e5c8d`.
 
-## Next validation boundary — Workstream 10.6
+## Workstream 10.6 — public enquiry hardening
 
-Harden the existing public enquiry boundary without expanding its business schema or weakening Odoo idempotency/append-only behavior. Required RED -> GREEN evidence must cover a bounded request body, request/upstream timeout, stable public error mapping, an explicit anti-bot/rate boundary and privacy-safe logging, while retaining EN/AR contextual enquiry journeys.
+### Preserved RED
+
+- contract commit `f333b7789cb9812a2ed51fe0c69c81b938b7c9af`;
+- exact run/job `35545407380` / `106170291685`;
+- optimized build passed, then all 6 hardening browser checks failed because the production route did not yet expose the required form-proof/body/rate/timeout/privacy behavior;
+- RED artifact `10616432546`, digest `sha256:35012b9563f518dccea76d2d670507a2859f18dfb0120d998b65a170b6b3ac31`.
+
+### Iteration evidence
+
+Implementation `fbb6183f4e09dcc2885d16d4b3c502abe8d91109` improved exact run/job `35545612786` / `106170837881` to 3/6 and exposed a reverse-proxy origin mismatch. Artifact `10616846568`, digest `sha256:7f63045ab695dd4e768dacbad2e5195b664d5ade2f3a5e5c4a78346b0bdf07be`.
+
+Commit `0ef73122ae4d952bf4b21dbef2ecd1fcb58a6951` moved probes to real browser-origin fetches without bypassing the guard; run `35545724752` stayed 3/6, confirming the remaining defect was product-side origin validation. Artifact `10616477828`, digest `sha256:17778fae7177512636da542867b1ccc0b719a1d1e05bf284e02914301ce44c4b`.
+
+### Exact-head GREEN
+
+Final authority: `408a381032736b62ab44d4eefd31782839c68512`.
+
+Exact enquiry run `35545824164`, job `106171404548`, is **GREEN** with 6/6 checks:
+
+- unchanged nine-field public business payload;
+- signed short-lived form proof carried only in a request header;
+- same-origin validation through trusted forwarded host/proto boundaries;
+- JSON content-type enforcement and 16 KiB body limit;
+- per-runtime rate safety net with stable 429 and `Retry-After`;
+- stable 400/403/413/415/429/503/504 public errors;
+- 8-second production Odoo upstream timeout;
+- privacy-safe event/status logging without customer or payload fields;
+- Odoo idempotency/append-only handling remains unchanged;
+- artifact `10616248547`, digest `sha256:d86381373a2bca8306bcad6e935740f680f48988db740f652de8234ea9580130`.
+
+Same-SHA regressions are GREEN:
+- Pattern migration `35545824166` / `106171404365`, artifact `10616802155`, digest `sha256:e95463bee21cea1c3e3c2fbee44b375726496b84163905b9771351b26245bcf2`;
+- public foundation `35545824177` / `106171404378`, artifact `10616527864`, digest `sha256:8a82a666218515ef3ea1da10b0dc619a72acddf0d9cceb1ef7f6777662575791`;
+- accessibility/motion `35545824174` / `106171404358`, artifact `10616343370`, digest `sha256:9a6701d65eb1f59d594d69fee9721033c14e418a656bf558f1c0a38ef5cdd07b`.
+
+The in-process limiter is a safety net, not a claim of globally distributed edge-rate enforcement.
+
+## Next validation boundary — Workstream 10.7
+
+Prove cache/revalidation, stale-published-content fallback during a transient Odoo/public-content failure, sitemap/robots/route metadata, a bounded resource/performance budget, critical-media eagerness only and the synthetic public-R2 cache contract. Keep KGC/real-client media unpublished and preserve private/public bucket separation.
 
 Production launch, Gate D, real-client publication and PR merges remain separately gated.
