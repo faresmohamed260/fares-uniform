@@ -23,7 +23,7 @@ test("project stage selection preserves continuity into the real garment", async
   const primary = page.getByRole("tab", { name: /Primary/i });
   await primary.click();
   await expect(primary).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByText("Growing in one visual language.")).toBeVisible();
+  await expect(page.locator(".cohort-focus-copy").getByText("Growing in one visual language.")).toBeVisible();
 
   const high = page.getByRole("tab", { name: /High/i });
   await high.click();
