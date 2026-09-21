@@ -15,6 +15,10 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Public site production architecture review](architecture/PUBLIC_SITE_PRODUCTION_ARCHITECTURE_REVIEW.md) | Impartial current-state audit, production blockers, target architecture and remediation plan for preserving Pattern in Motion without prototype debt |
 | [Design system](ui/DESIGN_SYSTEM.md) | UI/RTL/accessibility direction |
 | [Repo-first UI/UX workflow](ui/REPO_FIRST_UI_UX_WORKFLOW.md) | Mandatory browser-native design authority, approval, implementation and regression process; generated images/screenshots are not implementation specifications |
+| [Astra 10K / Scrollcraft workflow](ui/ASTRA_10K_SCROLLCRAFT_WORKFLOW.md) | D-060 premium-design process, pinned upstream tools, real-asset/no-fake boundary and model/tooling rules |
+| [Scrollcraft brief](ui/scrollcraft/BRIEF.md) | Pain/Person/Promise, visitor journey, feeling curve, peak and current real assets |
+| [Scrollcraft reference board](ui/scrollcraft/REFERENCE_BOARD.md) | Godly, 21st.dev, Awwwards and Fares-specific composition/motion references |
+| [Pattern Assembly grammar and scroll score](ui/scrollcraft/PAGE_GRAMMAR_SCROLL_SCORE.md) | Visual Story, route grammars, device score and Seam Handoff signature move |
 | [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md) | Authorized public-site redesign boundary, marketing/interaction principles, research process and design/kinetic/fidelity gates |
 | [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md) | Current fashion/uniform market research, high-expression interactive references, tool/library findings and concept hypotheses |
 | [Public site showcase and historical-work requirements](ui/PUBLIC_SITE_SHOWCASE_CONTENT_REQUIREMENTS.md) | Real-client/project showcase content model, publication/privacy gate, product-photography standard and layered/exploded product-view requirements |
