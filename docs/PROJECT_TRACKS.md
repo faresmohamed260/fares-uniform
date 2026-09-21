@@ -88,16 +88,16 @@ KGC review assets already exist, but **review use is not public-publication auth
 
 #### A5 — Public media, resilience, SEO and quality
 
-- [ ] Select/configure the stable browser-facing public media origin/custom domain.
-- [ ] Keep private originals inaccessible.
+- [x] Select/configure the stable browser-facing public media origin/custom domain.
+- [x] Keep private originals inaccessible.
 - [ ] Verify public cache headers and responsive image delivery.
-- [ ] Cache/revalidate published public content.
-- [ ] Retain stale published content during transient Odoo failure.
-- [ ] Sitemap, robots, canonical, hreflang and route metadata.
+- [x] Cache/revalidate published public content.
+- [x] Retain stale published content during transient Odoo failure.
+- [x] Sitemap, robots, canonical, hreflang and route metadata.
 - [x] Keyboard, focus, touch-target and automated accessibility proof.
 - [x] Reduced-motion parity.
 - [x] Desktop/mobile/Arabic RTL rendered evidence.
-- [ ] Performance/resource budget evidence.
+- [x] Performance/resource budget evidence.
 - [ ] Full Playwright production journeys.
 - [ ] Retire obsolete executable prototype code only after parity is proven.
 

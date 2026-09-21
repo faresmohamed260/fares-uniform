@@ -308,8 +308,58 @@ Same-SHA regressions are GREEN:
 
 The in-process limiter is a safety net, not a claim of globally distributed edge-rate enforcement.
 
-## Next validation boundary — Workstream 10.7
+## Workstream 10.7 — cache, resilience, SEO, performance and browser media
 
-Prove cache/revalidation, stale-published-content fallback during a transient Odoo/public-content failure, sitemap/robots/route metadata, a bounded resource/performance budget, critical-media eagerness only and the synthetic public-R2 cache contract. Keep KGC/real-client media unpublished and preserve private/public bucket separation.
+### Application RED -> GREEN
 
-Production launch, Gate D, real-client publication and PR merges remain separately gated.
+Meaningful product RED authority:
+- commit `93e3731825f307b5d865f660121a62adedaf1348`;
+- run/job `35547637216` / `106176328338`;
+- typecheck/build passed;
+- 2/4 browser checks were GREEN (canonical route metadata and resource budget);
+- 2/4 were RED: `robots.txt` returned 404 and repeated homepage requests performed two upstream reads instead of one cached read;
+- artifact `10617840194`, digest `sha256:0d5440c53ff623ebc8a27d7909d5c0381d5f80c701a241c47bc4676c879ea188`.
+
+Implementation `b19d4bc375c9cfc02bd5d8cd1ba21ab642fbaa5b` added Next public-content caching/revalidation plus canonical sitemap/robots. Later failures isolated fixture-state visibility across route workers rather than weakening cache assertions. Commits `29df2262c34348686538caf91a085a9b75ff1f8b` and `30005261389023eb13e8dbef914326f5781ab916` shared the synthetic control state and expired the one-second CI cache before outage proof.
+
+Exact application GREEN:
+- commit `30005261389023eb13e8dbef914326f5781ab916`;
+- run/job `35549416991` / `106181267052`;
+- **4/4 passed in 4.7s**;
+- first and second EN-home requests reuse one V2-home and one V1-catalog upstream read;
+- after the one-second revalidation window, synthetic upstream 503s occur while the previously published Harbor House/home content remains HTTP 200 and visible;
+- `robots.txt` and `sitemap.xml` expose canonical public routes only;
+- Arabic project canonical/hreflang/OpenGraph URL remains correct;
+- representative 390x844 homepage is bounded at <=700 KiB JS, <=140 KiB CSS, <=1.6 MiB images and <=45 requests; at most one image is eager and all catalog images are lazy;
+- artifact `10617014586`, digest `sha256:90c8571accd3c0abbcf4ec9b4a9df25b60f3e1aa7e3fc88fb1c7f1be939f92de`.
+
+### R2 browser-origin RED -> GREEN
+
+Provider RED:
+- contract commit `164beaad01d2c30bbbcc232ddf940e7614cace93`;
+- run/job `35549546604` / `106181611340`;
+- failed closed at the browser-origin contract because enabled custom domain `media.faresuniform.uk` was absent from `fares-uniform-media-public`;
+- private bucket was already verified to have zero custom domains and managed delivery disabled;
+- artifact `10618071489`, digest `sha256:756e81763607ba934049ac66827d6b2274b46d1838441711c387efd8c3b8ccc2`.
+
+Provider implementation `ed0986cff6d6930f189cc664dd7bb7f7f43f90f7` introduced controlled attach/verify logic but run `35549628907` exposed a credential-expression defect before mutation completion. Final correction `c41a5afcfcf2801a230ce46aa1b1c8d06134fddc` is the exact provider authority.
+
+Exact provider GREEN:
+- run/job `35549656743` / `106181910393`;
+- public-bucket read proof first confirmed the bucket inventory is exactly the one deterministic synthetic object;
+- `media.faresuniform.uk` was attached to `fares-uniform-media-public` and ownership/SSL reached active state;
+- fetched bytes matched SHA-256 `9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb`;
+- browser response retained `Cache-Control: public, max-age=31536000, immutable`;
+- repeated fetch reached Cloudflare `HIT` or `REVALIDATED`;
+- public managed `r2.dev` delivery remains disabled;
+- private bucket still has zero custom domains and managed public delivery disabled;
+- ephemeral public-bucket read token was revoked;
+- artifact `10617767603`, digest `sha256:b0c7f20c7618155dea0798c7f2c943e92837772196449456db9fd39b5529978a`.
+
+No KGC or other real-client object entered the public bucket.
+
+## Next validation boundary — Workstream 10.8
+
+Run the full Phase 10 productionization matrix on one exact SHA. Add a source-controlled static-quality gate, execute the complete foundation/Pattern/accessibility/enquiry/cache matrix, retain synthetic-only R2/publication boundaries, capture representative EN desktop + AR mobile + inspector/reduced-motion evidence, and compare the production captures against Phase 9 visual authority `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`.
+
+Phase 10 still cannot close until Fares accepts rendered parity and the prototype-retirement/migration boundary is resolved. Production launch, Gate D, real-client publication and PR merges remain separately gated.

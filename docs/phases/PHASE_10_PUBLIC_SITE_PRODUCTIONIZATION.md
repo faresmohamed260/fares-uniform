@@ -209,12 +209,23 @@ The GREEN boundary includes a signed short-lived same-origin form proof, unchang
 Same-SHA public regressions are GREEN: Pattern `35545824166` / `106171404365`, foundation `35545824177` / `106171404378`, accessibility/motion `35545824174` / `106171404358`.
 
 ### 10.7 Cache, resilience, SEO and performance
-- read-only public content cached/revalidated;
-- stale published content survives transient Odoo failure;
-- sitemap/robots/metadata;
-- resource/performance evidence;
-- only critical media eager;
-- public R2 media caching verified.
+Status: **GREEN.**
+
+Meaningful product RED: commit `93e3731825f307b5d865f660121a62adedaf1348`, run/job `35547637216` / `106176328338`, passed typecheck/build, route metadata and resource-budget checks while failing two required behaviors: `robots.txt` returned 404 and the representative homepage made two upstream reads instead of one cached read. Artifact `10617840194`, digest `sha256:0d5440c53ff623ebc8a27d7909d5c0381d5f80c701a241c47bc4676c879ea188`.
+
+Implementation `b19d4bc375c9cfc02bd5d8cd1ba21ab642fbaa5b` added public-content `unstable_cache` revalidation plus sitemap/robots. Fixture-state corrections `29df2262c34348686538caf91a085a9b75ff1f8b` and `30005261389023eb13e8dbef914326f5781ab916` made the cross-route-worker resilience proof deterministic and forced cache expiry before the synthetic upstream failure.
+
+Exact application authority: commit `30005261389023eb13e8dbef914326f5781ab916`, run/job `35549416991` / `106181267052`, **4/4 GREEN**. Evidence proves:
+- read-only V1/V2 public content is reused from cache and revalidated;
+- the last published response remains available when revalidation receives a synthetic upstream 503;
+- canonical robots/sitemap and EN/AR route metadata are present;
+- representative mobile homepage stays within the source-controlled JS/CSS/image/request budget;
+- catalog images remain lazy and no more than one image may be eager;
+- artifact `10617014586`, digest `sha256:90c8571accd3c0abbcf4ec9b4a9df25b60f3e1aa7e3fc88fb1c7f1be939f92de`.
+
+Browser-media authority: provider RED `164beaad01d2c30bbbcc232ddf940e7614cace93`, run/job `35549546604` / `106181611340`, failed because `media.faresuniform.uk` was not configured. Final provider authority `c41a5afcfcf2801a230ce46aa1b1c8d06134fddc`, run/job `35549656743` / `106181910393`, is GREEN: `media.faresuniform.uk` is attached only to `fares-uniform-media-public`; public `r2.dev` delivery remains disabled; the public bucket inventory contains only the deterministic synthetic publication object; exact SHA/cache metadata and Cloudflare HIT/REVALIDATED behavior were verified; private bucket custom-domain count remains zero and managed public delivery remains disabled; the ephemeral public-read token was revoked. Artifact `10617767603`, digest `sha256:b0c7f20c7618155dea0798c7f2c943e92837772196449456db9fd39b5529978a`.
+
+No real-client publication was authorized or performed.
 
 ### 10.8 Full hosted candidate
 Run the full productionization matrix on one exact SHA.

@@ -1,8 +1,8 @@
 # Phase 10 R2 publication boundary
 
-Status: **WORKSTREAM 10.2 GREEN.**
+Status: **WORKSTREAM 10.2 + 10.7 BROWSER DELIVERY GREEN FOR SYNTHETIC MEDIA.**
 
-This runbook governs the Phase 10 private-source to public-derivative object boundary. It does not authorize public KGC/client publication, production cutover, a public custom domain or browser/storage credentials.
+This runbook governs the Phase 10 private-source to public-derivative object boundary and the synthetic-only browser delivery proof. It does not authorize public KGC/client publication or production cutover. The stable browser origin is `media.faresuniform.uk`, attached only to the public bucket.
 
 ## Buckets
 
@@ -68,9 +68,25 @@ A published media record requires:
 
 Exact-head Odoo contract run `35538533842`, job `106151844070`, passed 13 post-test methods / 23 addon tests with `0 failed, 0 error(s)`, then completed the repeatable `fu_core,fu_public_api` upgrade. Artifact `10613553442` has digest `sha256:889da64179b041005c92a832dae10e818db4de394ff3b8fa01efc9c25e12ab6e`.
 
+## Browser delivery proof
+
+A stable synthetic-only browser origin is now verified:
+
+- custom domain: `media.faresuniform.uk`;
+- bucket: `fares-uniform-media-public` only;
+- provider RED commit/run/job: `164beaad01d2c30bbbcc232ddf940e7614cace93` / `35549546604` / `106181611340`, which failed because the domain did not yet exist;
+- exact GREEN authority: `c41a5afcfcf2801a230ce46aa1b1c8d06134fddc`, run/job `35549656743` / `106181910393`;
+- public bucket inventory was exactly the deterministic synthetic publication object before domain attachment;
+- browser fetch matched the expected SHA-256 and immutable cache header;
+- Cloudflare cache reached `HIT` or `REVALIDATED`;
+- public managed `r2.dev` remains disabled;
+- private bucket custom-domain count remains zero and private managed delivery remains disabled;
+- the ephemeral read token used for inventory proof was revoked;
+- artifact `10617767603`, digest `sha256:b0c7f20c7618155dea0798c7f2c943e92837772196449456db9fd39b5529978a`.
+
 ## Remaining publication boundary
 
-This proof does **not** enable browser delivery for the public bucket. A stable public media origin/custom-domain and any production publication operator/runtime arrangement remain later Phase 10 / Gate D boundaries. No KGC or other real client may be promoted without explicit publication authorization.
+The browser origin is technically ready for approved public derivatives, but **no KGC or other real-client publication is authorized**. The public bucket must remain synthetic-only until an explicit client-publication decision plus rights/publication records authorize specific derivatives. Production publication operator/runtime ownership and production cutover remain separately gated.
 
 ## Failure rules
 

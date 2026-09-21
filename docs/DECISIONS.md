@@ -498,3 +498,14 @@ Fares clarified that the project must be tracked as two independent delivery str
 **Track B — ERP/Odoo** covers the internal operational system: POS/offline operation, inventory, preorders/deposits/balances, returns/exchanges, production, B2B orders, permissions, reporting, sessions/attachments, cron/WebSocket continuity, recovery and production operations. Core MVP engineering and Phase 8 Gate C staging acceptance are already substantially complete; its remaining work is primarily Gate D, production ownership/operations, real-business configuration/onboarding and controlled production launch readiness.
 
 The authoritative durable checklist split is `docs/PROJECT_TRACKS.md`. `PROJECT.md` remains the sole owner of current branch/state/next action. Progress or authorization in one track does not imply progress or authorization in the other: ERP Gate D does not authorize public KGC/client publication or public-site cutover, and public-site Phase 10 work does not close ERP Gate D.
+
+
+## D-058 — `media.faresuniform.uk` is the public R2 browser origin
+
+Status: Evidence-backed architecture decision, 2026-09-21; real-client publication and production launch remain unauthorized.
+
+Phase 10 Workstream 10.7 establishes `media.faresuniform.uk` as the stable browser-facing origin for approved objects in `fares-uniform-media-public`. The custom domain is attached only to that public bucket. Managed `r2.dev` delivery remains disabled. `fares-uniform-media-private` retains zero custom domains and managed public delivery disabled.
+
+The provider contract intentionally preserved RED at commit `164beaad01d2c30bbbcc232ddf940e7614cace93`, run/job `35549546604` / `106181611340`, where the custom domain was absent. Final authority is `c41a5afcfcf2801a230ce46aa1b1c8d06134fddc`, run/job `35549656743` / `106181910393`. The hosted proof verified that the public bucket contained only the deterministic Phase 10 synthetic object, attached the domain, waited for active ownership/SSL, fetched the exact expected SHA-256 through the browser origin, retained `Cache-Control: public, max-age=31536000, immutable`, observed Cloudflare cache `HIT` or `REVALIDATED`, reconfirmed the private bucket has no browser delivery, and revoked the temporary public-read token. Artifact `10617767603` has digest `sha256:b0c7f20c7618155dea0798c7f2c943e92837772196449456db9fd39b5529978a`.
+
+This decision establishes delivery infrastructure only. It does **not** authorize KGC or other real-client media publication, change rights rules, make the public bucket a source-of-truth database, authorize production cutover, merge PR #7/#8, or affect ERP Gate D.
