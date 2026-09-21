@@ -59,7 +59,13 @@ Documentation-only work needs read-back and link/consistency checks, not an appl
 
 ## UI discipline
 
-Use maintained accessible primitives and suitable existing components before custom generic controls. Establish the design system, component sources and representative screen direction before broad UI implementation. Record adopted components and approved visual decisions; preserve them across sessions.
+**Mandatory public-site UI/UX authority rule:** read `docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md` before any public-site visual, interaction, layout, component or motion work. D-059 supersedes screenshot/image boards as implementation authority.
+
+The project uses a repo-first, browser-native design process with no required paid design SaaS. UX contracts, design tokens, component contracts/states, coded review surfaces and the exact Fares-approved Git commit are the authoritative design artifacts. Generated images, concept boards and screenshots may be used for inspiration, historical context or regression evidence only; they must never be used as a pixel specification to reverse-engineer UI.
+
+Before broad UI implementation or visual rework: define/update UX and page contracts; define/update source-controlled design tokens; design reusable components and states in code using Storybook or an equivalent repository-owned browser review surface; compose responsive EN/AR/RTL pages in a non-production review deployment; prototype exceptional motion in code; obtain Fares's explicit approval of an exact Git commit as the UI authority; then promote/reuse that coded authority in production and use Playwright/screenshots only as regression evidence.
+
+Use maintained accessible primitives and suitable existing components before custom generic controls. Establish the design system, component sources and representative browser-native screen direction before broad UI implementation. Record adopted components and approved visual decisions; preserve them across sessions.
 
 RenderLab supplies process reference, not this ERP's design or product specification. Its creative-app styling, libraries, schemas, resources and runtime decisions are not automatically approved here.
 
