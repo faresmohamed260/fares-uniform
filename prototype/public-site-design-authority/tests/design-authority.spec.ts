@@ -100,3 +100,10 @@ test("design system surface documents the non-fabrication invariants", async ({ 
   await expect(page.getByText("No generated fake client/product imagery.")).toBeVisible();
   await expect(page.getByText("No prices or stock.")).toBeVisible();
 });
+
+
+test("unknown top-level paths fail as 404 instead of server errors", async ({ page }) => {
+  const response = await page.goto("/favicon.ico");
+  expect(response?.status()).toBe(404);
+  await expect(page.getByText("Nothing fabricated here.")).toBeVisible();
+});
