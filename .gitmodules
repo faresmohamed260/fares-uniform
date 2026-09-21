@@ -1,0 +1,4 @@
+[submodule ".agents/skills/scroll-craft"]
+	path = .agents/skills/scroll-craft
+	url = https://github.com/nateherkai/scroll-craft.git
+	branch = main
