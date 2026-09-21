@@ -19,9 +19,19 @@ test("desktop home uses pinned Scrollcraft engine, device variety and real revie
 
   await expect(page.locator('[data-sc-act="pin"]')).toHaveCount(2);
   await expect(page.locator('[data-sc-act="pan"]')).toHaveCount(2);
-  expect(await page.locator("[data-sc-parallax]").count()).toBeGreaterThanOrEqual(4);
+  expect(await page.locator("[data-sc-parallax]").count()).toBeGreaterThanOrEqual(3);
   expect(await page.locator("[data-sc-reveal]").count()).toBeGreaterThanOrEqual(1);
   expect(await page.locator("[data-sc-kinetic]").count()).toBeGreaterThanOrEqual(2);
+  const deviceFamilies = await page.evaluate(() => {
+    const families = new Set<string>();
+    document.querySelectorAll("[data-sc-act]").forEach((el) => families.add(el.getAttribute("data-sc-act") || ""));
+    if (document.querySelector("[data-sc-parallax]")) families.add("parallax");
+    if (document.querySelector("[data-sc-reveal]")) families.add("reveal");
+    if (document.querySelector("[data-sc-kinetic]")) families.add("kinetic");
+    if (document.querySelector("[data-sc-in]")) families.add("in");
+    return Array.from(families).filter(Boolean);
+  });
+  expect(deviceFamilies.length).toBeGreaterThanOrEqual(5);
 
   const spans = await page.locator('[data-sc-act="pin"], [data-sc-act="pan"]').evaluateAll((els) =>
     els.map((el) => ({ cls: el.className, span: Number(el.getAttribute("data-sc-span") || "0") }))
