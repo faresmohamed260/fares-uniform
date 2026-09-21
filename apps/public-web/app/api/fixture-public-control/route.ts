@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import {
   publicCacheFixtureState,
   resetPublicCacheFixture,
@@ -23,7 +24,11 @@ export async function POST(request: Request) {
   if (!body || (body.available !== undefined && typeof body.available !== "boolean") || (body.reset !== undefined && typeof body.reset !== "boolean")) {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
-  if (body.reset) resetPublicCacheFixture();
+  if (body.reset) {
+    resetPublicCacheFixture();
+    revalidateTag("fares-public-v2", { expire: 0 });
+    revalidateTag("fares-public-catalog-v1", { expire: 0 });
+  }
   if (typeof body.available === "boolean") setPublicCacheFixtureAvailable(body.available);
   return NextResponse.json(publicCacheFixtureState(), { headers: { "Cache-Control": "no-store" } });
 }
