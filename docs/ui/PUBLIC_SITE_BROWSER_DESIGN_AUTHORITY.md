@@ -149,6 +149,28 @@ Do not use:
 
 When a future sector or state lacks real media, the design remains typographic/material-led or uses a clearly neutral structural placeholder; it does not fabricate evidence.
 
+## Current approval candidate
+
+**Exact browser-design candidate:** `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb`  
+**Hosted validation:** push run `35664989280`, job `106548611626` — GREEN.  
+**Evidence artifact:** `10669270272` — contains browser screenshots/test evidence and real-review-media provenance.  
+**Protected Vercel project:** `fares-uniform-design-authority` / `prj_NihDUJroYCeAqi6OF8aVAuxi94w0`.  
+**Exact protected preview deployment:** `dpl_BXFdJMmRzYSd37AuxFeY9MECgefN` at `fares-uniform-design-authority-hu9hhps4k.vercel.app`.
+
+Hosted evidence proves:
+- locked install, TypeScript and optimized production build GREEN;
+- the eight browser-design journeys GREEN;
+- current real review assets staged from the existing private/review sources rather than committed into Git;
+- English desktop, English mobile, Arabic RTL mobile and reduced-motion review states exercised;
+- KGC High worn context -> real front/back polo inspection works without fabricated construction layers;
+- unknown/invalid locale paths resolve as clean 404s rather than application errors;
+- Vercel Authentication is explicitly enforced with `ssoProtection.deploymentType=all`;
+- anonymous access returns a redirect to Vercel authentication, not the review content;
+- the approval candidate is a **preview** deployment, not a production deployment;
+- the real `fares-uniform` Vercel project, public domain, public R2 publication boundary, PR state and production launch remain unchanged.
+
+This is the first D-059 browser-native design candidate that is ready for Fares's visual review. It is **not approved until Fares explicitly approves this exact design SHA**. Any visual changes requested during review create a new candidate SHA and require the same hosted design gate again.
+
 ## Approval contract
 
 Fares approves the final interactive review by exact Git SHA. The approved SHA must include:
