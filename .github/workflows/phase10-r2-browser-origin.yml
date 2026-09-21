@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase10-r2-browser-origin-\${{ github.ref }}
+  group: phase10-r2-browser-origin-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -40,7 +40,7 @@ jobs:
 
       - name: Resolve provider state and mint public-bucket read proof
         env:
-          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -euo pipefail
           test -n "$CLOUDFLARE_API_TOKEN"
@@ -123,7 +123,7 @@ jobs:
           AWS_EC2_METADATA_DISABLED: "true"
         run: |
           set -euo pipefail
-          test -z "\${CLOUDFLARE_API_TOKEN:-}"
+          test -z "${CLOUDFLARE_API_TOKEN:-}"
           python - <<'PY'
           import json
           import os
@@ -153,7 +153,7 @@ jobs:
 
       - name: Attach and verify stable public media domain
         env:
-          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -euo pipefail
           test -n "$CLOUDFLARE_API_TOKEN"
@@ -238,11 +238,11 @@ jobs:
       - name: Revoke ephemeral public-bucket read token
         if: always()
         env:
-          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -euo pipefail
           test -n "$CLOUDFLARE_API_TOKEN"
-          token_id="\${R2_PUBLIC_READ_TOKEN_ID:-}"
+          token_id="${R2_PUBLIC_READ_TOKEN_ID:-}"
           if [ -n "$token_id" ]; then
             response="$(
               curl --fail-with-body --silent --show-error --retry 3 \
@@ -258,7 +258,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: phase10-r2-browser-origin-\${{ github.sha }}
+          name: phase10-r2-browser-origin-${{ github.sha }}
           path: evidence/phase10-r2-browser
           if-no-files-found: warn
           retention-days: 14
