@@ -1,6 +1,6 @@
 # Phase 10 validation — public-site productionization
 
-Status: **WORKSTREAMS 10.1–10.8 GREEN — ENGINEERING RENDERED COMPARE-AND-CORRECT COMPLETE — FARES VISUAL ACCEPTANCE NEXT.**
+Status: **WORKSTREAMS 10.1–10.8 ENGINEERING-GREEN — PRIOR IMAGE/PARITY EVIDENCE RETAINED HISTORICALLY — D-059 BROWSER-NATIVE UI/UX AUTHORITY RESET ACTIVE.**
 
 Branch: `phase-10/public-site-productionization`.
 
@@ -413,11 +413,20 @@ Exact latest-head push evidence at `ae7f2230b9255cd3d5c3272f767744534762df23`:
 
 The artifact contains current production captures and the preserved Phase 9 desktop/mobile/RTL/inspector authority boards. No KGC or real-client media was published.
 
-## Next validation boundary — Fares visual acceptance
+## Superseded visual-acceptance boundary — D-059
 
-The next checkpoint is now human acceptance, not additional autonomous engineering. Fares must explicitly accept the corrected production rendering or identify specific remaining drift. Until then, Phase 10 is not implementation-complete and the Phase 9 executable prototype is retained as evidence/reference.
+The earlier checkpoint asked Fares to accept the production rendering against static Phase 9 boards. On 2026-09-21 Fares explicitly rejected image-led UI implementation. D-059 therefore supersedes that acceptance model before client visual approval occurred.
 
-Do not retire that evidence boundary, merge PR #7/#8, publish KGC/real-client media or launch production until the required acceptance/authorization is explicit.
+The recorded parity runs remain valid historical engineering evidence, but neither the Phase 9 boards nor the current Phase 10 preview is the current design specification. The next UI/UX validation sequence is:
+
+1. repository UX/page contracts and source-controlled tokens;
+2. reusable coded component/state review surface;
+3. responsive EN/AR/RTL browser-native page compositions and coded motion behavior;
+4. explicit Fares approval of an exact Git commit as the UI authority;
+5. production reconciliation/promotion from that coded authority;
+6. exact-SHA Playwright, accessibility, responsive, RTL, performance and visual-regression evidence against the approved coded authority.
+
+Do not call Phase 10 visually accepted or implementation-complete, retire historical evidence, merge PR #7/#8, publish KGC/real-client media or launch production until the new authority/acceptance sequence and the separately gated authorizations are satisfied.
 
 
 ## Visual-acceptance review deployment
