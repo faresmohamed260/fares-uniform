@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { SiteShell } from "@/components/site-shell";
-import { direction, type Locale } from "@/lib/locale";\nimport { notFound } from "next/navigation";
+import { direction, type Locale } from "@/lib/locale";
 import "../globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,10 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }>) {
-  const rawLocale = (await params).locale;\n  if (rawLocale !== "en" && rawLocale !== "ar") notFound();\n  const locale: Locale = rawLocale;
+  const rawLocale = (await params).locale;
+  if (rawLocale !== "en" && rawLocale !== "ar") notFound();
+  const locale: Locale = rawLocale;
+
   return (
     <html lang={locale} dir={direction(locale)}>
       <body>
