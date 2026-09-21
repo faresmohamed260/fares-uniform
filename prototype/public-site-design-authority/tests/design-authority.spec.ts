@@ -18,7 +18,7 @@ test("home is populated with real review media and no storefront leakage", async
 
 test("project stage selection preserves continuity into the real garment", async ({ page }) => {
   await page.goto("/en/work/kgc/national");
-  await expect(page.getByRole("heading", { name: /KGC/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /KGC National/i })).toBeVisible();
 
   const primary = page.getByRole("tab", { name: /Primary/i });
   await primary.click();
@@ -45,8 +45,7 @@ test("garment inspector is truthful front/back photography, not fabricated explo
   await expect(back).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator('img[src*="high-summer-polo-back.png"]').first()).toBeVisible();
   await expect(page.getByText(/If we don’t have a real layer/)).toBeVisible();
-  const body = (await page.locator("body").innerText()).toLowerCase();
-  expect(body).not.toContain("explode");
+  await expect(page.getByRole("button", { name: /explode|reassemble/i })).toHaveCount(0);\n  await expect(page.locator('img[src*="exploded"]')).toHaveCount(0);
 
   await page.screenshot({ path: "artifacts/design-garment-desktop-en.png", fullPage: true });
 });
