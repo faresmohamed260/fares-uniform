@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.8 remain engineering-GREEN and D-059's repo-first UI/UX reset now has a browser-native **design-approval candidate** at exact design SHA `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb`. Hosted design run `35664989280` is GREEN and exact protected preview deployment `dpl_BXFdJMmRzYSd37AuxFeY9MECgefN` is READY in the isolated `fares-uniform-design-authority` Vercel project. Fares visual approval is the active checkpoint; production remains NO-GO. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, premium kinetic interaction and public R2 media.
+- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.8 remain engineering-GREEN. Fares explicitly **rejected** browser design candidate `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb` on 2026-09-22 as visually cheap and not representative of the referenced GPT-6 Astra / $10k site quality. D-060 now requires a clean rebuild of the design-authority surface using the pinned Scrollcraft skill/engine plus the pinned Astra 10K workflow, concrete Godly/21st.dev/Awwwards references and the current real review assets. There is currently **no approved UI design SHA**. Production remains NO-GO.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -17,7 +17,7 @@ Do not treat progress or authorization in one track as progress or authorization
 
 D-059 changes the public-site design process. The authoritative workflow is [Repo-first UI/UX workflow](docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md): UX contracts + source-controlled tokens + coded component states + browser-native review pages + explicit Fares approval of an exact Git commit. Generated concept images and screenshots are not implementation specifications. Screenshots are retained only as inspiration, historical records or regression evidence.
 
-The old Phase 10 engineering preview remains reference evidence only. The new D-059 browser-native review surface is implemented separately under `prototype/public-site-design-authority` and is now ready for Fares's visual review at exact design SHA `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb`. It uses current real review-authorized KGC media, not generated fake client/product imagery, and keeps truthful photographic inspection when separated construction media does not exist. Push run `35664989280`, job `106548611626`, is GREEN; evidence artifact `10669270272`; protected preview deployment `dpl_BXFdJMmRzYSd37AuxFeY9MECgefN` is a Vercel **preview**, with project-wide Vercel Authentication enforced and anonymous access redirected to authentication. This candidate is not UI authority until Fares explicitly approves that exact design SHA. Production launch/cutover, KGC publication and PR merges remain separately gated.
+The old Phase 10 engineering preview remains reference evidence only. D-059 candidate `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb` is also retained only as rejected design evidence: its hosted run was technically GREEN, but Fares rejected its visual quality. Do not polish or promote that layout. The active design sources are now `docs/ui/ASTRA_10K_SCROLLCRAFT_WORKFLOW.md`, `docs/ui/scrollcraft/BRIEF.md`, `REFERENCE_BOARD.md`, `PAGE_GRAMMAR_SCROLL_SCORE.md`, and `.agents/skills/fares-scrollcraft/SKILL.md`. Pinned upstream Scrollcraft commit is `0b816225945e45380397d6a0487efa3c98916858`; pinned Astra 10K workflow commit is `e05e451ecd1e371536ef3c310fa273e12b98db7a`. Production launch/cutover, KGC publication and PR merges remain separately gated.
 
 ## Historical Phase 9 visual reference
 
@@ -237,14 +237,14 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active checkpoint — Fares design review:** review exact browser-native design candidate `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb` in the protected `fares-uniform-design-authority` preview. Approval must be explicit and tied to this exact design SHA; do not infer approval from continued development.
-2. If Fares requests visual/UX changes, change only the coded design-authority surface/contracts as appropriate, rerun the hosted D-059 design gate, redeploy a protected preview and present the new exact SHA for review. Do not implement requested design changes directly in `apps/public-web`.
-3. Only after explicit approval, reconcile/promote `apps/public-web` from the approved coded authority with no screenshot-to-code reinterpretation step; then rerun interaction, accessibility, responsive, RTL, performance and visual-regression evidence on the exact implementation SHA.
-4. Retain the Phase 9 boards/prototype and old Phase 10 engineering preview as historical creative/engineering evidence. They are not current implementation specifications.
-5. Keep KGC and all real-client publication gated. Protected design-review use does not authorize public R2 publication; `media.faresuniform.uk` must not gain KGC/client derivatives without explicit publication authorization and rights/publication records.
-6. Keep PR #7 and PR #8 draft/unmerged unless Fares explicitly authorizes their disposition. Do not launch/cut over production.
-7. **Track B / ERP:** Gate D remains a separate production-operations track. Public-site progress does not close it.
-8. Production remains NO-GO. Do not create unrelated production resources, migrate real data, assign staff, or alter deferred ERP production controls through public-site work.
+1. **Track A / Scrollcraft design rebuild:** rebuild `prototype/public-site-design-authority` from the D-060 Pattern Assembly grammar using the pinned upstream Scrollcraft engine and current real review-authorized assets. Do not iterate the rejected `fd973244...` layout.
+2. Implement and verify the custom **Seam Handoff** peak plus the scored device variety, dimensional hero planes, Work/Project/Garments route grammars, EN/AR RTL, separate mobile art direction and reduced-motion parity.
+3. Run hosted browser verification at intermediate scroll states, deploy only to the isolated SSO-protected design-review project and present the new exact design SHA to Fares.
+4. Obtain Fares's explicit approval of that exact browser-native design SHA. Until then there is no UI authority and `apps/public-web` must not receive the new visual design.
+5. Only after explicit approval, reconcile/promote `apps/public-web` from the approved code without screenshot-to-code reinterpretation and rerun exact-SHA production validation.
+6. Keep KGC and all real-client publication gated. Protected design-review use does not authorize public R2 publication.
+7. Keep PR #7 and PR #8 draft/unmerged unless Fares explicitly authorizes their disposition. Do not launch/cut over production.
+8. **Track B / ERP:** Gate D remains a separate production-operations track.
 
 ## Constraints for every continuation
 
