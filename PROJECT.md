@@ -221,6 +221,14 @@ Exact latest-head full-candidate push run `35615691978`, job `106385683974`, is 
 
 This reaches the next human checkpoint: **Fares visual acceptance**. Engineering parity correction is complete; acceptance itself is intentionally not inferred.
 
+### Live visual-review preview
+
+Fares requested a browser-accessible deployment for the visual-acceptance checkpoint. A dedicated, isolated Vercel review project `fares-uniform-phase10-review` was created without changing the real `fares-uniform` project or `faresuniform.uk`.
+
+Review-deployment workflow `.github/workflows/phase10-review-preview.yml` passed at run `35624066871`, job `106413950164`. The workflow proves that `apps/public-web` is byte-for-byte unchanged from visual-review baseline `2dbd586d15d940aac7d78c09273c1ab46a3b31a0`, enables only `FU_PUBLIC_PROVIDER=fixture` for the isolated preview, and refuses a production target. Exact review deployment `dpl_38WagekDQv8ieFi9MdWDuonUtpGv` is READY at `fares-uniform-phase10-review-6k85j638v.vercel.app` from workflow commit `d8f130db4579ac1c41bae3303d38c0c983194ebe`; the deployed public-web source remains the accepted `2dbd586d...` baseline because subsequent commits only add/fix the review workflow.
+
+The review deployment uses synthetic Harbor House/catalog fixture content and publishes no KGC or other real-client media. The real `fares-uniform` Vercel project remains on its prior Phase 8 production deployment; this preview is not a public-site cutover or launch authorization.
+
 ## Next tasks, in order
 
 1. **Track A / Phase 10:** Fares reviews the latest production rendering at the rendered-parity checkpoint and either accepts it or identifies specific visual drift. Do not call Phase 10 implementation-complete before that explicit acceptance.
