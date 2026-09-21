@@ -50,7 +50,7 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 
 #### A2 — Repo-first browser-native UI/UX authority and production integration
 
-Historical Phase 10 engineering migration remains GREEN, but its screenshot-parity acceptance model was superseded by D-059 before client visual approval.
+Historical Phase 10 engineering migration remains GREEN, but its screenshot-parity acceptance model was superseded by D-059 before client visual approval. The first D-059 browser candidate (`fd973244...`) was then explicitly rejected by Fares on 2026-09-22. D-060 requires a clean Scrollcraft/Astra-workflow rebuild; there is currently no approved UI design SHA.
 
 - [x] Fares introduction/home technical surface.
 - [x] Work/client/project discovery and generic organization/program routes.
@@ -59,11 +59,12 @@ Historical Phase 10 engineering migration remains GREEN, but its screenshot-pari
 - [x] Remove prototype-only KGC branching and fixed-count assumptions.
 - [x] Drive capabilities from content, not organization identity.
 - [x] Preserve the old Phase 9 board/prototype comparison as historical evidence only.
-- [ ] Define/update UX, information-architecture and page contracts in the repo.
-- [ ] Define source-controlled design tokens and reusable component/state contracts.
-- [ ] Provide a repository-owned browser review surface (Storybook or equivalent open-source/code-first surface) for components and states.
-- [ ] Compose responsive EN/AR/RTL review pages using those components and tokens.
-- [ ] Prototype exceptional physics/morphing behavior in code, with reduced-motion behavior specified alongside it.
+- [x] Define/update UX, information-architecture and page contracts in the repo.
+- [x] Define the D-060 Scrollcraft brief, Pain/Person/Promise, concrete reference board, Pattern Assembly grammar, feeling curve, peak, signature move and scroll score.
+- [x] Pin the upstream Scrollcraft and Astra 10K workflow sources by exact commit.
+- [ ] Rebuild the browser review surface using the pinned Scrollcraft engine rather than the rejected generic Motion layout.
+- [ ] Compose responsive EN/AR/RTL review pages with separate mobile art direction.
+- [ ] Implement the Seam Handoff peak and required device variety with reduced-motion parity.
 - [ ] Obtain Fares's explicit approval of an exact Git commit as the current UI authority.
 - [ ] Reconcile/promote production UI from that coded authority without screenshot-to-code reverse engineering.
 - [ ] Prove implementation fidelity and regressions with hosted browser tests/screenshots on the exact implementation SHA.
