@@ -129,7 +129,29 @@ jobs:
           fi
           project_id="$(jq -er '.id' "$response")"
           echo "project_id=$project_id" >> "$GITHUB_OUTPUT"
-          echo "isolated_review_project=PASS id=$project_id"
+
+          protection_payload='{"ssoProtection":{"deploymentType":"all"}}'
+          protect_response="$(mktemp)"
+          protect_status="$(curl -sS -X PATCH -o "$protect_response" -w '%{http_code}' \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data "$protection_payload" \
+            "$VERCEL_API_BASE/v9/projects/$project_id?teamId=$VERCEL_TEAM_ID")"
+          [[ "$protect_status" = 200 ]] || {
+            echo "Failed to enforce Vercel Authentication: HTTP $protect_status" >&2
+            cat "$protect_response" >&2
+            exit 1
+          }
+          protected_type="$(jq -r '.ssoProtection.deploymentType // ""' "$protect_response")"
+          test "$protected_type" = "all"
+
+          existing_status="$(curl -sS -o /dev/null -w '%{http_code}' "https://$REVIEW_PROJECT.vercel.app/en")"
+          if [[ "$existing_status" = 200 ]]; then
+            echo "Refusing design review project: existing deployment is anonymously reachable." >&2
+            exit 1
+          fi
+
+          echo "isolated_review_project=PASS id=$project_id sso=$protected_type existing_unauthenticated_status=$existing_status"
 
       - name: Deploy exact staged design bundle
         if: ${{ github.event_name != 'pull_request' }}
@@ -169,10 +191,13 @@ jobs:
             sleep 5
           done
           target="$(jq -r '.deployments[0].target // ""' "$response")"
-          test "$target" != "production"
           unauth="$(curl -sS -o /dev/null -w '%{http_code}' "$DEPLOYMENT_URL/en")"
           if [[ "$unauth" = 200 ]]; then
             echo "Refusing review deployment: real review media is publicly reachable without protection." >&2
+            exit 1
+          fi
+          if [[ "$target" = "production" ]]; then
+            echo "Refusing design approval candidate: deployment target is production even though authentication is enforced." >&2
             exit 1
           fi
           echo "review_protection=PASS unauthenticated_status=$unauth target=${target:-preview}"
