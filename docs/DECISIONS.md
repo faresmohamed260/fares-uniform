@@ -525,3 +525,30 @@ This decision supersedes D-050 and D-052 only where they make approved static bo
 The four Pattern in Motion PNG boards, the Phase 9 prototype and the existing Phase 10 preview are retained as historical concept/reference or engineering evidence. The next public-site design gate is creation and explicit Fares approval of a browser-native exact Git commit under the new workflow.
 
 The browser-native design review must be **content-complete enough to judge the real experience**. It must use the project's current real assets and truthful current content wherever review rights permit, including existing garment/model/context media. Private review assets may be rendered only inside the protected design-review environment and remain private/publication-gated. Generated fake client/product imagery must not be used to fill gaps. Missing evidence is represented honestly with neutral illustrative placeholders or omitted, never fabricated. This requirement prevents approving an attractive but empty design that later collapses when real content is inserted.
+
+
+## D-060 — Use the pinned Scrollcraft + Astra 10K workflow; reject the first D-059 browser design
+
+Status: Accepted by client, 2026-09-22.
+
+Fares rejected D-059 browser design candidate `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb` after visual review because it looked cheap and did not match the premium GPT-6 Astra / “$10k website” standard previously discussed. Technical GREEN evidence for that candidate remains historical evidence only and must not be interpreted as visual acceptance.
+
+The next public-site design authority must use the actual public workflow that motivated the target quality:
+
+- Nate Herk's Scrollcraft skill/engine, pinned in the repository at upstream commit `0b816225945e45380397d6a0487efa3c98916858`;
+- the public GPT-6 Astra 10K Desktop Build and Mobile Refinement workflow, pinned as a reference at `e05e451ecd1e371536ef3c310fa273e12b98db7a`;
+- a concrete reference board using appropriate current Godly, 21st.dev and Awwwards examples;
+- Pain / Person / Promise;
+- explicit page grammar, customer journey, feeling curve, one engineered peak, one signature move, scroll score and intermediate-state visual verification;
+- independent dimensional hero planes and separate mobile art direction;
+- the upstream Scrollcraft engine as mechanism rather than a generic Motion/Next.js imitation of its ideas.
+
+For Fares, the selected custom grammar is **Pattern Assembly** and the signature move is **Seam Handoff**, documented under `docs/ui/scrollcraft/`.
+
+D-060 does not weaken D-059. The design remains browser-native/code-first and Fares still approves an exact Git SHA rather than a generated image. Current real review-authorized media must populate the preview. Generated fake client/product imagery, fake logos/testimonials/metrics and fabricated garment construction remain prohibited.
+
+The public Astra workflow includes Higgsfield generation, but Fares's current constraints explicitly reject a paid-tool dependency and fake generated client/product media. Scrollcraft's own workflow supports user-supplied real assets as a first-class route, so Higgsfield or another generation service is not required for this build. A future specific use would require new explicit client authorization.
+
+The public reference examples were built with GPT-6 Astra. A different executing model must not claim to be Astra; the project pins and follows the same workflow while visual acceptance remains entirely Fares's decision.
+
+No part of this decision authorizes `apps/public-web` visual integration, public KGC publication, PR merge, production cutover or ERP Gate D.
