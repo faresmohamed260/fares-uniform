@@ -132,7 +132,7 @@ jobs:
           payload="$(jq -cn             --arg name "$REVIEW_PROJECT"             --arg project "$REVIEW_PROJECT_ID"             --arg repo "$GITHUB_REPOSITORY"             --arg ref "$GITHUB_REF_NAME"             --arg sha "$GITHUB_SHA"             '{
               name:$name,
               project:$project,
-              gitSource:{type:"github",repo:$repo,ref:$ref,sha:$sha},
+              gitSource:{type:"github",repo:$repo,repoId:$repo_id,ref:$ref,sha:$sha},
               gitMetadata:{
                 remoteUrl:("https://github.com/"+$repo),
                 commitRef:$ref,
