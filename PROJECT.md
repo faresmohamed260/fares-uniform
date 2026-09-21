@@ -237,7 +237,7 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / UI authority reset:** follow [Repo-first UI/UX workflow](docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md). Define the public-site UX/page contracts, source-controlled tokens, reusable component/state review surface and responsive EN/AR/RTL browser compositions. Do not implement from the historical PNG boards.
+1. **Track A / UI authority reset:** follow [Repo-first UI/UX workflow](docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md). Define the public-site UX/page contracts, source-controlled tokens, reusable component/state review surface and responsive EN/AR/RTL browser compositions. Populate the protected design preview with the project's current real review-authorized assets and truthful content shapes; do not use generated fake client/product imagery and do not implement from the historical PNG boards.
 2. Deploy the browser-native design review surface without real-client publication, iterate there, and obtain Fares's explicit approval of an **exact Git commit** as the current UI authority.
 3. Reconcile/promote `apps/public-web` from that approved coded authority with no screenshot-to-code reinterpretation step; then rerun interaction, accessibility, responsive, RTL, performance and visual-regression evidence on the exact implementation SHA.
 4. Retain the Phase 9 boards/prototype and the existing Phase 10 preview as historical engineering/reference evidence until the new authority is approved. Do not treat them as current design specifications.
