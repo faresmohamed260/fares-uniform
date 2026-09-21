@@ -14,16 +14,16 @@ The public website is the customer-facing Next.js surface for:
 - client/project showcases such as KGC;
 - garment/product catalog browsing;
 - English and Arabic/RTL presentation;
-- the approved Pattern in Motion experience;
+- the premium kinetic public-site experience, designed and approved through the repo-first browser-native workflow;
 - contextual public enquiries.
 
-The production application is `apps/public-web`. The Phase 9 kinetic prototype remains visual/reference evidence until production parity is proven.
+The production application is `apps/public-web`. Under D-059, the Phase 9 kinetic prototype and PNG boards are historical creative/reference evidence only; they are not implementation specifications. Current visual authority must be an explicitly Fares-approved browser-native Git commit produced under `docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md`.
 
 Odoo provides only the narrow approved public/editorial API. The public website must not expose price, stock, private ERP records, internal operational IDs or storage/admin metadata.
 
 ### Completed foundation
 
-- [x] Phase 9 Pattern in Motion visual authority established.
+- [x] Phase 9 Pattern in Motion concept boards/prototype preserved as historical design evidence (superseded as implementation authority by D-059).
 - [x] KGC original assets audited and the authorized review subset stored privately in R2.
 - [x] Synthetic non-school fixture retained for generalization proof.
 - [x] Cloudflare R2 selected and private/public/backup buckets created.
@@ -48,20 +48,25 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 - [x] Hosted production build and EN/AR browser evidence.
 - [x] Rendered/RSC/network proof that price, stock and private fields remain absent.
 
-#### A2 — Pattern in Motion production migration
+#### A2 — Repo-first browser-native UI/UX authority and production integration
 
-- [x] Fares introduction/home experience.
-- [x] Work/client/project discovery.
-- [x] Organization/program routes.
-- [x] Cohort/role progression.
-- [x] Complete-look continuity.
-- [x] Garment detail and inspection.
-- [x] Contextual transitions and motion.
-- [x] Mobile and Arabic RTL interaction.
+Historical Phase 10 engineering migration remains GREEN, but its screenshot-parity acceptance model was superseded by D-059 before client visual approval.
+
+- [x] Fares introduction/home technical surface.
+- [x] Work/client/project discovery and generic organization/program routes.
+- [x] Cohort/role, complete-look, garment detail and inspection behavior.
+- [x] Contextual transitions, mobile and Arabic RTL behavior.
 - [x] Remove prototype-only KGC branching and fixed-count assumptions.
 - [x] Drive capabilities from content, not organization identity.
-- [x] Compare every cohesive slice against the Phase 9 visual authority.
-- [ ] Obtain Fares's explicit rendered-parity acceptance for the production candidate.
+- [x] Preserve the old Phase 9 board/prototype comparison as historical evidence only.
+- [ ] Define/update UX, information-architecture and page contracts in the repo.
+- [ ] Define source-controlled design tokens and reusable component/state contracts.
+- [ ] Provide a repository-owned browser review surface (Storybook or equivalent open-source/code-first surface) for components and states.
+- [ ] Compose responsive EN/AR/RTL review pages using those components and tokens.
+- [ ] Prototype exceptional physics/morphing behavior in code, with reduced-motion behavior specified alongside it.
+- [ ] Obtain Fares's explicit approval of an exact Git commit as the current UI authority.
+- [ ] Reconcile/promote production UI from that coded authority without screenshot-to-code reverse engineering.
+- [ ] Prove implementation fidelity and regressions with hosted browser tests/screenshots on the exact implementation SHA.
 
 #### A3 — KGC and future client publication
 
@@ -104,7 +109,7 @@ KGC review assets already exist, but **review use is not public-publication auth
 
 ### Public-site completion boundary
 
-The public website is implementation-complete only when `apps/public-web` contains the accepted Fares-led Pattern in Motion experience, generic client/project content works through V2, catalog/enquiry are production-integrated, EN/AR/accessibility/performance gates pass, public media uses the approved R2 path, no price/stock/private ERP data leaks, and exact hosted evidence is recorded.
+The public website is implementation-complete only when `apps/public-web` contains the Fares-approved browser-native UI authority produced under D-059, generic client/project content works through V2, catalog/enquiry are production-integrated, EN/AR/accessibility/performance gates pass, public media uses the approved R2 path, no price/stock/private ERP data leaks, and exact hosted evidence is recorded.
 
 Implementation-complete still does not equal production launch.
 
