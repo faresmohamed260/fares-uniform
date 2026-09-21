@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.8 remain engineering-GREEN, but D-059 resets the UI/UX authority model. The current preview is an engineering candidate, **not a design-approval candidate**. The next checkpoint is a repo-first, browser-native design cycle followed by Fares approving an exact Git commit as the UI authority; production remains NO-GO. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, premium kinetic interaction and public R2 media.
+- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.8 remain engineering-GREEN and D-059's repo-first UI/UX reset now has a browser-native **design-approval candidate** at exact design SHA `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb`. Hosted design run `35664989280` is GREEN and exact protected preview deployment `dpl_BXFdJMmRzYSd37AuxFeY9MECgefN` is READY in the isolated `fares-uniform-design-authority` Vercel project. Fares visual approval is the active checkpoint; production remains NO-GO. This track covers the Fares-led public site, KGC/future client showcases, product catalog, public enquiry, EN/AR, premium kinetic interaction and public R2 media.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -17,7 +17,7 @@ Do not treat progress or authorization in one track as progress or authorization
 
 D-059 changes the public-site design process. The authoritative workflow is [Repo-first UI/UX workflow](docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md): UX contracts + source-controlled tokens + coded component states + browser-native review pages + explicit Fares approval of an exact Git commit. Generated concept images and screenshots are not implementation specifications. Screenshots are retained only as inspiration, historical records or regression evidence.
 
-The current Phase 10 review deployment remains useful for identifying what exists, but Fares is **not** being asked to approve it as the new design. Before further broad visual production work, establish the browser-native design authority under D-059. Production launch/cutover, KGC publication and PR merges remain separately gated.
+The old Phase 10 engineering preview remains reference evidence only. The new D-059 browser-native review surface is implemented separately under `prototype/public-site-design-authority` and is now ready for Fares's visual review at exact design SHA `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb`. It uses current real review-authorized KGC media, not generated fake client/product imagery, and keeps truthful photographic inspection when separated construction media does not exist. Push run `35664989280`, job `106548611626`, is GREEN; evidence artifact `10669270272`; protected preview deployment `dpl_BXFdJMmRzYSd37AuxFeY9MECgefN` is a Vercel **preview**, with project-wide Vercel Authentication enforced and anonymous access redirected to authentication. This candidate is not UI authority until Fares explicitly approves that exact design SHA. Production launch/cutover, KGC publication and PR merges remain separately gated.
 
 ## Historical Phase 9 visual reference
 
@@ -237,11 +237,11 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / UI authority reset:** follow [Repo-first UI/UX workflow](docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md). Define the public-site UX/page contracts, source-controlled tokens, reusable component/state review surface and responsive EN/AR/RTL browser compositions. Populate the protected design preview with the project's current real review-authorized assets and truthful content shapes; do not use generated fake client/product imagery and do not implement from the historical PNG boards.
-2. Deploy the browser-native design review surface without real-client publication, iterate there, and obtain Fares's explicit approval of an **exact Git commit** as the current UI authority.
-3. Reconcile/promote `apps/public-web` from that approved coded authority with no screenshot-to-code reinterpretation step; then rerun interaction, accessibility, responsive, RTL, performance and visual-regression evidence on the exact implementation SHA.
-4. Retain the Phase 9 boards/prototype and the existing Phase 10 preview as historical engineering/reference evidence until the new authority is approved. Do not treat them as current design specifications.
-5. Keep KGC and all real-client publication gated. `media.faresuniform.uk` currently serves only the deterministic synthetic publication object; do not promote KGC/client derivatives without explicit publication authorization and rights/publication records.
+1. **Track A / active checkpoint — Fares design review:** review exact browser-native design candidate `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb` in the protected `fares-uniform-design-authority` preview. Approval must be explicit and tied to this exact design SHA; do not infer approval from continued development.
+2. If Fares requests visual/UX changes, change only the coded design-authority surface/contracts as appropriate, rerun the hosted D-059 design gate, redeploy a protected preview and present the new exact SHA for review. Do not implement requested design changes directly in `apps/public-web`.
+3. Only after explicit approval, reconcile/promote `apps/public-web` from the approved coded authority with no screenshot-to-code reinterpretation step; then rerun interaction, accessibility, responsive, RTL, performance and visual-regression evidence on the exact implementation SHA.
+4. Retain the Phase 9 boards/prototype and old Phase 10 engineering preview as historical creative/engineering evidence. They are not current implementation specifications.
+5. Keep KGC and all real-client publication gated. Protected design-review use does not authorize public R2 publication; `media.faresuniform.uk` must not gain KGC/client derivatives without explicit publication authorization and rights/publication records.
 6. Keep PR #7 and PR #8 draft/unmerged unless Fares explicitly authorizes their disposition. Do not launch/cut over production.
 7. **Track B / ERP:** Gate D remains a separate production-operations track. Public-site progress does not close it.
 8. Production remains NO-GO. Do not create unrelated production resources, migrate real data, assign staff, or alter deferred ERP production controls through public-site work.
