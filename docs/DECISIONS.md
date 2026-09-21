@@ -509,3 +509,17 @@ Phase 10 Workstream 10.7 establishes `media.faresuniform.uk` as the stable brows
 The provider contract intentionally preserved RED at commit `164beaad01d2c30bbbcc232ddf940e7614cace93`, run/job `35549546604` / `106181611340`, where the custom domain was absent. Final authority is `c41a5afcfcf2801a230ce46aa1b1c8d06134fddc`, run/job `35549656743` / `106181910393`. The hosted proof verified that the public bucket contained only the deterministic Phase 10 synthetic object, attached the domain, waited for active ownership/SSL, fetched the exact expected SHA-256 through the browser origin, retained `Cache-Control: public, max-age=31536000, immutable`, observed Cloudflare cache `HIT` or `REVALIDATED`, reconfirmed the private bucket has no browser delivery, and revoked the temporary public-read token. Artifact `10617767603` has digest `sha256:b0c7f20c7618155dea0798c7f2c943e92837772196449456db9fd39b5529978a`.
 
 This decision establishes delivery infrastructure only. It does **not** authorize KGC or other real-client media publication, change rights rules, make the public bucket a source-of-truth database, authorize production cutover, merge PR #7/#8, or affect ERP Gate D.
+
+
+## D-059 — Public UI/UX authority is repo-first and browser-native
+Status: Accepted by client, 2026-09-21.
+
+Fares explicitly rejected image-led UI implementation and does not want the public site designed by approving generated/static images and then reverse-engineering those pixels into code. The project also must not depend on Figma or another paid design SaaS.
+
+For all future public-site UI/UX work, the authoritative process is `docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md`: UX/page contracts live in GitHub; visual decisions are source-controlled design tokens and reusable component/state contracts; components and page compositions are designed and reviewed in the browser using repository-owned code; EN/AR/RTL and exceptional motion/physics are designed in code; Fares explicitly approves an exact Git commit as the current UI authority before broad production implementation; production reuses/promotes that coded authority instead of interpreting screenshots; and Playwright/screenshots are regression evidence, not the design specification.
+
+Generated imagery, concept boards and screenshots may inform mood, creative exploration, photography/art direction or historical context, but never become a pixel contract for UI implementation. Optional self-hosted/open-source visual tools may be used when useful, but no paid or external design SaaS is required and no such tool outranks the repository authority.
+
+This decision supersedes D-050 and D-052 only where they make approved static boards/images the implementation or visual-authority contract. D-048's organization-agnostic requirement, D-053's truthful-media requirement, accessibility/RTL requirements, security/publication controls and the premium kinetic product goal remain in force.
+
+The four Pattern in Motion PNG boards, the Phase 9 prototype and the existing Phase 10 preview are retained as historical concept/reference or engineering evidence. The next public-site design gate is creation and explicit Fares approval of a browser-native exact Git commit under the new workflow.
