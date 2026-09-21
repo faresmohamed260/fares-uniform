@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { odooPrivateFetch, odooPrivateUrl } from "./odoo-private";
 import type { PublicLocale } from "./locale";
 
@@ -189,7 +190,12 @@ function providerIsFixture() {
   return process.env.FU_PUBLIC_PROVIDER === "fixture";
 }
 
-async function fetchV2(path: string, locale: PublicLocale) {
+function publicCacheSeconds() {
+  const parsed = Number.parseInt(process.env.PUBLIC_CACHE_REVALIDATE_SECONDS ?? "300", 10);
+  return Number.isFinite(parsed) && parsed >= 1 ? Math.min(parsed, 86400) : 300;
+}
+
+async function fetchV2Uncached(path: string, locale: PublicLocale) {
   const url = odooPrivateUrl(path);
   url.searchParams.set("lang", locale);
   const response = await odooPrivateFetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
@@ -199,6 +205,12 @@ async function fetchV2(path: string, locale: PublicLocale) {
   }
   return response.json() as Promise<unknown>;
 }
+
+const fetchV2 = unstable_cache(
+  fetchV2Uncached,
+  ["fares-public-v2"],
+  { revalidate: publicCacheSeconds(), tags: ["fares-public-v2"] },
+);
 
 export async function getV2Home(locale: PublicLocale): Promise<V2HomeResponse> {
   if (providerIsFixture()) return parseHome({ featured_work: [fixtureWork(locale)] });

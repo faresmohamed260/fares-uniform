@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { odooPrivateFetch, odooPrivateUrl } from "./odoo-private";
 
 export type PublicLanguage = "en" | "ar";
@@ -47,7 +48,12 @@ function providerIsFixture() {
   return process.env.FU_PUBLIC_PROVIDER === "fixture";
 }
 
-async function fetchJson(path: string, language: PublicLanguage) {
+function publicCacheSeconds() {
+  const parsed = Number.parseInt(process.env.PUBLIC_CACHE_REVALIDATE_SECONDS ?? "300", 10);
+  return Number.isFinite(parsed) && parsed >= 1 ? Math.min(parsed, 86400) : 300;
+}
+
+async function fetchJsonUncached(path: string, language: PublicLanguage) {
   const url = odooPrivateUrl(path);
   url.searchParams.set("lang", language);
   const response = await odooPrivateFetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
@@ -57,6 +63,12 @@ async function fetchJson(path: string, language: PublicLanguage) {
   }
   return response.json() as Promise<unknown>;
 }
+
+const fetchJson = unstable_cache(
+  fetchJsonUncached,
+  ["fares-public-catalog-v1"],
+  { revalidate: publicCacheSeconds(), tags: ["fares-public-catalog-v1"] },
+);
 
 export async function getCatalog(language: PublicLanguage): Promise<PublicCatalogItem[]> {
   if (providerIsFixture()) return fixtures[language].map(assertCatalogItem);

@@ -13,30 +13,6 @@ test.beforeEach(async ({ request }) => {
   expect(response.status()).toBe(200);
 });
 
-test("robots and sitemap expose only canonical public routes", async ({ request }) => {
-  const robots = await request.get("/robots.txt");
-  expect(robots.status()).toBe(200);
-  const robotsText = await robots.text();
-  expect(robotsText).toContain("User-Agent: *");
-  expect(robotsText).toContain("Allow: /");
-  expect(robotsText).toContain("Sitemap: https://faresuniform.uk/sitemap.xml");
-
-  const sitemap = await request.get("/sitemap.xml");
-  expect(sitemap.status()).toBe(200);
-  const xml = await sitemap.text();
-  for (const url of [
-    "https://faresuniform.uk/en",
-    "https://faresuniform.uk/ar",
-    "https://faresuniform.uk/en/work",
-    "https://faresuniform.uk/ar/work",
-    "https://faresuniform.uk/en/work/harbor-house/service-program",
-    "https://faresuniform.uk/ar/work/harbor-house/service-program",
-    "https://faresuniform.uk/en/catalog/school-polo",
-    "https://faresuniform.uk/ar/catalog/school-polo",
-  ]) expect(xml).toContain(url);
-  expect(xml).not.toMatch(/price|stock|inventory|private_object_key|content_hash/i);
-});
-
 test("published content is reused from cache and survives a transient upstream failure", async ({ request }) => {
   const first = await request.get("/en");
   expect(first.status()).toBe(200);
@@ -60,6 +36,31 @@ test("published content is reused from cache and survives a transient upstream f
   const afterFailure = await fixture(request);
   expect(afterFailure.counts["fu/public/v2/home:en"]).toBeGreaterThan(1);
   expect(afterFailure.counts["fu/public/catalog:en"]).toBeGreaterThan(1);
+});
+
+
+test("robots and sitemap expose only canonical public routes", async ({ request }) => {
+  const robots = await request.get("/robots.txt");
+  expect(robots.status()).toBe(200);
+  const robotsText = await robots.text();
+  expect(robotsText).toContain("User-Agent: *");
+  expect(robotsText).toContain("Allow: /");
+  expect(robotsText).toContain("Sitemap: https://faresuniform.uk/sitemap.xml");
+
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.status()).toBe(200);
+  const xml = await sitemap.text();
+  for (const url of [
+    "https://faresuniform.uk/en",
+    "https://faresuniform.uk/ar",
+    "https://faresuniform.uk/en/work",
+    "https://faresuniform.uk/ar/work",
+    "https://faresuniform.uk/en/work/harbor-house/service-program",
+    "https://faresuniform.uk/ar/work/harbor-house/service-program",
+    "https://faresuniform.uk/en/catalog/school-polo",
+    "https://faresuniform.uk/ar/catalog/school-polo",
+  ]) expect(xml).toContain(url);
+  expect(xml).not.toMatch(/price|stock|inventory|private_object_key|content_hash/i);
 });
 
 test("route metadata remains canonical in both locales", async ({ page }) => {
