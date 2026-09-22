@@ -166,6 +166,10 @@ Target: 1024 × 172.
 - no implication that the generated building is the actual Fares facility;
 - no fake address, certification, employee count or manufacturing claim;
 - optional generic `FARES` brand sign only if the asset is explicitly marked illustrative in review metadata.
+- current generated review candidate: `prototype/public-site-design-authority/public/generated/home-cta-building.svg`;
+- SHA-256: `713ed1683503c1e6e152f8325e9e9a45c006b50583d87a65d827ec7c937c4b7c`;
+- source: independently vector-generated generic low-rise business/industrial architecture at the exact 1024×172 slot ratio;
+- status: D-062 fidelity/treatment gate pending.
 
 ## Generation acceptance
 

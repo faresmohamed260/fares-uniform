@@ -21,7 +21,7 @@ The first fidelity implementation may crop the committed reference image as a te
 | home.work.kgc | project proof placeholder | 324,1097,173,149 | **protected review replacement:** real staged KGC campus media selected by hosted fidelity sweep; public use still requires explicit publication authorization |
 | home.work.hospitality | illustrative project tile | 506,1097,169,149 | **protected-review placeholder:** reuses generic generated Hospitality media `public/generated/home-industries-hospitality.webp` (SHA-256 `c96db206981ceb504f2ae5aeee8223829a5536574459dd38cfda41fc90144cef`); no venue/client identity; D-062 GREEN at `161c14eb...` / run `35790791853` |
 | home.work.healthcare | illustrative project tile | 682,1097,169,149 | **protected-review placeholder:** reuses generic generated Healthcare media `public/generated/home-industries-healthcare.webp` (SHA-256 `5dbe74ffbd8ce363a4e0acaaed170690b43e1a87d60bd7206c4eec4e21a1a6ee`); no facility/client identity; tuned to 75% crop + brightness(.80)/saturate(.40); D-062 GREEN at `5b89a6c...` / run `35792530022` |
-| home.cta.building | illustrative brand environment | 0,1263,1024,172 | real Fares exterior when available, otherwise clearly illustrative brand architecture |
+| home.cta.building | illustrative brand environment | 0,1263,1024,172 | **generated review candidate:** `public/generated/home-cta-building.svg`, SHA-256 `713ed1683503c1e6e152f8325e9e9a45c006b50583d87a65d827ec7c937c4b7c`; generic architecture only, no factual Fares facility claim; D-062 fidelity/treatment gate pending |
 
 ## Rules
 
