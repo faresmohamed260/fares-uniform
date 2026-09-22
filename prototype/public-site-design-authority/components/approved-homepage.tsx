@@ -156,7 +156,7 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
   ? <img data-media-slot={c.slot} className="approved-work-image approved-work-real" src="/review-media/kgc/kgc-building.webp" alt={ar?"حرم KGC في بيئة المراجعة المحمية":"KGC campus in the protected review environment"}/>
   : c.slot==="home.work.hospitality"
     ? <img data-media-slot={c.slot} className="approved-work-image approved-work-generated" src="/generated/home-industries-hospitality.webp" alt={ar?"مشهد ضيافة توضيحي عام":"Generic illustrative hospitality scene"}/>
-    : <img data-media-slot={c.slot} className="approved-work-image approved-work-generated" src="/generated/home-industries-healthcare.webp" alt={ar?"مشهد رعاية صحية توضيحي عام":"Generic illustrative healthcare scene"}/><div className="approved-work-meta"><strong>{ar?c.ar:c.en}</strong><span>{ar?c.subAr:c.sub}</span><i>↗</i></div></a>)}
+    : <img data-media-slot={c.slot} className="approved-work-image approved-work-generated" src="/generated/home-industries-healthcare.webp" alt={ar?"مشهد رعاية صحية توضيحي عام":"Generic illustrative healthcare scene"}/>}<div className="approved-work-meta"><strong>{ar?c.ar:c.en}</strong><span>{ar?c.subAr:c.sub}</span><i>↗</i></div></a>)}
    <a className="approved-work-cta" data-component-id="H04.06" href={`/${locale}/work`}><p>{ar?"لنصنع شيئاً رائعاً معاً.":"Let's build something great together."}</p><span>{ar?"عرض كل الأعمال":"View All Work"} ↗</span></a>
   </div>
  </section>;
