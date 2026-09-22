@@ -243,6 +243,60 @@ test("D-062 chooses the closest crop for the real KGC campus card",async({page})
   expect(results).toHaveLength(9);
 });
 
+test("D-062 sweeps healthcare placeholder treatment against the approved work region",async({page})=>{
+  await page.setViewportSize({width:1024,height:1536});
+  await page.goto("/en");
+  await page.evaluate(()=>document.fonts.ready);
+
+  const positions=["25% 20%","50% 20%","75% 20%","25% 50%","50% 50%","75% 50%","25% 80%","50% 80%","75% 80%"];
+  const filters=[
+    "none",
+    "brightness(.94) saturate(.82)",
+    "brightness(1.04) saturate(.82)",
+    "contrast(.9) brightness(1.02) saturate(.75)"
+  ];
+  const results:{position:string;filter:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
+  const img=page.locator('img[data-media-slot="home.work.healthcare"]');
+
+  for(const position of positions) for(const filter of filters){
+    await img.evaluate((node,args)=>{
+      const el=node as HTMLImageElement;
+      el.style.objectPosition=args.position;
+      el.style.filter=args.filter;
+    },{position,filter});
+
+    const screenshot=await page.screenshot({fullPage:true});
+    const screenshotBase64=screenshot.toString("base64");
+    const metric=await page.evaluate(async({screenshotBase64})=>{
+      const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{
+        const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;
+      });
+      const [actual,reference]=await Promise.all([
+        load(`data:image/png;base64,${screenshotBase64}`),
+        load("/authority/approved-homepage-reference.webp")
+      ]);
+      const width=512,height=768,canvas=document.createElement("canvas");
+      canvas.width=width;canvas.height=height;
+      const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
+      ctx.drawImage(actual,0,0,width,height);const a=ctx.getImageData(0,0,width,height).data;
+      ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const b=ctx.getImageData(0,0,width,height).data;
+      const y0=543,y1=632;let abs=0,over48=0,pixels=0;
+      for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){
+        const i=(y*width+x)*4;
+        const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
+        abs+=d;pixels++;if(d>48)over48++;
+      }
+      return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
+    },{screenshotBase64});
+    results.push({position,filter,...metric});
+  }
+
+  results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);
+  console.log("D062_HEALTHCARE_TREATMENT_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-healthcare-treatment-sweep.json",JSON.stringify(results,null,2));
+  expect(results).toHaveLength(positions.length*filters.length);
+});
+
 test("D-062 desktop interactions remain functional",async({page})=>{
   await page.setViewportSize({width:1024,height:768});
   await page.goto("/en");
