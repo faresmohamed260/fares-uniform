@@ -137,7 +137,10 @@ Use the current protected review crop/authorized real media until explicit publi
 Target: 169 × 149.
 - illustrative restaurant/hospitality team fragment;
 - clearly generic;
-- no real venue identity.
+- no real venue identity;
+- current protected-review placeholder: reuses `prototype/public-site-design-authority/public/generated/home-industries-hospitality.webp` so no additional fake client scene is introduced;
+- source SHA-256: `c96db206981ceb504f2ae5aeee8223829a5536574459dd38cfda41fc90144cef`;
+- status: D-062 fidelity gate pending.
 
 ### `home.work.healthcare`
 Target: 169 × 149.

@@ -154,7 +154,9 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
   <div className="approved-selected-title"><span className="approved-eyebrow" data-component-id="H04.01">{ar?"أعمال مختارة":"SELECTED WORK"}</span><h2 data-component-id="H04.02">{ar?"شراكات حقيقية.\nنتائج حقيقية.":"Real Partnerships.\nReal Results."}</h2></div>
   <div className="approved-work-cards">{workCards.map((c,i)=><a className="approved-work-card" key={c.slot} href={`/${locale}${c.href}`} data-component-id={`H04.0${i+3}`}>{c.slot==="home.work.kgc"
   ? <img data-media-slot={c.slot} className="approved-work-image approved-work-real" src="/review-media/kgc/kgc-building.webp" alt={ar?"حرم KGC في بيئة المراجعة المحمية":"KGC campus in the protected review environment"}/>
-  : <ReferenceCrop slot={c.slot} crop={c.crop} className="approved-work-image"/>}<div className="approved-work-meta"><strong>{ar?c.ar:c.en}</strong><span>{ar?c.subAr:c.sub}</span><i>↗</i></div></a>)}
+  : c.slot==="home.work.hospitality"
+    ? <img data-media-slot={c.slot} className="approved-work-image approved-work-generated" src="/generated/home-industries-hospitality.webp" alt={ar?"مشهد ضيافة توضيحي عام":"Generic illustrative hospitality scene"}/>
+    : <ReferenceCrop slot={c.slot} crop={c.crop} className="approved-work-image"/>}<div className="approved-work-meta"><strong>{ar?c.ar:c.en}</strong><span>{ar?c.subAr:c.sub}</span><i>↗</i></div></a>)}
    <a className="approved-work-cta" data-component-id="H04.06" href={`/${locale}/work`}><p>{ar?"لنصنع شيئاً رائعاً معاً.":"Let's build something great together."}</p><span>{ar?"عرض كل الأعمال":"View All Work"} ↗</span></a>
   </div>
  </section>;
