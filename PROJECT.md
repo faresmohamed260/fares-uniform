@@ -8,16 +8,16 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. The two prior whole-site/browser design candidates remain explicitly rejected. D-061 now has a new **homepage-only** browser candidate at exact SHA `bfdb85d53a76b3f81b521631e39265fea3fb72e1`. Hosted run/job `35703706591` / `106667476593` is GREEN with 10/10 D-061 browser checks and artifact `10683806207`; protected preview deployment `dpl_GbyJyTKhpDYqPZwqBGjC7wjfsMt1` is READY and non-production. Fares visual approval of this exact homepage SHA is the active checkpoint. There is still no approved whole-site visual SHA and production remains NO-GO.
+- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. Fares rejected the prior browser homepage candidate and on 2026-09-22 explicitly **approved a new generated homepage board** as the exact visual authority under D-062. The active task is a one-to-one semantic component implementation/carbon copy of that approved 1024×1536 board, with temporary sprite/generated non-product media replaced slot-for-slot by real Odoo/R2 assets later. Production remains NO-GO.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
 
 ## Active UI/UX authority rule
 
-D-059 changes the public-site design process. The authoritative workflow is [Repo-first UI/UX workflow](docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md): UX contracts + source-controlled tokens + coded component states + browser-native review pages + explicit Fares approval of an exact Git commit. Generated concept images and screenshots are not implementation specifications. Screenshots are retained only as inspiration, historical records or regression evidence.
+D-059 remains the general public-site design workflow, but D-062 is an explicit homepage exception: Fares approved the committed homepage image itself as the exact visual implementation authority. For the homepage, use [Approved homepage component map](docs/ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md) and the committed authority asset, implement every mapped component one-to-one, and use screenshot-difference evidence to converge on a carbon copy.
 
-The old Phase 10 engineering preview and both D-059/D-060 browser candidates are historical/rejected evidence only. Do not polish or promote their layouts. D-061 keeps the repo-first/code-first workflow and supersedes one-grammar whole-site approval with page-by-page authority. The active homepage candidate is `bfdb85d53a76b3f81b521631e39265fea3fb72e1`: organization-neutral graphic hero, six-sector morphing universe, global identity/role/function/garment/manufacturing system, KGC only as later Selected Work, a broad garment universe, manufacturing/craft chapters and final master-brand enquiry. Generated assets under `prototype/public-site-design-authority/public/design-media/` are decorative/non-product media only. This exact homepage candidate is not authority until Fares explicitly approves it. Deeper page designs, production launch/cutover, KGC public publication and PR merges remain separately gated.
+The previous browser homepage candidate `bfdb85d53a76b3f81b521631e39265fea3fb72e1` is now rejected historical evidence. D-062 replaces it with the approved bright modern corporate board and exact component map. The approved page is commercial and content-rich rather than sparse/luxury: navy/white/electric-blue, multi-profession hero, six industry cards, dual capability/process feature band, selected work, building CTA and full footer. Temporary non-product media may be derived from the authority image or generated, but real product/client evidence remains truth-grounded.
 
 ## Historical Phase 9 visual reference
 
@@ -237,14 +237,14 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active checkpoint — Fares homepage visual review:** review exact homepage design candidate `bfdb85d53a76b3f81b521631e39265fea3fb72e1` in the isolated protected Vercel design-authority preview.
-2. Do not infer approval from continued work. If Fares requests homepage changes, modify only the homepage design-authority surface, rerun the D-061 hosted gate and present a new exact homepage SHA.
-3. If Fares explicitly approves this homepage SHA, record that approval as the reusable master-brand shell and then create the **Schools sector page design brief/candidate**.
-4. The later KGC case-study design must implement the requested **whole worn outfit -> exploded individual real uniform pieces** interaction from the real available garment assets.
-5. Do not promote the D-061 homepage into `apps/public-web` until homepage approval is explicit and the integration step is separately executed/verified.
-6. Keep KGC and other real-client public publication gated; protected design-review use remains separate.
-7. Keep PR #7 and PR #8 draft/unmerged unless Fares explicitly authorizes their disposition. Production remains NO-GO.
-8. **Track B / ERP:** Gate D remains a separate production-operations track.
+1. **Track A / active — carbon-copy homepage implementation:** commit/reconstruct the D-062 approved reference asset and implement every component in `docs/ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md` on the isolated design-authority surface.
+2. Use the approved reference as the temporary sprite/media source where required, with slot keys from `docs/ui/homepage/APPROVED_HOME_MEDIA_MANIFEST.md`. Replace slots later one-for-one with generated non-product media or real authorized database assets without changing geometry.
+3. Add hosted screenshot-difference and component-bounding-box validation at the 1024px reference width; iterate until section boundaries, cards, header/hero controls, colors and media placement meet the documented tolerance.
+4. Preserve responsive/mobile, EN/AR RTL, reduced motion, keyboard/focus and no-price/no-stock requirements while keeping desktop composition faithful.
+5. Do not start the Schools/KGC/Garments page design implementation until the homepage carbon-copy checkpoint is verified.
+6. The future KGC case-study explode-view must be whole worn outfit -> separated **real** garment pieces from the uniform asset set.
+7. Keep public KGC/client publication, PR merges and production cutover separately gated. Production remains NO-GO.
+8. **Track B / ERP:** Gate D remains independent.
 
 ## Constraints for every continuation
 
