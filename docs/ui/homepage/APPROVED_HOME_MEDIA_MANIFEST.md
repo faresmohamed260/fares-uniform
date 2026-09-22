@@ -12,7 +12,7 @@ The first fidelity implementation may crop the committed reference image as a te
 | home.hero.quality-thumb | decorative detail | 760,352,60,67 | **replaced in review:** code-generated navy textile macro; real material macro may supersede later |
 | home.industries.education | illustrative sector media | 10,579,158,137 | **generated review asset:** `public/generated/home-industries-education.webp`, SHA-256 `6d087847c89da991d73b83d2a925c95714ba6a64d7fe6e021aa9fb09fa9b00d2`; generic education media only, no client identity |
 | home.industries.hospitality | illustrative sector media | 179,579,159,137 | **generated review asset:** `public/generated/home-industries-hospitality.webp`, SHA-256 `c96db206981ceb504f2ae5aeee8223829a5536574459dd38cfda41fc90144cef`; generic hospitality/chef media only, no venue/client identity |
-| home.industries.healthcare | illustrative sector media | 348,579,159,137 | generated healthcare atmosphere/person |
+| home.industries.healthcare | illustrative sector media | 348,579,159,137 | **generated review asset:** `public/generated/home-industries-healthcare.webp`, SHA-256 `5dbe74ffbd8ce363a4e0acaaed170690b43e1a87d60bd7206c4eec4e21a1a6ee`; generic healthcare media only, no facility/client identity |
 | home.industries.corporate | illustrative sector media | 518,579,159,137 | generated corporate atmosphere/person |
 | home.industries.industrial | illustrative sector media | 687,579,159,137 | generated industrial/workwear atmosphere/person |
 | home.industries.security | illustrative sector media | 856,579,158,137 | generated security atmosphere/person |
