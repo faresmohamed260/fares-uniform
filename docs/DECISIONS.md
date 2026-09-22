@@ -552,3 +552,28 @@ The public Astra workflow includes Higgsfield generation, but Fares's current co
 The public reference examples were built with GPT-6 Astra. A different executing model must not claim to be Astra; the project pins and follows the same workflow while visual acceptance remains entirely Fares's decision.
 
 No part of this decision authorizes `apps/public-web` visual integration, public KGC publication, PR merge, production cutover or ERP Gate D.
+
+
+## D-061 — Design the public site page-by-page; homepage is the Fares master brand
+
+Status: Accepted by client, 2026-09-22.
+
+Fares rejected D-060 browser candidate `9ca2215bdbdd4455cd00ca94769119605af97952` despite its hosted technical GREEN. The problem was visual/product positioning: the site still felt like a KGC/school design rather than the public site of a multi-sector uniform business.
+
+The public-site visual authority therefore moves from one whole-site grammar/candidate to **page-by-page design and approval**.
+
+The first page is the homepage. Its authoritative contract is `docs/ui/homepage/HOMEPAGE_DESIGN_BRIEF.md`.
+
+The homepage is the master-brand entrance for Fares Uniform and must represent the broad uniform business: education, hospitality, restaurants/cafés, healthcare, corporate and other confirmed workwear sectors. KGC may appear later as real Selected Work, but KGC identity, campus imagery, student media or school-specific visual language must not define the global hero or global brand system.
+
+The existing Scrollcraft/Astra 10K research remains available as a **tool and interaction source**, not as a requirement to reuse the rejected Pattern Assembly visual theme or one grammar across all pages. Each page may choose the interaction grammar that best serves its purpose while reusing only the homepage-approved global shell.
+
+Fares explicitly allows generated **non-product** media for design: graphic backgrounds, abstract textile/fiber fields, architectural abstractions, morphing shapes, motion assets, pattern/thread graphics, decorative 2D/3D objects and other atmospheric design elements. Such media must remain clearly decorative/design media and must not be presented as real clients, real Fares products, real customer staff or evidence of undocumented manufacturing capability.
+
+Real uniform/product imagery remains truth-grounded. Generated fake garments must not replace actual product media.
+
+Explode-view is retained as a desired interaction, but its correct form for a client/program page is **complete outfit worn by a model -> transition/morph -> the actual separate products that make up that outfit** (for example shirt, skirt/trousers, jacket/blazer, tie and other real components). The exploded pieces must use the real individual garment assets available for that uniform. It is not primarily a fabricated internal construction-layer visualization.
+
+Approval of one page does not authorize or visually approve another page. Planned order: Homepage -> Schools sector -> KGC case study/program -> Garments/collections -> About/process -> Enquiry/contact -> remaining sector pages.
+
+No part of D-061 authorizes public KGC publication, production cutover, PR merge or ERP Gate D.
