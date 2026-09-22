@@ -167,8 +167,8 @@ Target: 1024 × 172.
 - no fake address, certification, employee count or manufacturing claim;
 - optional generic `FARES` brand sign only if the asset is explicitly marked illustrative in review metadata.
 - current generated review candidate: `prototype/public-site-design-authority/public/generated/home-cta-building.svg`;
-- SHA-256: `713ed1683503c1e6e152f8325e9e9a45c006b50583d87a65d827ec7c937c4b7c`;
-- source: independently vector-generated generic low-rise business/industrial architecture at the exact 1024×172 slot ratio;
+- SHA-256: `82dc064586721ef08f08c7c9507761e99cee0b5df570f15795d2998a74103f1f`;
+- source: independently vector-generated generic low-rise business/industrial architecture at the exact 1024×172 slot ratio, rebuilt from the hosted H05 coarse color-field probe so tonal distribution matches the approved authority without copying its underlying artwork;
 - status: D-062 fidelity/treatment gate pending.
 
 ## Generation acceptance
