@@ -39,7 +39,7 @@ jobs:
           description="$(file "$TARGET")"
           echo "$description"
           grep -Eq 'Web/P image|WebP' <<<"$description"
-          grep -Eq '1024x1536|1024 x 1536' <<<"$description"
+          grep -Eq '512x768|512 x 768' <<<"$description"
           echo "approved_homepage_reference_sha256=$actual"
 
       - name: Commit binary authority and remove transport chunks
