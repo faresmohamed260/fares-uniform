@@ -2,8 +2,8 @@
 
 import {
   BriefcaseBusiness, Check, ChevronDown, ChevronLeft, ChevronRight, CirclePlus,
-  Facebook, Globe2, GraduationCap, HardHat, Instagram, Layers3, Linkedin,
-  Menu, Play, Ruler, Search, ShieldCheck, Sparkles, Utensils, X, Youtube
+  Globe2, GraduationCap, HardHat, Layers3,
+  Menu, Play, Ruler, Search, ShieldCheck, Sparkles, Utensils, X
 } from "lucide-react";
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -161,7 +161,7 @@ export function ApprovedHomepageFooter({locale}:{locale:Locale}){
  return <footer className="approved-home-footer" data-section-id="H06" data-testid="approved-h06">
   <a className="approved-footer-brand" data-component-id="H06.01" href={`/${locale}`}><BrandLockup/></a>
   <nav data-component-id="H06.02" aria-label={ar?"روابط التذييل":"Footer navigation"}>{navLinks.map(([en,arabic,raw])=><a key={en} href={href(raw)}>{ar?arabic:en}</a>)}</nav>
-  <div className="approved-socials" data-component-id="H06.03"><button aria-label="Instagram" disabled><Instagram/></button><button aria-label="LinkedIn" disabled><Linkedin/></button><button aria-label="Facebook" disabled><Facebook/></button><button aria-label="YouTube" disabled><Youtube/></button></div>
+  <div className="approved-socials" data-component-id="H06.03"><button aria-label="Instagram" disabled><span>IG</span></button><button aria-label="LinkedIn" disabled><span>in</span></button><button aria-label="Facebook" disabled><span>f</span></button><button aria-label="YouTube" disabled><span>▶</span></button></div>
   <a className="approved-footer-locale" data-component-id="H06.04" href={ar?"/en":"/ar"}><Globe2/><span>{ar?"AR":"EN"}</span><ChevronDown/></a>
   <hr data-component-id="H06.05"/><small data-component-id="H06.06">© 2026 Fares Uniform. {ar?"جميع الحقوق محفوظة.":"All rights reserved."}</small><p data-component-id="H06.07">{ar?"زي موحّد لغدٍ أكثر إشراقاً.":"Uniforms for a brighter tomorrow."}</p>
  </footer>;
