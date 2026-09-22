@@ -71,7 +71,10 @@ All six are 158–159 × 137 reference slots. Framing must survive a wide, compa
 ### Healthcare
 - healthcare worker in modern clinic/hospital environment;
 - blue/white palette;
-- generic scrubs/medical uniform, no hospital branding.
+- generic scrubs/medical uniform, no hospital branding;
+- current generated review asset: `prototype/public-site-design-authority/public/generated/home-industries-healthcare.webp`;
+- SHA-256: `5dbe74ffbd8ce363a4e0acaaed170690b43e1a87d60bd7206c4eec4e21a1a6ee`;
+- status: pending D-062 fidelity gate.
 
 ### Corporate
 - modern office/front-desk/team environment;
