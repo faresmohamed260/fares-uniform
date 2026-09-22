@@ -123,6 +123,7 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
     "home.feature.fabric-blue","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
     "home.cta.building"
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
+  await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-group.webp");
   await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
   await expect(page.locator('[data-media-slot="home.hero.quality-thumb"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
   await expect(page.locator('[data-media-slot="home.feature.fabric-blue"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);

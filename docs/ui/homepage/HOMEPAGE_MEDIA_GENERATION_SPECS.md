@@ -21,6 +21,12 @@ Every generated asset must:
 ### `home.hero.people-group`
 Target frame: 689 × 399.
 
+Current generated review asset:
+- path: `prototype/public-site-design-authority/public/generated/home-hero-people-group.webp`;
+- SHA-256: `3921291dac7db38c6c8834f5e3413aee2df93393157059b48011ba09407761ed`;
+- source: generated non-product design media, then cropped exactly from the generated 1024×1536 composition at the approved slot coordinates;
+- status: pending D-062 fidelity gate.
+
 Composition:
 - five diverse adult/young-adult people grouped shoulder-to-knee;
 - school/education representative, healthcare professional, chef/hospitality worker, corporate/front-of-house worker, industrial/logistics worker;

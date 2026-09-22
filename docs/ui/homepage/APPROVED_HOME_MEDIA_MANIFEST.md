@@ -8,7 +8,7 @@ The first fidelity implementation may crop the committed reference image as a te
 
 | Slot key | Type | Reference crop (x,y,w,h) | Replacement target |
 |---|---|---:|---|
-| home.hero.people-group | illustrative people composition | 335,55,689,399 | generated sector-neutral group composition |
+| home.hero.people-group | illustrative people composition | 335,55,689,399 | **generated review asset committed:** `public/generated/home-hero-people-group.webp`, SHA-256 `3921291dac7db38c6c8834f5e3413aee2df93393157059b48011ba09407761ed`; generic illustrative media only, not Fares client/product evidence |
 | home.hero.quality-thumb | decorative detail | 760,352,60,67 | **replaced in review:** code-generated navy textile macro; real material macro may supersede later |
 | home.industries.education | illustrative sector media | 10,579,158,137 | generated education atmosphere/person |
 | home.industries.hospitality | illustrative sector media | 179,579,159,137 | generated hospitality/chef atmosphere |
