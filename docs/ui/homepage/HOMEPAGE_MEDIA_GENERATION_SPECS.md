@@ -98,7 +98,11 @@ All six are 158–159 × 137 reference slots. Framing must survive a wide, compa
 - professional security/front-gate role;
 - neutral urban/business environment;
 - generic navy uniform;
-- no insignia copied from real agencies.
+- no insignia copied from real agencies;
+- current generated review asset: `prototype/public-site-design-authority/public/generated/home-industries-security.webp`;
+- SHA-256: `2a80f1ebefc67f375841a32acde6bef2316f7ac27f11524147918df97a2cd91f`;
+- source: generated illustrative security media cropped to the exact 158×137 approved slot; any insignia-like marks are synthetic/non-agency detail;
+- status: pending D-062 fidelity gate.
 
 ## Batch C — feature band
 
