@@ -105,7 +105,9 @@ export function ApprovedIndustries({locale}:{locale:Locale}){
     </div>
    </header>
    <div className="approved-industry-rail" ref={rail} data-component-id="H02.06">{industries.map(({key,en,ar:arabic,sub,subAr,crop,Icon})=><article className="approved-industry-card" key={key}>
-    <ReferenceCrop slot={`home.industries.${key}`} crop={crop} className="approved-industry-image" label={ar?arabic:en}/>
+    {key==="education"
+  ? <img data-media-slot="home.industries.education" className="approved-industry-image approved-industry-generated" src="/generated/home-industries-education.webp" alt={ar?arabic:en}/>
+  : <ReferenceCrop slot={`home.industries.${key}`} crop={crop} className="approved-industry-image" label={ar?arabic:en}/>} 
     <div className="approved-industry-meta"><Icon/><div><h3>{ar?arabic:en}</h3><p>{ar?subAr:sub}</p></div><a href={`/${locale}/work`} aria-label={ar?arabic:en}>↗</a></div>
    </article>)}</div>
  </section>;

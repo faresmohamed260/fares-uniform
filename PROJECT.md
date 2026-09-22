@@ -237,12 +237,12 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — D-062 Batch A media:** generate and integrate `home.hero.people-group` exactly to `docs/ui/homepage/HOMEPAGE_MEDIA_GENERATION_SPECS.md`: five generic multi-sector people, right-weighted overlap, modern Mediterranean/MENA commercial tone, no client logos, no fake Fares-product claim.
-2. Preserve the frozen H00–H06 geometry and the approved navy/white/electric-blue composition. Replace only the named media slot.
-3. Run the same D-062 component-boundary + full-page pixel-difference gate. Keep the generated hero only if the page remains within the strict gate and the hero region does not regress unacceptably; otherwise iterate the asset, not the layout.
-4. After Batch A, generate Batch B industry media one slot at a time (Education -> Hospitality -> Healthcare -> Corporate -> Industrial -> Security), measuring each replacement independently.
-5. Keep the real KGC campus in protected review as the current best truthful `home.work.kgc` replacement. It does **not** authorize public KGC publication.
-6. Then continue Batch C design-sketch, Batch D generic hospitality/healthcare work placeholders, and Batch E illustrative architecture under their existing spec.
+1. **Track A / active — D-062 Batch B industry media:** Batch A hero is generated, integrated and hosted-GREEN at `f74a997b61a90f2b9feab9efee4fc8f2d47b2515`. Industry replacements proceed one slot at a time: Education -> Hospitality -> Healthcare -> Corporate -> Industrial -> Security.
+2. Current candidate: generated `home.industries.education` at `public/generated/home-industries-education.webp` (SHA-256 `6d087847c89da991d73b83d2a925c95714ba6a64d7fe6e021aa9fb09fa9b00d2`). Validate it with the exact D-062 boundary + pixel-difference gate before moving on.
+3. Preserve frozen H00–H06 geometry and approved navy/white/electric-blue composition. Replace only the named industry media slot.
+4. If Education remains GREEN, generate/integrate Hospitality next; otherwise iterate/revert the Education asset, not the layout.
+5. Keep real KGC campus in protected review as the current best truthful `home.work.kgc` replacement. It does **not** authorize public KGC publication.
+6. Then continue the remaining industry slots, Batch C design-sketch, Batch D generic hospitality/healthcare work placeholders, and Batch E illustrative architecture.
 7. Do not start Schools/KGC/Garments page design until D-062 homepage media/fidelity is accepted.
 8. Keep PR merges, public client publication and production cutover separately gated. Production remains NO-GO.
 9. **Track B / ERP:** Gate D remains independent.
