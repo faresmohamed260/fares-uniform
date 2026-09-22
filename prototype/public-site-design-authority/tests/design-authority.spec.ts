@@ -72,27 +72,43 @@ test("D-062 quantifies full-page visual difference against the approved authorit
     ctx.drawImage(reference,0,0,width,height);
     const b=ctx.getImageData(0,0,width,height).data;
 
+    const bands=[
+      ["H00",0,32],["H01",32,227],["H02",227,405],["H03",405,543],
+      ["H04",543,632],["H05",632,718],["H06",718,768]
+    ] as const;
+    const totals:Record<string,{abs:number;over48:number;pixels:number}>={};
+    for(const [id,y0,y1] of bands) totals[id]={abs:0,over48:0,pixels:width*(y1-y0)};
+
     let abs=0,over32=0,over48=0;
     const pixels=width*height;
-    for(let i=0;i<a.length;i+=4){
-      const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
-      abs+=d;
-      if(d>32) over32++;
-      if(d>48) over48++;
+    for(let y=0;y<height;y++){
+      const band=bands.find(([,y0,y1])=>y>=y0&&y<y1)!;
+      const bucket=totals[band[0]];
+      for(let x=0;x<width;x++){
+        const i=(y*width+x)*4;
+        const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
+        abs+=d; bucket.abs+=d;
+        if(d>32) over32++;
+        if(d>48){over48++;bucket.over48++;}
+      }
     }
+    const regions=Object.fromEntries(Object.entries(totals).map(([id,v])=>[id,{
+      meanAbsChannel:v.abs/v.pixels,
+      pctPixelsOver48:v.over48/v.pixels
+    }]));
     return {
       meanAbsChannel:abs/pixels,
       pctPixelsOver32:over32/pixels,
       pctPixelsOver48:over48/pixels,
-      width,height
+      regions,width,height
     };
   },{screenshotBase64});
 
   console.log("D062_VISUAL_DIFF",JSON.stringify(metrics));
   writeFileSync("artifacts/d062-visual-diff.json",JSON.stringify(metrics,null,2));
 
-  expect(metrics.meanAbsChannel).toBeLessThan(38);
-  expect(metrics.pctPixelsOver48).toBeLessThan(0.42);
+  expect(metrics.meanAbsChannel).toBeLessThan(25);
+  expect(metrics.pctPixelsOver48).toBeLessThan(0.14);
 });
 
 test("D-062 media slots and authority asset are stable",async({page})=>{
