@@ -25,7 +25,7 @@ Current generated review asset:
 - path: `prototype/public-site-design-authority/public/generated/home-hero-people-group.webp`;
 - SHA-256: `3921291dac7db38c6c8834f5e3413aee2df93393157059b48011ba09407761ed`;
 - source: generated non-product design media, then cropped exactly from the generated 1024×1536 composition at the approved slot coordinates;
-- status: pending D-062 fidelity gate.
+- status: D-062 fidelity GREEN at `1af694a7...` (run `35782149846`); retained for review.
 
 Composition:
 - five diverse adult/young-adult people grouped shoulder-to-knee;
