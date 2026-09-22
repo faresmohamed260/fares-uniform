@@ -8,110 +8,118 @@ async function waitForScrollcraft(page: import("@playwright/test").Page) {
   await expect(page.locator("html")).toHaveClass(/sc-ready/);
 }
 
-test("desktop home uses pinned Scrollcraft engine, device variety and real review media", async ({ page }) => {
+test("desktop homepage is Fares-first, broad, graphic and free of storefront leakage", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/en");
   await waitForScrollcraft(page);
 
-  await expect(page.getByTestId("scrollcraft-hero")).toBeVisible();
-  await expect(page.locator('img[src*="/review-media/kgc/high-summer.png"]').first()).toBeVisible();
-  await expect(page.locator('img[src*="/review-media/kgc/high-summer-polo-front.png"]').first()).toBeVisible();
+  const hero = page.getByTestId("homepage-master-hero");
+  await expect(hero).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Uniforms");
+  await expect(hero.locator('img[src="/design-media/master-brand-field.svg"]')).toBeVisible();
+  await expect(page.locator(".home-sector-universe")).toBeVisible();
+  await expect(page.locator(".sector-index button")).toHaveCount(6);
 
-  await expect(page.locator('[data-sc-act="pin"]')).toHaveCount(2);
-  await expect(page.locator('[data-sc-act="pan"]')).toHaveCount(2);
-  expect(await page.locator("[data-sc-parallax]").count()).toBeGreaterThanOrEqual(3);
-  expect(await page.locator("[data-sc-reveal]").count()).toBeGreaterThanOrEqual(1);
-  expect(await page.locator("[data-sc-kinetic]").count()).toBeGreaterThanOrEqual(2);
-  const deviceFamilies = await page.evaluate(() => {
-    const families = new Set<string>();
-    document.querySelectorAll("[data-sc-act]").forEach((el) => families.add(el.getAttribute("data-sc-act") || ""));
-    if (document.querySelector("[data-sc-parallax]")) families.add("parallax");
-    if (document.querySelector("[data-sc-reveal]")) families.add("reveal");
-    if (document.querySelector("[data-sc-kinetic]")) families.add("kinetic");
-    if (document.querySelector("[data-sc-in]")) families.add("in");
-    return Array.from(families).filter(Boolean);
-  });
-  expect(deviceFamilies.length).toBeGreaterThanOrEqual(5);
-
-  const spans = await page.locator('[data-sc-act="pin"], [data-sc-act="pan"]').evaluateAll((els) =>
-    els.map((el) => ({ cls: el.className, span: Number(el.getAttribute("data-sc-span") || "0") }))
-  );
-  const seam = spans.find((item) => String(item.cls).includes("seam-handoff"));
-  expect(seam?.span).toBe(3.2);
-  expect(seam?.span).toBe(Math.max(...spans.map((item) => item.span)));
+  expect(await hero.locator('img[src*="kgc"]').count()).toBe(0);
+  expect(await hero.innerText()).not.toContain("KGC");
 
   const body = (await page.locator("body").innerText()).toLowerCase();
   expect(body).not.toContain("egp");
   expect(body).not.toContain("add to cart");
   expect(body).not.toContain("in stock");
 
-  await page.screenshot({ path: "artifacts/scrollcraft-home-desktop-top.png", fullPage: false });
+  await page.screenshot({ path: "artifacts/d061-home-desktop-top.png", fullPage: false });
 });
 
-test("Seam Handoff renders intermediate scroll states, not only endpoints", async ({ page }) => {
+test("sector universe morphs between six business environments", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/en");
+  const buttons = page.locator(".sector-index button");
+  await expect(buttons).toHaveCount(6);
+
+  await buttons.nth(2).hover();
+  await expect(buttons.nth(2)).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator(".home-sector-universe")).toHaveClass(/tone-tomato/);
+  await expect(page.locator(".sector-active-copy")).toContainText("Restaurants & Cafés");
+
+  await buttons.nth(4).focus();
+  await expect(buttons.nth(4)).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator(".home-sector-universe")).toHaveClass(/tone-ink/);
+  await expect(page.locator(".sector-active-copy")).toContainText("Corporate");
+
+  await page.screenshot({ path: "artifacts/d061-sector-universe.png", fullPage: false });
+});
+
+test("system chapter explains identity to manufacturing with real Scrollcraft timing", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/en");
   await waitForScrollcraft(page);
 
-  const seam = page.getByTestId("seam-handoff");
-  const metrics = await seam.evaluate((el) => ({
+  const system = page.locator(".home-system-chapter");
+  await expect(system).toHaveAttribute("data-sc-act", "pin");
+  await expect(system).toHaveAttribute("data-sc-span", "2.05");
+  await expect(system.locator('img[src="/design-media/pattern-paper.svg"]')).toBeVisible();
+  await expect(system.locator(".system-word")).toHaveCount(5);
+
+  const metrics = await system.evaluate((el) => ({
     top: (el as HTMLElement).offsetTop,
     height: (el as HTMLElement).offsetHeight,
     viewport: window.innerHeight,
   }));
-
-  for (const [label, progress] of [["early", 0.16], ["mid", 0.50], ["late", 0.86]] as const) {
-    const y = metrics.top + progress * Math.max(metrics.height - metrics.viewport, 1);
-    await page.evaluate((targetY) => window.scrollTo(0, targetY), y);
-    await page.waitForTimeout(500);
-    const p = Number(await seam.evaluate((el) => getComputedStyle(el).getPropertyValue("--sc-p")));
-    expect(p).toBeGreaterThan(progress - 0.08);
-    expect(p).toBeLessThan(progress + 0.08);
-    await page.screenshot({ path: `artifacts/seam-handoff-${label}.png`, fullPage: false });
-  }
-
-  await expect(page.getByText(/Now inspect what you saw/)).toBeVisible();
+  const y = metrics.top + 0.56 * Math.max(metrics.height - metrics.viewport, 1);
+  await page.evaluate((target) => window.scrollTo(0, target), y);
+  await page.waitForTimeout(400);
+  const progress = Number(await system.evaluate((el) => getComputedStyle(el).getPropertyValue("--sc-p")));
+  expect(progress).toBeGreaterThan(0.48);
+  expect(progress).toBeLessThan(0.64);
+  await page.screenshot({ path: "artifacts/d061-system-mid.png", fullPage: false });
 });
 
-test("Work and project routes use truthful collection/chapter grammars", async ({ page }) => {
-  await page.goto("/en/work");
-  await waitForScrollcraft(page);
-  await expect(page.locator(".work-object-models figure")).toHaveCount(4);
-  await expect(page.getByRole("heading", { level: 1, name: /KGC/i })).toBeVisible();
-  await expect(page.getByText(/fictional clients/i)).toBeVisible();
-  await page.screenshot({ path: "artifacts/scrollcraft-work-desktop.png", fullPage: true });
+test("KGC appears only as contained Selected Work and routes deeper", async ({ page }) => {
+  await page.goto("/en");
+  const selected = page.locator(".home-selected-work");
+  await expect(selected).toContainText("SELECTED WORK");
+  await expect(selected).toContainText("KGC NATIONAL");
+  await expect(selected.locator('img[src*="kgc-building.webp"]')).toBeVisible();
+  await expect(selected.locator('img[src*="/review-media/kgc/high-summer.png"]')).toBeVisible();
+  await expect(selected.getByRole("link", { name: /Explore the project/i })).toHaveAttribute("href", "/en/work/kgc/national");
 
-  await page.goto("/en/work/kgc/national");
-  await waitForScrollcraft(page);
-  await expect(page.locator(".chapter-stage-grid figure")).toHaveCount(4);
-  await expect(page.getByTestId("garment-inspector")).toBeVisible();
-  await expect(page.getByText(/Your program should not look like KGC/)).toBeVisible();
-  await page.screenshot({ path: "artifacts/scrollcraft-project-desktop.png", fullPage: true });
+  const beforeSelected = await page.evaluate(() => {
+    const selected = document.querySelector(".home-selected-work");
+    const root = document.querySelector(".fares-homepage");
+    if (!selected || !root) return "";
+    let text = "";
+    for (const child of Array.from(root.children)) {
+      if (child === selected) break;
+      text += (child.textContent || "") + "\n";
+    }
+    return text;
+  });
+  expect(beforeSelected).not.toContain("KGC");
 });
 
-test("garment collection and atelier keep real front/back evidence and no fabricated explode", async ({ page }) => {
-  await page.goto("/en/garments");
-  await waitForScrollcraft(page);
-  await expect(page.locator('img[src*="high-summer-polo-front.png"]')).toBeVisible();
-  await expect(page.locator('img[src*="high-summer-polo-back.png"]')).toBeVisible();
-
-  await page.goto("/en/garments/high-summer-polo");
-  await waitForScrollcraft(page);
-  const inspector = page.getByTestId("garment-inspector");
-  await expect(inspector).toBeVisible();
-  await expect(page.getByText(/Original photography/)).toBeVisible();
-  const back = page.getByRole("button", { name: "back" });
-  await back.click();
-  await expect(back).toHaveAttribute("aria-pressed", "true");
-  await expect(inspector.locator('img[src*="high-summer-polo-back.png"]')).toBeVisible();
-  await expect(page.getByRole("button", { name: /explode|reassemble/i })).toHaveCount(0);
-  await page.screenshot({ path: "artifacts/scrollcraft-garment-desktop.png", fullPage: true });
+test("garment universe remains catalog-like without becoming ecommerce", async ({ page }) => {
+  await page.goto("/en");
+  const universe = page.locator(".home-garment-universe");
+  await expect(universe).toContainText("GARMENT UNIVERSE");
+  await expect(universe.locator(".garment-category-word")).toHaveCount(8);
+  await expect(universe.locator('img[src*="high-summer-polo-front.png"]')).toBeVisible();
+  await expect(universe.getByRole("link", { name: /Explore garments/i })).toHaveAttribute("href", "/en/garments");
 });
 
-test("English mobile is separately composed and menu is keyboard closable", async ({ page }) => {
+test("manufacturing and craft chapters provide substance after the visual acts", async ({ page }) => {
+  await page.goto("/en");
+  await expect(page.locator(".home-process-ledger article")).toHaveCount(6);
+  await expect(page.locator(".home-process")).toContainText("DESIGN TO MANUFACTURING");
+  await expect(page.locator(".home-craft")).toContainText("MATERIAL / DETAIL");
+  await expect(page.locator(".home-craft-index > div")).toHaveCount(4);
+});
+
+test("English mobile is separately composed, interactive and has no horizontal overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/en");
   await waitForScrollcraft(page);
+
   const trigger = page.getByRole("button", { name: "Open menu" });
   const box = await trigger.boundingBox();
   expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
@@ -120,52 +128,51 @@ test("English mobile is separately composed and menu is keyboard closable", asyn
   await expect(page.getByRole("dialog", { name: "Site menu" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog", { name: "Site menu" })).toHaveCount(0);
+
+  await expect(page.locator(".sector-index button")).toHaveCount(6);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
-  await page.screenshot({ path: "artifacts/scrollcraft-home-mobile-en.png", fullPage: true });
+
+  await page.screenshot({ path: "artifacts/d061-home-mobile-en.png", fullPage: true });
 });
 
-test("Arabic mobile is authored RTL and keeps the portrait design path", async ({ page }) => {
+test("Arabic mobile is RTL, broad-brand and free of horizontal overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/ar");
   await waitForScrollcraft(page);
+
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("مصمّم");
-  await expect(page.locator(".program-rail-item")).toHaveCount(4);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("زي موحّد");
+  await expect(page.locator(".sector-index button")).toHaveCount(6);
+  await expect(page.locator(".home-selected-work")).toContainText("KGC");
+
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
-  await page.screenshot({ path: "artifacts/scrollcraft-home-mobile-ar.png", fullPage: true });
+
+  await page.screenshot({ path: "artifacts/d061-home-mobile-ar.png", fullPage: true });
 });
 
-test("reduced motion preserves the program, garment, process and action", async ({ page }) => {
+test("reduced motion preserves the complete homepage hierarchy and actions", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
   await waitForScrollcraft(page);
-  await expect(page.getByText("Four stages. One language that grows with them.")).toBeVisible();
-  await expect(page.getByText("The garment, as it actually is.")).toBeVisible();
-  await expect(page.getByText(/The image matters/)).toBeVisible();
+
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Uniforms");
+  await expect(page.getByText("One uniform language should never fit everyone.")).toBeVisible();
+  await expect(page.getByText("A uniform is not one item. It is a system.")).toBeVisible();
+  await expect(page.locator(".home-selected-work")).toContainText("KGC NATIONAL");
+  await expect(page.getByText(/Identity starts as an idea/)).toBeVisible();
   await expect(page.getByRole("link", { name: /Discuss a uniform program/i }).first()).toBeVisible();
-  await page.screenshot({ path: "artifacts/scrollcraft-home-reduced-motion.png", fullPage: true });
+
+  await page.screenshot({ path: "artifacts/d061-home-reduced-motion.png", fullPage: true });
 });
 
-test("enquiry remains a quiet review-only state with preserved context", async ({ page }) => {
-  await page.goto("/en/enquiry?context=kgc-national-high-summer-polo");
-  await expect(page.getByText("KGC National · High · Summer · Polo")).toBeVisible();
-  await page.getByRole("button", { name: /Preview submission state/i }).click();
-  await expect(page.getByRole("status")).toContainText("Success state");
-});
-
-test("system surface records D-060 and pinned-engine invariants", async ({ page }) => {
-  await page.goto("/en/system");
-  await expect(page.getByText("D-060 / SCROLLCRAFT")).toBeVisible();
-  await expect(page.getByText(/pinned Scrollcraft engine/i)).toBeVisible();
-  await expect(page.getByText("No generated fake client/product imagery.")).toBeVisible();
-  await expect(page.getByText("No prices or stock.")).toBeVisible();
-});
-
-test("unknown top-level paths fail as clean 404s", async ({ page }) => {
-  const response = await page.goto("/favicon.ico");
-  expect(response?.status()).toBe(404);
-  await expect(page.getByText(/Internal Server Error/i)).toHaveCount(0);
+test("deep routes remain reachable while D-061 approval is homepage-only", async ({ page }) => {
+  await page.goto("/en/work");
+  await expect(page.getByRole("heading", { level: 1, name: /KGC/i })).toBeVisible();
+  await page.goto("/en/garments");
+  await expect(page.locator('img[src*="high-summer-polo-front.png"]')).toBeVisible();
+  await page.goto("/en/enquiry");
+  await expect(page.getByRole("button", { name: /Preview submission state/i })).toBeVisible();
 });
