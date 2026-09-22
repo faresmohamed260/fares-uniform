@@ -88,7 +88,11 @@ All six are 158–159 × 137 reference slots. Framing must survive a wide, compa
 ### Industrial
 - warehouse/light-industry/logistics environment;
 - workwear/PPE context;
-- safety-conscious but not dramatic.
+- safety-conscious but not dramatic;
+- current generated review asset: `prototype/public-site-design-authority/public/generated/home-industries-industrial.webp`;
+- SHA-256: `d4eccd016b0fd89fba2bf8a5f05379eef5e045b36316540ecf573aae349497f1`;
+- source: generated illustrative industrial media cropped to the exact 159×137 approved slot;
+- status: pending D-062 fidelity gate.
 
 ### Security
 - professional security/front-gate role;

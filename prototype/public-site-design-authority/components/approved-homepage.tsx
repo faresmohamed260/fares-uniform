@@ -113,7 +113,9 @@ export function ApprovedIndustries({locale}:{locale:Locale}){
       ? <img data-media-slot="home.industries.healthcare" className="approved-industry-image approved-industry-generated" src="/generated/home-industries-healthcare.webp" alt={ar?arabic:en}/>
       : key==="corporate"
         ? <img data-media-slot="home.industries.corporate" className="approved-industry-image approved-industry-generated" src="/generated/home-industries-corporate.webp" alt={ar?arabic:en}/>
-        : <ReferenceCrop slot={`home.industries.${key}`} crop={crop} className="approved-industry-image" label={ar?arabic:en}/>}  
+        : key==="industrial"
+          ? <img data-media-slot="home.industries.industrial" className="approved-industry-image approved-industry-generated" src="/generated/home-industries-industrial.webp" alt={ar?arabic:en}/>
+          : <ReferenceCrop slot={`home.industries.${key}`} crop={crop} className="approved-industry-image" label={ar?arabic:en}/>}  
     <div className="approved-industry-meta"><Icon/><div><h3>{ar?arabic:en}</h3><p>{ar?subAr:sub}</p></div><a href={`/${locale}/work`} aria-label={ar?arabic:en}>↗</a></div>
    </article>)}</div>
  </section>;
