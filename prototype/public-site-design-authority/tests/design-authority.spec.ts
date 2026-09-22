@@ -248,12 +248,26 @@ test("D-062 sweeps healthcare placeholder treatment against the approved work re
   await page.goto("/en");
   await page.evaluate(()=>document.fonts.ready);
 
-  const positions=["25% 20%","50% 20%","75% 20%","25% 50%","50% 50%","75% 50%","25% 80%","50% 80%","75% 80%"];
+  const positions=["75% 50%"];
   const filters=[
-    "none",
-    "brightness(.94) saturate(.82)",
-    "brightness(1.04) saturate(.82)",
-    "contrast(.9) brightness(1.02) saturate(.75)"
+    "brightness(.95) saturate(.70)",
+    "brightness(.92) saturate(.70)",
+    "brightness(.90) saturate(.70)",
+    "brightness(.88) saturate(.70)",
+    "brightness(.85) saturate(.70)",
+    "brightness(.92) saturate(.55)",
+    "brightness(.90) saturate(.55)",
+    "brightness(.88) saturate(.55)",
+    "brightness(.85) saturate(.55)",
+    "brightness(.82) saturate(.55)",
+    "brightness(.90) saturate(.40)",
+    "brightness(.88) saturate(.40)",
+    "brightness(.85) saturate(.40)",
+    "brightness(.82) saturate(.40)",
+    "brightness(.80) saturate(.40)",
+    "grayscale(.35) brightness(.90)",
+    "grayscale(.55) brightness(.88)",
+    "grayscale(.70) brightness(.86)"
   ];
   const results:{position:string;filter:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
   const img=page.locator('img[data-media-slot="home.work.healthcare"]');
