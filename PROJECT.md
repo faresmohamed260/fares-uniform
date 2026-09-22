@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved. The semantic carbon-copy component/layout pass is now hosted-GREEN at exact implementation SHA `778ea6fadeb88699708b44742ee1bf651c85b0fe`: run/job `35750269389` / `106822270107`, artifact `10705450897`, 8/8 browser checks, exact major-section geometry, and strict visual-difference GREEN (mean RGB-channel error `19.2494`, high-difference pixels `9.6657%`). Protected deployment `dpl_8YykRkaG96einFtrLrbaLmFCzAUx` is READY. The active task is now **homepage media replacement/fidelity only**; surrounding geometry is frozen. Production remains NO-GO.
+- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved and the H00–H06 geometry remains frozen from the carbon-copy pass. Media replacement is active. Exact latest verified media SHA `7188835e881fd9c78051e5bded5f8f3aa0a82a56` passed run/job `35766135668` / `106876015201`, **10/10 D-062 browser checks**, artifact `10712321568`, and protected-preview fail-closed verification. Real KGC media was swept automatically; the real KGC campus was the closest truthful current asset (`27.82` H04 mean error), materially better than all staged worn-model candidates (`33.80–35.06`). Global strict fidelity remains GREEN at mean RGB-channel error `20.2716` and high-difference pixels `10.6178%`. The quality-detail and navy-fabric decorative slots are now code-generated rather than authority-sprite crops. Production remains NO-GO.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -237,13 +237,13 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — D-062 homepage media replacement:** keep exact verified geometry from `778ea6fadeb88699708b44742ee1bf651c85b0fe` frozen. Replace temporary authority-sprite slots one-for-one using `docs/ui/homepage/APPROVED_HOME_MEDIA_MANIFEST.md`.
-2. Generate only the non-product illustrative/decorative assets D-062 allows; mark them as illustrative. Do not synthesize real Fares products or factual client evidence.
-3. Where real authorized Odoo/R2 media exists, use it instead of generated media. Protected KGC review use does not authorize public publication.
-4. After every media replacement batch, rerun the D-062 1024×1536 component-boundary and pixel-difference gate. Do not accept regression above the current verified fidelity without explicit reason.
-5. Keep the approved H00–H06 component inventory, ordering, navy/white/electric-blue relationships, CTA hierarchy and card geometry unchanged.
-6. Do not start the Schools/KGC/Garments page design until the D-062 homepage media/fidelity pass is accepted.
-7. The future KGC case-study explode-view remains whole worn outfit -> separated **real** garment pieces.
+1. **Track A / active — D-062 Batch A media:** generate and integrate `home.hero.people-group` exactly to `docs/ui/homepage/HOMEPAGE_MEDIA_GENERATION_SPECS.md`: five generic multi-sector people, right-weighted overlap, modern Mediterranean/MENA commercial tone, no client logos, no fake Fares-product claim.
+2. Preserve the frozen H00–H06 geometry and the approved navy/white/electric-blue composition. Replace only the named media slot.
+3. Run the same D-062 component-boundary + full-page pixel-difference gate. Keep the generated hero only if the page remains within the strict gate and the hero region does not regress unacceptably; otherwise iterate the asset, not the layout.
+4. After Batch A, generate Batch B industry media one slot at a time (Education -> Hospitality -> Healthcare -> Corporate -> Industrial -> Security), measuring each replacement independently.
+5. Keep the real KGC campus in protected review as the current best truthful `home.work.kgc` replacement. It does **not** authorize public KGC publication.
+6. Then continue Batch C design-sketch, Batch D generic hospitality/healthcare work placeholders, and Batch E illustrative architecture under their existing spec.
+7. Do not start Schools/KGC/Garments page design until D-062 homepage media/fidelity is accepted.
 8. Keep PR merges, public client publication and production cutover separately gated. Production remains NO-GO.
 9. **Track B / ERP:** Gate D remains independent.
 
