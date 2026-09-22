@@ -133,3 +133,22 @@ Hosted push evidence:
 - fail-closed verification: unauthenticated HTTP **302**, target **preview**.
 
 The strict global limits remain GREEN (mean <25; high-difference pixels <14%). The active replacement sequence therefore advances to Batch D Selected Work placeholders, one slot at a time.
+
+
+## Media replacement evidence — Batch D Hospitality
+
+Exact implementation commit `161c14eb02b16d98e4f3f9c943e1cea7af109f47` replaced only `home.work.hospitality` with the already-approved generic Hospitality illustrative media, keeping it explicitly non-client capability placeholder content.
+
+Hosted push evidence:
+- run: `35790791853`;
+- job: `106958493631`;
+- artifact: `10722255587`;
+- **10/10 D-062 browser checks passed**;
+- global mean RGB-channel error: **24.2709**;
+- global pixels >48: **12.3807%**;
+- H04 Selected Work mean error: **35.0168**;
+- H04 pixels >48: **24.2670%**;
+- protected review preview: `fares-uniform-design-authority-7ghl88uxu.vercel.app`;
+- fail-closed verification: unauthenticated HTTP **302**, target **preview**.
+
+The global gate remains GREEN but is now close to the `<25` mean threshold. Healthcare replacement must therefore pass without relaxing the acceptance limit.

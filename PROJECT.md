@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved and H00–H06 geometry remains frozen. Batch B industry-media replacement is complete and Batch C design-sketch replacement is now GREEN. Exact Batch C evidence at `2a68f1e34f436ec63078d8702f0b376dd437efc0` passed run/job `35790380861` / `106957170942`, **10/10 D-062 browser checks**, artifact `10722045945`, and protected preview verification. Global strict fidelity remains GREEN at mean RGB-channel error `23.4380` and high-difference pixels `11.7007%`; H03 Feature Band is `31.0147` mean / `15.2216%` high-difference. Real KGC campus remains the closest truthful protected-review KGC asset. The active next media slot is **Batch D Hospitality Selected Work**. Production remains NO-GO.
+- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved and H00–H06 geometry remains frozen. Batch B industry-media replacement is complete and Batch C design-sketch replacement is now GREEN. Exact Batch C evidence at `2a68f1e34f436ec63078d8702f0b376dd437efc0` passed run/job `35790380861` / `106957170942`, **10/10 D-062 browser checks**, artifact `10722045945`, and protected preview verification. Global strict fidelity remains GREEN at mean RGB-channel error `23.4380` and high-difference pixels `11.7007%`; H03 Feature Band is `31.0147` mean / `15.2216%` high-difference. Real KGC campus remains the closest truthful protected-review KGC asset. The active next media slot is **Batch D Healthcare Selected Work**. Production remains NO-GO.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -237,9 +237,9 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — D-062 Batch D Hospitality Selected Work:** replace `home.work.hospitality` with a generic illustrative hospitality/team placeholder using only non-client media; do not label it as completed Fares work in production content.
-2. Preserve frozen H00–H06 geometry and replace only that named media slot. Run the D-062 full-page and H04 regional pixel-difference gate before accepting it.
-3. Then replace `home.work.healthcare` one slot at a time under the same gate.
+1. **Track A / active — D-062 Batch D Healthcare Selected Work:** replace `home.work.healthcare` with a generic illustrative healthcare/team placeholder using only non-client media; do not label it as completed Fares work in production content.
+2. Preserve frozen H00–H06 geometry and replace only that named media slot. Run the D-062 full-page and H04 regional pixel-difference gate before accepting it; the current global mean after Hospitality is `24.2709`, so do not weaken the strict `<25` limit.
+3. If Healthcare exceeds the gate, tune/rework Selected Work media rather than relaxing thresholds.
 4. After Batch D, continue Batch E illustrative architecture for `home.cta.building`.
 5. Keep the current real KGC campus in protected review only; it does **not** authorize public KGC publication.
 6. Do not start Schools/KGC/Garments page design until D-062 homepage media/fidelity is accepted.

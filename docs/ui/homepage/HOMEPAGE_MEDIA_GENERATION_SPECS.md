@@ -140,7 +140,7 @@ Target: 169 × 149.
 - no real venue identity;
 - current protected-review placeholder: reuses `prototype/public-site-design-authority/public/generated/home-industries-hospitality.webp` so no additional fake client scene is introduced;
 - source SHA-256: `c96db206981ceb504f2ae5aeee8223829a5536574459dd38cfda41fc90144cef`;
-- status: D-062 fidelity gate pending.
+- status: D-062 fidelity GREEN at `161c14eb02b16d98e4f3f9c943e1cea7af109f47` (run `35790791853`, job `106958493631`, artifact `10722255587`); global mean error `24.2709`, high-difference pixels `12.3807%`, H04 mean error `35.0168`.
 
 ### `home.work.healthcare`
 Target: 169 × 149.
