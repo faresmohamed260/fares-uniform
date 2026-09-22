@@ -78,7 +78,7 @@ export function ApprovedHero({locale}:{locale:Locale}){
       <div className="approved-hand-note note-a" data-component-id="H01.09">{ar?"أشخاص مختلفون\nهدف واحد":"Different People\nSame Purpose"}<svg viewBox="0 0 90 44"><path d="M3 8c25 5 45 14 72 27m-12-14 13 14-17 3"/></svg></div>
       <div className="approved-hand-note note-b" data-component-id="H01.10">{ar?"زي حقيقي\nناس حقيقيون\nأثر حقيقي.":"Real Uniforms\nReal People\nReal Impact."}<svg viewBox="0 0 88 46"><path d="M83 7C60 15 44 27 10 35m9-12L9 35l15 4"/></svg></div>
       <div className="approved-quality-card" data-component-id="H01.11">
-        <ReferenceCrop slot="home.hero.quality-thumb" crop={{x:760,y:352,w:60,h:67}} className="approved-quality-thumb"/>
+        <div className="approved-quality-thumb approved-quality-textile" data-media-slot="home.hero.quality-thumb" aria-hidden="true"><span/><span/><span/></div>
         <p><strong>{ar?"الجودة":"Quality"}</strong><strong>{ar?"الناس":"People"}</strong><strong>{ar?"شراكات تدوم":"Lasting Partnerships"}</strong></p><a href="#about" aria-label={ar?"اعرف المزيد":"Learn more"}>↗</a>
       </div>
     </div>
@@ -116,7 +116,7 @@ export function ApprovedFeatureBand({locale}:{locale:Locale}){
  const benefits=[[ShieldCheck,ar?"أقمشة متينة":"Durable Fabrics"],[Sparkles,ar?"راحة في كل تفصيلة":"Comfort in Every Detail"],[Ruler,ar?"تصميم عملي":"Practical Design"],[Layers3,ar?"مصنوع للحياة الواقعية":"Made for Real Life"]] as const;
  return <section id="process" className="approved-feature-band" data-section-id="H03" data-testid="approved-h03">
   <article className="approved-feature-more">
-   <div className="approved-fabric-field" data-component-id="H03A.01" aria-hidden="true"><span/><span/><span/></div>
+   <div className="approved-fabric-field" data-component-id="H03A.01" data-media-slot="home.feature.fabric-blue" aria-hidden="true"><span/><span/><span/></div>
    <div className="approved-feature-copy"><h2 data-component-id="H03A.02">{ar?"أكثر من\nزي موحّد":"MORE\nTHAN UNIFORMS"}</h2><p data-component-id="H03A.03">{ar?"أقمشة عالية الجودة، تصميم عملي وإنتاج موثوق — زي يعمل بجد مثل من يرتديه.":"Quality fabrics, practical design and reliable production — uniforms that work as hard as the people wearing them."}</p><a data-component-id="H03A.04" className="approved-light-button" href={`/${locale}/garments`}>{ar?"اكتشف مجموعاتنا":"Discover Our Collections"} ↗</a></div>
    <div className="approved-benefit-row" data-component-id="H03A.05">{benefits.map(([Icon,label])=><div key={label}><Icon/><span>{label}</span></div>)}</div>
   </article>
@@ -140,7 +140,9 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
  const ar=locale==="ar";
  return <section id="about" className="approved-selected-work" data-section-id="H04" data-testid="approved-h04">
   <div className="approved-selected-title"><span className="approved-eyebrow" data-component-id="H04.01">{ar?"أعمال مختارة":"SELECTED WORK"}</span><h2 data-component-id="H04.02">{ar?"شراكات حقيقية.\nنتائج حقيقية.":"Real Partnerships.\nReal Results."}</h2></div>
-  <div className="approved-work-cards">{workCards.map((c,i)=><a className="approved-work-card" key={c.slot} href={`/${locale}${c.href}`} data-component-id={`H04.0${i+3}`}><ReferenceCrop slot={c.slot} crop={c.crop} className="approved-work-image"/><div className="approved-work-meta"><strong>{ar?c.ar:c.en}</strong><span>{ar?c.subAr:c.sub}</span><i>↗</i></div></a>)}
+  <div className="approved-work-cards">{workCards.map((c,i)=><a className="approved-work-card" key={c.slot} href={`/${locale}${c.href}`} data-component-id={`H04.0${i+3}`}>{c.slot==="home.work.kgc"
+  ? <img data-media-slot={c.slot} className="approved-work-image approved-work-real" src="/review-media/kgc/high-summer.png" alt={ar?"زي KGC للمرحلة الثانوية في بيئة المراجعة المحمية":"KGC High-stage uniform in the protected review environment"}/>
+  : <ReferenceCrop slot={c.slot} crop={c.crop} className="approved-work-image"/>}<div className="approved-work-meta"><strong>{ar?c.ar:c.en}</strong><span>{ar?c.subAr:c.sub}</span><i>↗</i></div></a>)}
    <a className="approved-work-cta" data-component-id="H04.06" href={`/${locale}/work`}><p>{ar?"لنصنع شيئاً رائعاً معاً.":"Let's build something great together."}</p><span>{ar?"عرض كل الأعمال":"View All Work"} ↗</span></a>
   </div>
  </section>;

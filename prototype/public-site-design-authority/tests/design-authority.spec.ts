@@ -120,9 +120,12 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
     "home.hero.people-group","home.hero.quality-thumb",
     "home.industries.education","home.industries.hospitality","home.industries.healthcare",
     "home.industries.corporate","home.industries.industrial","home.industries.security",
-    "home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
+    "home.feature.fabric-blue","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
     "home.cta.building"
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
+  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/high-summer.png");
+  await expect(page.locator('[data-media-slot="home.hero.quality-thumb"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
+  await expect(page.locator('[data-media-slot="home.feature.fabric-blue"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
 });
 
 test("D-062 desktop interactions remain functional",async({page})=>{
