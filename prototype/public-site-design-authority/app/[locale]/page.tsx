@@ -135,9 +135,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           <h2>{ar ? "الهوية تبدأ فكرة. يجب أن تنتهي كشيء يمكن تكراره." : "Identity starts as an idea. It has to end as something repeatable."}</h2>
         </header>
         <div className="home-process-ledger" data-sc-stagger="70">
-          {processSteps.concat([
+          {[...processSteps,
             { number: "06", title: { en: "Support", ar: "دعم" }, copy: { en: "Keep the program usable when teams, sizes and reorder needs change.", ar: "نحافظ على قابلية استخدام البرنامج عندما تتغير الفرق والمقاسات وطلبات الإعادة." } }
-          ]).map((step) => (
+          ].map((step) => (
             <article key={step.number} data-sc-in>
               <span>{step.number}</span>
               <h3>{step.title[locale]}</h3>
