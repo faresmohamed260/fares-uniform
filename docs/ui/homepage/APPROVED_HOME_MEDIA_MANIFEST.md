@@ -18,7 +18,7 @@ The first fidelity implementation may crop the committed reference image as a te
 | home.industries.security | illustrative sector media | 856,579,158,137 | generated security atmosphere/person |
 | home.feature.fabric-blue | decorative macro | 0,817,498,263 | **replaced in review:** code-generated abstract navy fabric field; real/generated raster macro may supersede later |
 | home.feature.design-sketch | decorative illustration | 505,817,519,263 | generated technical-uniform sketch scene |
-| home.work.kgc | project proof placeholder | 324,1097,173,149 | **protected review replacement:** real staged KGC High/Summer media; public use still requires explicit publication authorization |
+| home.work.kgc | project proof placeholder | 324,1097,173,149 | **protected review replacement:** real staged KGC campus media selected by hosted fidelity sweep; public use still requires explicit publication authorization |
 | home.work.hospitality | illustrative project tile | 506,1097,169,149 | real project media later; generated illustrative tile meanwhile |
 | home.work.healthcare | illustrative project tile | 682,1097,169,149 | real project media later; generated illustrative tile meanwhile |
 | home.cta.building | illustrative brand environment | 0,1263,1024,172 | real Fares exterior when available, otherwise clearly illustrative brand architecture |

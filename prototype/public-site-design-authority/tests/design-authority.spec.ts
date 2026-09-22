@@ -123,7 +123,7 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
     "home.feature.fabric-blue","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
     "home.cta.building"
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
-  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/high-summer.png");
+  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
   await expect(page.locator('[data-media-slot="home.hero.quality-thumb"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
   await expect(page.locator('[data-media-slot="home.feature.fabric-blue"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
 });
@@ -187,6 +187,49 @@ test("D-062 chooses the closest real KGC review asset for the frozen work slot",
   console.log("D062_KGC_REAL_MEDIA_SWEEP",JSON.stringify(results));
   writeFileSync("artifacts/d062-kgc-real-media-sweep.json",JSON.stringify(results,null,2));
   expect(results).toHaveLength(5);
+});
+
+test("D-062 chooses the closest crop for the real KGC campus card",async({page})=>{
+  await page.setViewportSize({width:1024,height:1536});
+  await page.goto("/en");
+  await page.evaluate(()=>document.fonts.ready);
+
+  const positions=["25% 20%","50% 20%","75% 20%","25% 50%","50% 50%","75% 50%","25% 80%","50% 80%","75% 80%"];
+  const results:{position:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
+  const img=page.locator('img[data-media-slot="home.work.kgc"]');
+
+  for(const position of positions){
+    await img.evaluate((node,nextPosition)=>{(node as HTMLImageElement).style.objectPosition=nextPosition;},position);
+    const screenshot=await page.screenshot({fullPage:true});
+    const screenshotBase64=screenshot.toString("base64");
+    const metric=await page.evaluate(async({screenshotBase64})=>{
+      const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{
+        const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;
+      });
+      const [actual,reference]=await Promise.all([
+        load(`data:image/png;base64,${screenshotBase64}`),
+        load("/authority/approved-homepage-reference.webp")
+      ]);
+      const width=512,height=768,canvas=document.createElement("canvas");
+      canvas.width=width;canvas.height=height;
+      const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
+      ctx.drawImage(actual,0,0,width,height);const a=ctx.getImageData(0,0,width,height).data;
+      ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const b=ctx.getImageData(0,0,width,height).data;
+      const y0=543,y1=632;let abs=0,over48=0,pixels=0;
+      for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){
+        const i=(y*width+x)*4;
+        const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
+        abs+=d;pixels++;if(d>48)over48++;
+      }
+      return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
+    },{screenshotBase64});
+    results.push({position,...metric});
+  }
+
+  results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);
+  console.log("D062_KGC_CAMPUS_CROP_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-kgc-campus-crop-sweep.json",JSON.stringify(results,null,2));
+  expect(results).toHaveLength(9);
 });
 
 test("D-062 desktop interactions remain functional",async({page})=>{
