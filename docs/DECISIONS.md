@@ -577,3 +577,20 @@ Explode-view is retained as a desired interaction, but its correct form for a cl
 Approval of one page does not authorize or visually approve another page. Planned order: Homepage -> Schools sector -> KGC case study/program -> Garments/collections -> About/process -> Enquiry/contact -> remaining sector pages.
 
 No part of D-061 authorizes public KGC publication, production cutover, PR merge or ERP Gate D.
+
+
+## D-062 — Approved homepage image is the exact visual implementation authority
+
+Status: Accepted by client, 2026-09-22.
+
+Fares explicitly approved the bright modern corporate homepage image generated in chat and instructed that it be committed to the repository, decomposed into every visible component, and implemented **one-to-one / carbon-copy** before production integration.
+
+For the homepage only, D-062 supersedes the D-059/D-061 rule that concept images may not act as implementation specifications. The committed approved homepage image plus `docs/ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md` are now the authoritative visual specification.
+
+The code must map every visible component in every section, implement them as semantic/reusable components, and use rendered screenshot-difference evidence at the 1024px reference width. Fares does not authorize reinterpretation of the color palette, composition, section order, card structure or visual density.
+
+Temporary media is allowed where the approved board depicts non-product illustrative media that does not yet exist in the database. The implementation may initially crop the approved image as a temporary sprite for exact composition, then replace each slot one-for-one with separately generated non-product media or real Odoo/R2 assets. Layout must not shift during replacement.
+
+Generated fake products, fake factual client evidence, price/stock exposure and unauthorized public KGC publication remain prohibited. The KGC project page's future explode-view means whole outfit worn by model -> the actual separate real garments that compose that uniform, not fabricated internal construction layers.
+
+D-062 approves the homepage visual design and authorizes implementation/verification on the existing non-production design-authority branch. It does not authorize production cutover, PR merge, public client-media publication or ERP Gate D.
