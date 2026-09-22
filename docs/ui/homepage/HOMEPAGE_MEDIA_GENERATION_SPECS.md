@@ -83,7 +83,7 @@ All six are 158–159 × 137 reference slots. Framing must survive a wide, compa
 - current generated review asset: `prototype/public-site-design-authority/public/generated/home-industries-corporate.webp`;
 - SHA-256: `3a9fe5915143492a9c7a465e7ca947bf3297745ab120fc6614d7e7f00a2abe45`;
 - source: generated illustrative corporate media cropped to the exact 159×137 approved slot;
-- status: pending D-062 fidelity gate.
+- status: D-062 fidelity GREEN at `fdbe429e...` (run `35786609574`, job `106944834397`, artifact `10720562061`); global mean error `22.1926`, H02 mean error `16.0491`; accepted for protected review.
 
 ### Industrial
 - warehouse/light-industry/logistics environment;
