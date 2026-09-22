@@ -1,0 +1,47 @@
+name: Commit generated D-062 hero asset
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - "docs/ui/homepage/assets/.generated-home-hero/**"
+      - ".github/workflows/commit-generated-home-hero.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  reconstruct:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Reconstruct verified hero asset
+        run: |
+          set -euo pipefail
+          STAGE="docs/ui/homepage/assets/.generated-home-hero"
+          TARGET="prototype/public-site-design-authority/public/generated/home-hero-people-group.webp"
+          EXPECTED="3921291dac7db38c6c8834f5e3413aee2df93393157059b48011ba09407761ed"
+          mkdir -p "$(dirname "$TARGET")"
+          test "$(find "$STAGE" -maxdepth 1 -type f -name 'part-*.b64' | wc -l)" -eq 6
+          joined="$(mktemp)"
+          trap 'rm -f "$joined"' EXIT
+          cat "$STAGE"/part-*.b64 > "$joined"
+          test "$(wc -c < "$joined")" -eq 29440
+          base64 --decode "$joined" > "$TARGET"
+          test "$(sha256sum "$TARGET" | awk '{print $1}')" = "$EXPECTED"
+          file "$TARGET" | grep -Eq 'Web/P image|WebP'
+          file "$TARGET" | grep -Eq '689x399|689 x 399'
+          rm -rf "$STAGE"
+          rm -f ".github/workflows/commit-generated-home-hero.yml"
+      - name: Commit reconstructed binary
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "design: commit generated D-062 hero media"
+          git push origin HEAD:phase-10/public-site-productionization
