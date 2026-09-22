@@ -245,46 +245,62 @@ test("D-062 chooses the closest crop for the real KGC campus card",async({page})
   expect(results).toHaveLength(9);
 });
 
-test("D-062 sweeps design-sketch treatment against the approved H03 region",async({page})=>{
-  await page.setViewportSize({width:1024,height:1536});
-  await page.goto("/en");
-  await page.evaluate(()=>document.fonts.ready);
+test("D-062 sweeps hospitality Selected Work treatment against H04",async({page})=>{
+  await page.setViewportSize({width:1024,height:1536});await page.goto("/en");await page.evaluate(()=>document.fonts.ready);
+  const positions=["25% 50%","50% 50%","75% 50%"];
   const treatments=[
     {opacity:"1",filter:"none"},
-    {opacity:".9",filter:"none"},
-    {opacity:".8",filter:"none"},
-    {opacity:".7",filter:"none"},
-    {opacity:".6",filter:"none"},
-    {opacity:".5",filter:"none"},
-    {opacity:".8",filter:"brightness(1.04) saturate(.75)"},
-    {opacity:".7",filter:"brightness(1.05) saturate(.65)"},
-    {opacity:".6",filter:"brightness(1.06) saturate(.55)"},
-    {opacity:".55",filter:"brightness(1.08) saturate(.45)"},
-    {opacity:".7",filter:"contrast(.9) brightness(1.07) saturate(.55)"}
+    {opacity:".9",filter:"brightness(.86) saturate(.65)"},
+    {opacity:".82",filter:"brightness(.80) saturate(.50)"},
+    {opacity:".74",filter:"brightness(.74) saturate(.35)"},
+    {opacity:".66",filter:"brightness(.70) saturate(.25)"}
   ];
-  const results:{opacity:string;filter:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
-  const img=page.locator('img[data-media-slot="home.feature.design-sketch"]');
-  for(const treatment of treatments){
-    await img.evaluate((node,args)=>{const el=node as HTMLImageElement;el.style.opacity=args.opacity;el.style.filter=args.filter;},treatment);
-    const screenshot=await page.screenshot({fullPage:true});
-    const screenshotBase64=screenshot.toString("base64");
+  const results:{position:string;opacity:string;filter:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
+  const img=page.locator('img[data-media-slot="home.work.hospitality"]');
+  for(const position of positions)for(const treatment of treatments){
+    await img.evaluate((node,args)=>{const el=node as HTMLImageElement;el.style.objectPosition=args.position;el.style.opacity=args.opacity;el.style.filter=args.filter;},{position,...treatment});
+    const screenshot=await page.screenshot({fullPage:true});const screenshotBase64=screenshot.toString("base64");
     const metric=await page.evaluate(async({screenshotBase64})=>{
       const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;});
       const [actual,reference]=await Promise.all([load(`data:image/png;base64,${screenshotBase64}`),load("/authority/approved-homepage-reference.webp")]);
-      const width=512,height=768,canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;
-      const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
-      ctx.drawImage(actual,0,0,width,height);const a=ctx.getImageData(0,0,width,height).data;
-      ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const b=ctx.getImageData(0,0,width,height).data;
-      const y0=405,y1=543;let abs=0,over48=0,pixels=0;
-      for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;abs+=d;pixels++;if(d>48)over48++;}
+      const width=512,height=768,canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
+      ctx.drawImage(actual,0,0,width,height);const a=ctx.getImageData(0,0,width,height).data;ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const b=ctx.getImageData(0,0,width,height).data;
+      const y0=543,y1=632;let abs=0,over48=0,pixels=0;for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;abs+=d;pixels++;if(d>48)over48++;}
+      return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
+    },{screenshotBase64});
+    results.push({position,...treatment,...metric});
+  }
+  results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);console.log("D062_HOSPITALITY_TREATMENT_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-hospitality-treatment-sweep.json",JSON.stringify(results,null,2));expect(results).toHaveLength(positions.length*treatments.length);
+});
+
+test("D-062 sweeps stronger healthcare Selected Work treatment against H04",async({page})=>{
+  await page.setViewportSize({width:1024,height:1536});await page.goto("/en");await page.evaluate(()=>document.fonts.ready);
+  const treatments=[
+    {opacity:"1",filter:"brightness(.80) saturate(.40)"},
+    {opacity:"1",filter:"brightness(.75) saturate(.30)"},
+    {opacity:".95",filter:"brightness(.72) saturate(.25)"},
+    {opacity:".90",filter:"brightness(.68) saturate(.20)"},
+    {opacity:".85",filter:"brightness(.64) saturate(.15)"},
+    {opacity:".9",filter:"grayscale(.55) brightness(.70)"}
+  ];
+  const results:{opacity:string;filter:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
+  const img=page.locator('img[data-media-slot="home.work.healthcare"]');
+  for(const treatment of treatments){
+    await img.evaluate((node,args)=>{const el=node as HTMLImageElement;el.style.opacity=args.opacity;el.style.filter=args.filter;},treatment);
+    const screenshot=await page.screenshot({fullPage:true});const screenshotBase64=screenshot.toString("base64");
+    const metric=await page.evaluate(async({screenshotBase64})=>{
+      const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;});
+      const [actual,reference]=await Promise.all([load(`data:image/png;base64,${screenshotBase64}`),load("/authority/approved-homepage-reference.webp")]);
+      const width=512,height=768,canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
+      ctx.drawImage(actual,0,0,width,height);const a=ctx.getImageData(0,0,width,height).data;ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const b=ctx.getImageData(0,0,width,height).data;
+      const y0=543,y1=632;let abs=0,over48=0,pixels=0;for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;abs+=d;pixels++;if(d>48)over48++;}
       return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
     },{screenshotBase64});
     results.push({...treatment,...metric});
   }
-  results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);
-  console.log("D062_SKETCH_TREATMENT_SWEEP",JSON.stringify(results));
-  writeFileSync("artifacts/d062-sketch-treatment-sweep.json",JSON.stringify(results,null,2));
-  expect(results).toHaveLength(treatments.length);
+  results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);console.log("D062_HEALTHCARE_STRONG_TREATMENT_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-healthcare-strong-treatment-sweep.json",JSON.stringify(results,null,2));expect(results).toHaveLength(treatments.length);
 });
 
 test("D-062 desktop interactions remain functional",async({page})=>{
