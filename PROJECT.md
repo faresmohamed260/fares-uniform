@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 Workstreams 10.1–10.8 remain engineering-GREEN. Fares explicitly **rejected** browser design candidate `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb` on 2026-09-22 as visually cheap. D-060 reset the design process to the pinned Scrollcraft + Astra 10K workflow. A replacement browser-native review candidate is now hosted and GREEN at exact **design SHA `9ca2215bdbdd4455cd00ca94769119605af97952`**. Push run/job `35669056914` / `106561193091` passed 10/10 browser checks; artifact `10670287485` includes desktop/mobile/RTL/reduced-motion and three intermediate Seam Handoff captures. Protected Vercel preview deployment `dpl_8fE2ypX2ZgqaWwtcy5Tz4KFJV28K` is READY and non-production. Fares has **not yet approved** this SHA, so there is still no approved UI authority and production remains NO-GO.
+- **Track A — Public website:** active now. Phase 10 engineering remains GREEN, but both browser design candidates `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb` and `9ca2215bdbdd4455cd00ca94769119605af97952` were explicitly **rejected by Fares** on 2026-09-22. The second candidate was technically GREEN but still visually wrong because it made the global site feel like a KGC/school experience. D-061 now moves design authority to **page-by-page approval**, beginning with the master-brand homepage. The active contract is `docs/ui/homepage/HOMEPAGE_DESIGN_BRIEF.md`. There is currently **no approved homepage or whole-site visual SHA**. Production remains NO-GO.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -17,7 +17,7 @@ Do not treat progress or authorization in one track as progress or authorization
 
 D-059 changes the public-site design process. The authoritative workflow is [Repo-first UI/UX workflow](docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md): UX contracts + source-controlled tokens + coded component states + browser-native review pages + explicit Fares approval of an exact Git commit. Generated concept images and screenshots are not implementation specifications. Screenshots are retained only as inspiration, historical records or regression evidence.
 
-The old Phase 10 engineering preview remains reference evidence only. D-059 candidate `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb` is also retained only as rejected design evidence and must not be polished or promoted. The active design sources are `docs/ui/ASTRA_10K_SCROLLCRAFT_WORKFLOW.md`, `docs/ui/scrollcraft/BRIEF.md`, `REFERENCE_BOARD.md`, `PAGE_GRAMMAR_SCROLL_SCORE.md`, and `.agents/skills/fares-scrollcraft/SKILL.md`. Pinned upstream Scrollcraft commit is `0b816225945e45380397d6a0487efa3c98916858`; pinned Astra 10K workflow commit is `e05e451ecd1e371536ef3c310fa273e12b98db7a`. Replacement candidate `9ca2215bdbdd4455cd00ca94769119605af97952` uses the pinned engine in CI, the Pattern Assembly grammar, the Seam Handoff signature peak, current real review-authorized media and route-specific collection/chapter/atelier grammars. It is the **only active visual-review candidate**, but it is not UI authority until Fares explicitly approves that exact SHA. Production launch/cutover, KGC publication and PR merges remain separately gated.
+The old Phase 10 engineering preview and both D-059/D-060 browser candidates are historical/rejected evidence only. Do not polish or promote their layouts. D-061 keeps the repo-first/code-first workflow and the useful Scrollcraft/Astra tool research, but **supersedes the one-grammar whole-site design approach**. The homepage is now designed independently as the master-brand entrance using `docs/ui/homepage/HOMEPAGE_DESIGN_BRIEF.md`; KGC is confined to Selected Work on the homepage and receives its own later case-study design contract. Generated non-product media is now explicitly allowed for graphic backgrounds, transitions and decorative design assets, while real products/client evidence remain truth-grounded. There is no active approved visual SHA. Production launch/cutover, KGC public publication and PR merges remain separately gated.
 
 ## Historical Phase 9 visual reference
 
@@ -237,13 +237,15 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Fares visual review:** review protected D-060 Scrollcraft candidate `9ca2215bdbdd4455cd00ca94769119605af97952` on the isolated Vercel design-authority project. Treat it as a new candidate, not as accepted authority.
-2. If Fares rejects or annotates it, continue on the design-authority surface from that exact feedback while preserving D-060, real-media, no-fake, no-price/no-stock, RTL, reduced-motion and publication boundaries.
-3. If Fares explicitly approves that exact SHA, record the approval and only then reconcile/promote the approved browser-native design into `apps/public-web` without screenshot-to-code reinterpretation.
-4. After promotion, rerun exact-SHA production foundation, Pattern, accessibility, enquiry, cache/SEO/performance and no-leak gates.
-5. Keep KGC and all real-client publication gated. Protected design-review use does not authorize public R2 publication.
-6. Keep PR #7 and PR #8 draft/unmerged unless Fares explicitly authorizes their disposition. Do not launch/cut over production.
-7. **Track B / ERP:** Gate D remains a separate production-operations track.
+1. **Track A / active checkpoint — homepage only:** use `docs/ui/homepage/HOMEPAGE_DESIGN_BRIEF.md` to create a new browser-native **master-brand homepage** design candidate. Do not reuse the rejected KGC-heavy whole-site layout.
+2. The homepage must represent Fares across sectors, use graphic backgrounds/transitions/morphing, may use generated non-product decorative media, and may show KGC only as later Selected Work.
+3. Present the homepage as its own protected review candidate and obtain Fares's explicit approval of the exact homepage design SHA before designing the next page.
+4. After homepage approval, design pages separately in order: Schools sector -> KGC case study/program -> Garments/collections -> About/process -> Enquiry/contact -> remaining sector pages.
+5. The KGC case-study design must include the user-requested **whole worn outfit -> exploded individual real uniform pieces** interaction when the required real component assets are available. Do not replace those product pieces with generated fake garments.
+6. Do not promote any new visual work into `apps/public-web` until the relevant page design is approved and the integration step is separately authorized by the active phase contract.
+7. Keep KGC and other real-client **public publication** gated; protected design-review use remains separate.
+8. Keep PR #7 and PR #8 draft/unmerged unless Fares explicitly authorizes their disposition. Production remains NO-GO.
+9. **Track B / ERP:** Gate D remains a separate production-operations track.
 
 ## Constraints for every continuation
 
