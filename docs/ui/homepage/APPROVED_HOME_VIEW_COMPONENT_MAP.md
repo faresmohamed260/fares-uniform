@@ -6,7 +6,7 @@
 **Reference canvas:** 1024 × 1536 px  
 **Repository reference asset:** `docs/ui/homepage/assets/approved-homepage-reference.webp`  
 **Source reference SHA-256:** `d3cecc6a20f6dd29af6db55d84d35f970d2e866e96a503a795f6a96451f94492` (original generated PNG supplied in chat)  
-**Normalized repo derivative SHA-256:** `3fdbf2694be365b768b6abbc816742704af2543d45dd5793b818b181ad6a704f` (WebP authority copy)
+**Normalized repo derivative SHA-256:** `db799d7b8fdb148b79481fbcf41d525aef4667d2190360f4c75ef5dfa91eceef` (512×768 WebP, exact 1:2 visual derivative committed for CI/runtime use)
 
 ## Authority rule
 
@@ -447,7 +447,7 @@ Mobile can reflow cards/people/media but must not invent a different theme.
 
 ## Fidelity verification
 
-For the approved desktop reference viewport:
+For the approved desktop reference viewport (the committed 512×768 derivative is scaled exactly 2× to the original 1024×1536 coordinate system):
 1. capture the rendered page at 1024 CSS px width;
 2. compare the full-page screenshot against the committed authority;
 3. use image-difference evidence plus component bounding-box assertions;

@@ -5,6 +5,7 @@ import { SiteShell } from "@/components/site-shell";
 import { ScrollcraftRuntime } from "@/components/scrollcraft-runtime";
 import { direction, type Locale } from "@/lib/locale";
 import "../globals.css";
+import "../approved-homepage.css";
 
 const display = Bodoni_Moda({ subsets: ["latin"], variable: "--font-display", display: "swap" });
 const sans = Manrope({ subsets: ["latin"], variable: "--font-sans", display: "swap" });

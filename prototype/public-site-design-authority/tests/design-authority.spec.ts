@@ -1,178 +1,23 @@
 import { expect, test } from "@playwright/test";
 
-async function waitForScrollcraft(page: import("@playwright/test").Page) {
-  await expect.poll(
-    () => page.evaluate(() => document.documentElement.dataset.scrollcraftMounted),
-    { timeout: 10_000 }
-  ).toBe("true");
-  await expect(page.locator("html")).toHaveClass(/sc-ready/);
-}
+const sections=[["H00",0,64],["H01",64,390],["H02",454,356],["H03",810,275],["H04",1085,178],["H05",1263,173],["H06",1436,100]] as const;
+async function assertBox(page:import("@playwright/test").Page,id:string,y:number,h:number){const box=await page.locator(`[data-section-id="${id}"]`).boundingBox();expect(box).not.toBeNull();expect(Math.abs((box?.y??0)-y)).toBeLessThanOrEqual(8);expect(Math.abs((box?.height??0)-h)).toBeLessThanOrEqual(8)}
 
-test("desktop homepage is Fares-first, broad, graphic and free of storefront leakage", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/en");
-  await waitForScrollcraft(page);
-
-  const hero = page.getByTestId("homepage-master-hero");
-  await expect(hero).toBeVisible();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Uniforms");
-  await expect(hero.locator('img[src="/design-media/master-brand-field.svg"]')).toBeVisible();
-  await expect(page.locator(".home-sector-universe")).toBeVisible();
-  await expect(page.locator(".sector-index button")).toHaveCount(6);
-
-  expect(await hero.locator('img[src*="kgc"]').count()).toBe(0);
-  expect(await hero.innerText()).not.toContain("KGC");
-
-  const body = (await page.locator("body").innerText()).toLowerCase();
-  expect(body).not.toContain("egp");
-  expect(body).not.toContain("add to cart");
-  expect(body).not.toContain("in stock");
-
-  await page.screenshot({ path: "artifacts/d061-home-desktop-top.png", fullPage: false });
+test("D-062 maps every approved desktop section at 1024x1536",async({page})=>{
+ await page.setViewportSize({width:1024,height:1536});await page.goto("/en");await expect(page.getByTestId("approved-homepage")).toBeVisible();
+ for(const [id,y,h] of sections)await assertBox(page,id,y,h);
+ const ids=["H00.01","H00.02","H00.03","H00.04","H00.05","H01.01","H01.02","H01.03","H01.04","H01.05","H01.06","H01.08","H01.09","H01.10","H01.11","H02.01","H02.02","H02.03","H02.04","H02.05","H02.06","H03A.01","H03A.02","H03A.03","H03A.04","H03A.05","H03B.02","H03B.03","H03B.04","H03B.05","H03B.06","H04.01","H04.02","H04.03","H04.04","H04.05","H04.06","H05.02","H05.03","H05.04","H05.05","H06.01","H06.02","H06.03","H06.04","H06.05","H06.06","H06.07"];
+ for(const id of ids)await expect(page.locator(`[data-component-id="${id}"]`)).toHaveCount(1);
+ await expect(page.locator(".site-bar")).toBeHidden();await expect(page.locator(".review-badge")).toBeHidden();
+ const body=(await page.locator("body").innerText()).toLowerCase();expect(body).not.toContain("egp");expect(body).not.toContain("in stock");expect(body).not.toContain("add to cart");
+ await page.screenshot({path:"artifacts/d062-homepage-1024.png",fullPage:true});
 });
-
-test("sector universe morphs between six business environments", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/en");
-  const buttons = page.locator(".sector-index button");
-  await expect(buttons).toHaveCount(6);
-
-  await buttons.nth(2).hover();
-  await expect(buttons.nth(2)).toHaveAttribute("aria-selected", "true");
-  await expect(page.locator(".home-sector-universe")).toHaveClass(/tone-tomato/);
-  await expect(page.locator(".sector-active-copy")).toContainText("Restaurants & Cafés");
-
-  await buttons.nth(4).focus();
-  await expect(buttons.nth(4)).toHaveAttribute("aria-selected", "true");
-  await expect(page.locator(".home-sector-universe")).toHaveClass(/tone-ink/);
-  await expect(page.locator(".sector-active-copy")).toContainText("Corporate");
-
-  await page.screenshot({ path: "artifacts/d061-sector-universe.png", fullPage: false });
+test("D-062 media slots and authority asset are stable",async({page})=>{
+ await page.setViewportSize({width:1024,height:1536});expect((await page.request.get("/authority/approved-homepage-reference.webp")).ok()).toBeTruthy();await page.goto("/en");
+ for(const slot of ["home.hero.people-group","home.hero.quality-thumb","home.industries.education","home.industries.hospitality","home.industries.healthcare","home.industries.corporate","home.industries.industrial","home.industries.security","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare","home.cta.building"])await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
 });
-
-test("system chapter explains identity to manufacturing with real Scrollcraft timing", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/en");
-  await waitForScrollcraft(page);
-
-  const system = page.locator(".home-system-chapter");
-  await expect(system).toHaveAttribute("data-sc-act", "pin");
-  await expect(system).toHaveAttribute("data-sc-span", "2.05");
-  await expect(system.locator('img[src="/design-media/pattern-paper.svg"]')).toBeVisible();
-  await expect(system.locator(".system-word")).toHaveCount(5);
-
-  const metrics = await system.evaluate((el) => ({
-    top: (el as HTMLElement).offsetTop,
-    height: (el as HTMLElement).offsetHeight,
-    viewport: window.innerHeight,
-  }));
-  const y = metrics.top + 0.56 * Math.max(metrics.height - metrics.viewport, 1);
-  await page.evaluate((target) => window.scrollTo(0, target), y);
-  await page.waitForTimeout(400);
-  const progress = Number(await system.evaluate((el) => getComputedStyle(el).getPropertyValue("--sc-p")));
-  expect(progress).toBeGreaterThan(0.48);
-  expect(progress).toBeLessThan(0.64);
-  await page.screenshot({ path: "artifacts/d061-system-mid.png", fullPage: false });
-});
-
-test("KGC appears only as contained Selected Work and routes deeper", async ({ page }) => {
-  await page.goto("/en");
-  const selected = page.locator(".home-selected-work");
-  await expect(selected).toContainText("SELECTED WORK");
-  await expect(selected).toContainText("KGC NATIONAL");
-  await expect(selected.locator('img[src*="kgc-building.webp"]')).toBeVisible();
-  await expect(selected.locator('img[src*="/review-media/kgc/high-summer.png"]')).toBeVisible();
-  await expect(selected.getByRole("link", { name: /Explore the project/i })).toHaveAttribute("href", "/en/work/kgc/national");
-
-  const beforeSelected = await page.evaluate(() => {
-    const selected = document.querySelector(".home-selected-work");
-    const root = document.querySelector(".fares-homepage");
-    if (!selected || !root) return "";
-    let text = "";
-    for (const child of Array.from(root.children)) {
-      if (child === selected) break;
-      text += (child.textContent || "") + "\n";
-    }
-    return text;
-  });
-  expect(beforeSelected).not.toContain("KGC");
-});
-
-test("garment universe remains catalog-like without becoming ecommerce", async ({ page }) => {
-  await page.goto("/en");
-  const universe = page.locator(".home-garment-universe");
-  await expect(universe).toContainText("GARMENT UNIVERSE");
-  await expect(universe.locator(".garment-category-word")).toHaveCount(8);
-  await expect(universe.locator('img[src*="high-summer-polo-front.png"]')).toBeVisible();
-  await expect(universe.getByRole("link", { name: /Explore garments/i })).toHaveAttribute("href", "/en/garments");
-});
-
-test("manufacturing and craft chapters provide substance after the visual acts", async ({ page }) => {
-  await page.goto("/en");
-  await expect(page.locator(".home-process-ledger article")).toHaveCount(6);
-  await expect(page.locator(".home-process")).toContainText("DESIGN TO MANUFACTURING");
-  await expect(page.locator(".home-craft")).toContainText("MATERIAL / DETAIL");
-  await expect(page.locator(".home-craft-index > div")).toHaveCount(4);
-});
-
-test("English mobile is separately composed, interactive and has no horizontal overflow", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/en");
-  await waitForScrollcraft(page);
-
-  const trigger = page.getByRole("button", { name: "Open menu" });
-  const box = await trigger.boundingBox();
-  expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
-  expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
-  await trigger.click();
-  await expect(page.getByRole("dialog", { name: "Site menu" })).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog", { name: "Site menu" })).toHaveCount(0);
-
-  await expect(page.locator(".sector-index button")).toHaveCount(6);
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-  expect(overflow).toBeLessThanOrEqual(1);
-
-  await page.screenshot({ path: "artifacts/d061-home-mobile-en.png", fullPage: true });
-});
-
-test("Arabic mobile is RTL, broad-brand and free of horizontal overflow", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/ar");
-  await waitForScrollcraft(page);
-
-  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
-  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("زي موحّد");
-  await expect(page.locator(".sector-index button")).toHaveCount(6);
-  await expect(page.locator(".home-selected-work")).toContainText("KGC");
-
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-  expect(overflow).toBeLessThanOrEqual(1);
-
-  await page.screenshot({ path: "artifacts/d061-home-mobile-ar.png", fullPage: true });
-});
-
-test("reduced motion preserves the complete homepage hierarchy and actions", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/en");
-  await waitForScrollcraft(page);
-
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Uniforms");
-  await expect(page.getByText("One uniform language should never fit everyone.")).toBeVisible();
-  await expect(page.getByText("A uniform is not one item. It is a system.")).toBeVisible();
-  await expect(page.locator(".home-selected-work")).toContainText("KGC NATIONAL");
-  await expect(page.getByText(/Identity starts as an idea/)).toBeVisible();
-  await expect(page.getByRole("link", { name: /Discuss a uniform program/i }).first()).toBeVisible();
-
-  await page.screenshot({ path: "artifacts/d061-home-reduced-motion.png", fullPage: true });
-});
-
-test("deep routes remain reachable while D-061 approval is homepage-only", async ({ page }) => {
-  await page.goto("/en/work");
-  await expect(page.getByRole("heading", { level: 1, name: /KGC/i })).toBeVisible();
-  await page.goto("/en/garments");
-  await expect(page.locator('img[src*="high-summer-polo-front.png"]')).toBeVisible();
-  await page.goto("/en/enquiry");
-  await expect(page.getByRole("button", { name: /Preview submission state/i })).toBeVisible();
-});
+test("D-062 desktop interactions remain functional",async({page})=>{await page.setViewportSize({width:1024,height:768});await page.goto("/en");const rail=page.locator(".approved-industry-rail");const before=await rail.evaluate(el=>el.scrollLeft);await page.getByRole("button",{name:"Next"}).click();await page.waitForTimeout(350);const after=await rail.evaluate(el=>el.scrollLeft);expect(after).toBeGreaterThanOrEqual(before);await expect(page.getByRole("link",{name:/Explore Our Industries/i})).toHaveAttribute("href","#industries");await expect(page.getByRole("link",{name:/Get in Touch/i}).first()).toHaveAttribute("href","/en/enquiry")});
+test("D-062 English mobile reflows without changing identity",async({page})=>{await page.setViewportSize({width:390,height:844});await page.goto("/en");await expect(page.getByRole("heading",{level:1})).toContainText("PEOPLE");await expect(page.locator(".approved-industry-card")).toHaveCount(6);const trigger=page.getByRole("button",{name:"Open menu"});await trigger.click();await expect(page.getByRole("dialog",{name:"Site menu"})).toBeVisible();await page.keyboard.press("Escape");await expect(page.getByRole("dialog",{name:"Site menu"})).toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);await page.screenshot({path:"artifacts/d062-homepage-mobile-en.png",fullPage:true})});
+test("D-062 Arabic preserves component inventory in RTL",async({page})=>{await page.setViewportSize({width:390,height:844});await page.goto("/ar");await expect(page.locator("html")).toHaveAttribute("dir","rtl");await expect(page.getByRole("heading",{level:1})).toContainText("أشخاص");await expect(page.locator(".approved-industry-card")).toHaveCount(6);expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);await page.screenshot({path:"artifacts/d062-homepage-mobile-ar.png",fullPage:true})});
+test("D-062 reduced motion preserves hierarchy",async({page})=>{await page.emulateMedia({reducedMotion:"reduce"});await page.goto("/en");for(const t of ["UNIFORMS FOR A BRIGHTER TOMORROW","OUR INDUSTRIES","SELECTED WORK","READY TO GET STARTED?"])await expect(page.getByText(t)).toBeVisible();await page.screenshot({path:"artifacts/d062-homepage-reduced-motion.png",fullPage:true})});
+test("deep routes remain reachable outside D-062 homepage authority",async({page})=>{await page.goto("/en/work");await expect(page.getByRole("heading",{level:1,name:/KGC/i})).toBeVisible();await page.goto("/en/garments");await expect(page.locator('img[src*="high-summer-polo-front.png"]')).toBeVisible();await page.goto("/en/enquiry");await expect(page.getByRole("button",{name:/Preview submission state/i})).toBeVisible()});
