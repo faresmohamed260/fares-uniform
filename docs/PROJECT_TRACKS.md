@@ -50,7 +50,7 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 
 #### A2 — Repo-first browser-native UI/UX authority and production integration
 
-Historical Phase 10 engineering migration remains GREEN, but its screenshot-parity acceptance model was superseded by D-059 before client visual approval. The first D-059 browser candidate (`fd973244...`) was then explicitly rejected by Fares on 2026-09-22. D-060 requires a clean Scrollcraft/Astra-workflow rebuild; there is currently no approved UI design SHA.
+Historical Phase 10 engineering migration remains GREEN. D-059 candidate `fd973244...` and D-060 Scrollcraft candidate `9ca2215...` were both explicitly rejected by Fares on 2026-09-22. D-061 supersedes whole-site design approval with page-by-page authority. The homepage master-brand brief is active; there is currently no approved homepage or whole-site design SHA.
 
 - [x] Fares introduction/home technical surface.
 - [x] Work/client/project discovery and generic organization/program routes.
@@ -59,12 +59,13 @@ Historical Phase 10 engineering migration remains GREEN, but its screenshot-pari
 - [x] Remove prototype-only KGC branching and fixed-count assumptions.
 - [x] Drive capabilities from content, not organization identity.
 - [x] Preserve the old Phase 9 board/prototype comparison as historical evidence only.
-- [x] Define/update UX, information-architecture and page contracts in the repo.
-- [x] Define the D-060 Scrollcraft brief, Pain/Person/Promise, concrete reference board, Pattern Assembly grammar, feeling curve, peak, signature move and scroll score.
-- [x] Pin the upstream Scrollcraft and Astra 10K workflow sources by exact commit.
-- [ ] Rebuild the browser review surface using the pinned Scrollcraft engine rather than the rejected generic Motion layout.
-- [ ] Compose responsive EN/AR/RTL review pages with separate mobile art direction.
-- [ ] Implement the Seam Handoff peak and required device variety with reduced-motion parity.
+- [x] Define the repo-first/code-first UI workflow and pin useful Scrollcraft/Astra reference sources.
+- [x] Reject both whole-site visual candidates after client review; preserve them only as historical evidence.
+- [x] Adopt D-061 page-by-page design authority.
+- [x] Define the master-brand homepage contract in `docs/ui/homepage/HOMEPAGE_DESIGN_BRIEF.md`.
+- [ ] Create and obtain approval for a new homepage-only browser-native design candidate.
+- [ ] After homepage approval, design and approve Schools, KGC case study, Garments, About/process, Enquiry/contact and remaining sectors separately.
+- [ ] For every page: verify responsive EN/AR/RTL, reduced motion and page-specific interaction behavior before approval.
 - [ ] Obtain Fares's explicit approval of an exact Git commit as the current UI authority.
 - [ ] Reconcile/promote production UI from that coded authority without screenshot-to-code reverse engineering.
 - [ ] Prove implementation fidelity and regressions with hosted browser tests/screenshots on the exact implementation SHA.
