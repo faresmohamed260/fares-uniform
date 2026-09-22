@@ -66,7 +66,7 @@ All six are 158–159 × 137 reference slots. Framing must survive a wide, compa
 - generic uniform, no venue branding;
 - current generated review asset: `prototype/public-site-design-authority/public/generated/home-industries-hospitality.webp`;
 - SHA-256: `c96db206981ceb504f2ae5aeee8223829a5536574459dd38cfda41fc90144cef`;
-- status: pending D-062 fidelity gate.
+- status: D-062 fidelity GREEN at `89e75685...` (run `35785139365`, job `106940014250`, artifact `10719609173`); global mean error `21.9822`, H02 mean error `15.1410`; accepted for protected review.
 
 ### Healthcare
 - healthcare worker in modern clinic/hospital environment;
