@@ -146,7 +146,10 @@ Target: 169 × 149.
 Target: 169 × 149.
 - illustrative clinic/healthcare team fragment;
 - clearly generic;
-- no real facility identity.
+- no real facility identity;
+- current protected-review placeholder: reuses `prototype/public-site-design-authority/public/generated/home-industries-healthcare.webp` so no additional fake client scene is introduced;
+- source SHA-256: `5dbe74ffbd8ce363a4e0acaaed170690b43e1a87d60bd7206c4eec4e21a1a6ee`;
+- status: D-062 fidelity gate pending.
 
 These two remain capability placeholders and must not be labelled as completed Fares client projects in production content.
 
