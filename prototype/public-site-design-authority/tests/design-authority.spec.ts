@@ -284,6 +284,29 @@ test("D-062 sweeps closing-building treatment against the approved H05 region",a
   results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);
   console.log("D062_BUILDING_TREATMENT_SWEEP",JSON.stringify(results));
   writeFileSync("artifacts/d062-building-treatment-sweep.json",JSON.stringify(results,null,2));
+  const referenceMap=await page.evaluate(async()=>{
+    const image=await new Promise<HTMLImageElement>((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src="/authority/approved-homepage-reference.webp";});
+    const width=512,height=768,canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;
+    const ctx=canvas.getContext("2d",{willReadFrequently:true})!;ctx.drawImage(image,0,0,width,height);
+    const data=ctx.getImageData(0,0,width,height).data;
+    const xCells=16,yCells=6,y0=632,y1=718;
+    const cells:string[][]=[];
+    const hex=(n:number)=>Math.round(n).toString(16).padStart(2,"0");
+    for(let gy=0;gy<yCells;gy++){
+      const row:string[]=[];
+      const sy=Math.floor(y0+(y1-y0)*gy/yCells),ey=Math.floor(y0+(y1-y0)*(gy+1)/yCells);
+      for(let gx=0;gx<xCells;gx++){
+        const sx=Math.floor(width*gx/xCells),ex=Math.floor(width*(gx+1)/xCells);
+        let r=0,g=0,b=0,n=0;
+        for(let y=sy;y<ey;y++)for(let x=sx;x<ex;x++){const i=(y*width+x)*4;r+=data[i];g+=data[i+1];b+=data[i+2];n++;}
+        row.push("#"+hex(r/n)+hex(g/n)+hex(b/n));
+      }
+      cells.push(row);
+    }
+    return cells;
+  });
+  console.log("D062_H05_REFERENCE_COLOR_GRID",JSON.stringify(referenceMap));
+  writeFileSync("artifacts/d062-h05-reference-color-grid.json",JSON.stringify(referenceMap,null,2));
   expect(results).toHaveLength(treatments.length);
 });
 
