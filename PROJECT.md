@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved and the H00–H06 geometry remains frozen from the carbon-copy pass. Media replacement is active. Exact latest verified media SHA `7188835e881fd9c78051e5bded5f8f3aa0a82a56` passed run/job `35766135668` / `106876015201`, **10/10 D-062 browser checks**, artifact `10712321568`, and protected-preview fail-closed verification. Real KGC media was swept automatically; the real KGC campus was the closest truthful current asset (`27.82` H04 mean error), materially better than all staged worn-model candidates (`33.80–35.06`). Global strict fidelity remains GREEN at mean RGB-channel error `20.2716` and high-difference pixels `10.6178%`. The quality-detail and navy-fabric decorative slots are now code-generated rather than authority-sprite crops. Production remains NO-GO.
+- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved and H00–H06 geometry remains frozen. Media replacement is active. Education, Hospitality and Healthcare generated industry assets are now integrated. Exact healthcare evidence at `1af694a7d4de8e74738404516af89de3f8873b42` passed run/job `35782149846` / `106930022579`, **10/10 D-062 browser checks**, artifact `10718058795`. Global strict fidelity remains GREEN at mean RGB-channel error `21.8880` and high-difference pixels `10.8574%`; H02 Industries remains GREEN at mean error `14.7348`. Real KGC campus remains the closest truthful protected-review KGC asset. The active next media slot is **Corporate**. Production remains NO-GO.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -237,13 +237,13 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — D-062 Batch B industry media:** Batch A hero is generated, integrated and hosted-GREEN at `f74a997b61a90f2b9feab9efee4fc8f2d47b2515`. Industry replacements proceed one slot at a time: Education -> Hospitality -> Healthcare -> Corporate -> Industrial -> Security.
-2. Current candidate: generated `home.industries.education` at `public/generated/home-industries-education.webp` (SHA-256 `6d087847c89da991d73b83d2a925c95714ba6a64d7fe6e021aa9fb09fa9b00d2`). Validate it with the exact D-062 boundary + pixel-difference gate before moving on.
-3. Preserve frozen H00–H06 geometry and approved navy/white/electric-blue composition. Replace only the named industry media slot.
-4. If Education remains GREEN, generate/integrate Hospitality next; otherwise iterate/revert the Education asset, not the layout.
-5. Keep real KGC campus in protected review as the current best truthful `home.work.kgc` replacement. It does **not** authorize public KGC publication.
-6. Then continue the remaining industry slots, Batch C design-sketch, Batch D generic hospitality/healthcare work placeholders, and Batch E illustrative architecture.
-7. Do not start Schools/KGC/Garments page design until D-062 homepage media/fidelity is accepted.
+1. **Track A / active — D-062 Batch B Corporate:** generate and integrate `home.industries.corporate` exactly to `docs/ui/homepage/HOMEPAGE_MEDIA_GENERATION_SPECS.md`; modern office/front-desk/team context, polished practical business uniform, no logo/client identity.
+2. Preserve frozen H00–H06 geometry and replace only the named media slot. Run the D-062 full-page and regional pixel-difference gate before accepting it.
+3. If Corporate stays GREEN, continue one slot at a time: Industrial -> Security.
+4. Then continue Batch C design-sketch, Batch D generic hospitality/healthcare selected-work placeholders, and Batch E illustrative architecture.
+5. Keep the current real KGC campus in protected review only; it does **not** authorize public KGC publication.
+6. Do not start Schools/KGC/Garments page design until D-062 homepage media/fidelity is accepted.
+7. The future KGC case-study explode-view remains whole worn outfit -> separated **real** garment pieces.
 8. Keep PR merges, public client publication and production cutover separately gated. Production remains NO-GO.
 9. **Track B / ERP:** Gate D remains independent.
 
