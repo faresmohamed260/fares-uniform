@@ -1,0 +1,47 @@
+name: Commit generated D-062 hospitality asset
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - "docs/ui/homepage/assets/.generated-home-hospitality/**"
+      - ".github/workflows/commit-generated-home-hospitality.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  reconstruct:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Reconstruct verified hospitality asset
+        run: |
+          set -euo pipefail
+          STAGE="docs/ui/homepage/assets/.generated-home-hospitality"
+          TARGET="prototype/public-site-design-authority/public/generated/home-industries-hospitality.webp"
+          EXPECTED="c96db206981ceb504f2ae5aeee8223829a5536574459dd38cfda41fc90144cef"
+          mkdir -p "$(dirname "$TARGET")"
+          test "$(find "$STAGE" -maxdepth 1 -type f -name 'part-*.b64' | wc -l)" -eq 1
+          joined="$(mktemp)"
+          trap 'rm -f "$joined"' EXIT
+          cat "$STAGE"/part-*.b64 > "$joined"
+          test "$(wc -c < "$joined")" -eq 6812
+          base64 --decode "$joined" > "$TARGET"
+          test "$(sha256sum "$TARGET" | awk '{print $1}')" = "$EXPECTED"
+          file "$TARGET" | grep -Eq 'Web/P image|WebP'
+          file "$TARGET" | grep -Eq '159x137|159 x 137'
+          rm -rf "$STAGE"
+          rm -f ".github/workflows/commit-generated-home-hospitality.yml"
+      - name: Commit reconstructed binary
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "design: commit generated D-062 hospitality media"
+          git push origin HEAD:phase-10/public-site-productionization
