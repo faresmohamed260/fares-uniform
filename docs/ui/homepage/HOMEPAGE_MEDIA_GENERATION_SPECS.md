@@ -63,7 +63,10 @@ All six are 158–159 × 137 reference slots. Framing must survive a wide, compa
 ### Hospitality
 - chef or front-of-house service worker;
 - warm but clean restaurant/hotel environment;
-- generic uniform, no venue branding.
+- generic uniform, no venue branding;
+- current generated review asset: `prototype/public-site-design-authority/public/generated/home-industries-hospitality.webp`;
+- SHA-256: `c96db206981ceb504f2ae5aeee8223829a5536574459dd38cfda41fc90144cef`;
+- status: pending D-062 fidelity gate.
 
 ### Healthcare
 - healthcare worker in modern clinic/hospital environment;

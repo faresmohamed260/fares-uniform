@@ -11,7 +11,7 @@ The first fidelity implementation may crop the committed reference image as a te
 | home.hero.people-group | illustrative people composition | 335,55,689,399 | **generated review asset committed:** `public/generated/home-hero-people-group.webp`, SHA-256 `3921291dac7db38c6c8834f5e3413aee2df93393157059b48011ba09407761ed`; generic illustrative media only, not Fares client/product evidence |
 | home.hero.quality-thumb | decorative detail | 760,352,60,67 | **replaced in review:** code-generated navy textile macro; real material macro may supersede later |
 | home.industries.education | illustrative sector media | 10,579,158,137 | **generated review asset:** `public/generated/home-industries-education.webp`, SHA-256 `6d087847c89da991d73b83d2a925c95714ba6a64d7fe6e021aa9fb09fa9b00d2`; generic education media only, no client identity |
-| home.industries.hospitality | illustrative sector media | 179,579,159,137 | generated hospitality/chef atmosphere |
+| home.industries.hospitality | illustrative sector media | 179,579,159,137 | **generated review asset:** `public/generated/home-industries-hospitality.webp`, SHA-256 `c96db206981ceb504f2ae5aeee8223829a5536574459dd38cfda41fc90144cef`; generic hospitality/chef media only, no venue/client identity |
 | home.industries.healthcare | illustrative sector media | 348,579,159,137 | generated healthcare atmosphere/person |
 | home.industries.corporate | illustrative sector media | 518,579,159,137 | generated corporate atmosphere/person |
 | home.industries.industrial | illustrative sector media | 687,579,159,137 | generated industrial/workwear atmosphere/person |
