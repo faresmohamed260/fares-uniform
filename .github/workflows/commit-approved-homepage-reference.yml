@@ -1,0 +1,46 @@
+name: Commit approved homepage reference
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - ".github/workflows/commit-approved-homepage-reference.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  reconstruct:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Reconstruct and verify approved homepage reference
+        run: |
+          set -euo pipefail
+          STAGE="docs/ui/homepage/assets/.approved-homepage-reference"
+          TARGET="docs/ui/homepage/assets/approved-homepage-reference.webp"
+          EXPECTED="db799d7b8fdb148b79481fbcf41d525aef4667d2190360f4c75ef5dfa91eceef"
+
+          test "$(find "$STAGE" -maxdepth 1 -type f -name 'part-*.b64' | wc -l)" -eq 7
+          cat "$STAGE"/part-*.b64 | base64 --decode > "$TARGET"
+          actual="$(sha256sum "$TARGET" | awk '{print $1}')"
+          test "$actual" = "$EXPECTED"
+          file "$TARGET"
+          echo "approved_homepage_reference_sha256=$actual"
+
+      - name: Commit binary authority and remove transport chunks
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/ui/homepage/assets/approved-homepage-reference.webp
+          git rm -r docs/ui/homepage/assets/.approved-homepage-reference
+          git commit -m "asset: commit approved homepage visual authority"
+          git push origin HEAD:phase-10/public-site-productionization
