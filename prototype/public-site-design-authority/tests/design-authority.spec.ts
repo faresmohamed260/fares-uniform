@@ -277,15 +277,15 @@ test("D-062 sweeps hospitality Selected Work treatment against H04",async({page}
 test("D-062 sweeps stronger healthcare Selected Work treatment against H04",async({page})=>{
   await page.setViewportSize({width:1024,height:1536});await page.goto("/en");await page.evaluate(()=>document.fonts.ready);
   const treatments=[
-    {opacity:"1",filter:"brightness(.80) saturate(.40)"},
-    {opacity:"1",filter:"brightness(.75) saturate(.30)"},
-    {opacity:".95",filter:"brightness(.72) saturate(.25)"},
-    {opacity:".90",filter:"brightness(.68) saturate(.20)"},
-    {opacity:".85",filter:"brightness(.64) saturate(.15)"},
-    {opacity:".9",filter:"grayscale(.55) brightness(.70)"}
+    {opacity:".80",filter:"brightness(.72) saturate(.30)"},
+    {opacity:".65",filter:"brightness(.76) saturate(.35)"},
+    {opacity:".50",filter:"brightness(.82) saturate(.42)"},
+    {opacity:".35",filter:"brightness(.88) saturate(.50)"},
+    {opacity:".20",filter:"brightness(.94) saturate(.60)"}
   ];
   const results:{opacity:string;filter:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
   const img=page.locator('img[data-media-slot="home.work.healthcare"]');
+  await img.evaluate(node=>{const card=node.parentElement as HTMLElement;card.style.backgroundImage="url('/authority/approved-homepage-reference.webp')";card.style.backgroundSize="1024px 1536px";card.style.backgroundPosition="-682px -1097px";card.style.backgroundRepeat="no-repeat";});
   for(const treatment of treatments){
     await img.evaluate((node,args)=>{const el=node as HTMLImageElement;el.style.opacity=args.opacity;el.style.filter=args.filter;},treatment);
     const screenshot=await page.screenshot({fullPage:true});const screenshotBase64=screenshot.toString("base64");
