@@ -122,6 +122,10 @@ Target: 519 × 263.
 - no real client logo or product claim;
 - leave left third visually quiet because semantic heading/copy overlays there;
 - allow handwritten checklist/annotation region at right.
+- current generated review asset: `prototype/public-site-design-authority/public/generated/home-feature-design-sketch.svg`;
+- SHA-256: `b59109dda178910b8805c711a5226af3c4e12e9c8804a43c8497cb3e832121a1`;
+- source: independently vector-generated decorative technical-uniform sketch at the exact 519×263 slot ratio;
+- status: D-062 fidelity gate pending.
 
 ## Batch D — selected-work placeholders
 

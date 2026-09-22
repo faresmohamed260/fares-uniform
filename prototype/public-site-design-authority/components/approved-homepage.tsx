@@ -133,7 +133,7 @@ export function ApprovedFeatureBand({locale}:{locale:Locale}){
    <div className="approved-benefit-row" data-component-id="H03A.05">{benefits.map(([Icon,label])=><div key={label}><Icon/><span>{label}</span></div>)}</div>
   </article>
   <article className="approved-feature-idea">
-   <ReferenceCrop slot="home.feature.design-sketch" crop={{x:505,y:817,w:519,h:263}} className="approved-sketch-background"/>
+   <img data-media-slot="home.feature.design-sketch" className="approved-sketch-background approved-sketch-generated" src="/generated/home-feature-design-sketch.svg" alt="" aria-hidden="true"/>
    <div className="approved-sketch-mask" aria-hidden="true"/>
    <div className="approved-feature-copy approved-feature-copy-dark"><h2 data-component-id="H03B.02">{ar?"من الفكرة\nإلى الزي":"FROM\nIDEA TO UNIFORM"}</h2><p data-component-id="H03B.03">{ar?"من الفكرة إلى المنتج النهائي — نصمّم ونأخذ العينات ونصنّع الزي الذي يحوّل رؤيتك إلى واقع.":"Concept to final product — designing, sampling and manufacturing uniforms that bring your vision to life."}</p><a data-component-id="H03B.06" className="approved-outline-button" href="#process">{ar?"عمليتنا":"Our Process"} ↗</a></div>
    <div className="approved-process-checklist" data-component-id="H03B.04">{[ar?"تصميم":"Design",ar?"عينة":"Sample",ar?"إنتاج":"Produce",ar?"تسليم":"Deliver"].map(x=><span key={x}><Check/> {x}</span>)}</div>
