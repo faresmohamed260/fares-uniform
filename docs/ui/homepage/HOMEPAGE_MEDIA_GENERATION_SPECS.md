@@ -125,7 +125,7 @@ Target: 519 × 263.
 - current generated review asset: `prototype/public-site-design-authority/public/generated/home-feature-design-sketch.svg`;
 - SHA-256: `b59109dda178910b8805c711a5226af3c4e12e9c8804a43c8497cb3e832121a1`;
 - source: independently vector-generated decorative technical-uniform sketch at the exact 519×263 slot ratio;
-- status: D-062 fidelity gate pending.
+- status: D-062 fidelity GREEN at `2a68f1e34f436ec63078d8702f0b376dd437efc0` (run `35790380861`, job `106957170942`, artifact `10722045945`); global mean error `23.4380`, high-difference pixels `11.7007%`, H03 mean error `31.0147`.
 
 ## Batch D — selected-work placeholders
 

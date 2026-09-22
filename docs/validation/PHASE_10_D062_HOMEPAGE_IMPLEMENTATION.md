@@ -114,3 +114,22 @@ The layout/component map is frozen. Remaining work is media fidelity/replacement
 6. do not start the Schools page until the homepage replacement pass is accepted.
 
 The temporary authority crops are therefore an implementation scaffold, not the final media source.
+
+
+## Media replacement evidence — Batch C design sketch
+
+Exact implementation commit `2a68f1e34f436ec63078d8702f0b376dd437efc0` replaced only `home.feature.design-sketch` with the independent 519×263 decorative technical-uniform SVG while preserving H00–H06 geometry and the D-062 media-slot contract.
+
+Hosted push evidence:
+- run: `35790380861`;
+- job: `106957170942`;
+- artifact: `10722045945`;
+- **10/10 D-062 browser checks passed**;
+- global mean RGB-channel error: **23.4380**;
+- global pixels >48: **11.7007%**;
+- H03 Feature Band mean error: **31.0147**;
+- H03 pixels >48: **15.2216%**;
+- protected review preview: `fares-uniform-design-authority-3rutxlsf6.vercel.app`;
+- fail-closed verification: unauthenticated HTTP **302**, target **preview**.
+
+The strict global limits remain GREEN (mean <25; high-difference pixels <14%). The active replacement sequence therefore advances to Batch D Selected Work placeholders, one slot at a time.
