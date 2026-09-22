@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. Fares rejected the prior browser homepage candidate and on 2026-09-22 explicitly **approved a new generated homepage board** as the exact visual authority under D-062. The active task is a one-to-one semantic component implementation/carbon copy of that approved 1024×1536 board, with temporary sprite/generated non-product media replaced slot-for-slot by real Odoo/R2 assets later. Production remains NO-GO.
+- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved. The semantic carbon-copy component/layout pass is now hosted-GREEN at exact implementation SHA `778ea6fadeb88699708b44742ee1bf651c85b0fe`: run/job `35750269389` / `106822270107`, artifact `10705450897`, 8/8 browser checks, exact major-section geometry, and strict visual-difference GREEN (mean RGB-channel error `19.2494`, high-difference pixels `9.6657%`). Protected deployment `dpl_8YykRkaG96einFtrLrbaLmFCzAUx` is READY. The active task is now **homepage media replacement/fidelity only**; surrounding geometry is frozen. Production remains NO-GO.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -237,14 +237,15 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — carbon-copy homepage implementation:** commit/reconstruct the D-062 approved reference asset and implement every component in `docs/ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md` on the isolated design-authority surface.
-2. Use the approved reference as the temporary sprite/media source where required, with slot keys from `docs/ui/homepage/APPROVED_HOME_MEDIA_MANIFEST.md`. Replace slots later one-for-one with generated non-product media or real authorized database assets without changing geometry.
-3. Add hosted screenshot-difference and component-bounding-box validation at the 1024px reference width; iterate until section boundaries, cards, header/hero controls, colors and media placement meet the documented tolerance.
-4. Preserve responsive/mobile, EN/AR RTL, reduced motion, keyboard/focus and no-price/no-stock requirements while keeping desktop composition faithful.
-5. Do not start the Schools/KGC/Garments page design implementation until the homepage carbon-copy checkpoint is verified.
-6. The future KGC case-study explode-view must be whole worn outfit -> separated **real** garment pieces from the uniform asset set.
-7. Keep public KGC/client publication, PR merges and production cutover separately gated. Production remains NO-GO.
-8. **Track B / ERP:** Gate D remains independent.
+1. **Track A / active — D-062 homepage media replacement:** keep exact verified geometry from `778ea6fadeb88699708b44742ee1bf651c85b0fe` frozen. Replace temporary authority-sprite slots one-for-one using `docs/ui/homepage/APPROVED_HOME_MEDIA_MANIFEST.md`.
+2. Generate only the non-product illustrative/decorative assets D-062 allows; mark them as illustrative. Do not synthesize real Fares products or factual client evidence.
+3. Where real authorized Odoo/R2 media exists, use it instead of generated media. Protected KGC review use does not authorize public publication.
+4. After every media replacement batch, rerun the D-062 1024×1536 component-boundary and pixel-difference gate. Do not accept regression above the current verified fidelity without explicit reason.
+5. Keep the approved H00–H06 component inventory, ordering, navy/white/electric-blue relationships, CTA hierarchy and card geometry unchanged.
+6. Do not start the Schools/KGC/Garments page design until the D-062 homepage media/fidelity pass is accepted.
+7. The future KGC case-study explode-view remains whole worn outfit -> separated **real** garment pieces.
+8. Keep PR merges, public client publication and production cutover separately gated. Production remains NO-GO.
+9. **Track B / ERP:** Gate D remains independent.
 
 ## Constraints for every continuation
 
