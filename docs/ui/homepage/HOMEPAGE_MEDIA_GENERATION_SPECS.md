@@ -79,7 +79,11 @@ All six are 158–159 × 137 reference slots. Framing must survive a wide, compa
 ### Corporate
 - modern office/front-desk/team environment;
 - polished practical business uniform;
-- no company logo.
+- no company logo;
+- current generated review asset: `prototype/public-site-design-authority/public/generated/home-industries-corporate.webp`;
+- SHA-256: `3a9fe5915143492a9c7a465e7ca947bf3297745ab120fc6614d7e7f00a2abe45`;
+- source: generated illustrative corporate media cropped to the exact 159×137 approved slot;
+- status: pending D-062 fidelity gate.
 
 ### Industrial
 - warehouse/light-industry/logistics environment;

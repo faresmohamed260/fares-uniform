@@ -127,6 +127,7 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
   await expect(page.locator('[data-media-slot="home.industries.education"]')).toHaveAttribute("src","/generated/home-industries-education.webp");
   await expect(page.locator('[data-media-slot="home.industries.hospitality"]')).toHaveAttribute("src","/generated/home-industries-hospitality.webp");
   await expect(page.locator('[data-media-slot="home.industries.healthcare"]')).toHaveAttribute("src","/generated/home-industries-healthcare.webp");
+  await expect(page.locator('[data-media-slot="home.industries.corporate"]')).toHaveAttribute("src","/generated/home-industries-corporate.webp");
   await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
   await expect(page.locator('[data-media-slot="home.hero.quality-thumb"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
   await expect(page.locator('[data-media-slot="home.feature.fabric-blue"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
