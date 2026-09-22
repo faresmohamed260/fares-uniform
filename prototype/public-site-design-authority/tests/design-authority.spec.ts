@@ -1,23 +1,167 @@
 import { expect, test } from "@playwright/test";
+import { writeFileSync } from "node:fs";
 
 const sections=[["H00",0,64],["H01",64,390],["H02",454,356],["H03",810,275],["H04",1085,178],["H05",1263,173],["H06",1436,100]] as const;
-async function assertBox(page:import("@playwright/test").Page,id:string,y:number,h:number){const box=await page.locator(`[data-section-id="${id}"]`).boundingBox();expect(box).not.toBeNull();expect(Math.abs((box?.y??0)-y)).toBeLessThanOrEqual(8);expect(Math.abs((box?.height??0)-h)).toBeLessThanOrEqual(8)}
+
+async function assertBox(page:import("@playwright/test").Page,id:string,y:number,h:number){
+  const box=await page.locator(`[data-section-id="${id}"]`).boundingBox();
+  expect(box).not.toBeNull();
+  expect(Math.abs((box?.y??0)-y)).toBeLessThanOrEqual(8);
+  expect(Math.abs((box?.height??0)-h)).toBeLessThanOrEqual(8);
+}
 
 test("D-062 maps every approved desktop section at 1024x1536",async({page})=>{
- await page.setViewportSize({width:1024,height:1536});await page.goto("/en");await expect(page.getByTestId("approved-homepage")).toBeVisible();
- for(const [id,y,h] of sections)await assertBox(page,id,y,h);
- const ids=["H00.01","H00.02","H00.03","H00.04","H00.05","H01.01","H01.02","H01.03","H01.04","H01.05","H01.06","H01.08","H01.09","H01.10","H01.11","H02.01","H02.02","H02.03","H02.04","H02.05","H02.06","H03A.01","H03A.02","H03A.03","H03A.04","H03A.05","H03B.02","H03B.03","H03B.04","H03B.05","H03B.06","H04.01","H04.02","H04.03","H04.04","H04.05","H04.06","H05.02","H05.03","H05.04","H05.05","H06.01","H06.02","H06.03","H06.04","H06.05","H06.06","H06.07"];
- for(const id of ids)await expect(page.locator(`[data-component-id="${id}"]`)).toHaveCount(1);
- await expect(page.locator(".site-bar")).toBeHidden();await expect(page.locator(".review-badge")).toBeHidden();
- const body=(await page.locator("body").innerText()).toLowerCase();expect(body).not.toContain("egp");expect(body).not.toContain("in stock");expect(body).not.toContain("add to cart");
- await page.screenshot({path:"artifacts/d062-homepage-1024.png",fullPage:true});
+  await page.setViewportSize({width:1024,height:1536});
+  await page.goto("/en");
+  await expect(page.getByTestId("approved-homepage")).toBeVisible();
+
+  for(const [id,y,h] of sections) await assertBox(page,id,y,h);
+
+  const ids=[
+    "H00.01","H00.02","H00.03","H00.04","H00.05",
+    "H01.01","H01.02","H01.03","H01.04","H01.05","H01.06","H01.08","H01.09","H01.10","H01.11",
+    "H02.01","H02.02","H02.03","H02.04","H02.05","H02.06",
+    "H03A.01","H03A.02","H03A.03","H03A.04","H03A.05",
+    "H03B.02","H03B.03","H03B.04","H03B.05","H03B.06",
+    "H04.01","H04.02","H04.03","H04.04","H04.05","H04.06",
+    "H05.02","H05.03","H05.04","H05.05",
+    "H06.01","H06.02","H06.03","H06.04","H06.05","H06.06","H06.07"
+  ];
+  for(const id of ids) await expect(page.locator(`[data-component-id="${id}"]`)).toHaveCount(1);
+
+  await expect(page.locator(".site-bar")).toBeHidden();
+  await expect(page.locator(".review-badge")).toBeHidden();
+
+  const body=(await page.locator("body").innerText()).toLowerCase();
+  expect(body).not.toContain("egp");
+  expect(body).not.toContain("in stock");
+  expect(body).not.toContain("add to cart");
+
+  await page.screenshot({path:"artifacts/d062-homepage-1024.png",fullPage:true});
 });
+
+test("D-062 quantifies full-page visual difference against the approved authority",async({page})=>{
+  await page.setViewportSize({width:1024,height:1536});
+  await page.goto("/en");
+  await page.evaluate(()=>document.fonts.ready);
+
+  const screenshot=await page.screenshot({fullPage:true});
+  const screenshotBase64=screenshot.toString("base64");
+
+  const metrics=await page.evaluate(async({screenshotBase64})=>{
+    const load=(src:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{
+      const img=new Image();
+      img.onload=()=>resolve(img);
+      img.onerror=reject;
+      img.src=src;
+    });
+    const [actual,reference]=await Promise.all([
+      load(`data:image/png;base64,${screenshotBase64}`),
+      load("/authority/approved-homepage-reference.webp")
+    ]);
+
+    const width=512,height=768;
+    const canvas=document.createElement("canvas");
+    canvas.width=width;
+    canvas.height=height;
+    const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
+
+    ctx.drawImage(actual,0,0,width,height);
+    const a=ctx.getImageData(0,0,width,height).data;
+    ctx.clearRect(0,0,width,height);
+    ctx.drawImage(reference,0,0,width,height);
+    const b=ctx.getImageData(0,0,width,height).data;
+
+    let abs=0,over32=0,over48=0;
+    const pixels=width*height;
+    for(let i=0;i<a.length;i+=4){
+      const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
+      abs+=d;
+      if(d>32) over32++;
+      if(d>48) over48++;
+    }
+    return {
+      meanAbsChannel:abs/pixels,
+      pctPixelsOver32:over32/pixels,
+      pctPixelsOver48:over48/pixels,
+      width,height
+    };
+  },{screenshotBase64});
+
+  console.log("D062_VISUAL_DIFF",JSON.stringify(metrics));
+  writeFileSync("artifacts/d062-visual-diff.json",JSON.stringify(metrics,null,2));
+
+  expect(metrics.meanAbsChannel).toBeLessThan(38);
+  expect(metrics.pctPixelsOver48).toBeLessThan(0.42);
+});
+
 test("D-062 media slots and authority asset are stable",async({page})=>{
- await page.setViewportSize({width:1024,height:1536});expect((await page.request.get("/authority/approved-homepage-reference.webp")).ok()).toBeTruthy();await page.goto("/en");
- for(const slot of ["home.hero.people-group","home.hero.quality-thumb","home.industries.education","home.industries.hospitality","home.industries.healthcare","home.industries.corporate","home.industries.industrial","home.industries.security","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare","home.cta.building"])await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
+  await page.setViewportSize({width:1024,height:1536});
+  expect((await page.request.get("/authority/approved-homepage-reference.webp")).ok()).toBeTruthy();
+  await page.goto("/en");
+
+  for(const slot of [
+    "home.hero.people-group","home.hero.quality-thumb",
+    "home.industries.education","home.industries.hospitality","home.industries.healthcare",
+    "home.industries.corporate","home.industries.industrial","home.industries.security",
+    "home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
+    "home.cta.building"
+  ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
 });
-test("D-062 desktop interactions remain functional",async({page})=>{await page.setViewportSize({width:1024,height:768});await page.goto("/en");const rail=page.locator(".approved-industry-rail");const before=await rail.evaluate(el=>el.scrollLeft);await page.getByRole("button",{name:"Next"}).click();await page.waitForTimeout(350);const after=await rail.evaluate(el=>el.scrollLeft);expect(after).toBeGreaterThanOrEqual(before);await expect(page.getByRole("link",{name:/Explore Our Industries/i})).toHaveAttribute("href","#industries");await expect(page.getByRole("link",{name:/Get in Touch/i}).first()).toHaveAttribute("href","/en/enquiry")});
-test("D-062 English mobile reflows without changing identity",async({page})=>{await page.setViewportSize({width:390,height:844});await page.goto("/en");await expect(page.getByRole("heading",{level:1})).toContainText("PEOPLE");await expect(page.locator(".approved-industry-card")).toHaveCount(6);const trigger=page.getByRole("button",{name:"Open menu"});await trigger.click();await expect(page.getByRole("dialog",{name:"Site menu"})).toBeVisible();await page.keyboard.press("Escape");await expect(page.getByRole("dialog",{name:"Site menu"})).toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);await page.screenshot({path:"artifacts/d062-homepage-mobile-en.png",fullPage:true})});
-test("D-062 Arabic preserves component inventory in RTL",async({page})=>{await page.setViewportSize({width:390,height:844});await page.goto("/ar");await expect(page.locator("html")).toHaveAttribute("dir","rtl");await expect(page.getByRole("heading",{level:1})).toContainText("أشخاص");await expect(page.locator(".approved-industry-card")).toHaveCount(6);expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);await page.screenshot({path:"artifacts/d062-homepage-mobile-ar.png",fullPage:true})});
-test("D-062 reduced motion preserves hierarchy",async({page})=>{await page.emulateMedia({reducedMotion:"reduce"});await page.goto("/en");for(const t of ["UNIFORMS FOR A BRIGHTER TOMORROW","OUR INDUSTRIES","SELECTED WORK","READY TO GET STARTED?"])await expect(page.getByText(t)).toBeVisible();await page.screenshot({path:"artifacts/d062-homepage-reduced-motion.png",fullPage:true})});
-test("deep routes remain reachable outside D-062 homepage authority",async({page})=>{await page.goto("/en/work");await expect(page.getByRole("heading",{level:1,name:/KGC/i})).toBeVisible();await page.goto("/en/garments");await expect(page.locator('img[src*="high-summer-polo-front.png"]')).toBeVisible();await page.goto("/en/enquiry");await expect(page.getByRole("button",{name:/Preview submission state/i})).toBeVisible()});
+
+test("D-062 desktop interactions remain functional",async({page})=>{
+  await page.setViewportSize({width:1024,height:768});
+  await page.goto("/en");
+  const rail=page.locator(".approved-industry-rail");
+  const before=await rail.evaluate(el=>el.scrollLeft);
+  await page.getByRole("button",{name:"Next"}).click();
+  await page.waitForTimeout(350);
+  const after=await rail.evaluate(el=>el.scrollLeft);
+  expect(after).toBeGreaterThanOrEqual(before);
+  await expect(page.getByRole("link",{name:/Explore Our Industries/i})).toHaveAttribute("href","#industries");
+  await expect(page.getByRole("link",{name:/Get in Touch/i}).first()).toHaveAttribute("href","/en/enquiry");
+});
+
+test("D-062 English mobile reflows without changing identity",async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto("/en");
+  await expect(page.getByRole("heading",{level:1})).toContainText("PEOPLE");
+  await expect(page.locator(".approved-industry-card")).toHaveCount(6);
+
+  const trigger=page.getByRole("button",{name:"Open menu"});
+  await trigger.click();
+  await expect(page.getByRole("dialog",{name:"Site menu"})).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog",{name:"Site menu"})).toHaveCount(0);
+
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  await page.screenshot({path:"artifacts/d062-homepage-mobile-en.png",fullPage:true});
+});
+
+test("D-062 Arabic preserves component inventory in RTL",async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto("/ar");
+  await expect(page.locator("html")).toHaveAttribute("dir","rtl");
+  await expect(page.getByRole("heading",{level:1})).toContainText("أشخاص");
+  await expect(page.locator(".approved-industry-card")).toHaveCount(6);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  await page.screenshot({path:"artifacts/d062-homepage-mobile-ar.png",fullPage:true});
+});
+
+test("D-062 reduced motion preserves hierarchy",async({page})=>{
+  await page.emulateMedia({reducedMotion:"reduce"});
+  await page.goto("/en");
+  for(const id of ["H01.01","H02.01","H04.01","H05.02"]){
+    await expect(page.locator(`[data-component-id="${id}"]`)).toBeVisible();
+  }
+  await page.screenshot({path:"artifacts/d062-homepage-reduced-motion.png",fullPage:true});
+});
+
+test("deep routes remain reachable outside D-062 homepage authority",async({page})=>{
+  await page.goto("/en/work");
+  await expect(page.getByRole("heading",{level:1,name:/KGC/i})).toBeVisible();
+  await page.goto("/en/garments");
+  await expect(page.locator('img[src*="high-summer-polo-front.png"]')).toBeVisible();
+  await page.goto("/en/enquiry");
+  await expect(page.getByRole("button",{name:/Preview submission state/i})).toBeVisible();
+});
