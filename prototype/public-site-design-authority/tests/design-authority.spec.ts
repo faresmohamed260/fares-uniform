@@ -245,27 +245,27 @@ test("D-062 chooses the closest crop for the real KGC campus card",async({page})
   expect(results).toHaveLength(9);
 });
 
-test("D-062 sweeps closing-building treatment against the approved H05 region",async({page})=>{
+test("D-062 sweeps design-sketch treatment against the approved H03 region",async({page})=>{
   await page.setViewportSize({width:1024,height:1536});
   await page.goto("/en");
   await page.evaluate(()=>document.fonts.ready);
   const treatments=[
     {opacity:"1",filter:"none"},
-    {opacity:".92",filter:"none"},
-    {opacity:".84",filter:"none"},
-    {opacity:".76",filter:"none"},
-    {opacity:".92",filter:"brightness(.94) saturate(.82)"},
-    {opacity:".88",filter:"brightness(.94) saturate(.72)"},
-    {opacity:".84",filter:"brightness(.92) saturate(.65)"},
-    {opacity:".80",filter:"brightness(.90) saturate(.60)"},
-    {opacity:".74",filter:"brightness(.94) saturate(.55)"}
+    {opacity:".9",filter:"none"},
+    {opacity:".8",filter:"none"},
+    {opacity:".7",filter:"none"},
+    {opacity:".6",filter:"none"},
+    {opacity:".5",filter:"none"},
+    {opacity:".8",filter:"brightness(1.04) saturate(.75)"},
+    {opacity:".7",filter:"brightness(1.05) saturate(.65)"},
+    {opacity:".6",filter:"brightness(1.06) saturate(.55)"},
+    {opacity:".55",filter:"brightness(1.08) saturate(.45)"},
+    {opacity:".7",filter:"contrast(.9) brightness(1.07) saturate(.55)"}
   ];
   const results:{opacity:string;filter:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
-  const img=page.locator('img[data-media-slot="home.cta.building"]');
+  const img=page.locator('img[data-media-slot="home.feature.design-sketch"]');
   for(const treatment of treatments){
-    await img.evaluate((node,args)=>{
-      const el=node as HTMLImageElement;el.style.opacity=args.opacity;el.style.filter=args.filter;
-    },treatment);
+    await img.evaluate((node,args)=>{const el=node as HTMLImageElement;el.style.opacity=args.opacity;el.style.filter=args.filter;},treatment);
     const screenshot=await page.screenshot({fullPage:true});
     const screenshotBase64=screenshot.toString("base64");
     const metric=await page.evaluate(async({screenshotBase64})=>{
@@ -275,38 +275,15 @@ test("D-062 sweeps closing-building treatment against the approved H05 region",a
       const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
       ctx.drawImage(actual,0,0,width,height);const a=ctx.getImageData(0,0,width,height).data;
       ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const b=ctx.getImageData(0,0,width,height).data;
-      const y0=632,y1=718;let abs=0,over48=0,pixels=0;
+      const y0=405,y1=543;let abs=0,over48=0,pixels=0;
       for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;abs+=d;pixels++;if(d>48)over48++;}
       return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
     },{screenshotBase64});
     results.push({...treatment,...metric});
   }
   results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);
-  console.log("D062_BUILDING_TREATMENT_SWEEP",JSON.stringify(results));
-  writeFileSync("artifacts/d062-building-treatment-sweep.json",JSON.stringify(results,null,2));
-  const referenceMap=await page.evaluate(async()=>{
-    const image=await new Promise<HTMLImageElement>((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src="/authority/approved-homepage-reference.webp";});
-    const width=512,height=768,canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;
-    const ctx=canvas.getContext("2d",{willReadFrequently:true})!;ctx.drawImage(image,0,0,width,height);
-    const data=ctx.getImageData(0,0,width,height).data;
-    const xCells=16,yCells=6,y0=632,y1=718;
-    const cells:string[][]=[];
-    const hex=(n:number)=>Math.round(n).toString(16).padStart(2,"0");
-    for(let gy=0;gy<yCells;gy++){
-      const row:string[]=[];
-      const sy=Math.floor(y0+(y1-y0)*gy/yCells),ey=Math.floor(y0+(y1-y0)*(gy+1)/yCells);
-      for(let gx=0;gx<xCells;gx++){
-        const sx=Math.floor(width*gx/xCells),ex=Math.floor(width*(gx+1)/xCells);
-        let r=0,g=0,b=0,n=0;
-        for(let y=sy;y<ey;y++)for(let x=sx;x<ex;x++){const i=(y*width+x)*4;r+=data[i];g+=data[i+1];b+=data[i+2];n++;}
-        row.push("#"+hex(r/n)+hex(g/n)+hex(b/n));
-      }
-      cells.push(row);
-    }
-    return cells;
-  });
-  console.log("D062_H05_REFERENCE_COLOR_GRID",JSON.stringify(referenceMap));
-  writeFileSync("artifacts/d062-h05-reference-color-grid.json",JSON.stringify(referenceMap,null,2));
+  console.log("D062_SKETCH_TREATMENT_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-sketch-treatment-sweep.json",JSON.stringify(results,null,2));
   expect(results).toHaveLength(treatments.length);
 });
 
