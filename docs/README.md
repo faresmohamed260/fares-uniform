@@ -21,6 +21,8 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Pattern Assembly grammar and scroll score](ui/scrollcraft/PAGE_GRAMMAR_SCROLL_SCORE.md) | Visual Story, route grammars, device score and Seam Handoff signature move |
 | [D-060 Scrollcraft design-authority validation](validation/PHASE_10_SCROLLCRAFT_DESIGN_AUTHORITY.md) | Exact pinned-engine, browser, evidence-artifact and protected-preview record for the replacement design candidate |
 | [Homepage design brief](ui/homepage/HOMEPAGE_DESIGN_BRIEF.md) | D-061 master-brand homepage purpose, content architecture, generated non-product media policy, motion language and page-by-page approval boundary |
+| [Approved homepage one-to-one component map](ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md) | D-062 exact visual authority decomposition, component IDs, desktop coordinates, interactions and carbon-copy fidelity rules |
+| [Approved homepage media manifest](ui/homepage/APPROVED_HOME_MEDIA_MANIFEST.md) | Temporary sprite/generated media slots and one-for-one database replacement contract |
 | [D-061 homepage design-authority validation](validation/PHASE_10_HOMEPAGE_DESIGN_AUTHORITY.md) | Exact homepage candidate, generated-media provenance, hosted browser evidence and protected-preview boundary |
 | [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md) | Authorized public-site redesign boundary, marketing/interaction principles, research process and design/kinetic/fidelity gates |
 | [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md) | Current fashion/uniform market research, high-expression interactive references, tool/library findings and concept hypotheses |
