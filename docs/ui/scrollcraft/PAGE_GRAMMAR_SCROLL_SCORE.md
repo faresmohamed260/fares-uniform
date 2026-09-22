@@ -1,7 +1,9 @@
 # Page grammar, Visual Story and scroll score
 
-**Status:** active design plan / D-060  
-**Candidate family:** Pattern Assembly
+**Status:** historical/rejected D-060 whole-site grammar; not active under D-061  
+**Candidate family:** Pattern Assembly — rejected as the whole-site visual direction
+
+> D-061 note: do not use this whole-site grammar as the homepage authority. Page-by-page design is now required; active homepage contract is `docs/ui/homepage/HOMEPAGE_DESIGN_BRIEF.md`. KGC-specific explode/program interactions move to the later KGC page design.
 
 ## New page grammar — Pattern Assembly
 
