@@ -149,7 +149,8 @@ Target: 169 × 149.
 - no real facility identity;
 - current protected-review placeholder: reuses `prototype/public-site-design-authority/public/generated/home-industries-healthcare.webp` so no additional fake client scene is introduced;
 - source SHA-256: `5dbe74ffbd8ce363a4e0acaaed170690b43e1a87d60bd7206c4eec4e21a1a6ee`;
-- status: D-062 fidelity gate pending.
+- presentation treatment: `object-position: 75% 50%`, `brightness(.80) saturate(.40)`, selected by hosted H04 sweep rather than by eye;
+- status: D-062 fidelity GREEN at `5b89a6ccb04d0eb256a5ac9ca091110dc5223a90` (run `35792530022`, job `106964161096`, artifact `10722173310`); global mean error `24.9256`, high-difference pixels `12.9097%`, H04 mean error `40.6666`.
 
 These two remain capability placeholders and must not be labelled as completed Fares client projects in production content.
 

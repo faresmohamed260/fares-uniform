@@ -152,3 +152,25 @@ Hosted push evidence:
 - fail-closed verification: unauthenticated HTTP **302**, target **preview**.
 
 The global gate remains GREEN but is now close to the `<25` mean threshold. Healthcare replacement must therefore pass without relaxing the acceptance limit.
+
+
+## Media replacement evidence — Batch D Healthcare
+
+Healthcare was first integrated at `320dc00255efbd76e458edab11d16ecfc4cf5de2`; hosted validation correctly exposed an exhaustive-union TypeScript issue before browser execution. Follow-up commits repaired the branch structure, then the untreated Healthcare media reached the browser gate at `0edfb2b22a73f20c31b7a168242b1219ec897267` and failed the strict global mean at **25.1480**.
+
+Hosted treatment sweeps preserved that RED and measured the Healthcare tile against the approved H04 region. The selected treatment was `object-position:75% 50%` with `brightness(.80) saturate(.40)`, which reduced H04 mean error from **42.5854** to **40.6666** without changing geometry.
+
+Final accepted implementation:
+- commit: `5b89a6ccb04d0eb256a5ac9ca091110dc5223a90`;
+- run: `35792530022`;
+- job: `106964161096`;
+- artifact: `10722173310`;
+- **10/10 D-062 browser checks passed**;
+- global mean RGB-channel error: **24.9256**;
+- global pixels >48: **12.9097%**;
+- H04 Selected Work mean error: **40.6666**;
+- H04 pixels >48: **28.8316%**;
+- protected review preview: `fares-uniform-design-authority-kcedrtuzu.vercel.app`;
+- fail-closed verification: unauthenticated HTTP **302**, target **preview**.
+
+Batch D is complete. The remaining homepage media replacement is Batch E `home.cta.building`.
