@@ -19,6 +19,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Scrollcraft brief](ui/scrollcraft/BRIEF.md) | Pain/Person/Promise, visitor journey, feeling curve, peak and current real assets |
 | [Scrollcraft reference board](ui/scrollcraft/REFERENCE_BOARD.md) | Godly, 21st.dev, Awwwards and Fares-specific composition/motion references |
 | [Pattern Assembly grammar and scroll score](ui/scrollcraft/PAGE_GRAMMAR_SCROLL_SCORE.md) | Visual Story, route grammars, device score and Seam Handoff signature move |
+| [D-060 Scrollcraft design-authority validation](validation/PHASE_10_SCROLLCRAFT_DESIGN_AUTHORITY.md) | Exact pinned-engine, browser, evidence-artifact and protected-preview record for the replacement design candidate |
 | [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md) | Authorized public-site redesign boundary, marketing/interaction principles, research process and design/kinetic/fidelity gates |
 | [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md) | Current fashion/uniform market research, high-expression interactive references, tool/library findings and concept hypotheses |
 | [Public site showcase and historical-work requirements](ui/PUBLIC_SITE_SHOWCASE_CONTENT_REQUIREMENTS.md) | Real-client/project showcase content model, publication/privacy gate, product-photography standard and layered/exploded product-view requirements |
