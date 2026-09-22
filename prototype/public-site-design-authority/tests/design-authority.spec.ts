@@ -128,6 +128,67 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
   await expect(page.locator('[data-media-slot="home.feature.fabric-blue"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
 });
 
+test("D-062 chooses the closest real KGC review asset for the frozen work slot",async({page})=>{
+  await page.setViewportSize({width:1024,height:1536});
+  await page.goto("/en");
+  await page.evaluate(()=>document.fonts.ready);
+
+  const candidates=[
+    "/review-media/kgc/kindergarten-summer.png",
+    "/review-media/kgc/primary-summer.png",
+    "/review-media/kgc/middle-summer.png",
+    "/review-media/kgc/high-summer.png",
+    "/review-media/kgc/kgc-building.webp"
+  ];
+  const results:{src:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
+
+  for(const src of candidates){
+    const img=page.locator('img[data-media-slot="home.work.kgc"]');
+    await img.evaluate((node,nextSrc)=>new Promise<void>((resolve,reject)=>{
+      const el=node as HTMLImageElement;
+      el.onload=()=>resolve();
+      el.onerror=()=>reject(new Error("failed to load "+nextSrc));
+      el.src=nextSrc;
+      if(el.complete&&el.naturalWidth>0) resolve();
+    }),src);
+
+    const screenshot=await page.screenshot({fullPage:true});
+    const screenshotBase64=screenshot.toString("base64");
+    const metric=await page.evaluate(async({screenshotBase64})=>{
+      const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{
+        const image=new Image(); image.onload=()=>resolve(image); image.onerror=reject; image.src=url;
+      });
+      const [actual,reference]=await Promise.all([
+        load(`data:image/png;base64,${screenshotBase64}`),
+        load("/authority/approved-homepage-reference.webp")
+      ]);
+      const width=512,height=768;
+      const canvas=document.createElement("canvas"); canvas.width=width; canvas.height=height;
+      const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
+      ctx.drawImage(actual,0,0,width,height);
+      const a=ctx.getImageData(0,0,width,height).data;
+      ctx.clearRect(0,0,width,height);
+      ctx.drawImage(reference,0,0,width,height);
+      const b=ctx.getImageData(0,0,width,height).data;
+
+      const y0=543,y1=632;
+      let abs=0,over48=0,pixels=0;
+      for(let y=y0;y<y1;y++) for(let x=0;x<width;x++){
+        const i=(y*width+x)*4;
+        const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
+        abs+=d; pixels++; if(d>48) over48++;
+      }
+      return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
+    },{screenshotBase64});
+    results.push({src,...metric});
+  }
+
+  results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);
+  console.log("D062_KGC_REAL_MEDIA_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-kgc-real-media-sweep.json",JSON.stringify(results,null,2));
+  expect(results).toHaveLength(5);
+});
+
 test("D-062 desktop interactions remain functional",async({page})=>{
   await page.setViewportSize({width:1024,height:768});
   await page.goto("/en");
