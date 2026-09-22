@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved and H00–H06 geometry remains frozen. Media replacement is active. Education, Hospitality, Healthcare and Corporate generated industry assets are integrated. Exact Corporate evidence at `89e75685f4ef2d9c7f85c26f7afbe5ed9aa5ecbc` passed run/job `35785139365` / `106940014250`, **10/10 D-062 browser checks**, artifact `10719609173`, and protected preview verification. Global strict fidelity remains GREEN at mean RGB-channel error `21.9822` and high-difference pixels `10.8966%`; H02 Industries remains GREEN at mean error `15.1410`. Real KGC campus remains the closest truthful protected-review KGC asset. The active next media slot is **Industrial**. Production remains NO-GO.
+- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved and H00–H06 geometry remains frozen. Media replacement is active. Education, Hospitality, Healthcare, Corporate and Industrial generated industry assets are integrated. Exact Industrial evidence at `1eec5e1d64712e8c62b7bd06f03fced17aba2eca` passed run/job `35786015245` / `106942891651`, **10/10 D-062 browser checks**, artifact `10720326136`, and protected preview verification. Global strict fidelity remains GREEN at mean RGB-channel error `22.0506` and high-difference pixels `10.9136%`; H02 Industries remains GREEN at mean error `15.4361`. Real KGC campus remains the closest truthful protected-review KGC asset. The active next media slot is **Security**. Production remains NO-GO.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -237,10 +237,10 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — D-062 Batch B Industrial:** generate and integrate `home.industries.industrial` exactly to `docs/ui/homepage/HOMEPAGE_MEDIA_GENERATION_SPECS.md`; warehouse/light-industry/logistics context, practical workwear/PPE, safety-conscious but not dramatic, no company/client identity.
+1. **Track A / active — D-062 Batch B Security:** generate and integrate `home.industries.security` exactly to `docs/ui/homepage/HOMEPAGE_MEDIA_GENERATION_SPECS.md`; professional security/front-gate context, neutral urban/business environment, generic navy uniform, no real-agency insignia or client identity.
 2. Preserve frozen H00–H06 geometry and replace only the named media slot. Run the D-062 full-page and regional pixel-difference gate before accepting it.
-3. If Industrial stays GREEN, continue one slot at a time to Security.
-4. Then continue Batch C design-sketch, Batch D generic hospitality/healthcare selected-work placeholders, and Batch E illustrative architecture.
+3. After Security, continue Batch C design-sketch.
+4. Then continue Batch D generic hospitality/healthcare selected-work placeholders and Batch E illustrative architecture.
 5. Keep the current real KGC campus in protected review only; it does **not** authorize public KGC publication.
 6. Do not start Schools/KGC/Garments page design until D-062 homepage media/fidelity is accepted.
 7. The future KGC case-study explode-view remains whole worn outfit -> separated **real** garment pieces.
