@@ -4,7 +4,8 @@
 **Approved scope direction:** Fares, 2026-09-22  
 **Page under design:** public homepage only  
 **Current approved visual SHA:** none  
-**Implementation status:** design brief only; do not implement this page into `apps/public-web` until its browser-native design is separately approved.
+**Current review candidate:** `bfdb85d53a76b3f81b521631e39265fea3fb72e1` — hosted GREEN, awaiting Fares visual approval  
+**Implementation status:** browser-native homepage candidate exists only in the protected design-authority surface; do not implement it into `apps/public-web` until this exact homepage design is separately approved.
 
 ## 1. Why this reset exists
 
