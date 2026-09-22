@@ -1,8 +1,10 @@
 # Fares Uniform Scrollcraft brief
 
-**Status:** self-authored under explicit creative delegation from Fares using client-confirmed project context  
-**Workflow:** D-060 / Scrollcraft  
-**Design target:** complete browser-native public-site design authority
+**Status:** historical D-060 design input; whole-site candidate rejected by Fares 2026-09-22  
+**Workflow:** D-060 / Scrollcraft — superseded for active page design by D-061  
+**Design target:** historical complete-site concept only; do not treat as active homepage authority
+
+> D-061 note: retain useful research/tooling from this file, but do not reuse its KGC-heavy journey as the homepage structure. Active homepage authority is `docs/ui/homepage/HOMEPAGE_DESIGN_BRIEF.md`.
 
 ## 1. Vibe and references
 
