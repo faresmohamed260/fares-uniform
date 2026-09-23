@@ -123,9 +123,10 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
     "home.feature.fabric-blue","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
     "home.cta.building"
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
-  expect((await page.request.get("/generated/home-hero-people-group-clean-v2.webp")).ok()).toBeTruthy();
+  expect((await page.request.get("/generated/home-hero-people-cutout-v3.webp")).ok()).toBeTruthy();
   expect((await page.request.get("/generated/home-hero-people-group.webp")).status()).toBe(404);
-  await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-group-clean-v2.webp");
+  expect((await page.request.get("/generated/home-hero-people-group-clean-v2.webp")).status()).toBe(404);
+  await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-cutout-v3.webp");
   await expect(page.locator('[data-media-slot="home.industries.education"]')).toHaveAttribute("src","/generated/home-industries-education.webp");
   await expect(page.locator('[data-media-slot="home.industries.hospitality"]')).toHaveAttribute("src","/generated/home-industries-hospitality.webp");
   await expect(page.locator('[data-media-slot="home.industries.healthcare"]')).toHaveAttribute("src","/generated/home-industries-healthcare.webp");
