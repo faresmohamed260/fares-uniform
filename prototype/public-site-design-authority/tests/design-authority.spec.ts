@@ -295,7 +295,7 @@ test("D-062 semantic structure, image stability and console health are productio
   await expect(page.locator(".approved-homepage > main#main-content")).toHaveCount(1);
   await expect(page.locator(".approved-homepage > footer")).toHaveCount(1);
   await expect(page.locator("main .approved-home-header, main .approved-home-footer")).toHaveCount(0);
-  await expect(page.getByRole("link",{name:"About"})).toHaveAttribute("href","#about");
+  await expect(page.getByRole("link",{name:"About"}).first()).toHaveAttribute("href","#about");
   await expect(page.locator("#about")).toHaveClass(/approved-feature-more/);
   const images=page.locator(".approved-homepage img");
   for(let index=0;index<await images.count();index++){
@@ -306,6 +306,21 @@ test("D-062 semantic structure, image stability and console health are productio
   await page.keyboard.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
   expect(consoleErrors).toEqual([]);
+});
+
+test("D-062 tablet and wide-desktop frames never clip or drift left",async({page})=>{
+  for(const width of [900,1024,1440]){
+    await page.setViewportSize({width,height:900});
+    await page.goto("/en");
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+    const frame=await page.getByTestId("approved-homepage").boundingBox();
+    expect(frame).not.toBeNull();
+    expect(Math.round(frame?.width??0)).toBe(Math.min(width,1024));
+    expect(Math.round(frame?.x??0)).toBe(width>1024?Math.round((width-1024)/2):0);
+  }
+  await page.setViewportSize({width:900,height:900});
+  await page.goto("/en");
+  await expect(page.getByRole("button",{name:"Open menu"})).toBeVisible();
 });
 
 test("D-062 English mobile reflows without changing identity",async({page})=>{
@@ -328,6 +343,7 @@ test("D-062 English mobile reflows without changing identity",async({page})=>{
   await page.evaluate(()=>window.scrollTo(0,1200));
   await expect.poll(async()=>Math.round((await page.locator(".approved-home-header").boundingBox())?.y??-1)).toBe(0);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:"artifacts/d062-homepage-mobile-en.png",fullPage:true});
 });
 
