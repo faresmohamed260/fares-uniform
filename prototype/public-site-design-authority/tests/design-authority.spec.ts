@@ -153,12 +153,6 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
   expect(runtimeAuthorityConsumers).toEqual([]);
 });
 
-test("D-062 resolves the final media micro-grid",async({page})=>{
- await page.setViewportSize({width:1024,height:1536});await page.goto("/en");await page.evaluate(()=>document.fonts.ready);
- const candidates=[...[".08",".10",".12"].flatMap(opacity=>[".88",".90",".92"].map(contrast=>({name:`o${opacity}-c${contrast}`,opacity,filter:`brightness(.50) saturate(.70) contrast(${contrast})`})))];const cards=page.locator(".approved-work-image");const results:{name:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
- for(const candidate of candidates){await page.locator(".approved-sketch-background").evaluate((node,value)=>{(node as HTMLElement).style.opacity=value;},candidate.opacity);for(let j=0;j<await cards.count();j++)await cards.nth(j).evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);const shot=(await page.screenshot({fullPage:true})).toString("base64");const metric=await page.evaluate(async({shot})=>{const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;});const [a,r]=await Promise.all([load(`data:image/png;base64,${shot}`),load("/authority/approved-homepage-reference.webp")]);const canvas=document.createElement("canvas");canvas.width=512;canvas.height=768;const ctx=canvas.getContext("2d",{willReadFrequently:true})!;ctx.drawImage(a,0,0,512,768);const ap=ctx.getImageData(0,0,512,768).data;ctx.clearRect(0,0,512,768);ctx.drawImage(r,0,0,512,768);const rp=ctx.getImageData(0,0,512,768).data;let abs=0,over48=0,pixels=0;for(let k=0;k<ap.length;k+=4){const d=(Math.abs(ap[k]-rp[k])+Math.abs(ap[k+1]-rp[k+1])+Math.abs(ap[k+2]-rp[k+2]))/3;abs+=d;pixels++;if(d>48)over48++;}return{meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};},{shot});results.push({name:candidate.name,...metric});}results.sort((l,r)=>l.meanAbsChannel-r.meanAbsChannel);console.log("D062_FINAL_MICRO_GRID",JSON.stringify(results));writeFileSync("artifacts/d062-final-micro-grid.json",JSON.stringify(results,null,2));expect(results).toHaveLength(9);
-});
-
 test("D-062 controls have real outcomes and the carousel never fakes movement",async({page})=>{
   await page.setViewportSize({width:1024,height:768});
   await page.goto("/en");
