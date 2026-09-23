@@ -134,10 +134,10 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
   await expect(page.locator('[data-media-slot="home.feature.design-sketch"]')).toHaveAttribute("src","/generated/home-feature-design-sketch.svg");
   expect((await page.request.get("/generated/home-cta-building-v3.webp")).ok()).toBeTruthy();
   await expect(page.locator('[data-media-slot="home.cta.building"]')).toHaveAttribute("src","/generated/home-cta-building-v3.webp");
-  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
+  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/primary-summer.png");
   await expect(page.locator('[data-media-slot="home.work.hospitality"]')).toHaveAttribute("src","/generated/home-industries-hospitality.webp");
   await expect(page.locator('[data-media-slot="home.work.healthcare"]')).toHaveAttribute("src","/generated/home-industries-healthcare.webp");
-  await expect(page.locator('[data-media-slot="home.hero.quality-thumb"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
+  await expect(page.locator('[data-media-slot="home.hero.quality-thumb"]')).toHaveAttribute("src","/generated/home-feature-fabric-blue-v1.webp");
   await expect(page.locator('[data-media-slot="home.feature.fabric-blue"]')).toHaveAttribute("src","/generated/home-feature-fabric-blue-v1.webp");
 
   const runtimeAuthorityConsumers=await page.locator("body *").evaluateAll(nodes=>nodes.flatMap(node=>{

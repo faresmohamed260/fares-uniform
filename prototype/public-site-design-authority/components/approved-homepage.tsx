@@ -122,7 +122,7 @@ export function ApprovedHero({locale}:{locale:Locale}){
       <div className="approved-hand-note note-a" data-component-id="H01.09">{ar?"أشخاص مختلفون\nهدف واحد":"Different People\nSame Purpose"}<svg viewBox="0 0 90 44"><path d="M3 8c25 5 45 14 72 27m-12-14 13 14-17 3"/></svg></div>
       <div className="approved-hand-note note-b" data-component-id="H01.10">{ar?"زي حقيقي\nناس حقيقيون\nأثر حقيقي.":"Real Uniforms\nReal People\nReal Impact."}<svg viewBox="0 0 88 46"><path d="M83 7C60 15 44 27 10 35m9-12L9 35l15 4"/></svg></div>
       <div className="approved-quality-card" data-component-id="H01.11">
-        <div className="approved-quality-thumb approved-quality-textile" data-media-slot="home.hero.quality-thumb" aria-hidden="true"><span/><span/><span/></div>
+        <img className="approved-quality-thumb approved-quality-textile" data-media-slot="home.hero.quality-thumb" src="/generated/home-feature-fabric-blue-v1.webp" width={60} height={67} loading="lazy" decoding="async" alt="" aria-hidden="true"/>
         <p><strong>{ar?"الجودة":"Quality"}</strong><strong>{ar?"الناس":"People"}</strong><strong>{ar?"شراكات تدوم":"Lasting Partnerships"}</strong></p><a href="#about" aria-label={ar?"اعرف المزيد":"Learn more"}>↗</a>
       </div>
     </div>
@@ -207,7 +207,7 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
  return <section className="approved-selected-work" data-section-id="H04" data-testid="approved-h04">
   <div className="approved-selected-title"><span className="approved-eyebrow" data-component-id="H04.01">{ar?"أعمال مختارة":"SELECTED WORK"}</span><h2 data-component-id="H04.02">{ar?"شراكات حقيقية.\nنتائج حقيقية.":"Real Partnerships.\nReal Results."}</h2></div>
   <div className="approved-work-cards">{workCards.map((c,i)=><a className="approved-work-card" key={c.slot} href={`/${locale}${c.href}`} aria-label={c.slot==="home.work.kgc"?(ar?"مشروع KGC":"KGC project"):(ar?`${c.ar}، تصور توضيحي للقدرات`:`${c.en}, illustrative capability preview`)} data-component-id={`H04.0${i+3}`}>{c.slot==="home.work.kgc"
-  ? <img data-media-slot={c.slot} className="approved-work-image approved-work-real" src="/review-media/kgc/kgc-building.webp" width={169} height={149} loading="lazy" decoding="async" alt={ar?"حرم KGC في بيئة المراجعة المحمية":"KGC campus in the protected review environment"}/>
+  ? <span className="approved-work-kgc-media"><img data-media-slot={c.slot} className="approved-work-image approved-work-real" src="/review-media/kgc/primary-summer.png" width={169} height={149} loading="lazy" decoding="async" alt={ar?"زي KGC الحقيقي في بيئة المراجعة المحمية":"Real KGC uniform in the protected review environment"}/><img className="approved-work-kgc-secondary" src="/review-media/kgc/high-summer.png" width={169} height={149} loading="lazy" decoding="async" alt="" aria-hidden="true"/></span>
   : c.slot==="home.work.hospitality"
     ? <img data-media-slot={c.slot} className="approved-work-image approved-work-generated" width={169} height={149} loading="lazy" decoding="async" src="/generated/home-industries-hospitality.webp" alt={ar?"مشهد ضيافة توضيحي عام":"Generic illustrative hospitality scene"}/>
     : <img data-media-slot={c.slot} className="approved-work-image approved-work-generated" width={169} height={149} loading="lazy" decoding="async" src="/generated/home-industries-healthcare.webp" alt={ar?"مشهد رعاية صحية توضيحي عام":"Generic illustrative healthcare scene"}/>}<div className="approved-work-meta"><strong>{ar?c.ar:c.en}</strong><span>{ar?c.subAr:c.sub}</span><i>↗</i></div></a>)}
