@@ -153,24 +153,21 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
   expect(runtimeAuthorityConsumers).toEqual([]);
 });
 
-test("D-062 finely calibrates the independent CTA photograph",async({page})=>{
+test("D-062 finely calibrates Selected Work photography",async({page})=>{
   await page.setViewportSize({width:1024,height:1536});await page.goto("/en");await page.evaluate(()=>document.fonts.ready);
   const candidates=[
-    {name:"current",filter:"brightness(1) saturate(.75) contrast(.95)",scrim:"linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)"},
-    {name:"dim-96",filter:"brightness(.96) saturate(.75) contrast(.95)",scrim:"linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)"},
-    {name:"bright-104",filter:"brightness(1.04) saturate(.75) contrast(.95)",scrim:"linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)"},
-    {name:"muted",filter:"brightness(1) saturate(.60) contrast(.95)",scrim:"linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)"},
-    {name:"vivid",filter:"brightness(1) saturate(.90) contrast(.95)",scrim:"linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)"},
-    {name:"soft",filter:"brightness(1) saturate(.75) contrast(.90)",scrim:"linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)"},
-    {name:"crisp",filter:"brightness(1) saturate(.75) contrast(1)",scrim:"linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)"},
-    {name:"scrim-light",filter:"brightness(1) saturate(.75) contrast(.95)",scrim:"linear-gradient(90deg,rgba(255,255,255,.75),rgba(255,255,255,.20) 30%,transparent 62%)"},
-    {name:"scrim-strong",filter:"brightness(1) saturate(.75) contrast(.95)",scrim:"linear-gradient(90deg,rgba(255,255,255,.88),rgba(255,255,255,.36) 30%,transparent 62%)"},
-    {name:"balanced",filter:"brightness(.98) saturate(.68) contrast(.93)",scrim:"linear-gradient(90deg,rgba(255,255,255,.78),rgba(255,255,255,.24) 30%,transparent 62%)"}
-  ];
-  const results:{name:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
-  for(const candidate of candidates){await page.locator(".approved-building-generated").evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);await page.locator(".approved-cta-scrim").evaluate((node,value)=>{(node as HTMLElement).style.background=value;},candidate.scrim);
-    const shot=(await page.screenshot({fullPage:true})).toString("base64");const metric=await page.evaluate(async({shot})=>{const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;});const [actual,reference]=await Promise.all([load(`data:image/png;base64,${shot}`),load("/authority/approved-homepage-reference.webp")]);const width=512,height=768,canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;const ctx=canvas.getContext("2d",{willReadFrequently:true})!;ctx.drawImage(actual,0,0,width,height);const ap=ctx.getImageData(0,0,width,height).data;ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const rp=ctx.getImageData(0,0,width,height).data;const y0=632,y1=718;let abs=0,over48=0,pixels=0;for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;const d=(Math.abs(ap[i]-rp[i])+Math.abs(ap[i+1]-rp[i+1])+Math.abs(ap[i+2]-rp[i+2]))/3;abs+=d;pixels++;if(d>48)over48++;}return{meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};},{shot});results.push({name:candidate.name,...metric});}
-  results.sort((left,right)=>left.meanAbsChannel-right.meanAbsChannel);console.log("D062_INDEPENDENT_CTA_FINE_SWEEP",JSON.stringify(results));writeFileSync("artifacts/d062-independent-cta-fine-sweep.json",JSON.stringify(results,null,2));expect(results).toHaveLength(candidates.length);
+    {name:"current",filter:"brightness(.65) saturate(.70) contrast(1.05)"},
+    {name:"b62",filter:"brightness(.62) saturate(.70) contrast(1.05)"},
+    {name:"b60",filter:"brightness(.60) saturate(.70) contrast(1.05)"},
+    {name:"b58",filter:"brightness(.58) saturate(.70) contrast(1.05)"},
+    {name:"b55",filter:"brightness(.55) saturate(.70) contrast(1.05)"},
+    {name:"muted",filter:"brightness(.62) saturate(.55) contrast(1.02)"},
+    {name:"vivid",filter:"brightness(.62) saturate(.82) contrast(1.05)"},
+    {name:"soft",filter:"brightness(.62) saturate(.70) contrast(.95)"},
+    {name:"crisp",filter:"brightness(.62) saturate(.70) contrast(1.12)"}
+  ];const cards=page.locator(".approved-work-image");const results:{name:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
+  for(const candidate of candidates){for(let i=0;i<await cards.count();i++)await cards.nth(i).evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);const shot=(await page.screenshot({fullPage:true})).toString("base64");const metric=await page.evaluate(async({shot})=>{const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;});const [actual,reference]=await Promise.all([load(`data:image/png;base64,${shot}`),load("/authority/approved-homepage-reference.webp")]);const width=512,height=768,canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;const ctx=canvas.getContext("2d",{willReadFrequently:true})!;ctx.drawImage(actual,0,0,width,height);const ap=ctx.getImageData(0,0,width,height).data;ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const rp=ctx.getImageData(0,0,width,height).data;const y0=543,y1=632;let abs=0,over48=0,pixels=0;for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const j=(y*width+x)*4;const d=(Math.abs(ap[j]-rp[j])+Math.abs(ap[j+1]-rp[j+1])+Math.abs(ap[j+2]-rp[j+2]))/3;abs+=d;pixels++;if(d>48)over48++;}return{meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};},{shot});results.push({name:candidate.name,...metric});}
+  results.sort((l,r)=>l.meanAbsChannel-r.meanAbsChannel);console.log("D062_SELECTED_WORK_FINE_SWEEP",JSON.stringify(results));writeFileSync("artifacts/d062-selected-work-fine-sweep.json",JSON.stringify(results,null,2));expect(results).toHaveLength(candidates.length);
 });
 
 test("D-062 controls have real outcomes and the carousel never fakes movement",async({page})=>{
