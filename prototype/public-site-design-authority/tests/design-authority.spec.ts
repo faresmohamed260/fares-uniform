@@ -263,20 +263,22 @@ test("D-062 chooses the closest independent CTA treatment",async({page})=>{
   await page.evaluate(()=>document.fonts.ready);
 
   const candidates=[
-    {name:"light-35",opacity:".35",filter:"brightness(1.12) saturate(.48) contrast(.88)",scrim:"linear-gradient(90deg,rgba(255,255,255,.97),rgba(240,248,253,.92) 31%,rgba(216,237,251,.68) 62%,rgba(207,233,250,.52))"},
-    {name:"light-50",opacity:".50",filter:"brightness(1.08) saturate(.55) contrast(.90)",scrim:"linear-gradient(90deg,rgba(255,255,255,.97),rgba(240,248,253,.88) 31%,rgba(216,237,251,.56) 62%,rgba(207,233,250,.40))"},
-    {name:"light-65",opacity:".65",filter:"brightness(1.04) saturate(.62) contrast(.92)",scrim:"linear-gradient(90deg,rgba(255,255,255,.95),rgba(240,248,253,.78) 31%,rgba(216,237,251,.40) 62%,rgba(207,233,250,.24))"},
-    {name:"light-80",opacity:".80",filter:"brightness(1.02) saturate(.68) contrast(.94)",scrim:"linear-gradient(90deg,rgba(255,255,255,.94),rgba(240,248,253,.68) 31%,rgba(216,237,251,.28) 62%,rgba(207,233,250,.12))"},
-    {name:"soft-55",opacity:".55",filter:"brightness(1.05) saturate(.60) contrast(.92)",scrim:"linear-gradient(90deg,rgba(255,255,255,.92),rgba(255,255,255,.70) 30%,rgba(255,255,255,.18) 62%,rgba(255,255,255,.08))"},
-    {name:"soft-75",opacity:".75",filter:"brightness(1.02) saturate(.68) contrast(.94)",scrim:"linear-gradient(90deg,rgba(255,255,255,.90),rgba(255,255,255,.55) 30%,rgba(255,255,255,.10) 62%,transparent)"},
-    {name:"clear-100",opacity:"1",filter:"brightness(1) saturate(.75) contrast(.95)",scrim:"linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)"},
-    {name:"blue-75",opacity:".75",filter:"brightness(1.04) saturate(.60) contrast(.92)",scrim:"linear-gradient(90deg,rgba(255,255,255,.93),rgba(237,247,253,.62) 31%,rgba(204,232,250,.18) 62%,rgba(196,228,248,.08))"}
+    {name:"scale-55-x0",transform:"scaleX(.55)",origin:"50% center"},
+    {name:"scale-65-x0",transform:"scaleX(.65)",origin:"50% center"},
+    {name:"scale-75-x0",transform:"scaleX(.75)",origin:"50% center"},
+    {name:"scale-85-x0",transform:"scaleX(.85)",origin:"50% center"},
+    {name:"scale-60-x4",transform:"translateX(4%) scaleX(.60)",origin:"50% center"},
+    {name:"scale-70-x4",transform:"translateX(4%) scaleX(.70)",origin:"50% center"},
+    {name:"scale-60-x7",transform:"translateX(7%) scaleX(.60)",origin:"50% center"},
+    {name:"scale-70-x7",transform:"translateX(7%) scaleX(.70)",origin:"50% center"}
   ];
   const results:{name:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
   for(const candidate of candidates){
-    await page.locator(".approved-building-generated").evaluate((node,value)=>{(node as HTMLElement).style.opacity=value;},candidate.opacity);
-    await page.locator(".approved-building-generated").evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);
-    await page.locator(".approved-cta-scrim").evaluate((node,value)=>{(node as HTMLElement).style.background=value;},candidate.scrim);
+    await page.locator(".approved-building-generated").evaluate((node,candidate)=>{
+      const element=node as HTMLElement;element.style.opacity="1";element.style.filter="brightness(1) saturate(.75) contrast(.95)";
+      element.style.transform=candidate.transform;element.style.transformOrigin=candidate.origin;
+    },candidate);
+    await page.locator(".approved-cta-scrim").evaluate(node=>{(node as HTMLElement).style.background="linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)";});
     const screenshot=await page.screenshot({fullPage:true});
     const screenshotBase64=screenshot.toString("base64");
     const metric=await page.evaluate(async({screenshotBase64})=>{
