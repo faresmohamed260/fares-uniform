@@ -8,7 +8,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved and H00–H06 geometry remains frozen. Batches B–E are complete: all six industry assets, the design-sketch feature media, both generic Selected Work placeholders and the closing illustrative-architecture treatment are now represented without changing approved geometry. Exact lean-suite evidence at `42f2b116351a94a7d0c0a2604dd05b686adacf9c` passed run/job `35801320352` / `106992069953`, **10/10 D-062 browser checks**, and artifact `10725594588`. Global strict fidelity remains GREEN at mean RGB-channel error `24.9517` and high-difference pixels `12.9257%`; H04 Selected Work is `40.6591` mean / `28.8316%` high-difference and H05 Closing CTA is `25.3272` mean / `10.5696%` high-difference. Real KGC campus remains the closest truthful protected-review KGC asset. The active next action is a fresh protected-preview deployment/verification for this exact homepage implementation, followed by Fares review of the exact implementation SHA; production remains NO-GO.
+- **Track A — Public website:** active now. Phase 10 engineering remains GREEN. D-062 homepage authority is approved and H00–H06 geometry remains frozen. Batches B–E are complete. The exact staged homepage implementation from `42f2b116351a94a7d0c0a2604dd05b686adacf9c` was deployed through workflow-only source commit `1498d32579cf66bee04d38ebd74b854bf65132c5`, which leaves the prototype bundle byte-for-byte unchanged. Push run/job `35801988018` / `106994178255` passed TypeScript, production build and **10/10 D-062 browser checks**; artifact `10726561210` has digest `sha256:ce9e9c4571380d22fc5639648cf12eb33efb1bc1a1eaaa6c88c3a14340c6892f`. Global strict fidelity is GREEN at mean RGB-channel error `24.9517` and high-difference pixels `12.9257%`. The isolated deployment `fares-uniform-design-authority-80gw6ngid.vercel.app` is READY, target `preview`, and Vercel Authentication fails closed with anonymous HTTP `302`. The active next action is Fares review of this exact protected implementation; production remains NO-GO.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
@@ -237,14 +237,13 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — exact protected-preview verification:** deploy and verify the D-062 homepage implementation represented by `42f2b116351a94a7d0c0a2604dd05b686adacf9c` in the isolated protected review project; do not treat the PR merge-candidate run as proof of deployment.
-2. Present that exact protected implementation for Fares review. Record approval or requested corrections against an exact Git commit.
-3. Preserve frozen H00–H06 geometry and the GREEN `<25` mean / `<14%` high-difference limits; do not reopen completed Batches B–E without new evidence or client direction.
-4. Keep the current real KGC campus in protected review only; it does **not** authorize public KGC publication.
-5. Do not start Schools/KGC/Garments page design until the D-062 homepage implementation review is resolved.
-6. The future KGC case-study explode-view remains whole worn outfit -> separated **real** garment pieces.
-7. Keep PR merges, public client publication and production cutover separately gated. Production remains NO-GO.
-8. **Track B / ERP:** Gate D remains independent.
+1. **Track A / active — Fares visual review:** review the protected D-062 deployment from implementation `42f2b116351a94a7d0c0a2604dd05b686adacf9c` (deployment source `1498d32579cf66bee04d38ebd74b854bf65132c5`) and record approval or requested corrections against that exact implementation.
+2. Preserve frozen H00–H06 geometry and the GREEN `<25` mean / `<14%` high-difference limits; do not reopen completed Batches B–E without new evidence or client direction.
+3. Keep the current real KGC campus in protected review only; it does **not** authorize public KGC publication.
+4. Do not start Schools/KGC/Garments page design until the D-062 homepage implementation review is resolved.
+5. The future KGC case-study explode-view remains whole worn outfit -> separated **real** garment pieces.
+6. Keep PR merges, public client publication and production cutover separately gated. Production remains NO-GO.
+7. **Track B / ERP:** Gate D remains independent.
 
 ## Constraints for every continuation
 
