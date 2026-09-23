@@ -257,6 +257,54 @@ test("D-062 chooses the closest crop for the real KGC campus card",async({page})
   expect(results).toHaveLength(9);
 });
 
+test("D-062 chooses the closest independent CTA treatment",async({page})=>{
+  await page.setViewportSize({width:1024,height:1536});
+  await page.goto("/en");
+  await page.evaluate(()=>document.fonts.ready);
+
+  const candidates=[
+    {name:"flat",opacity:"0",scrim:"linear-gradient(90deg,rgba(255,255,255,.97),rgba(240,248,253,.92) 31%,rgba(216,237,251,.68) 62%,rgba(207,233,250,.52))"},
+    {name:"wash-08",opacity:".08",scrim:"linear-gradient(90deg,rgba(255,255,255,.98),rgba(244,250,254,.95) 31%,rgba(221,240,252,.82) 62%,rgba(213,236,251,.70))"},
+    {name:"wash-14",opacity:".14",scrim:"linear-gradient(90deg,rgba(255,255,255,.98),rgba(244,250,254,.95) 31%,rgba(221,240,252,.82) 62%,rgba(213,236,251,.70))"},
+    {name:"wash-20",opacity:".20",scrim:"linear-gradient(90deg,rgba(255,255,255,.98),rgba(244,250,254,.95) 31%,rgba(221,240,252,.82) 62%,rgba(213,236,251,.70))"},
+    {name:"blue-14",opacity:".14",scrim:"linear-gradient(90deg,rgba(255,255,255,.97),rgba(240,248,253,.90) 31%,rgba(216,237,251,.55) 62%,rgba(207,233,250,.35))"},
+    {name:"blue-20",opacity:".20",scrim:"linear-gradient(90deg,rgba(255,255,255,.97),rgba(240,248,253,.90) 31%,rgba(216,237,251,.55) 62%,rgba(207,233,250,.35))"}
+  ];
+  const results:{name:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
+  for(const candidate of candidates){
+    await page.locator(".approved-building-generated").evaluate((node,value)=>{(node as HTMLElement).style.opacity=value;},candidate.opacity);
+    await page.locator(".approved-cta-scrim").evaluate((node,value)=>{(node as HTMLElement).style.background=value;},candidate.scrim);
+    const screenshot=await page.screenshot({fullPage:true});
+    const screenshotBase64=screenshot.toString("base64");
+    const metric=await page.evaluate(async({screenshotBase64})=>{
+      const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{
+        const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;
+      });
+      const [actual,reference]=await Promise.all([
+        load(`data:image/png;base64,${screenshotBase64}`),
+        load("/authority/approved-homepage-reference.webp")
+      ]);
+      const width=512,height=768,canvas=document.createElement("canvas");
+      canvas.width=width;canvas.height=height;
+      const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
+      ctx.drawImage(actual,0,0,width,height);const a=ctx.getImageData(0,0,width,height).data;
+      ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const b=ctx.getImageData(0,0,width,height).data;
+      const y0=632,y1=718;let abs=0,over48=0,pixels=0;
+      for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){
+        const i=(y*width+x)*4;
+        const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
+        abs+=d;pixels++;if(d>48)over48++;
+      }
+      return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
+    },{screenshotBase64});
+    results.push({name:candidate.name,...metric});
+  }
+  results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);
+  console.log("D062_INDEPENDENT_CTA_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-independent-cta-sweep.json",JSON.stringify(results,null,2));
+  expect(results).toHaveLength(candidates.length);
+});
+
 test("D-062 controls have real outcomes and the carousel never fakes movement",async({page})=>{
   await page.setViewportSize({width:1024,height:768});
   await page.goto("/en");
