@@ -219,7 +219,7 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
 export function ApprovedClosingCta({locale}:{locale:Locale}){
  const ar=locale==="ar";
  return <section className="approved-closing-cta" data-section-id="H05" data-testid="approved-h05">
-  <img data-media-slot="home.cta.building" className="approved-building-background approved-building-generated" src="/generated/home-cta-building-v2.webp" width={2048} height={344} loading="lazy" decoding="async" alt={ar?"بيئة معمارية توضيحية عامة":"Generic illustrative business architecture"}/>
+  <img data-media-slot="home.cta.building" className="approved-building-background approved-building-generated" src="/generated/home-cta-building-v3.webp" width={2048} height={344} loading="lazy" decoding="async" alt={ar?"بيئة معمارية توضيحية عامة":"Generic illustrative business architecture"}/>
   <div className="approved-cta-scrim" aria-hidden="true"/>
   <div className="approved-cta-copy"><span className="approved-eyebrow" data-component-id="H05.02">{ar?"جاهز للبدء؟":"READY TO GET STARTED?"}</span><h2 data-component-id="H05.03">{ar?"لنصنع\nحل الزي الخاص بك":"LET'S CREATE\nYOUR UNIFORM SOLUTION"}</h2><div data-component-id="H05.04"><a className="approved-primary-button" href={`/${locale}/enquiry`}>{ar?"تواصل معنا":"Get in Touch"} ↗</a><p>{ar?"نحن هنا لمساعدتك في المتطلبات والأفكار والأسئلة.":"We're here to help with requirements, ideas, or questions."}</p></div></div>
   <div className="approved-hand-note approved-local-note" data-component-id="H05.05">{ar?"جذور محلية\nمعايير عالمية":"Local Roots\nGlobal Standards"}<svg viewBox="0 0 90 42"><path d="M5 6c25 7 49 17 72 28m-14-14 15 14-18 3"/></svg></div>
