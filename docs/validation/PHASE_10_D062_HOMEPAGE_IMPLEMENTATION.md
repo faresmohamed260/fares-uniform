@@ -1,9 +1,9 @@
 # D-062 approved homepage carbon-copy implementation evidence
 
-**Status:** Batches B–E GREEN; protected homepage review preview READY; Fares review pending  
+**Status:** Batches B–E and professional frontend hardening GREEN; protected homepage review preview READY; Fares review pending  
 **Approved visual authority:** `docs/ui/homepage/assets/approved-homepage-reference.webp` + `docs/ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md`  
-**Verified implementation SHA:** `42f2b116351a94a7d0c0a2604dd05b686adacf9c`  
-**Deployment source SHA:** `1498d32579cf66bee04d38ebd74b854bf65132c5` (workflow-only change; prototype bundle unchanged)  
+**Verified implementation SHA:** `a9700ebbb2124b5fa1ff86590542ea1b39a8fc2f`  
+**Deployment source SHA:** `a9700ebbb2124b5fa1ff86590542ea1b39a8fc2f`  
 **Date:** 2026-09-23
 
 ## Scope
@@ -213,3 +213,38 @@ Deployment verification:
 
 The active next action is Fares visual review of this exact protected implementation. This does not authorize public KGC publication, PR merge, production cutover or launch. Production remains **NO-GO**.
 
+
+## Professional frontend hardening
+
+Exact implementation and deployment commit `a9700ebbb2124b5fa1ff86590542ea1b39a8fc2f` completed a production-minded interaction, accessibility, semantics, responsive-layout and test-quality pass without changing the frozen 1024px H00–H06 authority geometry.
+
+Implemented repairs:
+- search, story and process controls now produce accessible, keyboard-operable dialog outcomes instead of inert clicks;
+- dialogs and the mobile menu trap focus, close with Escape and restore focus to their trigger;
+- carousel controls report their true disabled state and move only when overflow exists;
+- the About link targets the actual company-story section;
+- the global header and footer sit outside `main`, while the main content remains a direct skip-link target;
+- responsive framing no longer clips at 900–1023px and the 1024px authority canvas is centered on wider viewports;
+- the mobile header remains visible while scrolling;
+- images declare intrinsic dimensions, below-fold media lazy-loads, and illustrative Selected Work placeholders are named truthfully for assistive technology;
+- the browser suite now checks functional outcomes, focus restoration, semantic structure, console health, mobile stickiness and 900/1024/1440 layout behavior.
+
+Hosted push evidence:
+- run: `35811191945`;
+- job: `107022938366`;
+- artifact: `10729298445`;
+- artifact digest: `sha256:29f84b96fb2514d0b564481b6c2f4b8f87e785bad89ea50252f27fd949bf91b0`;
+- TypeScript typecheck: **PASS**;
+- optimized production build: **PASS**;
+- browser suite: **12/12 PASS**;
+- global mean RGB-channel error: **24.9710** (<25);
+- global pixels over 48: **12.9440%** (<14%);
+- H04 Selected Work mean / pixels over 48: **40.6591 / 28.8316%**.
+
+Deployment verification:
+- preview URL: `https://fares-uniform-design-authority-o92xjnq8u.vercel.app`;
+- state: **READY**;
+- target: **preview / non-production**;
+- Vercel Authentication: **PASS**, anonymous `/en` returns HTTP **302**.
+
+The prior two hosted hardening attempts failed only newly added test assertions and did not deploy. The exact commit above is the first fully GREEN hardening endpoint. Fares visual review remains the next action. Production, client-media publication and PR merge remain **NO-GO**.
