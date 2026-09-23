@@ -234,6 +234,19 @@ test("D-062 tablet and wide-desktop frames never clip or drift left",async({page
   await expect(page.getByRole("button",{name:"Open menu"})).toBeVisible();
 });
 
+test("D-063 wide desktops scale the complete composition without changing the 1024 authority",async({page})=>{
+  for(const [width,expectedWidth] of [[1440,1024],[1920,1365],[2560,1536]] as const){
+    await page.setViewportSize({width,height:1323});
+    await page.goto("/en");
+    const frame=await page.getByTestId("approved-homepage").boundingBox();
+    expect(frame).not.toBeNull();
+    expect(Math.abs((frame?.width??0)-expectedWidth)).toBeLessThanOrEqual(2);
+    expect(Math.abs((frame?.x??0)-(width-(frame?.width??0))/2)).toBeLessThanOrEqual(1);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  }
+  await page.screenshot({path:"artifacts/d063-homepage-wide-2560.png",fullPage:false});
+});
+
 test("D-062 English mobile reflows without changing identity",async({page})=>{
   await page.setViewportSize({width:390,height:844});
   await page.goto("/en");
