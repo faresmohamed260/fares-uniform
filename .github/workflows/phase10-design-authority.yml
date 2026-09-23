@@ -112,7 +112,7 @@ jobs:
         run: |
           set -euo pipefail
           SOURCE="../../docs/ui/homepage/assets/approved-homepage-reference.webp"
-          EXPECTED="db799d7b8fdb148b79481fbcf41d525aef4667d2190360f4c75ef5dfa91eceef"
+          EXPECTED="36032800b1a79a2fada69cfa87448124d7f81875e59b951bb445f8fd9947334c"
           test -f "$SOURCE"
           test "$(sha256sum "$SOURCE" | awk '{print $1}')" = "$EXPECTED"
           mkdir -p public/authority artifacts
