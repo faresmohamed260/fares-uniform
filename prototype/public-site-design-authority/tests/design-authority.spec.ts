@@ -153,42 +153,36 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
   expect(runtimeAuthorityConsumers).toEqual([]);
 });
 
-test("D-062 measures independent textile grading",async({page})=>{
+test("D-062 measures independent sketch integration",async({page})=>{
   await page.setViewportSize({width:1024,height:1536});
   await page.goto("/en");
   await page.evaluate(()=>document.fonts.ready);
   const candidates=[
-    {name:"current",filter:"brightness(.82) saturate(.92)"},
-    {name:"dark-72",filter:"brightness(.72) saturate(.85) contrast(1)"},
-    {name:"deep-62",filter:"brightness(.62) saturate(.78) contrast(1.05)"},
-    {name:"blue",filter:"brightness(.75) saturate(1.10) contrast(1.05)"},
-    {name:"muted",filter:"brightness(.75) saturate(.65) contrast(.98)"},
-    {name:"bright",filter:"brightness(.90) saturate(.90) contrast(.95)"},
-    {name:"crisp",filter:"brightness(.80) saturate(.90) contrast(1.15)"},
-    {name:"neutral",filter:"grayscale(.15) brightness(.75) saturate(.75)"}
+    {name:"current",opacity:".95",filter:"none"},
+    {name:"opacity-80",opacity:".80",filter:"none"},
+    {name:"opacity-65",opacity:".65",filter:"none"},
+    {name:"opacity-50",opacity:".50",filter:"none"},
+    {name:"opacity-35",opacity:".35",filter:"none"},
+    {name:"soft",opacity:".85",filter:"sepia(.15) brightness(1.05) contrast(.85)"},
+    {name:"muted",opacity:".85",filter:"saturate(.70) contrast(.90)"},
+    {name:"warm",opacity:".90",filter:"sepia(.25) saturate(.80) brightness(1.05)"},
+    {name:"bright",opacity:".90",filter:"brightness(1.08) contrast(.90)"}
   ];
   const results:{name:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
   for(const candidate of candidates){
-    await page.locator(".approved-fabric-field").evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);
-    const screenshot=await page.screenshot({fullPage:true});
-    const screenshotBase64=screenshot.toString("base64");
+    await page.locator(".approved-sketch-background").evaluate((node,value)=>{const element=node as HTMLElement;element.style.opacity=value.opacity;element.style.filter=value.filter;},candidate);
+    const screenshot=await page.screenshot({fullPage:true});const screenshotBase64=screenshot.toString("base64");
     const metric=await page.evaluate(async({screenshotBase64})=>{
       const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;});
       const [actual,reference]=await Promise.all([load(`data:image/png;base64,${screenshotBase64}`),load("/authority/approved-homepage-reference.webp")]);
-      const width=512,height=768,canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;
-      const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
-      ctx.drawImage(actual,0,0,width,height);const actualPixels=ctx.getImageData(0,0,width,height).data;
-      ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const referencePixels=ctx.getImageData(0,0,width,height).data;
-      const y0=401,y1=539;let abs=0,over48=0,pixels=0;
-      for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;const d=(Math.abs(actualPixels[i]-referencePixels[i])+Math.abs(actualPixels[i+1]-referencePixels[i+1])+Math.abs(actualPixels[i+2]-referencePixels[i+2]))/3;abs+=d;pixels++;if(d>48)over48++;}
+      const width=512,height=768,canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
+      ctx.drawImage(actual,0,0,width,height);const ap=ctx.getImageData(0,0,width,height).data;ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const rp=ctx.getImageData(0,0,width,height).data;
+      const y0=401,y1=539;let abs=0,over48=0,pixels=0;for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;const d=(Math.abs(ap[i]-rp[i])+Math.abs(ap[i+1]-rp[i+1])+Math.abs(ap[i+2]-rp[i+2]))/3;abs+=d;pixels++;if(d>48)over48++;}
       return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
-    },{screenshotBase64});
-    results.push({name:candidate.name,...metric});
+    },{screenshotBase64});results.push({name:candidate.name,...metric});
   }
-  results.sort((left,right)=>left.meanAbsChannel-right.meanAbsChannel);
-  console.log("D062_INDEPENDENT_TEXTILE_SWEEP",JSON.stringify(results));
-  writeFileSync("artifacts/d062-independent-textile-sweep.json",JSON.stringify(results,null,2));
-  expect(results).toHaveLength(candidates.length);
+  results.sort((left,right)=>left.meanAbsChannel-right.meanAbsChannel);console.log("D062_INDEPENDENT_SKETCH_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-independent-sketch-sweep.json",JSON.stringify(results,null,2));expect(results).toHaveLength(candidates.length);
 });
 
 test("D-062 controls have real outcomes and the carousel never fakes movement",async({page})=>{
