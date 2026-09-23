@@ -118,7 +118,7 @@ export function ApprovedHero({locale}:{locale:Locale}){
     </div>
     <div className="approved-hero-media">
       <div className="approved-blue-geometry" data-component-id="H01.08" aria-hidden="true"><span/><span/></div>
-      <img data-media-slot="home.hero.people-group" className="approved-hero-people approved-hero-generated" src="/generated/home-hero-people-group.webp" width={689} height={399} fetchPriority="high" decoding="async" alt={ar?"تكوين توضيحي عام لمهن وقطاعات متعددة":"Generic illustrative multi-profession uniform composition"}/>
+      <img data-media-slot="home.hero.people-group" className="approved-hero-people approved-hero-generated" src="/generated/home-hero-people-group-clean-v2.webp" width={689} height={399} fetchPriority="high" decoding="async" alt={ar?"تكوين توضيحي عام لمهن وقطاعات متعددة":"Generic illustrative multi-profession uniform composition"}/>
       <div className="approved-hand-note note-a" data-component-id="H01.09">{ar?"أشخاص مختلفون\nهدف واحد":"Different People\nSame Purpose"}<svg viewBox="0 0 90 44"><path d="M3 8c25 5 45 14 72 27m-12-14 13 14-17 3"/></svg></div>
       <div className="approved-hand-note note-b" data-component-id="H01.10">{ar?"زي حقيقي\nناس حقيقيون\nأثر حقيقي.":"Real Uniforms\nReal People\nReal Impact."}<svg viewBox="0 0 88 46"><path d="M83 7C60 15 44 27 10 35m9-12L9 35l15 4"/></svg></div>
       <div className="approved-quality-card" data-component-id="H01.11">

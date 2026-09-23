@@ -8,7 +8,7 @@ The approved screenshot is retained only as test authority. Runtime media must u
 
 | Slot key | Type | Reference crop (x,y,w,h) | Replacement target |
 |---|---|---:|---|
-| home.hero.people-group | illustrative people composition | 335,55,689,399 | **generated review asset committed:** `public/generated/home-hero-people-group.webp`, SHA-256 `3921291dac7db38c6c8834f5e3413aee2df93393157059b48011ba09407761ed`; generic illustrative media only, not Fares client/product evidence |
+| home.hero.people-group | clean illustrative people photograph | 335,55,689,399 | **independent clean asset:** `public/generated/home-hero-people-group-clean-v2.webp`, SHA-256 `c0af06d1e71a40b7d38b55407545114303877de331637b9573eb8072b31ca774`; photo-only four-profession composition with no text, annotations, cards, controls, logos or screenshot pixels; generic illustrative media only, not Fares client/product evidence |
 | home.hero.quality-thumb | decorative detail | 760,352,60,67 | **independent generated placeholder:** reuses `public/generated/home-feature-fabric-blue-v1.webp`; decorative textile only, not product evidence |
 | home.industries.education | illustrative sector media | 10,579,158,137 | **generated review asset:** `public/generated/home-industries-education.webp`, SHA-256 `6d087847c89da991d73b83d2a925c95714ba6a64d7fe6e021aa9fb09fa9b00d2`; generic education media only, no client identity |
 | home.industries.hospitality | illustrative sector media | 179,579,159,137 | **generated review asset:** `public/generated/home-industries-hospitality.webp`, SHA-256 `c96db206981ceb504f2ae5aeee8223829a5536574459dd38cfda41fc90144cef`; generic hospitality/chef media only, no venue/client identity |
@@ -29,3 +29,5 @@ The approved screenshot is retained only as test authority. Runtime media must u
 - Generated replacements must be independent assets sized to the media contract; the authority screenshot may be used only for post-render comparison.
 - Real database assets supersede generated placeholders when publication rights and content contracts are satisfied.
 - Real product/client media must never be synthesized and presented as factual evidence.
+
+- The rejected `home-hero-people-group.webp` composite contained baked annotations/UI and was removed. Runtime photographs must be content-only; all labels, notes, cards and controls belong to semantic HTML/CSS.

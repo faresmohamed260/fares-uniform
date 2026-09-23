@@ -123,7 +123,9 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
     "home.feature.fabric-blue","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
     "home.cta.building"
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
-  await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-group.webp");
+  expect((await page.request.get("/generated/home-hero-people-group-clean-v2.webp")).ok()).toBeTruthy();
+  expect((await page.request.get("/generated/home-hero-people-group.webp")).status()).toBe(404);
+  await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-group-clean-v2.webp");
   await expect(page.locator('[data-media-slot="home.industries.education"]')).toHaveAttribute("src","/generated/home-industries-education.webp");
   await expect(page.locator('[data-media-slot="home.industries.hospitality"]')).toHaveAttribute("src","/generated/home-industries-hospitality.webp");
   await expect(page.locator('[data-media-slot="home.industries.healthcare"]')).toHaveAttribute("src","/generated/home-industries-healthcare.webp");
@@ -236,6 +238,18 @@ test("D-062 English mobile reflows without changing identity",async({page})=>{
   await page.goto("/en");
   await expect(page.getByRole("heading",{level:1})).toContainText("PEOPLE");
   await expect(page.locator(".approved-industry-card")).toHaveCount(6);
+  await expect(page.locator(".approved-quality-card")).toHaveCount(1);
+  const heroMedia=await page.locator(".approved-hero-media").boundingBox();
+  const heroPhoto=await page.locator('[data-media-slot="home.hero.people-group"]').boundingBox();
+  expect(heroMedia).not.toBeNull(); expect(heroPhoto).not.toBeNull();
+  expect(Math.round(heroPhoto?.width??0)).toBe(Math.round(heroMedia?.width??0));
+  expect(Math.round(heroPhoto?.x??-1)).toBe(Math.round(heroMedia?.x??0));
+  const firstIndustry=await page.locator(".approved-industry-card").first().boundingBox();
+  const firstIndustryImage=await page.locator(".approved-industry-image").first().boundingBox();
+  expect(firstIndustry?.width??0).toBeGreaterThanOrEqual(280);
+  expect((firstIndustryImage?.width??1)/(firstIndustryImage?.height??1)).toBeGreaterThan(1.25);
+  const workCards=page.locator(".approved-work-cards");
+  expect(await workCards.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(100);
 
   const trigger=page.getByRole("button",{name:"Open menu"});
   await trigger.click();
