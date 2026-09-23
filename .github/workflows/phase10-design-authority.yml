@@ -1,5 +1,5 @@
 name: Phase 10 browser-native design authority
-# Protected-preview trigger: D-062 homepage implementation 42f2b116351a94a7d0c0a2604dd05b686adacf9c
+# Protected-preview trigger: D-063 browser-native homepage correction 460b44f5b167c1f44a3552c1ead57aeaeac9a0a1
 
 on:
   push:
@@ -108,7 +108,7 @@ jobs:
             echo "- Engine copied unmodified from pinned Scrollcraft source"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Stage D-062 approved homepage authority
+      - name: Stage browser-native homepage regression authority
         run: |
           set -euo pipefail
           SOURCE="../../docs/ui/homepage/assets/approved-homepage-reference.webp"
