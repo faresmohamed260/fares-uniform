@@ -314,3 +314,64 @@ Final hosted verification:
 - deployment: **READY**, target **preview**, Vercel Authentication **PASS**, anonymous HTTP **302**.
 
 This evidence validates implementation quality and regression stability. It does not record Fares visual acceptance or authorize production, public KGC/client publication, PR merge or ERP Gate D.
+
+
+## Viewport-native correction contract — 2026-09-24
+
+**Status:** pre-implementation mismatch ledger and motion/composition authority  
+**Baseline source/deployment SHA:** `1510dcc32471ce9c1155b739e44ce863fb4c2ef1`  
+**Baseline hosted design-authority run:** `35929343174`  
+**Baseline evidence artifact:** `10780696473`, digest `sha256:492ee5b45147dbdcb66e37db057b065f8cf9b445e4d1b54d48afc2b400d741d2`  
+**Baseline protected preview:** `https://fares-uniform-design-authority-cdobsxbui.vercel.app` (deployment `dpl_5NfH4H88fKLYazYFLnmrmdveAwbq`, READY, non-production, exact Git metadata SHA above)
+
+Fares rejected the wide-screen behavior of the current browser-native candidate because it still behaves like a fixed 1024 × 1536 presentation board enlarged inside the browser. This correction explicitly replaces that responsive strategy while preserving D-063's semantic/runtime-media boundary.
+
+### Mismatch ledger
+
+1. Wide desktop is still a centered fixed board. At 2560px the current candidate scales the 1024px root to about 1536px and leaves roughly 512px of unused viewport on each side.
+2. The wide-screen strategy is CSS `zoom` over the whole homepage, so typography, header, sections and interaction geometry enlarge together instead of recomposing fluidly.
+3. The hero remains a board-height slice rather than a viewport-scale composition; later chapters enter the first desktop viewport too early, so the opening lacks depth and narrative focus.
+4. Header chrome is constrained to the artboard rather than confidently spanning the browser with a bounded inner content width.
+5. H02–H05 inherit the same compact board proportions. Industries, Selected Work and the close therefore read as strips in one poster rather than distinct browser-native chapters.
+6. Existing wide-screen browser coverage protects the rejected behavior by asserting scaled 1024px frame widths. Those assertions are obsolete under this explicit correction.
+7. Mobile avoids horizontal overflow, but it is still primarily a vertical restack of the board. The hero copy and people composition separate into successive blocks instead of forming one intentional mobile scene.
+
+### Revised responsive composition
+
+- **H00 Header:** full viewport width with a centered inner rail capped by a generous desktop content maximum; persistent compact mobile navigation remains outside chapter motion.
+- **H01 Hero:** approximately one viewport high on desktop. Copy, blue geometry, transparent people cutout, annotations and the quality card are independently positioned planes. The hero keeps a strong static opening before any scroll motion.
+- **Hero -> H02 handoff:** a short natural-scroll transition. Blue geometry opens/scales toward the section edge while the people plane and annotation depth resolve at different restrained rates; no long pinned sequence and no scroll hijacking.
+- **H02 Industries:** a full-width responsive rail with deliberate overflow on desktop and touch-native overflow on mobile. Arrow controls move the real rail; card sizing changes with viewport rather than inheriting board pixels.
+- **H03 Feature/process chapter:** “More Than Uniforms” and “From Idea to Uniform” become an asymmetrical visual chapter instead of two fixed 1024-board halves. Fabric depth and technical-sketch line/reveal movement provide contrast without pinning the reader.
+- **H04 Selected Work:** expands into an editorial proof chapter with meaningful viewport presence. Existing truthful review media remains unchanged in status and provenance; no new public client publication is implied.
+- **H05 Close:** becomes a calm, high-confidence closing scene occupying meaningful viewport space, then resolves cleanly into H06 rather than ending as another narrow board strip.
+- **H06 Footer:** full-width resolution with bounded inner content.
+
+### Motion plan
+
+The page keeps native browser scrolling. It uses varied device families rather than one repeated slide treatment:
+
+1. H01 uses restrained layered parallax/scale and clip geometry for depth.
+2. H01 -> H02 uses the existing blue geometry as the visual continuity device instead of a hard poster boundary.
+3. H02 uses rail movement plus small card/media depth; controls remain real and keyboard-operable.
+4. H03 uses slow material parallax on the fabric side and line/checklist reveal on the process side.
+5. H04 uses masked image/copy entrance and depth change, not another hero clone.
+6. H05 intentionally reduces motion to create visual resolution.
+
+Page-local choreography may consume the pinned Scrollcraft engine/progress mechanism, but the upstream engine remains unmodified. No GSAP/Lenis/WebGL adoption is authorized by this correction.
+
+### Responsive and accessibility rules
+
+- No CSS `zoom`, whole-page transform scaling or fixed 1024px root width may be the responsive strategy.
+- Desktop validation viewports: 2560 × 1440, 1920 × 1080 and 1440 × 900.
+- Mobile validation viewports: 390 × 844 and compact 360 × 640.
+- Mobile is independently composed: fewer simultaneous foreground planes, one dominant subject, shorter motion distances and native horizontal rails.
+- EN and AR/RTL must preserve identical information and interactions.
+- Reduced motion keeps the same hierarchy and assets but removes spatial travel/long transitions and must not reserve dead scroll space.
+- Semantic HTML, focus order, dialogs, mobile menu, keyboard rail controls, console health and zero horizontal overflow remain required.
+- The historical 1024 capture stays regression/content evidence only. Pixel parity and fixed H00–H06 board coordinates must not block this viewport-native correction.
+- The runtime may not consume the approved/reference screenshot or introduce baked UI, copied annotations, screenshot crops or fake client/product evidence.
+
+### Acceptance boundary
+
+The next protected preview is an engineering/review candidate only. Fares retains final visual acceptance. This correction does not authorize production, PR merge, client-media publication, KGC public release or ERP Gate D.
