@@ -1,9 +1,10 @@
 # D-062 approved homepage carbon-copy implementation evidence
 
-**Status:** component/layout carbon-copy gate GREEN; temporary media replacement remains active  
+**Status:** Batches B–E GREEN; protected homepage review preview READY; Fares review pending  
 **Approved visual authority:** `docs/ui/homepage/assets/approved-homepage-reference.webp` + `docs/ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md`  
-**Verified implementation SHA:** `778ea6fadeb88699708b44742ee1bf651c85b0fe`  
-**Date:** 2026-09-22
+**Verified implementation SHA:** `42f2b116351a94a7d0c0a2604dd05b686adacf9c`  
+**Deployment source SHA:** `1498d32579cf66bee04d38ebd74b854bf65132c5` (workflow-only change; prototype bundle unchanged)  
+**Date:** 2026-09-23
 
 ## Scope
 
@@ -92,7 +93,7 @@ The strict gate requires:
 
 Both pass.
 
-## Protected hosted preview
+## Initial protected hosted preview
 
 Deployment:
 - ID: `dpl_8YykRkaG96einFtrLrbaLmFCzAUx`;
@@ -102,9 +103,9 @@ Deployment:
 - target: preview / non-production;
 - Vercel Authentication fail-closed check: PASS (`302` unauthenticated).
 
-## Remaining work before D-062 homepage implementation is complete
+## Historical replacement plan after the initial carbon-copy gate
 
-The layout/component map is frozen. Remaining work is media fidelity/replacement only:
+The layout/component map was frozen and the following media-replacement plan was subsequently completed by Batches B–E:
 
 1. preserve current media-slot keys from `APPROVED_HOME_MEDIA_MANIFEST.md`;
 2. replace reference-sprite placeholders with generated **non-product illustrative** assets where allowed;
@@ -186,5 +187,29 @@ Hosted PR validation run/job `35801320352` / `106992069953` completed the lean f
 - H04 Selected Work mean / pixels over 48: **40.6591 / 28.8316%**;
 - H05 Closing CTA mean / pixels over 48: **25.3272 / 10.5696%**.
 
-Batches B–E are complete without weakening D-062. A fresh protected-preview deployment/verification of this exact homepage implementation remains the next operational step before Fares reviews the exact implementation SHA. Production remains **NO-GO**.
+Batches B–E are complete without weakening D-062.
+
+## Final protected homepage review deployment
+
+The exact staged prototype bundle from implementation `42f2b116351a94a7d0c0a2604dd05b686adacf9c` was deployed through workflow-only source commit `1498d32579cf66bee04d38ebd74b854bf65132c5`. The trigger commit changes only the workflow comment and leaves the implementation bundle byte-for-byte unchanged.
+
+Hosted push evidence:
+- run: `35801988018`;
+- job: `106994178255`;
+- artifact: `10726561210`;
+- artifact digest: `sha256:ce9e9c4571380d22fc5639648cf12eb33efb1bc1a1eaaa6c88c3a14340c6892f`;
+- **10/10 D-062 browser checks passed**;
+- global mean RGB-channel error: **24.9517** (<25);
+- global pixels over 48: **12.9257%** (<14%);
+- H04 Selected Work mean / pixels over 48: **40.6591 / 28.8316%**;
+- H05 Closing CTA mean / pixels over 48: **25.3272 / 10.5696%**.
+
+Deployment verification:
+- project: `fares-uniform-design-authority` (`prj_NihDUJroYCeAqi6OF8aVAuxi94w0`);
+- preview URL: `https://fares-uniform-design-authority-80gw6ngid.vercel.app`;
+- state: **READY**;
+- target: **preview / non-production**;
+- Vercel Authentication: **PASS**, anonymous `/en` request returns HTTP **302** and opens the Vercel login boundary.
+
+The active next action is Fares visual review of this exact protected implementation. This does not authorize public KGC publication, PR merge, production cutover or launch. Production remains **NO-GO**.
 
