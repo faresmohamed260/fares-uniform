@@ -174,3 +174,17 @@ Final accepted implementation:
 - fail-closed verification: unauthenticated HTTP **302**, target **preview**.
 
 Batch D is complete. The remaining homepage media replacement is Batch E `home.cta.building`.
+
+## Media replacement evidence — Batch E closing architecture
+
+The generated generic architecture candidate was integrated at exact branch commit `42f2b116351a94a7d0c0a2604dd05b686adacf9c` as a low-opacity facade/color treatment over the D-062 temporary H05 architecture crop. This preserves the approved composition while keeping the added vector structure explicitly illustrative; it is not evidence of a real Fares facility.
+
+Hosted PR validation run/job `35801320352` / `106992069953` completed the lean final suite with **10/10 browser checks**, TypeScript typecheck and optimized production build GREEN. Artifact `10725594588` preserves the evidence.
+
+- global mean RGB-channel error: **24.9517** (<25);
+- global pixels over 48: **12.9257%** (<14%);
+- H04 Selected Work mean / pixels over 48: **40.6591 / 28.8316%**;
+- H05 Closing CTA mean / pixels over 48: **25.3272 / 10.5696%**.
+
+Batches B–E are complete without weakening D-062. A fresh protected-preview deployment/verification of this exact homepage implementation remains the next operational step before Fares reviews the exact implementation SHA. Production remains **NO-GO**.
+

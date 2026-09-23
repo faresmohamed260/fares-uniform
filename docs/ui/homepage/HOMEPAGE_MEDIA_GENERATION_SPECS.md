@@ -169,7 +169,7 @@ Target: 1024 × 172.
 - current generated review candidate: `prototype/public-site-design-authority/public/generated/home-cta-building.svg`;
 - SHA-256: `82dc064586721ef08f08c7c9507761e99cee0b5df570f15795d2998a74103f1f`;
 - source: independently vector-generated generic low-rise business/industrial architecture at the exact 1024×172 slot ratio, rebuilt from the hosted H05 coarse color-field probe so tonal distribution matches the approved authority without copying its underlying artwork;
-- status: D-062 fidelity/treatment gate pending.
+- status: D-062 fidelity GREEN at `42f2b116351a94a7d0c0a2604dd05b686adacf9c` (run `35801320352`, job `106992069953`, artifact `10725594588`); global mean error `24.9517`, high-difference pixels `12.9257%`, H05 mean error `25.3272`; accepted for protected review as an explicitly illustrative temporary architecture treatment.
 
 ## Generation acceptance
 
