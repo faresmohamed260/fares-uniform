@@ -5,11 +5,8 @@ import {
   Globe2, GraduationCap, HardHat, Layers3,
   Menu, Play, Ruler, Search, ShieldCheck, Sparkles, Utensils, X
 } from "lucide-react";
-import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/locale";
-
-type Crop={x:number;y:number;w:number;h:number};
 
 function useFocusTrap(open:boolean,onClose:()=>void,container:React.RefObject<HTMLElement|null>){
   useEffect(()=>{
@@ -53,17 +50,6 @@ function ApprovedDialog({open,onClose,id,title,closeLabel,children}:{open:boolea
       {children}
     </div>
   </div>;
-}
-
-function ReferenceCrop({slot,crop,className="",label}:{slot:string;crop:Crop;className?:string;label?:string}){
-  const style:CSSProperties={
-    backgroundImage:"url('/authority/approved-homepage-reference.webp')",
-    backgroundSize:"1024px 1536px",
-    backgroundPosition:`-${crop.x}px -${crop.y}px`,
-    backgroundRepeat:"no-repeat",
-  };
-  return <div className={`approved-reference-crop ${className}`} data-media-slot={slot} style={style}
-    role={label?"img":undefined} aria-label={label} aria-hidden={label?undefined:true}/>;
 }
 
 function BrandLockup(){
@@ -147,12 +133,12 @@ export function ApprovedHero({locale}:{locale:Locale}){
 }
 
 const industries=[
- {key:"education",en:"Education",ar:"التعليم",sub:"SCHOOL UNIFORMS",subAr:"زي مدرسي",crop:{x:10,y:579,w:158,h:137},Icon:GraduationCap},
- {key:"hospitality",en:"Hospitality",ar:"الضيافة",sub:"HOTELS & RESTAURANTS",subAr:"فنادق ومطاعم",crop:{x:179,y:579,w:159,h:137},Icon:Utensils},
- {key:"healthcare",en:"Healthcare",ar:"الرعاية الصحية",sub:"HOSPITALS & CLINICS",subAr:"مستشفيات وعيادات",crop:{x:348,y:579,w:159,h:137},Icon:CirclePlus},
- {key:"corporate",en:"Corporate",ar:"الشركات",sub:"BUSINESS & OFFICES",subAr:"أعمال ومكاتب",crop:{x:518,y:579,w:159,h:137},Icon:BriefcaseBusiness},
- {key:"industrial",en:"Industrial",ar:"الصناعي",sub:"WORKWEAR & SAFETY",subAr:"ملابس عمل وسلامة",crop:{x:687,y:579,w:159,h:137},Icon:HardHat},
- {key:"security",en:"Security",ar:"الأمن",sub:"SECURITY UNIFORMS",subAr:"زي أمني",crop:{x:856,y:579,w:158,h:137},Icon:ShieldCheck},
+ {key:"education",en:"Education",ar:"التعليم",sub:"SCHOOL UNIFORMS",subAr:"زي مدرسي",Icon:GraduationCap},
+ {key:"hospitality",en:"Hospitality",ar:"الضيافة",sub:"HOTELS & RESTAURANTS",subAr:"فنادق ومطاعم",Icon:Utensils},
+ {key:"healthcare",en:"Healthcare",ar:"الرعاية الصحية",sub:"HOSPITALS & CLINICS",subAr:"مستشفيات وعيادات",Icon:CirclePlus},
+ {key:"corporate",en:"Corporate",ar:"الشركات",sub:"BUSINESS & OFFICES",subAr:"أعمال ومكاتب",Icon:BriefcaseBusiness},
+ {key:"industrial",en:"Industrial",ar:"الصناعي",sub:"WORKWEAR & SAFETY",subAr:"ملابس عمل وسلامة",Icon:HardHat},
+ {key:"security",en:"Security",ar:"الأمن",sub:"SECURITY UNIFORMS",subAr:"زي أمني",Icon:ShieldCheck},
 ] as const;
 
 export function ApprovedIndustries({locale}:{locale:Locale}){
@@ -175,20 +161,8 @@ export function ApprovedIndustries({locale}:{locale:Locale}){
       <div data-component-id="H02.05" className="approved-carousel-controls"><button type="button" aria-label={ar?"السابق":"Previous"} disabled={!railState.canPrevious} onClick={()=>move(-1)}><ChevronLeft aria-hidden="true"/></button><button type="button" aria-label={ar?"التالي":"Next"} disabled={!railState.canNext} onClick={()=>move(1)}><ChevronRight aria-hidden="true"/></button></div>
     </div>
    </header>
-   <div className="approved-industry-rail" ref={rail} data-component-id="H02.06">{industries.map(({key,en,ar:arabic,sub,subAr,crop,Icon})=><article className="approved-industry-card" key={key}>
-    {key==="education"
-  ? <img data-media-slot="home.industries.education" className="approved-industry-image approved-industry-generated" src="/generated/home-industries-education.webp" width={158} height={137} loading="lazy" decoding="async" alt={ar?arabic:en}/>
-  : key==="hospitality"
-    ? <img data-media-slot="home.industries.hospitality" className="approved-industry-image approved-industry-generated" src="/generated/home-industries-hospitality.webp" width={159} height={137} loading="lazy" decoding="async" alt={ar?arabic:en}/>
-    : key==="healthcare"
-      ? <img data-media-slot="home.industries.healthcare" className="approved-industry-image approved-industry-generated" src="/generated/home-industries-healthcare.webp" width={159} height={137} loading="lazy" decoding="async" alt={ar?arabic:en}/>
-      : key==="corporate"
-        ? <img data-media-slot="home.industries.corporate" className="approved-industry-image approved-industry-generated" src="/generated/home-industries-corporate.webp" width={159} height={137} loading="lazy" decoding="async" alt={ar?arabic:en}/>
-        : key==="industrial"
-          ? <img data-media-slot="home.industries.industrial" className="approved-industry-image approved-industry-generated" src="/generated/home-industries-industrial.webp" width={159} height={137} loading="lazy" decoding="async" alt={ar?arabic:en}/>
-          : key==="security"
-            ? <img data-media-slot="home.industries.security" className="approved-industry-image approved-industry-generated" src="/generated/home-industries-security.webp" width={158} height={137} loading="lazy" decoding="async" alt={ar?arabic:en}/>
-            : <ReferenceCrop slot={`home.industries.${key}`} crop={crop} className="approved-industry-image" label={ar?arabic:en}/>}  
+   <div className="approved-industry-rail" ref={rail} data-component-id="H02.06">{industries.map(({key,en,ar:arabic,sub,subAr,Icon})=><article className="approved-industry-card" key={key}>
+    <img data-media-slot={`home.industries.${key}`} className="approved-industry-image approved-industry-generated" src={`/generated/home-industries-${key}.webp`} width={key==="education"||key==="security"?158:159} height={137} loading="lazy" decoding="async" alt={ar?arabic:en}/>
     <div className="approved-industry-meta"><Icon/><div><h3>{ar?arabic:en}</h3><p>{ar?subAr:sub}</p></div><a href={`/${locale}/work`} aria-label={ar?arabic:en}>↗</a></div>
    </article>)}</div>
  </section>;
@@ -223,9 +197,9 @@ export function ApprovedFeatureBand({locale}:{locale:Locale}){
 }
 
 const workCards=[
- {slot:"home.work.kgc",crop:{x:324,y:1097,w:173,h:149},en:"KGC",ar:"KGC",sub:"School Uniform Program",subAr:"برنامج زي مدرسي",href:"/work/kgc/national"},
- {slot:"home.work.hospitality",crop:{x:506,y:1097,w:169,h:149},en:"Hospitality",ar:"الضيافة",sub:"Restaurant Uniforms",subAr:"زي مطاعم",href:"/work"},
- {slot:"home.work.healthcare",crop:{x:682,y:1097,w:169,h:149},en:"Healthcare",ar:"الرعاية الصحية",sub:"Clinic Uniforms",subAr:"زي عيادات",href:"/work"},
+ {slot:"home.work.kgc",en:"KGC",ar:"KGC",sub:"School Uniform Program",subAr:"برنامج زي مدرسي",href:"/work/kgc/national"},
+ {slot:"home.work.hospitality",en:"Hospitality",ar:"الضيافة",sub:"Restaurant Uniforms",subAr:"زي مطاعم",href:"/work"},
+ {slot:"home.work.healthcare",en:"Healthcare",ar:"الرعاية الصحية",sub:"Clinic Uniforms",subAr:"زي عيادات",href:"/work"},
 ] as const;
 
 export function ApprovedSelectedWork({locale}:{locale:Locale}){
@@ -245,7 +219,7 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
 export function ApprovedClosingCta({locale}:{locale:Locale}){
  const ar=locale==="ar";
  return <section className="approved-closing-cta" data-section-id="H05" data-testid="approved-h05">
-  <img data-media-slot="home.cta.building" className="approved-building-background approved-building-generated" src="/generated/home-cta-building.svg" width={1024} height={172} loading="lazy" decoding="async" alt={ar?"بيئة معمارية توضيحية عامة":"Generic illustrative business architecture"}/>
+  <img data-media-slot="home.cta.building" className="approved-building-background approved-building-generated" src="/generated/home-cta-building-v2.webp" width={2048} height={344} loading="lazy" decoding="async" alt={ar?"بيئة معمارية توضيحية عامة":"Generic illustrative business architecture"}/>
   <div className="approved-cta-scrim" aria-hidden="true"/>
   <div className="approved-cta-copy"><span className="approved-eyebrow" data-component-id="H05.02">{ar?"جاهز للبدء؟":"READY TO GET STARTED?"}</span><h2 data-component-id="H05.03">{ar?"لنصنع\nحل الزي الخاص بك":"LET'S CREATE\nYOUR UNIFORM SOLUTION"}</h2><div data-component-id="H05.04"><a className="approved-primary-button" href={`/${locale}/enquiry`}>{ar?"تواصل معنا":"Get in Touch"} ↗</a><p>{ar?"نحن هنا لمساعدتك في المتطلبات والأفكار والأسئلة.":"We're here to help with requirements, ideas, or questions."}</p></div></div>
   <div className="approved-hand-note approved-local-note" data-component-id="H05.05">{ar?"جذور محلية\nمعايير عالمية":"Local Roots\nGlobal Standards"}<svg viewBox="0 0 90 42"><path d="M5 6c25 7 49 17 72 28m-14-14 15 14-18 3"/></svg></div>

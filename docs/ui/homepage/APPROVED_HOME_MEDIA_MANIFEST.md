@@ -21,11 +21,11 @@ The first fidelity implementation may crop the committed reference image as a te
 | home.work.kgc | project proof placeholder | 324,1097,173,149 | **protected review replacement:** real staged KGC campus media selected by hosted fidelity sweep; public use still requires explicit publication authorization |
 | home.work.hospitality | illustrative project tile | 506,1097,169,149 | **protected-review placeholder:** reuses generic generated Hospitality media `public/generated/home-industries-hospitality.webp` (SHA-256 `c96db206981ceb504f2ae5aeee8223829a5536574459dd38cfda41fc90144cef`); no venue/client identity; D-062 GREEN at `161c14eb...` / run `35790791853` |
 | home.work.healthcare | illustrative project tile | 682,1097,169,149 | **protected-review placeholder:** reuses generic generated Healthcare media `public/generated/home-industries-healthcare.webp` (SHA-256 `5dbe74ffbd8ce363a4e0acaaed170690b43e1a87d60bd7206c4eec4e21a1a6ee`); no facility/client identity; tuned to 75% crop + brightness(.80)/saturate(.40); D-062 GREEN at `5b89a6c...` / run `35792530022` |
-| home.cta.building | illustrative brand environment | 0,1263,1024,172 | **generated review treatment:** `public/generated/home-cta-building.svg`, SHA-256 `82dc064586721ef08f08c7c9507761e99cee0b5df570f15795d2998a74103f1f`, used as a low-opacity generic facade/color treatment over the D-062 temporary architecture crop; no factual Fares facility claim; D-062 GREEN at `42f2b116...` / run `35801320352` |
+| home.cta.building | illustrative brand environment | 0,1263,1024,172 | **independent generated placeholder:** `public/generated/home-cta-building-v2.webp`, SHA-256 `6b7d239b38a73177de6bffd1e5d798fd3fca8035828f0d534d5aab94fb35adcd`; original architectural scene generated without the D-062 board as an input, reference, texture or overlay; no factual Fares facility claim |
 
 ## Rules
 
-- The screenshot crop is a fidelity placeholder, not factual evidence.
-- Generated replacements must match crop aspect ratio, framing, tonal distribution and subject placement closely enough that layout does not move.
+- The approved screenshot is test-only visual authority. It must never be rendered, cropped, textured or overlaid as runtime page media.
+- Generated replacements must be independent assets sized to the media contract; the authority screenshot may be used only for post-render comparison.
 - Real database assets supersede generated placeholders when publication rights and content contracts are satisfied.
 - Real product/client media must never be synthesized and presented as factual evidence.

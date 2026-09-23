@@ -133,12 +133,24 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
   expect((await page.request.get("/generated/home-feature-design-sketch.svg")).ok()).toBeTruthy();
   await expect(page.locator('[data-media-slot="home.feature.design-sketch"]')).toHaveAttribute("src","/generated/home-feature-design-sketch.svg");
   expect((await page.request.get("/generated/home-cta-building.svg")).ok()).toBeTruthy();
-  await expect(page.locator('[data-media-slot="home.cta.building"]')).toHaveAttribute("src","/generated/home-cta-building.svg");
+  await expect(page.locator('[data-media-slot="home.cta.building"]')).toHaveAttribute("src","/generated/home-cta-building-v2.webp");
   await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
   await expect(page.locator('[data-media-slot="home.work.hospitality"]')).toHaveAttribute("src","/generated/home-industries-hospitality.webp");
   await expect(page.locator('[data-media-slot="home.work.healthcare"]')).toHaveAttribute("src","/generated/home-industries-healthcare.webp");
   await expect(page.locator('[data-media-slot="home.hero.quality-thumb"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
   await expect(page.locator('[data-media-slot="home.feature.fabric-blue"]')).not.toHaveCSS("background-image",/approved-homepage-reference/);
+
+  const runtimeAuthorityConsumers=await page.locator("body *").evaluateAll(nodes=>nodes.flatMap(node=>{
+    const element=node as HTMLElement;
+    const sources=[
+      element.getAttribute("src")??"",
+      element.getAttribute("srcset")??"",
+      element.getAttribute("style")??"",
+      getComputedStyle(element).backgroundImage
+    ];
+    return sources.some(value=>value.includes("approved-homepage-reference"))?[element.tagName+"."+element.className]:[];
+  }));
+  expect(runtimeAuthorityConsumers).toEqual([]);
 });
 
 test("D-062 chooses the closest real KGC review asset for the frozen work slot",async({page})=>{
