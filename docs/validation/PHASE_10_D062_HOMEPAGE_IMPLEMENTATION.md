@@ -437,3 +437,49 @@ Fresh exact-source hosted captures were inspected at all requested openings: 256
 The protected Vercel instance was separately verified through provider metadata as READY, non-production and carrying the exact source SHA above. Anonymous access remains intentionally blocked. The render artifact and deployed preview come from the same exact-SHA design-authority job and staged bundle.
 
 This is an engineering/review candidate only. **Fares visual acceptance is not inferred or recorded.** Production, PR merge, public KGC/client publication and ERP Gate D remain NO-GO.
+
+
+## D-064 protected-preview rejection and motion/media correction plan — 2026-09-24
+
+Fares reviewed the exact protected D-063 viewport-native candidate and rejected it as visual authority.
+
+### Mismatch ledger
+
+1. Scroll progression is technically present but perceptually weak. The hero, Industries, H03, Selected Work and H05 still read primarily as static sections with small transform changes.
+2. The pinned Scrollcraft engine is loaded, but the homepage choreography is dominated by a page-local generic scroll listener rather than authored Scrollcraft acts/devices.
+3. There is no memorable peak. “More Than Uniforms” and “From Idea to Uniform” are side-by-side static halves instead of an actual transformation.
+4. Hero geometry stops at the section edge; it does not visibly hand the composition into Industries.
+5. Six Industry images are only about 4–7 KB each and read as low-resolution crops/recycled portrait scenes at the rendered card sizes.
+6. Hospitality and Healthcare reuse those same Industry bitmaps inside Selected Work, amplifying the screenshot/crop appearance and weakening the truth boundary.
+7. The H05 architecture bitmap is unnecessary generated scene media for a composition that can be stronger and more truthful as browser-native graphic architecture/thread geometry.
+
+### Revised Scrollcraft score
+
+| Beat | Feeling | Device | Purpose |
+|---|---|---|---|
+| H01 breadth | recognition -> momentum | layered parallax + geometry seam | independent people/geometry planes visibly separate, then blue geometry expands into the next chapter |
+| H02 range | discovery | flow reveal + responsive rail + pointer depth | sector breadth arrives as crisp graphic fields, not portrait crops |
+| H03 material -> process | **peak: transformation** | short pin + bespoke Seam Handoff + kinetic/reveal | fabric is cut by a moving seam; the process drawing/steps take control of the frame |
+| H04 proof | confidence | editorial flow/rail + restrained depth | one real protected KGC proof image, followed by clearly graphic capability panels |
+| H05 resolve | calm/intent | large architectural line reveal + kinetic close | motion quiets and resolves into a browser-native enquiry environment |
+
+The peak is H03 and receives the only deliberate pin. Other chapters remain native flow/rail behavior. Reduced motion renders the same information as stable adjacent states with no pinned travel.
+
+### Media authority change
+
+Retire from runtime:
+- `home-industries-education.webp`
+- `home-industries-hospitality.webp`
+- `home-industries-healthcare.webp`
+- `home-industries-corporate.webp`
+- `home-industries-industrial.webp`
+- `home-industries-security.webp`
+- `home-cta-building-v3.webp`
+
+Keep:
+- clean transparent `home-hero-people-cutout-v3.webp`;
+- independent textile macro `home-feature-fabric-blue-v1.webp`;
+- browser-native technical sketch SVG;
+- protected rights-authorized KGC campus review image.
+
+The replacement sector/capability/closing visuals are browser-native CSS/SVG composition, not bitmap crops.

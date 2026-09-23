@@ -616,3 +616,28 @@ The homepage authority is browser-native again:
 Corrected implementation `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1` removed the contaminated hero composite, uses the transparent people-only cutout, and fixes mobile hero, industry, Selected Work, CTA and process compositions. The corrected browser capture was normalized as the test-only regression reference with SHA-256 `36032800b1a79a2fada69cfa87448124d7f81875e59b951bb445f8fd9947334c`. Hosted run/job `35885469158` / `107264380271` at verification SHA `b138c2948f94bc77eca84ea05f53c16f6de989f9` passed typecheck, production build and 10/10 browser checks. Visual metrics were mean `3.02545` and pixels over 48 `0.000122%`. Protected preview: `https://fares-uniform-design-authority-qi0j342ds.vercel.app`; READY, preview target, Vercel Authentication enforced, anonymous response HTTP 302.
 
 This is not Fares visual acceptance, production cutover, public KGC/client publication, PR merge or ERP Gate D authorization. Production remains NO-GO.
+
+
+## D-064 — Homepage motion must be experiential and review media must be independently credible
+
+**Date:** 2026-09-24  
+**Status:** Accepted by client; implementation/review in progress
+
+Fares rejected the protected viewport-native candidate at source `418fd78423a2cee3102b402e96c32a9208935b6b`. Although that candidate corrected the fixed 1024px board and whole-page `zoom`, its transition/scroll behavior remained visually basic: the page mostly moved as ordinary sections with subtle parallax, so the intended premium Scrollcraft experience was not actually present.
+
+Fares also rejected the current media treatment because multiple homepage images read as cropped screenshot fragments rather than credible independent media. This rejection controls over the existing manifest labels. Nominally marking a tiny bitmap as “generated review media” is not enough if the delivered asset behaves like a crop or recycled scene.
+
+The next homepage candidate must therefore:
+
+- use the pinned Scrollcraft runtime for visibly different device families rather than merely loading it beside a generic page-level scroll listener;
+- keep native scrolling and avoid scroll hijacking or repetitive long pins;
+- engineer one deliberate peak/signature move: the material/process **Seam Handoff**, where a short controlled fabric chapter is cut by a moving seam and resolves into the technical process drawing;
+- create a meaningful hero-to-Industries handoff with geometry continuity rather than a hard section boundary;
+- keep Industries and Selected Work behavior distinct from the peak and from each other;
+- remove the six tiny Industries portrait WebPs from runtime and replace them with crisp browser-native graphic sector fields/linework;
+- keep only truth-grounded photographic proof in Selected Work. KGC may use its protected rights-authorized review image; non-client Hospitality/Healthcare entries must be explicitly graphic capability panels rather than recycled portrait photography;
+- remove the generated architecture bitmap from the closing CTA and use browser-native architectural/thread geometry instead;
+- retain the clean transparent hero people cutout and independent textile macro where they remain compositionally useful;
+- add hosted intermediate-state evidence that proves materially different visual states during scroll, not merely a changing numeric CSS variable.
+
+The historical 1024 board remains regression/content evidence only. No part of D-064 authorizes production, PR merge, public client-media publication, KGC public release or ERP Gate D. Fares remains the sole visual approver.
