@@ -237,15 +237,14 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — D-062 Batch D Healthcare Selected Work:** replace `home.work.healthcare` with a generic illustrative healthcare/team placeholder using only non-client media; do not label it as completed Fares work in production content.
-2. Preserve frozen H00–H06 geometry and replace only that named media slot. Run the D-062 full-page and H04 regional pixel-difference gate before accepting it; the current global mean after Hospitality is `24.2709`, so do not weaken the strict `<25` limit.
-3. If Healthcare exceeds the gate, tune/rework Selected Work media rather than relaxing thresholds.
-4. After Batch D, continue Batch E illustrative architecture for `home.cta.building`.
-5. Keep the current real KGC campus in protected review only; it does **not** authorize public KGC publication.
-6. Do not start Schools/KGC/Garments page design until D-062 homepage media/fidelity is accepted.
-7. The future KGC case-study explode-view remains whole worn outfit -> separated **real** garment pieces.
-8. Keep PR merges, public client publication and production cutover separately gated. Production remains NO-GO.
-9. **Track B / ERP:** Gate D remains independent.
+1. **Track A / active — exact protected-preview verification:** deploy and verify the D-062 homepage implementation represented by `42f2b116351a94a7d0c0a2604dd05b686adacf9c` in the isolated protected review project; do not treat the PR merge-candidate run as proof of deployment.
+2. Present that exact protected implementation for Fares review. Record approval or requested corrections against an exact Git commit.
+3. Preserve frozen H00–H06 geometry and the GREEN `<25` mean / `<14%` high-difference limits; do not reopen completed Batches B–E without new evidence or client direction.
+4. Keep the current real KGC campus in protected review only; it does **not** authorize public KGC publication.
+5. Do not start Schools/KGC/Garments page design until the D-062 homepage implementation review is resolved.
+6. The future KGC case-study explode-view remains whole worn outfit -> separated **real** garment pieces.
+7. Keep PR merges, public client publication and production cutover separately gated. Production remains NO-GO.
+8. **Track B / ERP:** Gate D remains independent.
 
 ## Constraints for every continuation
 
