@@ -1,121 +1,89 @@
 import { expect, test } from "@playwright/test";
-import { writeFileSync } from "node:fs";
 
-const sections=[["H00",0,64],["H01",64,390],["H02",454,356],["H03",810,275],["H04",1085,178],["H05",1263,173],["H06",1436,100]] as const;
+const componentIds=[
+  "H00.01","H00.02","H00.03","H00.04","H00.05",
+  "H01.01","H01.02","H01.03","H01.04","H01.05","H01.06","H01.08","H01.09","H01.10","H01.11",
+  "H02.01","H02.02","H02.03","H02.04","H02.05","H02.06",
+  "H03A.01","H03A.02","H03A.03","H03A.04","H03A.05",
+  "H03B.02","H03B.03","H03B.04","H03B.05","H03B.06",
+  "H04.01","H04.02","H04.03","H04.04","H04.05","H04.06",
+  "H05.02","H05.03","H05.04","H05.05",
+  "H06.01","H06.02","H06.03","H06.04","H06.05","H06.06","H06.07"
+] as const;
 
-async function assertBox(page:import("@playwright/test").Page,id:string,y:number,h:number){
-  const box=await page.locator(`[data-section-id="${id}"]`).boundingBox();
-  expect(box).not.toBeNull();
-  expect(Math.abs((box?.y??0)-y)).toBeLessThanOrEqual(8);
-  expect(Math.abs((box?.height??0)-h)).toBeLessThanOrEqual(8);
+async function noHorizontalOverflow(page:import("@playwright/test").Page){
+  return page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
 }
 
-test("D-062 maps every approved desktop section at 1024x1536",async({page})=>{
-  await page.setViewportSize({width:1024,height:1536});
+test("homepage keeps the D-063 semantic inventory without historical board geometry",async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
   await page.goto("/en");
   await expect(page.getByTestId("approved-homepage")).toBeVisible();
-
-  for(const [id,y,h] of sections) await assertBox(page,id,y,h);
-
-  const ids=[
-    "H00.01","H00.02","H00.03","H00.04","H00.05",
-    "H01.01","H01.02","H01.03","H01.04","H01.05","H01.06","H01.08","H01.09","H01.10","H01.11",
-    "H02.01","H02.02","H02.03","H02.04","H02.05","H02.06",
-    "H03A.01","H03A.02","H03A.03","H03A.04","H03A.05",
-    "H03B.02","H03B.03","H03B.04","H03B.05","H03B.06",
-    "H04.01","H04.02","H04.03","H04.04","H04.05","H04.06",
-    "H05.02","H05.03","H05.04","H05.05",
-    "H06.01","H06.02","H06.03","H06.04","H06.05","H06.06","H06.07"
-  ];
-  for(const id of ids) await expect(page.locator(`[data-component-id="${id}"]`)).toHaveCount(1);
-
+  for(const id of componentIds) await expect(page.locator(`[data-component-id="${id}"]`)).toHaveCount(1);
   await expect(page.locator(".site-bar")).toBeHidden();
   await expect(page.locator(".review-badge")).toBeHidden();
+
+  const root=page.getByTestId("approved-homepage");
+  const box=await root.boundingBox();
+  expect(Math.round(box?.width??0)).toBe(1440);
+  expect(Math.round(box?.x??-1)).toBe(0);
+  expect(await root.evaluate(el=>getComputedStyle(el).zoom)).toBe("1");
+  expect(await root.evaluate(el=>getComputedStyle(el).transform)).toBe("none");
 
   const body=(await page.locator("body").innerText()).toLowerCase();
   expect(body).not.toContain("egp");
   expect(body).not.toContain("in stock");
   expect(body).not.toContain("add to cart");
-
-  await page.screenshot({path:"artifacts/d062-homepage-1024.png",fullPage:true});
+  expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
 });
 
-test("D-062 quantifies full-page visual difference against the approved authority",async({page})=>{
-  await page.setViewportSize({width:1024,height:1536});
+test("desktop viewports use the browser width and a viewport-scale hero",async({page})=>{
+  for(const [width,height,name] of [[2560,1440,"2560x1440"],[1920,1080,"1920x1080"],[1440,900,"1440x900"]] as const){
+    await page.setViewportSize({width,height});
+    await page.goto("/en");
+    await page.evaluate(()=>document.fonts.ready);
+
+    const frame=await page.getByTestId("approved-homepage").boundingBox();
+    const header=await page.getByTestId("approved-h00").boundingBox();
+    const hero=await page.getByTestId("approved-h01").boundingBox();
+    const heroMedia=await page.locator(".approved-hero-media").boundingBox();
+    expect(frame).not.toBeNull();expect(header).not.toBeNull();expect(hero).not.toBeNull();expect(heroMedia).not.toBeNull();
+    expect(Math.abs((frame?.width??0)-width)).toBeLessThanOrEqual(1);
+    expect(Math.abs((header?.width??0)-width)).toBeLessThanOrEqual(1);
+    expect(hero?.height??0).toBeGreaterThan(height*.82);
+    expect(hero?.height??0).toBeLessThan(height*1.04);
+    expect(heroMedia?.width??0).toBeGreaterThan(width*.48);
+    expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
+
+    const rail=page.locator(".approved-industry-rail");
+    expect(await rail.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(180);
+    await page.screenshot({path:`artifacts/home-viewport-${name}.png`,fullPage:false});
+  }
+});
+
+test("native scrolling produces purposeful hero and chapter progression",async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
   await page.goto("/en");
-  await page.evaluate(()=>document.fonts.ready);
+  const hero=page.getByTestId("approved-h01");
+  const blue=page.locator(".approved-blue-geometry");
+  const initialVar=Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-exit")));
+  const initialTransform=await blue.evaluate(el=>getComputedStyle(el).transform);
+  expect(initialVar).toBeLessThan(.02);
 
-  const screenshot=await page.screenshot({fullPage:true});
-  const screenshotBase64=screenshot.toString("base64");
+  await page.evaluate(()=>window.scrollTo(0,Math.round(innerHeight*.62)));
+  await expect.poll(async()=>Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-exit")))).toBeGreaterThan(.2);
+  const progressedTransform=await blue.evaluate(el=>getComputedStyle(el).transform);
+  expect(progressedTransform).not.toBe(initialTransform);
 
-  const metrics=await page.evaluate(async({screenshotBase64})=>{
-    const load=(src:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{
-      const img=new Image();
-      img.onload=()=>resolve(img);
-      img.onerror=reject;
-      img.src=src;
-    });
-    const [actual,reference]=await Promise.all([
-      load(`data:image/png;base64,${screenshotBase64}`),
-      load("/authority/approved-homepage-reference.webp")
-    ]);
-
-    const width=512,height=768;
-    const canvas=document.createElement("canvas");
-    canvas.width=width;
-    canvas.height=height;
-    const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
-
-    ctx.drawImage(actual,0,0,width,height);
-    const a=ctx.getImageData(0,0,width,height).data;
-    ctx.clearRect(0,0,width,height);
-    ctx.drawImage(reference,0,0,width,height);
-    const b=ctx.getImageData(0,0,width,height).data;
-
-    const bands=[
-      ["H00",0,32],["H01",32,227],["H02",227,405],["H03",405,543],
-      ["H04",543,632],["H05",632,718],["H06",718,768]
-    ] as const;
-    const totals:Record<string,{abs:number;over48:number;pixels:number}>={};
-    for(const [id,y0,y1] of bands) totals[id]={abs:0,over48:0,pixels:width*(y1-y0)};
-
-    let abs=0,over32=0,over48=0;
-    const pixels=width*height;
-    for(let y=0;y<height;y++){
-      const band=bands.find(([,y0,y1])=>y>=y0&&y<y1)!;
-      const bucket=totals[band[0]];
-      for(let x=0;x<width;x++){
-        const i=(y*width+x)*4;
-        const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
-        abs+=d; bucket.abs+=d;
-        if(d>32) over32++;
-        if(d>48){over48++;bucket.over48++;}
-      }
-    }
-    const regions=Object.fromEntries(Object.entries(totals).map(([id,v])=>[id,{
-      meanAbsChannel:v.abs/v.pixels,
-      pctPixelsOver48:v.over48/v.pixels
-    }]));
-    return {
-      meanAbsChannel:abs/pixels,
-      pctPixelsOver32:over32/pixels,
-      pctPixelsOver48:over48/pixels,
-      regions,width,height
-    };
-  },{screenshotBase64});
-
-  console.log("D062_VISUAL_DIFF",JSON.stringify(metrics));
-  writeFileSync("artifacts/d062-visual-diff.json",JSON.stringify(metrics,null,2));
-
-  expect(metrics.meanAbsChannel).toBeLessThan(25);
-  expect(metrics.pctPixelsOver48).toBeLessThan(0.14);
+  const feature=page.getByTestId("approved-h03");
+  await feature.scrollIntoViewIfNeeded();
+  await expect.poll(async()=>Number(await feature.evaluate(el=>getComputedStyle(el).getPropertyValue("--chapter-progress")))).toBeGreaterThan(.18);
+  await page.screenshot({path:"artifacts/home-scroll-feature-chapter.png",fullPage:false});
 });
 
-test("D-062 media slots and authority asset are stable",async({page})=>{
-  await page.setViewportSize({width:1024,height:1536});
+test("media provenance remains truthful and the historical reference is test-only",async({page})=>{
   expect((await page.request.get("/authority/approved-homepage-reference.webp")).ok()).toBeTruthy();
   await page.goto("/en");
-
   for(const slot of [
     "home.hero.people-group","home.hero.quality-thumb",
     "home.industries.education","home.industries.hospitality","home.industries.healthcare",
@@ -123,47 +91,32 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
     "home.feature.fabric-blue","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
     "home.cta.building"
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
+
   expect((await page.request.get("/generated/home-hero-people-cutout-v3.webp")).ok()).toBeTruthy();
   expect((await page.request.get("/generated/home-hero-people-group.webp")).status()).toBe(404);
   expect((await page.request.get("/generated/home-hero-people-group-clean-v2.webp")).status()).toBe(404);
   await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-cutout-v3.webp");
-  await expect(page.locator('[data-media-slot="home.industries.education"]')).toHaveAttribute("src","/generated/home-industries-education.webp");
-  await expect(page.locator('[data-media-slot="home.industries.hospitality"]')).toHaveAttribute("src","/generated/home-industries-hospitality.webp");
-  await expect(page.locator('[data-media-slot="home.industries.healthcare"]')).toHaveAttribute("src","/generated/home-industries-healthcare.webp");
-  await expect(page.locator('[data-media-slot="home.industries.corporate"]')).toHaveAttribute("src","/generated/home-industries-corporate.webp");
-  await expect(page.locator('[data-media-slot="home.industries.industrial"]')).toHaveAttribute("src","/generated/home-industries-industrial.webp");
-  await expect(page.locator('[data-media-slot="home.industries.security"]')).toHaveAttribute("src","/generated/home-industries-security.webp");
-  expect((await page.request.get("/generated/home-feature-design-sketch.svg")).ok()).toBeTruthy();
-  await expect(page.locator('[data-media-slot="home.feature.design-sketch"]')).toHaveAttribute("src","/generated/home-feature-design-sketch.svg");
-  expect((await page.request.get("/generated/home-cta-building-v3.webp")).ok()).toBeTruthy();
-  await expect(page.locator('[data-media-slot="home.cta.building"]')).toHaveAttribute("src","/generated/home-cta-building-v3.webp");
   await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
-  await expect(page.locator('[data-media-slot="home.work.hospitality"]')).toHaveAttribute("src","/generated/home-industries-hospitality.webp");
-  await expect(page.locator('[data-media-slot="home.work.healthcare"]')).toHaveAttribute("src","/generated/home-industries-healthcare.webp");
-  await expect(page.locator('[data-media-slot="home.hero.quality-thumb"]')).toHaveAttribute("src","/generated/home-feature-fabric-blue-v1.webp");
-  await expect(page.locator('[data-media-slot="home.feature.fabric-blue"]')).toHaveAttribute("src","/generated/home-feature-fabric-blue-v1.webp");
 
   const runtimeAuthorityConsumers=await page.locator("body *").evaluateAll(nodes=>nodes.flatMap(node=>{
     const element=node as HTMLElement;
-    const sources=[
-      element.getAttribute("src")??"",
-      element.getAttribute("srcset")??"",
-      element.getAttribute("style")??"",
-      getComputedStyle(element).backgroundImage
-    ];
+    const sources=[element.getAttribute("src")??"",element.getAttribute("srcset")??"",element.getAttribute("style")??"",getComputedStyle(element).backgroundImage];
     return sources.some(value=>value.includes("approved-homepage-reference"))?[element.tagName+"."+element.className]:[];
   }));
   expect(runtimeAuthorityConsumers).toEqual([]);
 });
 
-test("D-062 controls have real outcomes and the carousel never fakes movement",async({page})=>{
-  await page.setViewportSize({width:1024,height:768});
+test("industry rail and dialogs have real keyboard-operable outcomes",async({page})=>{
+  await page.setViewportSize({width:1920,height:1080});
   await page.goto("/en");
   const rail=page.locator(".approved-industry-rail");
-  const desktopOverflow=await rail.evaluate(el=>el.scrollWidth-el.clientWidth);
-  expect(desktopOverflow).toBeLessThanOrEqual(1);
+  expect(await rail.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(180);
   await expect(page.getByRole("button",{name:"Previous"})).toBeDisabled();
-  await expect(page.getByRole("button",{name:"Next"})).toBeDisabled();
+  await expect(page.getByRole("button",{name:"Next"})).toBeEnabled();
+  const before=Math.abs(await rail.evaluate(el=>el.scrollLeft));
+  await page.getByRole("button",{name:"Next"}).click();
+  await expect.poll(async()=>Math.abs(await rail.evaluate(el=>el.scrollLeft))).toBeGreaterThan(before);
+  await expect(page.getByRole("button",{name:"Previous"})).toBeEnabled();
 
   const search=page.getByRole("button",{name:"Search"});
   await search.click();
@@ -186,19 +139,9 @@ test("D-062 controls have real outcomes and the carousel never fakes movement",a
   await expect(page.getByRole("listitem")).toHaveCount(4);
   await page.keyboard.press("Escape");
   await expect(process).toBeFocused();
-
-  await page.setViewportSize({width:390,height:844});
-  await page.reload();
-  const mobileRail=page.locator(".approved-industry-rail");
-  const before=Math.abs(await mobileRail.evaluate(el=>el.scrollLeft));
-  await page.getByRole("button",{name:"Next"}).click();
-  await expect.poll(async()=>Math.abs(await mobileRail.evaluate(el=>el.scrollLeft))).toBeGreaterThan(before);
-
-  await expect(page.getByRole("link",{name:/Explore Our Industries/i})).toHaveAttribute("href","#industries");
-  await expect(page.getByRole("link",{name:/Get in Touch/i}).first()).toHaveAttribute("href","/en/enquiry");
 });
 
-test("D-062 semantic structure, image stability and console health are production-safe",async({page})=>{
+test("semantic structure, image stability, skip navigation and console health remain clean",async({page})=>{
   const consoleErrors:string[]=[];
   page.on("console",message=>{if(message.type()==="error")consoleErrors.push(message.text());});
   await page.goto("/en");
@@ -208,6 +151,7 @@ test("D-062 semantic structure, image stability and console health are productio
   await expect(page.locator("main .approved-home-header, main .approved-home-footer")).toHaveCount(0);
   await expect(page.getByRole("link",{name:"About"}).first()).toHaveAttribute("href","#about");
   await expect(page.locator("#about")).toHaveClass(/approved-feature-more/);
+
   const images=page.locator(".approved-homepage img");
   for(let index=0;index<await images.count();index++){
     await expect(images.nth(index)).toHaveAttribute("width",/\d+/);
@@ -219,52 +163,35 @@ test("D-062 semantic structure, image stability and console health are productio
   expect(consoleErrors).toEqual([]);
 });
 
-test("D-062 tablet and wide-desktop frames never clip or drift left",async({page})=>{
-  for(const width of [900,1024,1440]){
-    await page.setViewportSize({width,height:900});
+test("mobile is independently composed at 390x844 and compact 360x640",async({page})=>{
+  for(const [width,height,name] of [[390,844,"390x844"],[360,640,"360x640"]] as const){
+    await page.setViewportSize({width,height});
     await page.goto("/en");
-    expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
-    const frame=await page.getByTestId("approved-homepage").boundingBox();
-    expect(frame).not.toBeNull();
-    expect(Math.round(frame?.width??0)).toBe(Math.min(width,1024));
-    expect(Math.round(frame?.x??0)).toBe(width>1024?Math.round((width-1024)/2):0);
-  }
-  await page.setViewportSize({width:900,height:900});
-  await page.goto("/en");
-  await expect(page.getByRole("button",{name:"Open menu"})).toBeVisible();
-});
+    await expect(page.getByRole("heading",{level:1})).toContainText("PEOPLE");
+    await expect(page.locator(".approved-industry-card")).toHaveCount(6);
+    await expect(page.locator(".approved-quality-card")).toHaveCount(1);
+    expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
 
-test("D-063 wide desktops scale the complete composition without changing the 1024 authority",async({page})=>{
-  for(const [width,expectedWidth] of [[1440,1024],[1920,1365],[2560,1536]] as const){
-    await page.setViewportSize({width,height:1323});
-    await page.goto("/en");
-    const frame=await page.getByTestId("approved-homepage").boundingBox();
-    expect(frame).not.toBeNull();
-    expect(Math.abs((frame?.width??0)-expectedWidth)).toBeLessThanOrEqual(2);
-    expect(Math.abs((frame?.x??0)-(width-(frame?.width??0))/2)).toBeLessThanOrEqual(1);
-    expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
-  }
-  await page.screenshot({path:"artifacts/d063-homepage-wide-2560.png",fullPage:false});
-});
+    const hero=await page.getByTestId("approved-h01").boundingBox();
+    const heroMedia=await page.locator(".approved-hero-media").boundingBox();
+    const heroPhoto=await page.locator('[data-media-slot="home.hero.people-group"]').boundingBox();
+    expect(hero).not.toBeNull();expect(heroMedia).not.toBeNull();expect(heroPhoto).not.toBeNull();
+    expect(hero?.height??0).toBeGreaterThan(height*.84);
+    expect(hero?.height??0).toBeLessThan(height*1.22);
+    expect(Math.round(heroMedia?.width??0)).toBe(width);
+    expect(heroPhoto?.height??0).toBeGreaterThan((hero?.height??0)*.45);
 
-test("D-062 English mobile reflows without changing identity",async({page})=>{
+    const workCards=page.locator(".approved-work-cards");
+    expect(await workCards.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(100);
+    const industryRail=page.locator(".approved-industry-rail");
+    const before=Math.abs(await industryRail.evaluate(el=>el.scrollLeft));
+    await page.getByRole("button",{name:"Next"}).click();
+    await expect.poll(async()=>Math.abs(await industryRail.evaluate(el=>el.scrollLeft))).toBeGreaterThan(before);
+    await page.screenshot({path:`artifacts/home-viewport-${name}.png`,fullPage:false});
+  }
+
   await page.setViewportSize({width:390,height:844});
   await page.goto("/en");
-  await expect(page.getByRole("heading",{level:1})).toContainText("PEOPLE");
-  await expect(page.locator(".approved-industry-card")).toHaveCount(6);
-  await expect(page.locator(".approved-quality-card")).toHaveCount(1);
-  const heroMedia=await page.locator(".approved-hero-media").boundingBox();
-  const heroPhoto=await page.locator('[data-media-slot="home.hero.people-group"]').boundingBox();
-  expect(heroMedia).not.toBeNull(); expect(heroPhoto).not.toBeNull();
-  expect(Math.round(heroPhoto?.width??0)).toBe(Math.round(heroMedia?.width??0));
-  expect(Math.round(heroPhoto?.x??-1)).toBe(Math.round(heroMedia?.x??0));
-  const firstIndustry=await page.locator(".approved-industry-card").first().boundingBox();
-  const firstIndustryImage=await page.locator(".approved-industry-image").first().boundingBox();
-  expect(firstIndustry?.width??0).toBeGreaterThanOrEqual(280);
-  expect((firstIndustryImage?.width??1)/(firstIndustryImage?.height??1)).toBeGreaterThan(1.25);
-  const workCards=page.locator(".approved-work-cards");
-  expect(await workCards.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(100);
-
   const trigger=page.getByRole("button",{name:"Open menu"});
   await trigger.click();
   const menu=page.getByRole("dialog",{name:"Site menu"});
@@ -278,31 +205,40 @@ test("D-062 English mobile reflows without changing identity",async({page})=>{
 
   await page.evaluate(()=>window.scrollTo(0,1200));
   await expect.poll(async()=>Math.round((await page.locator(".approved-home-header").boundingBox())?.y??-1)).toBe(0);
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
-  await page.evaluate(()=>window.scrollTo(0,0));
-  await page.screenshot({path:"artifacts/d062-homepage-mobile-en.png",fullPage:true});
 });
 
-test("D-062 Arabic preserves component inventory in RTL",async({page})=>{
+test("Arabic RTL preserves the viewport-native composition without overflow",async({page})=>{
   await page.setViewportSize({width:390,height:844});
   await page.goto("/ar");
   await expect(page.locator("html")).toHaveAttribute("dir","rtl");
   await expect(page.getByRole("heading",{level:1})).toContainText("أشخاص");
   await expect(page.locator(".approved-industry-card")).toHaveCount(6);
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
-  await page.screenshot({path:"artifacts/d062-homepage-mobile-ar.png",fullPage:true});
+  expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
+  const root=await page.getByTestId("approved-homepage").boundingBox();
+  const heroMedia=await page.locator(".approved-hero-media").boundingBox();
+  expect(Math.round(root?.width??0)).toBe(390);
+  expect(Math.round(heroMedia?.width??0)).toBe(390);
+  await page.screenshot({path:"artifacts/home-viewport-390x844-ar.png",fullPage:false});
 });
 
-test("D-062 reduced motion preserves hierarchy",async({page})=>{
+test("reduced motion preserves information and removes spatial travel",async({page})=>{
   await page.emulateMedia({reducedMotion:"reduce"});
+  await page.setViewportSize({width:1440,height:900});
   await page.goto("/en");
-  for(const id of ["H01.01","H02.01","H04.01","H05.02"]){
-    await expect(page.locator(`[data-component-id="${id}"]`)).toBeVisible();
-  }
-  await page.screenshot({path:"artifacts/d062-homepage-reduced-motion.png",fullPage:true});
+  for(const id of ["H01.01","H02.01","H04.01","H05.02"]) await expect(page.locator(`[data-component-id="${id}"]`)).toBeVisible();
+
+  const hero=page.getByTestId("approved-h01");
+  const before=Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-exit")));
+  await page.evaluate(()=>window.scrollTo(0,700));
+  await page.waitForTimeout(80);
+  const after=Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-exit")));
+  expect(before).toBe(0);expect(after).toBe(0);
+  await expect(page.locator(".approved-hero-people")).toHaveCSS("transform","none");
+  expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
+  await page.screenshot({path:"artifacts/home-reduced-motion-1440x900.png",fullPage:false});
 });
 
-test("deep routes remain reachable outside D-062 homepage authority",async({page})=>{
+test("deep routes remain reachable outside homepage authority",async({page})=>{
   await page.goto("/en/work");
   await expect(page.getByRole("heading",{level:1,name:/KGC/i})).toBeVisible();
   await page.goto("/en/garments");

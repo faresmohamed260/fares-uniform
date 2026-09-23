@@ -40,6 +40,66 @@ function useFocusTrap(open:boolean,onClose:()=>void,container:React.RefObject<HT
   },[open]);
 }
 
+function useHomepageScrollMotion(){
+  useEffect(()=>{
+    const root=document.querySelector<HTMLElement>(".approved-homepage");
+    if(!root)return;
+    const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");
+    const hero=root.querySelector<HTMLElement>(".approved-hero");
+    const chapters=Array.from(root.querySelectorAll<HTMLElement>("[data-motion-chapter]"));
+    let frame=0;
+
+    const update=()=>{
+      frame=0;
+      const viewport=Math.max(window.innerHeight,1);
+      const rtl=document.documentElement.dir==="rtl";
+      if(hero){
+        const rect=hero.getBoundingClientRect();
+        const exit=Math.min(1,Math.max(0,-rect.top/Math.max(rect.height*.72,1)));
+        const motion=reduced.matches?0:exit;
+        hero.style.setProperty("--hero-exit",motion.toFixed(4));
+        hero.style.setProperty("--hero-geometry-y",`${(-3*motion).toFixed(3)}vh`);
+        hero.style.setProperty("--hero-geometry-scale",(1+.14*motion).toFixed(4));
+        hero.style.setProperty("--hero-geometry-x",`${(-4*motion).toFixed(3)}vw`);
+        hero.style.setProperty("--hero-geometry-x-rtl",`${(4*motion).toFixed(3)}vw`);
+        hero.style.setProperty("--hero-person-x",`${((rtl?-2:2)*motion).toFixed(3)}vw`);
+        hero.style.setProperty("--hero-person-y",`${(-4*motion).toFixed(3)}vh`);
+        hero.style.setProperty("--hero-person-scale",(1+.025*motion).toFixed(4));
+        hero.style.setProperty("--hero-card-y",`${(-28*motion).toFixed(2)}px`);
+        hero.style.setProperty("--hero-note-a-y",`${(-22*motion).toFixed(2)}px`);
+        hero.style.setProperty("--hero-note-b-y",`${(-32*motion).toFixed(2)}px`);
+      }
+      for(const chapter of chapters){
+        const rect=chapter.getBoundingClientRect();
+        const progress=Math.min(1,Math.max(0,(viewport-rect.top)/(viewport+rect.height)));
+        const motion=reduced.matches?.5:progress;
+        chapter.style.setProperty("--chapter-progress",motion.toFixed(4));
+        chapter.style.setProperty("--chapter-shift",`${((.5-motion)*34).toFixed(2)}px`);
+        chapter.style.setProperty("--chapter-shift-soft",`${((.5-motion)*48).toFixed(2)}px`);
+        chapter.style.setProperty("--chapter-glow-scale",(.86+motion*.18).toFixed(4));
+        chapter.style.setProperty("--chapter-media-y",`${((motion-.5)*10).toFixed(3)}vh`);
+        chapter.style.setProperty("--chapter-media-x",`${((.5-motion)*(rtl?-3:3)).toFixed(3)}vw`);
+        chapter.style.setProperty("--chapter-work-scale",(1.04+(.5-motion)*.025).toFixed(4));
+        chapter.style.setProperty("--chapter-close-scale",(1.055-motion*.035).toFixed(4));
+      }
+    };
+    const schedule=()=>{
+      if(frame)return;
+      frame=requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll",schedule,{passive:true});
+    window.addEventListener("resize",schedule);
+    reduced.addEventListener("change",schedule);
+    return()=>{
+      if(frame)cancelAnimationFrame(frame);
+      window.removeEventListener("scroll",schedule);
+      window.removeEventListener("resize",schedule);
+      reduced.removeEventListener("change",schedule);
+    };
+  },[]);
+}
+
 function ApprovedDialog({open,onClose,id,title,closeLabel,children}:{open:boolean;onClose:()=>void;id:string;title:string;closeLabel:string;children:React.ReactNode}){
   const panel=useRef<HTMLDivElement>(null);
   useFocusTrap(open,onClose,panel);
@@ -105,7 +165,7 @@ export function ApprovedHomepageHeader({locale}:{locale:Locale}){
 export function ApprovedHero({locale}:{locale:Locale}){
   const ar=locale==="ar";
   const [storyOpen,setStoryOpen]=useState(false);
-  return <section id="top" className="approved-hero" data-section-id="H01" data-testid="approved-h01">
+  return <section id="top" className="approved-hero" data-motion-hero data-section-id="H01" data-testid="approved-h01">
     <div className="approved-hero-copy">
       <span className="approved-eyebrow" data-component-id="H01.01">{ar?"زي موحّد لغدٍ أكثر إشراقاً":"UNIFORMS FOR A BRIGHTER TOMORROW"}</span>
       <h1 data-component-id="H01.02"><span>{ar?"أشخاص":"PEOPLE"}</span><span>{ar?"أعمال":"BUSINESSES"}</span><span>{ar?"مجتمعات":"COMMUNITIES"}</span><em>{ar?"بالزي الموحّد":"IN UNIFORM"}</em></h1>
@@ -153,7 +213,7 @@ export function ApprovedIndustries({locale}:{locale:Locale}){
   return()=>{element.removeEventListener("scroll",update);observer.disconnect();};
  },[]);
  const move=(dir:number)=>rail.current?.scrollBy({left:(ar?-dir:dir)*Math.max(190,rail.current.clientWidth*.72),behavior:"smooth"});
- return <section id="industries" className="approved-industries" data-section-id="H02" data-testid="approved-h02">
+ return <section id="industries" className="approved-industries" data-motion-chapter data-section-id="H02" data-testid="approved-h02">
    <header className="approved-industries-head">
     <div><span className="approved-eyebrow" data-component-id="H02.01">{ar?"قطاعاتنا":"OUR INDUSTRIES"}</span><h2 data-component-id="H02.02">{ar?"حلول زي موحّد":"Uniform Solutions"}<br/><em>{ar?"لكل قطاع":"for Every Sector"}</em></h2></div>
     <div className="approved-industries-intro"><p data-component-id="H02.03">{ar?"من الفصول إلى المطابخ، ومن المستشفيات إلى الفنادق — نصنع حلول زي تناسب فريقك وعلامتك وعملك اليومي.":"From classrooms to kitchens, hospitals to hotels — we create uniform solutions that fit your people, your brand, and your day-to-day needs."}</p>
@@ -172,7 +232,7 @@ export function ApprovedFeatureBand({locale}:{locale:Locale}){
  const ar=locale==="ar";
  const [processOpen,setProcessOpen]=useState(false);
  const benefits=[[ShieldCheck,ar?"أقمشة متينة":"Durable Fabrics"],[Sparkles,ar?"راحة في كل تفصيلة":"Comfort in Every Detail"],[Ruler,ar?"تصميم عملي":"Practical Design"],[Layers3,ar?"مصنوع للحياة الواقعية":"Made for Real Life"]] as const;
- return <section id="process" className="approved-feature-band" data-section-id="H03" data-testid="approved-h03">
+ return <section id="process" className="approved-feature-band" data-motion-chapter data-section-id="H03" data-testid="approved-h03">
   <article id="about" className="approved-feature-more">
    <img className="approved-fabric-field" data-component-id="H03A.01" data-media-slot="home.feature.fabric-blue" src="/generated/home-feature-fabric-blue-v1.webp" width={996} height={526} loading="lazy" decoding="async" alt="" aria-hidden="true"/>
    <div className="approved-feature-copy"><h2 data-component-id="H03A.02">{ar?"أكثر من\nزي موحّد":"MORE\nTHAN UNIFORMS"}</h2><p data-component-id="H03A.03">{ar?"أقمشة عالية الجودة، تصميم عملي وإنتاج موثوق — زي يعمل بجد مثل من يرتديه.":"Quality fabrics, practical design and reliable production — uniforms that work as hard as the people wearing them."}</p><a data-component-id="H03A.04" className="approved-light-button" href={`/${locale}/garments`}>{ar?"اكتشف مجموعاتنا":"Discover Our Collections"} ↗</a></div>
@@ -204,7 +264,7 @@ const workCards=[
 
 export function ApprovedSelectedWork({locale}:{locale:Locale}){
  const ar=locale==="ar";
- return <section className="approved-selected-work" data-section-id="H04" data-testid="approved-h04">
+ return <section className="approved-selected-work" data-motion-chapter data-section-id="H04" data-testid="approved-h04">
   <div className="approved-selected-title"><span className="approved-eyebrow" data-component-id="H04.01">{ar?"أعمال مختارة":"SELECTED WORK"}</span><h2 data-component-id="H04.02">{ar?"شراكات حقيقية.\nنتائج حقيقية.":"Real Partnerships.\nReal Results."}</h2></div>
   <div className="approved-work-cards">{workCards.map((c,i)=><a className="approved-work-card" key={c.slot} href={`/${locale}${c.href}`} aria-label={c.slot==="home.work.kgc"?(ar?"مشروع KGC":"KGC project"):(ar?`${c.ar}، تصور توضيحي للقدرات`:`${c.en}, illustrative capability preview`)} data-component-id={`H04.0${i+3}`}>{c.slot==="home.work.kgc"
   ? <img data-media-slot={c.slot} className="approved-work-image approved-work-real" src="/review-media/kgc/kgc-building.webp" width={169} height={149} loading="lazy" decoding="async" alt={ar?"حرم KGC في بيئة المراجعة المحمية":"KGC campus in the protected review environment"}/>
@@ -218,7 +278,7 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
 
 export function ApprovedClosingCta({locale}:{locale:Locale}){
  const ar=locale==="ar";
- return <section className="approved-closing-cta" data-section-id="H05" data-testid="approved-h05">
+ return <section className="approved-closing-cta" data-motion-chapter data-section-id="H05" data-testid="approved-h05">
   <img data-media-slot="home.cta.building" className="approved-building-background approved-building-generated" src="/generated/home-cta-building-v3.webp" width={2048} height={344} loading="lazy" decoding="async" alt={ar?"بيئة معمارية توضيحية عامة":"Generic illustrative business architecture"}/>
   <div className="approved-cta-scrim" aria-hidden="true"/>
   <div className="approved-cta-copy"><span className="approved-eyebrow" data-component-id="H05.02">{ar?"جاهز للبدء؟":"READY TO GET STARTED?"}</span><h2 data-component-id="H05.03">{ar?"لنصنع\nحل الزي الخاص بك":"LET'S CREATE\nYOUR UNIFORM SOLUTION"}</h2><div data-component-id="H05.04"><a className="approved-primary-button" href={`/${locale}/enquiry`}>{ar?"تواصل معنا":"Get in Touch"} ↗</a><p>{ar?"نحن هنا لمساعدتك في المتطلبات والأفكار والأسئلة.":"We're here to help with requirements, ideas, or questions."}</p></div></div>
@@ -238,6 +298,7 @@ export function ApprovedHomepageFooter({locale}:{locale:Locale}){
 }
 
 export function ApprovedHomepage({locale}:{locale:Locale}){
+ useHomepageScrollMotion();
  return <div className="approved-homepage" data-testid="approved-homepage">
   <ApprovedHomepageHeader locale={locale}/>
   <main id="main-content" tabIndex={-1}>
