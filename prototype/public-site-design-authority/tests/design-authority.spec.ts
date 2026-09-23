@@ -61,29 +61,59 @@ test("desktop viewports use the browser width and a viewport-scale hero",async({
   }
 });
 
-test("native scrolling produces purposeful hero and chapter progression",async({page})=>{
+test("Scrollcraft produces visible handoffs and a materially changing peak",async({page})=>{
   await page.setViewportSize({width:1440,height:900});
   await page.goto("/en");
-  const hero=page.getByTestId("approved-h01");
-  const blue=page.locator(".approved-blue-geometry");
-  const initialVar=Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-exit")));
-  const initialTransform=await blue.evaluate(el=>getComputedStyle(el).transform);
-  expect(initialVar).toBeLessThan(.02);
+  await expect.poll(async()=>page.evaluate(()=>document.documentElement.dataset.scrollcraftMounted)).toBe("true");
 
-  await page.evaluate(()=>window.scrollTo(0,Math.round(innerHeight*.62)));
-  await expect.poll(async()=>Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-exit")))).toBeGreaterThan(.2);
-  const progressedTransform=await blue.evaluate(el=>getComputedStyle(el).transform);
-  expect(progressedTransform).not.toBe(initialTransform);
+  const hero=page.getByTestId("approved-h01");
+  const heroSeam=page.locator(".approved-hero-seam");
+  const heroInitial=await heroSeam.evaluate(el=>getComputedStyle(el).transform);
+  await page.evaluate(()=>window.scrollTo(0,Math.round(innerHeight*.58)));
+  await expect.poll(async()=>Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-handoff")))).toBeGreaterThan(.35);
+  const heroMoved=await heroSeam.evaluate(el=>getComputedStyle(el).transform);
+  expect(heroMoved).not.toBe(heroInitial);
+  const seamBox=await heroSeam.boundingBox();
+  expect(seamBox?.width??0).toBeGreaterThan(420);
+  await page.screenshot({path:"artifacts/home-scroll-hero-handoff.png",fullPage:false});
+
+  const industries=page.getByTestId("approved-h02");
+  await industries.scrollIntoViewIfNeeded();
+  await expect.poll(async()=>Number(await industries.evaluate(el=>getComputedStyle(el).getPropertyValue("--industries-enter")))).toBeGreaterThan(.45);
 
   const feature=page.getByTestId("approved-h03");
-  await feature.scrollIntoViewIfNeeded();
-  await expect.poll(async()=>Number(await feature.evaluate(el=>getComputedStyle(el).getPropertyValue("--chapter-progress")))).toBeGreaterThan(.18);
-  await page.screenshot({path:"artifacts/home-scroll-feature-chapter.png",fullPage:false});
+  await expect(feature).toHaveClass(/sc-act--pinned/);
+  const featureMetrics=await feature.evaluate(el=>({top:(el as HTMLElement).offsetTop,height:(el as HTMLElement).offsetHeight}));
+  expect(featureMetrics.height).toBeGreaterThan(900*2);
+  const travel=featureMetrics.height-900;
+
+  await page.evaluate(({top,travel})=>window.scrollTo(0,top+travel*.16),{top:featureMetrics.top,travel});
+  await expect.poll(async()=>Number(await feature.evaluate(el=>getComputedStyle(el).getPropertyValue("--feature-progress")))).toBeGreaterThan(.1);
+  const seamEarly=await page.locator(".approved-seam-handoff").boundingBox();
+
+  await page.evaluate(({top,travel})=>window.scrollTo(0,top+travel*.78),{top:featureMetrics.top,travel});
+  await expect.poll(async()=>Number(await feature.evaluate(el=>getComputedStyle(el).getPropertyValue("--feature-progress")))).toBeGreaterThan(.68);
+  const seamLate=await page.locator(".approved-seam-handoff").boundingBox();
+  expect(Math.abs((seamLate?.x??0)-(seamEarly?.x??0))).toBeGreaterThan(260);
+  const leftClip=await page.locator(".approved-feature-more").evaluate(el=>getComputedStyle(el).clipPath);
+  const rightClip=await page.locator(".approved-feature-idea").evaluate(el=>getComputedStyle(el).clipPath);
+  expect(leftClip).not.toBe("none");
+  expect(rightClip).not.toBe("none");
+  await page.screenshot({path:"artifacts/home-scroll-seam-peak.png",fullPage:false});
+
+  const closing=page.getByTestId("approved-h05");
+  const closeTop=await closing.evaluate(el=>(el as HTMLElement).offsetTop);
+  await page.evaluate(top=>window.scrollTo(0,top-innerHeight*.34),closeTop);
+  await expect.poll(async()=>Number(await closing.evaluate(el=>getComputedStyle(el).getPropertyValue("--cta-progress")))).toBeGreaterThan(.35);
+  const dash=Number(await closing.evaluate(el=>getComputedStyle(el).getPropertyValue("--cta-dash")));
+  expect(dash).toBeLessThan(.7);
+  await page.screenshot({path:"artifacts/home-scroll-close-resolution.png",fullPage:false});
 });
 
-test("media provenance remains truthful and the historical reference is test-only",async({page})=>{
+test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>{
   expect((await page.request.get("/authority/approved-homepage-reference.webp")).ok()).toBeTruthy();
   await page.goto("/en");
+
   for(const slot of [
     "home.hero.people-group","home.hero.quality-thumb",
     "home.industries.education","home.industries.hospitality","home.industries.healthcare",
@@ -92,11 +122,25 @@ test("media provenance remains truthful and the historical reference is test-onl
     "home.cta.building"
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
 
-  expect((await page.request.get("/generated/home-hero-people-cutout-v3.webp")).ok()).toBeTruthy();
-  expect((await page.request.get("/generated/home-hero-people-group.webp")).status()).toBe(404);
-  expect((await page.request.get("/generated/home-hero-people-group-clean-v2.webp")).status()).toBe(404);
   await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-cutout-v3.webp");
   await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
+  for(const slot of [
+    "home.industries.education","home.industries.hospitality","home.industries.healthcare",
+    "home.industries.corporate","home.industries.industrial","home.industries.security",
+    "home.work.hospitality","home.work.healthcare","home.cta.building"
+  ]){
+    const tag=await page.locator(`[data-media-slot="${slot}"]`).evaluate(el=>el.tagName);
+    expect(tag).toBe("DIV");
+  }
+
+  await expect(page.locator('img[src*="home-industries-"]')).toHaveCount(0);
+  await expect(page.locator('img[src*="home-cta-building"]')).toHaveCount(0);
+  for(const retired of [
+    "/generated/home-industries-education.webp","/generated/home-industries-hospitality.webp",
+    "/generated/home-industries-healthcare.webp","/generated/home-industries-corporate.webp",
+    "/generated/home-industries-industrial.webp","/generated/home-industries-security.webp",
+    "/generated/home-cta-building-v3.webp"
+  ]) expect((await page.request.get(retired)).status()).toBe(404);
 
   const runtimeAuthorityConsumers=await page.locator("body *").evaluateAll(nodes=>nodes.flatMap(node=>{
     const element=node as HTMLElement;
@@ -183,6 +227,10 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
 
     await page.screenshot({path:`artifacts/home-viewport-${name}.png`,fullPage:false});
 
+    const feature=await page.getByTestId("approved-h03").boundingBox();
+    expect(feature?.height??0).toBeGreaterThan(height*1.25);
+    expect(feature?.height??0).toBeLessThan(height*1.9);
+
     const workCards=page.locator(".approved-work-cards");
     expect(await workCards.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(100);
     const industryRail=page.locator(".approved-industry-rail");
@@ -222,19 +270,25 @@ test("Arabic RTL preserves the viewport-native composition without overflow",asy
   await page.screenshot({path:"artifacts/home-viewport-390x844-ar.png",fullPage:false});
 });
 
-test("reduced motion preserves information and removes spatial travel",async({page})=>{
+test("reduced motion preserves information and removes pin dead-space",async({page})=>{
   await page.emulateMedia({reducedMotion:"reduce"});
   await page.setViewportSize({width:1440,height:900});
   await page.goto("/en");
   for(const id of ["H01.01","H02.01","H04.01","H05.02"]) await expect(page.locator(`[data-component-id="${id}"]`)).toBeVisible();
 
   const hero=page.getByTestId("approved-h01");
-  const before=Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-exit")));
+  const before=Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-handoff")));
   await page.evaluate(()=>window.scrollTo(0,700));
   await page.waitForTimeout(80);
-  const after=Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-exit")));
+  const after=Number(await hero.evaluate(el=>getComputedStyle(el).getPropertyValue("--hero-handoff")));
   expect(before).toBe(0);expect(after).toBe(0);
-  await expect(page.locator(".approved-hero-people")).toHaveCSS("transform","none");
+  await expect(page.locator(".approved-hero-people-plane")).toHaveCSS("transform","none");
+
+  const feature=await page.getByTestId("approved-h03").boundingBox();
+  expect(feature?.height??0).toBeLessThan(900*1.8);
+  await expect(page.locator(".approved-seam-handoff")).toBeHidden();
+  await expect(page.locator(".approved-feature-more")).toHaveCSS("clip-path","none");
+  await expect(page.locator(".approved-feature-idea")).toHaveCSS("clip-path","none");
   expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
   await page.screenshot({path:"artifacts/home-reduced-motion-1440x900.png",fullPage:false});
 });
