@@ -1,4 +1,5 @@
 name: Phase 10 browser-native design authority
+# Protected-preview trigger: D-062 homepage implementation 42f2b116351a94a7d0c0a2604dd05b686adacf9c
 
 on:
   push:
