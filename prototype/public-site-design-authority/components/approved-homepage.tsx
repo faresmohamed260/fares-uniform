@@ -43,13 +43,13 @@ function useFocusTrap(open:boolean,onClose:()=>void,container:React.RefObject<HT
   },[open]);
 }
 
-function ApprovedDialog({open,onClose,id,title,children}:{open:boolean;onClose:()=>void;id:string;title:string;children:React.ReactNode}){
+function ApprovedDialog({open,onClose,id,title,closeLabel,children}:{open:boolean;onClose:()=>void;id:string;title:string;closeLabel:string;children:React.ReactNode}){
   const panel=useRef<HTMLDivElement>(null);
   useFocusTrap(open,onClose,panel);
   if(!open)return null;
   return <div className="approved-dialog-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)onClose();}}>
     <div ref={panel} className="approved-dialog" role="dialog" aria-modal="true" aria-labelledby={id}>
-      <div className="approved-dialog-head"><h2 id={id}>{title}</h2><button type="button" aria-label="Close dialog" onClick={onClose}><X aria-hidden="true"/></button></div>
+      <div className="approved-dialog-head"><h2 id={id}>{title}</h2><button type="button" aria-label={closeLabel} onClick={onClose}><X aria-hidden="true"/></button></div>
       {children}
     </div>
   </div>;
@@ -98,7 +98,7 @@ export function ApprovedHomepageHeader({locale}:{locale:Locale}){
     </nav>
     <div className="approved-header-utilities">
       <button className="approved-icon-button" data-component-id="H00.03" type="button" aria-label={ar?"بحث":"Search"} aria-haspopup="dialog" onClick={()=>setSearchOpen(true)}><Search aria-hidden="true"/></button>
-      <a className="approved-locale" data-component-id="H00.04" href={ar?"/en":"/ar"} lang={ar?"en":"ar"}><Globe2/><span>{ar?"AR":"EN"}</span><ChevronDown/></a>
+      <a className="approved-locale" data-component-id="H00.04" href={ar?"/en":"/ar"} lang={ar?"en":"ar"} aria-label={ar?"Switch to English":"التبديل إلى العربية"}><Globe2/><span>{ar?"AR":"EN"}</span><ChevronDown/></a>
       <a className="approved-header-cta" data-component-id="H00.05" href={`/${locale}/enquiry`}><span>{ar?"تواصل معنا":"Get in Touch"}</span><i>↗</i></a>
     </div>
     <button className="approved-mobile-trigger" type="button" aria-label={ar?"فتح القائمة":"Open menu"} aria-expanded={open} aria-haspopup="dialog" onClick={()=>setOpen(true)}><Menu aria-hidden="true"/></button>
@@ -107,7 +107,7 @@ export function ApprovedHomepageHeader({locale}:{locale:Locale}){
       <nav>{navLinks.map(([en,arabic,raw])=><a key={en} onClick={()=>setOpen(false)} href={href(raw)}>{ar?arabic:en}</a>)}</nav>
       <a href={`/${locale}/enquiry`} onClick={()=>setOpen(false)}>{ar?"تواصل معنا":"Get in Touch"} <span aria-hidden="true">↗</span></a>
     </div>}
-    <ApprovedDialog open={searchOpen} onClose={()=>setSearchOpen(false)} id="approved-search-title" title={ar?"ابحث في الموقع":"Search the site"}>
+    <ApprovedDialog open={searchOpen} onClose={()=>setSearchOpen(false)} id="approved-search-title" closeLabel={ar?"إغلاق":"Close"} title={ar?"ابحث في الموقع":"Search the site"}>
       <label className="approved-search-field"><span>{ar?"ماذا تبحث عنه؟":"What are you looking for?"}</span><input data-autofocus value={query} onChange={event=>setQuery(event.target.value)} placeholder={ar?"القطاعات أو الملابس أو التواصل":"Industries, garments, or contact"}/></label>
       <nav className="approved-search-results" aria-label={ar?"نتائج البحث":"Search results"}>
         {searchItems.length>0?searchItems.map(item=><a key={`${item.en}-${item.href}`} href={item.href} onClick={()=>setSearchOpen(false)}>{ar?item.ar:item.en}<span aria-hidden="true">↗</span></a>):<p role="status">{ar?"لا توجد نتائج.":"No matching pages."}</p>}
@@ -140,7 +140,7 @@ export function ApprovedHero({locale}:{locale:Locale}){
         <p><strong>{ar?"الجودة":"Quality"}</strong><strong>{ar?"الناس":"People"}</strong><strong>{ar?"شراكات تدوم":"Lasting Partnerships"}</strong></p><a href="#about" aria-label={ar?"اعرف المزيد":"Learn more"}>↗</a>
       </div>
     </div>
-    <ApprovedDialog open={storyOpen} onClose={()=>setStoryOpen(false)} id="approved-story-title" title={ar?"قصة فارس":"The Fares story"}>
+    <ApprovedDialog open={storyOpen} onClose={()=>setStoryOpen(false)} id="approved-story-title" closeLabel={ar?"إغلاق":"Close"} title={ar?"قصة فارس":"The Fares story"}>
       <div className="approved-dialog-copy"><p>{ar?"نحوّل هوية المؤسسات إلى برامج زي عملية ومتناسقة، من التصميم وأخذ العينات إلى التصنيع والتسليم.":"We translate an organization’s identity into practical, coordinated uniform programs, from design and sampling through manufacturing and delivery."}</p><a className="approved-primary-button" href={`/${locale}/enquiry`} onClick={()=>setStoryOpen(false)}>{ar?"ابدأ مشروعك":"Start a project"} <span aria-hidden="true">↗</span></a></div>
     </ApprovedDialog>
   </section>;
@@ -199,7 +199,7 @@ export function ApprovedFeatureBand({locale}:{locale:Locale}){
  const [processOpen,setProcessOpen]=useState(false);
  const benefits=[[ShieldCheck,ar?"أقمشة متينة":"Durable Fabrics"],[Sparkles,ar?"راحة في كل تفصيلة":"Comfort in Every Detail"],[Ruler,ar?"تصميم عملي":"Practical Design"],[Layers3,ar?"مصنوع للحياة الواقعية":"Made for Real Life"]] as const;
  return <section id="process" className="approved-feature-band" data-section-id="H03" data-testid="approved-h03">
-  <article className="approved-feature-more">
+  <article id="about" className="approved-feature-more">
    <div className="approved-fabric-field" data-component-id="H03A.01" data-media-slot="home.feature.fabric-blue" aria-hidden="true"><span/><span/><span/></div>
    <div className="approved-feature-copy"><h2 data-component-id="H03A.02">{ar?"أكثر من\nزي موحّد":"MORE\nTHAN UNIFORMS"}</h2><p data-component-id="H03A.03">{ar?"أقمشة عالية الجودة، تصميم عملي وإنتاج موثوق — زي يعمل بجد مثل من يرتديه.":"Quality fabrics, practical design and reliable production — uniforms that work as hard as the people wearing them."}</p><a data-component-id="H03A.04" className="approved-light-button" href={`/${locale}/garments`}>{ar?"اكتشف مجموعاتنا":"Discover Our Collections"} ↗</a></div>
    <div className="approved-benefit-row" data-component-id="H03A.05">{benefits.map(([Icon,label])=><div key={label}><Icon/><span>{label}</span></div>)}</div>
@@ -211,7 +211,7 @@ export function ApprovedFeatureBand({locale}:{locale:Locale}){
    <div className="approved-process-checklist" data-component-id="H03B.04">{[ar?"تصميم":"Design",ar?"عينة":"Sample",ar?"إنتاج":"Produce",ar?"تسليم":"Deliver"].map(x=><span key={x}><Check/> {x}</span>)}</div>
    <div className="approved-hand-note approved-vision-note" data-component-id="H03B.05">{ar?"رؤيتك.\nخبرتنا.":"Your Vision.\nOur Expertise."}<svg viewBox="0 0 80 38"><path d="M4 7c27 5 43 15 65 24m-12-13 13 13-17 2"/></svg></div>
   </article>
-  <ApprovedDialog open={processOpen} onClose={()=>setProcessOpen(false)} id="approved-process-title" title={ar?"من الفكرة إلى التسليم":"From idea to delivery"}>
+  <ApprovedDialog open={processOpen} onClose={()=>setProcessOpen(false)} id="approved-process-title" closeLabel={ar?"إغلاق":"Close"} title={ar?"من الفكرة إلى التسليم":"From idea to delivery"}>
     <ol className="approved-process-detail">{[
       [ar?"١":"01",ar?"التصميم":"Design",ar?"نحوّل المتطلبات والهوية إلى اتجاه واضح.":"We translate requirements and identity into a clear direction."],
       [ar?"٢":"02",ar?"العينة":"Sample",ar?"نراجع الخامة والمقاس والتفاصيل قبل الإنتاج.":"We validate fabric, fit, and details before production."],
@@ -230,9 +230,9 @@ const workCards=[
 
 export function ApprovedSelectedWork({locale}:{locale:Locale}){
  const ar=locale==="ar";
- return <section id="about" className="approved-selected-work" data-section-id="H04" data-testid="approved-h04">
+ return <section className="approved-selected-work" data-section-id="H04" data-testid="approved-h04">
   <div className="approved-selected-title"><span className="approved-eyebrow" data-component-id="H04.01">{ar?"أعمال مختارة":"SELECTED WORK"}</span><h2 data-component-id="H04.02">{ar?"شراكات حقيقية.\nنتائج حقيقية.":"Real Partnerships.\nReal Results."}</h2></div>
-  <div className="approved-work-cards">{workCards.map((c,i)=><a className="approved-work-card" key={c.slot} href={`/${locale}${c.href}`} data-component-id={`H04.0${i+3}`}>{c.slot==="home.work.kgc"
+  <div className="approved-work-cards">{workCards.map((c,i)=><a className="approved-work-card" key={c.slot} href={`/${locale}${c.href}`} aria-label={c.slot==="home.work.kgc"?(ar?"مشروع KGC":"KGC project"):(ar?`${c.ar}، تصور توضيحي للقدرات`:`${c.en}, illustrative capability preview`)} data-component-id={`H04.0${i+3}`}>{c.slot==="home.work.kgc"
   ? <img data-media-slot={c.slot} className="approved-work-image approved-work-real" src="/review-media/kgc/kgc-building.webp" width={c.crop.w} height={c.crop.h} loading="lazy" decoding="async" alt={ar?"حرم KGC في بيئة المراجعة المحمية":"KGC campus in the protected review environment"}/>
   : c.slot==="home.work.hospitality"
     ? <img data-media-slot={c.slot} className="approved-work-image approved-work-generated" width={c.crop.w} height={c.crop.h} loading="lazy" decoding="async" src="/generated/home-industries-hospitality.webp" alt={ar?"مشهد ضيافة توضيحي عام":"Generic illustrative hospitality scene"}/>
@@ -258,7 +258,7 @@ export function ApprovedHomepageFooter({locale}:{locale:Locale}){
   <a className="approved-footer-brand" data-component-id="H06.01" href={`/${locale}`}><BrandLockup/></a>
   <nav data-component-id="H06.02" aria-label={ar?"روابط التذييل":"Footer navigation"}>{navLinks.map(([en,arabic,raw])=><a key={en} href={href(raw)}>{ar?arabic:en}</a>)}</nav>
   <div className="approved-socials" data-component-id="H06.03"><button aria-label="Instagram" disabled><span>IG</span></button><button aria-label="LinkedIn" disabled><span>in</span></button><button aria-label="Facebook" disabled><span>f</span></button><button aria-label="YouTube" disabled><span>▶</span></button></div>
-  <a className="approved-footer-locale" data-component-id="H06.04" href={ar?"/en":"/ar"}><Globe2/><span>{ar?"AR":"EN"}</span><ChevronDown/></a>
+  <a className="approved-footer-locale" data-component-id="H06.04" href={ar?"/en":"/ar"} lang={ar?"en":"ar"} aria-label={ar?"Switch to English":"التبديل إلى العربية"}><Globe2/><span>{ar?"AR":"EN"}</span><ChevronDown/></a>
   <hr data-component-id="H06.05"/><small data-component-id="H06.06">© 2026 Fares Uniform. {ar?"جميع الحقوق محفوظة.":"All rights reserved."}</small><p data-component-id="H06.07">{ar?"زي موحّد لغدٍ أكثر إشراقاً.":"Uniforms for a brighter tomorrow."}</p>
  </footer>;
 }
