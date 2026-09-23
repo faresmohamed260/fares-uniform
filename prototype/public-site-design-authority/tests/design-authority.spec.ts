@@ -153,24 +153,23 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
   expect(runtimeAuthorityConsumers).toEqual([]);
 });
 
-test("D-062 measures coherent Selected Work grading",async({page})=>{
+test("D-062 measures independent textile grading",async({page})=>{
   await page.setViewportSize({width:1024,height:1536});
   await page.goto("/en");
   await page.evaluate(()=>document.fonts.ready);
   const candidates=[
-    {name:"current",filter:""},
-    {name:"muted",filter:"brightness(.82) saturate(.55) contrast(.95)"},
-    {name:"dark",filter:"brightness(.72) saturate(.55) contrast(.98)"},
-    {name:"deep",filter:"brightness(.65) saturate(.70) contrast(1.05)"},
-    {name:"cool",filter:"brightness(.80) saturate(.45) hue-rotate(10deg)"},
-    {name:"mono",filter:"grayscale(.35) brightness(.82) contrast(.95)"},
-    {name:"soft",filter:"brightness(.90) saturate(.70) contrast(.88)"},
-    {name:"light",filter:"brightness(1.08) saturate(.65) contrast(.92)"}
+    {name:"current",filter:"brightness(.82) saturate(.92)"},
+    {name:"dark-72",filter:"brightness(.72) saturate(.85) contrast(1)"},
+    {name:"deep-62",filter:"brightness(.62) saturate(.78) contrast(1.05)"},
+    {name:"blue",filter:"brightness(.75) saturate(1.10) contrast(1.05)"},
+    {name:"muted",filter:"brightness(.75) saturate(.65) contrast(.98)"},
+    {name:"bright",filter:"brightness(.90) saturate(.90) contrast(.95)"},
+    {name:"crisp",filter:"brightness(.80) saturate(.90) contrast(1.15)"},
+    {name:"neutral",filter:"grayscale(.15) brightness(.75) saturate(.75)"}
   ];
-  const cards=page.locator(".approved-work-image");
   const results:{name:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
   for(const candidate of candidates){
-    for(let index=0;index<await cards.count();index++) await cards.nth(index).evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);
+    await page.locator(".approved-fabric-field").evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);
     const screenshot=await page.screenshot({fullPage:true});
     const screenshotBase64=screenshot.toString("base64");
     const metric=await page.evaluate(async({screenshotBase64})=>{
@@ -180,15 +179,15 @@ test("D-062 measures coherent Selected Work grading",async({page})=>{
       const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
       ctx.drawImage(actual,0,0,width,height);const actualPixels=ctx.getImageData(0,0,width,height).data;
       ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const referencePixels=ctx.getImageData(0,0,width,height).data;
-      const y0=543,y1=632;let abs=0,over48=0,pixels=0;
+      const y0=401,y1=539;let abs=0,over48=0,pixels=0;
       for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;const d=(Math.abs(actualPixels[i]-referencePixels[i])+Math.abs(actualPixels[i+1]-referencePixels[i+1])+Math.abs(actualPixels[i+2]-referencePixels[i+2]))/3;abs+=d;pixels++;if(d>48)over48++;}
       return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
     },{screenshotBase64});
     results.push({name:candidate.name,...metric});
   }
   results.sort((left,right)=>left.meanAbsChannel-right.meanAbsChannel);
-  console.log("D062_SELECTED_WORK_GRADING_SWEEP",JSON.stringify(results));
-  writeFileSync("artifacts/d062-selected-work-grading-sweep.json",JSON.stringify(results,null,2));
+  console.log("D062_INDEPENDENT_TEXTILE_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-independent-textile-sweep.json",JSON.stringify(results,null,2));
   expect(results).toHaveLength(candidates.length);
 });
 
