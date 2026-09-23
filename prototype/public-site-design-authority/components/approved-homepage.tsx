@@ -174,7 +174,7 @@ export function ApprovedFeatureBand({locale}:{locale:Locale}){
  const benefits=[[ShieldCheck,ar?"أقمشة متينة":"Durable Fabrics"],[Sparkles,ar?"راحة في كل تفصيلة":"Comfort in Every Detail"],[Ruler,ar?"تصميم عملي":"Practical Design"],[Layers3,ar?"مصنوع للحياة الواقعية":"Made for Real Life"]] as const;
  return <section id="process" className="approved-feature-band" data-section-id="H03" data-testid="approved-h03">
   <article id="about" className="approved-feature-more">
-   <div className="approved-fabric-field" data-component-id="H03A.01" data-media-slot="home.feature.fabric-blue" aria-hidden="true"><span/><span/><span/></div>
+   <img className="approved-fabric-field" data-component-id="H03A.01" data-media-slot="home.feature.fabric-blue" src="/generated/home-feature-fabric-blue-v1.webp" width={996} height={526} loading="lazy" decoding="async" alt="" aria-hidden="true"/>
    <div className="approved-feature-copy"><h2 data-component-id="H03A.02">{ar?"أكثر من\nزي موحّد":"MORE\nTHAN UNIFORMS"}</h2><p data-component-id="H03A.03">{ar?"أقمشة عالية الجودة، تصميم عملي وإنتاج موثوق — زي يعمل بجد مثل من يرتديه.":"Quality fabrics, practical design and reliable production — uniforms that work as hard as the people wearing them."}</p><a data-component-id="H03A.04" className="approved-light-button" href={`/${locale}/garments`}>{ar?"اكتشف مجموعاتنا":"Discover Our Collections"} ↗</a></div>
    <div className="approved-benefit-row" data-component-id="H03A.05">{benefits.map(([Icon,label])=><div key={label}><Icon/><span>{label}</span></div>)}</div>
   </article>
