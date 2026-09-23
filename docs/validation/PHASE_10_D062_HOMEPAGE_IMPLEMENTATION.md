@@ -1,9 +1,9 @@
 # D-062 approved homepage carbon-copy implementation evidence
 
-**Status:** Batches B–E and professional frontend hardening GREEN; protected homepage review preview READY; Fares review pending  
+**Status:** Corrected screenshot-free implementation GREEN; protected homepage review preview READY; Fares review pending  
 **Approved visual authority:** `docs/ui/homepage/assets/approved-homepage-reference.webp` + `docs/ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md`  
-**Verified implementation SHA:** `a9700ebbb2124b5fa1ff86590542ea1b39a8fc2f`  
-**Deployment source SHA:** `a9700ebbb2124b5fa1ff86590542ea1b39a8fc2f`  
+**Verified implementation SHA:** `204769b17f369e563a8b45ded6cf4c4f175fe287`  
+**Deployment source SHA:** `204769b17f369e563a8b45ded6cf4c4f175fe287`  
 **Date:** 2026-09-23
 
 ## Scope
@@ -248,3 +248,36 @@ Deployment verification:
 - Vercel Authentication: **PASS**, anonymous `/en` returns HTTP **302**.
 
 The prior two hosted hardening attempts failed only newly added test assertions and did not deploy. The exact commit above is the first fully GREEN hardening endpoint. Fares visual review remains the next action. Production, client-media publication and PR merge remain **NO-GO**.
+
+
+## Screenshot-free correction after Fares review
+
+Fares rejected the earlier endpoint because it still consumed the approved design board as runtime media. That rejection is authoritative: commits `42f2b116...`, `1498d325...` and `a9700ebb...` are historical visual evidence only and are not acceptable implementation endpoints.
+
+The corrected implementation removes the runtime `ReferenceCrop` mechanism, removes the authority-backed H05 background and its derived overlay, and replaces them with independent assets and ordinary semantic components. The runtime media set now consists of independent generated hero/industry/textile/architecture media plus rights-authorized KGC review media. A browser guard inspects element attributes, inline styles and computed backgrounds and fails if `approved-homepage-reference` is consumed anywhere under `body`; the authority asset remains available only to the visual-comparison test.
+
+Final hosted evidence:
+
+- implementation/deployment commit: `204769b17f369e563a8b45ded6cf4c4f175fe287`;
+- run: `35851539975`;
+- job: `107150133661`;
+- artifact: `10745149073`;
+- artifact digest: `sha256:9688086c18ea36dd3d8ebc163b91b865e9d62bfdc312abfd63f463a2829003c1`;
+- TypeScript typecheck: **PASS**;
+- optimized production build: **PASS**;
+- browser suite: **10/10 PASS**;
+- global mean RGB-channel error: **24.990843** (<25);
+- global pixels over 48: **13.357798%** (<14%);
+- H03 Feature Band mean / pixels over 48: **29.9060 / 15.7467%**;
+- H04 Selected Work mean / pixels over 48: **33.9927 / 23.3541%**;
+- H05 Closing CTA mean / pixels over 48: **34.1525 / 19.1338%**.
+
+Deployment verification:
+
+- project: `fares-uniform-design-authority` (`prj_NihDUJroYCeAqi6OF8aVAuxi94w0`);
+- preview URL: `https://fares-uniform-design-authority-gt3573e3q.vercel.app`;
+- state: **READY**;
+- target: **preview / non-production**;
+- Vercel Authentication: **PASS**, anonymous `/en` returns HTTP **302**.
+
+This corrected endpoint supersedes every earlier D-062 protected preview. It does not authorize production cutover, public KGC/client publication, PR merge or ERP Gate D. Production remains **NO-GO**.
