@@ -181,13 +181,14 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     expect(Math.round(heroMedia?.width??0)).toBe(width);
     expect(heroPhoto?.height??0).toBeGreaterThan((hero?.height??0)*.45);
 
+    await page.screenshot({path:`artifacts/home-viewport-${name}.png`,fullPage:false});
+
     const workCards=page.locator(".approved-work-cards");
     expect(await workCards.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(100);
     const industryRail=page.locator(".approved-industry-rail");
     const before=Math.abs(await industryRail.evaluate(el=>el.scrollLeft));
     await page.getByRole("button",{name:"Next"}).click();
     await expect.poll(async()=>Math.abs(await industryRail.evaluate(el=>el.scrollLeft))).toBeGreaterThan(before);
-    await page.screenshot({path:`artifacts/home-viewport-${name}.png`,fullPage:false});
   }
 
   await page.setViewportSize({width:390,height:844});
