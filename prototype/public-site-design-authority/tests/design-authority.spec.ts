@@ -134,7 +134,7 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
   await expect(page.locator('[data-media-slot="home.feature.design-sketch"]')).toHaveAttribute("src","/generated/home-feature-design-sketch.svg");
   expect((await page.request.get("/generated/home-cta-building-v3.webp")).ok()).toBeTruthy();
   await expect(page.locator('[data-media-slot="home.cta.building"]')).toHaveAttribute("src","/generated/home-cta-building-v3.webp");
-  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/primary-summer.png");
+  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
   await expect(page.locator('[data-media-slot="home.work.hospitality"]')).toHaveAttribute("src","/generated/home-industries-hospitality.webp");
   await expect(page.locator('[data-media-slot="home.work.healthcare"]')).toHaveAttribute("src","/generated/home-industries-healthcare.webp");
   await expect(page.locator('[data-media-slot="home.hero.quality-thumb"]')).toHaveAttribute("src","/generated/home-feature-fabric-blue-v1.webp");
@@ -257,56 +257,42 @@ test("D-062 chooses the closest crop for the real KGC campus card",async({page})
   expect(results).toHaveLength(9);
 });
 
-test("D-062 chooses the closest independent CTA treatment",async({page})=>{
+test("D-062 measures independent hero artwork treatments",async({page})=>{
   await page.setViewportSize({width:1024,height:1536});
   await page.goto("/en");
   await page.evaluate(()=>document.fonts.ready);
 
   const candidates=[
-    {name:"scale-55-x0",transform:"scaleX(.55)",origin:"50% center"},
-    {name:"scale-65-x0",transform:"scaleX(.65)",origin:"50% center"},
-    {name:"scale-75-x0",transform:"scaleX(.75)",origin:"50% center"},
-    {name:"scale-85-x0",transform:"scaleX(.85)",origin:"50% center"},
-    {name:"scale-60-x4",transform:"translateX(4%) scaleX(.60)",origin:"50% center"},
-    {name:"scale-70-x4",transform:"translateX(4%) scaleX(.70)",origin:"50% center"},
-    {name:"scale-60-x7",transform:"translateX(7%) scaleX(.60)",origin:"50% center"},
-    {name:"scale-70-x7",transform:"translateX(7%) scaleX(.70)",origin:"50% center"}
+    {name:"current",filter:"none"},
+    {name:"soft-92",filter:"brightness(.92) saturate(.72) contrast(.92)"},
+    {name:"soft-96",filter:"brightness(.96) saturate(.80) contrast(.95)"},
+    {name:"bright-104",filter:"brightness(1.04) saturate(.75) contrast(.94)"},
+    {name:"bright-108",filter:"brightness(1.08) saturate(.65) contrast(.92)"},
+    {name:"muted-98",filter:"brightness(.98) saturate(.55) contrast(.90)"},
+    {name:"crisp",filter:"contrast(1.04) saturate(.85)"},
+    {name:"neutral",filter:"grayscale(.08) brightness(1.02) saturate(.78)"}
   ];
   const results:{name:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
   for(const candidate of candidates){
-    await page.locator(".approved-building-generated").evaluate((node,candidate)=>{
-      const element=node as HTMLElement;element.style.opacity="1";element.style.filter="brightness(1) saturate(.75) contrast(.95)";
-      element.style.transform=candidate.transform;element.style.transformOrigin=candidate.origin;
-    },candidate);
-    await page.locator(".approved-cta-scrim").evaluate(node=>{(node as HTMLElement).style.background="linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)";});
+    await page.locator(".approved-hero-generated").evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);
     const screenshot=await page.screenshot({fullPage:true});
     const screenshotBase64=screenshot.toString("base64");
     const metric=await page.evaluate(async({screenshotBase64})=>{
-      const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{
-        const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;
-      });
-      const [actual,reference]=await Promise.all([
-        load(`data:image/png;base64,${screenshotBase64}`),
-        load("/authority/approved-homepage-reference.webp")
-      ]);
-      const width=512,height=768,canvas=document.createElement("canvas");
-      canvas.width=width;canvas.height=height;
+      const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;});
+      const [actual,reference]=await Promise.all([load(`data:image/png;base64,${screenshotBase64}`),load("/authority/approved-homepage-reference.webp")]);
+      const width=512,height=768,canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;
       const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
-      ctx.drawImage(actual,0,0,width,height);const a=ctx.getImageData(0,0,width,height).data;
-      ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const b=ctx.getImageData(0,0,width,height).data;
-      const y0=632,y1=718;let abs=0,over48=0,pixels=0;
-      for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){
-        const i=(y*width+x)*4;
-        const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
-        abs+=d;pixels++;if(d>48)over48++;
-      }
+      ctx.drawImage(actual,0,0,width,height);const actualPixels=ctx.getImageData(0,0,width,height).data;
+      ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const referencePixels=ctx.getImageData(0,0,width,height).data;
+      const y0=28,y1=223;let abs=0,over48=0,pixels=0;
+      for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;const d=(Math.abs(actualPixels[i]-referencePixels[i])+Math.abs(actualPixels[i+1]-referencePixels[i+1])+Math.abs(actualPixels[i+2]-referencePixels[i+2]))/3;abs+=d;pixels++;if(d>48)over48++;}
       return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
     },{screenshotBase64});
     results.push({name:candidate.name,...metric});
   }
-  results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);
-  console.log("D062_INDEPENDENT_CTA_SWEEP",JSON.stringify(results));
-  writeFileSync("artifacts/d062-independent-cta-sweep.json",JSON.stringify(results,null,2));
+  results.sort((left,right)=>left.meanAbsChannel-right.meanAbsChannel);
+  console.log("D062_INDEPENDENT_HERO_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-independent-hero-sweep.json",JSON.stringify(results,null,2));
   expect(results).toHaveLength(candidates.length);
 });
 
