@@ -58,8 +58,7 @@ jobs:
           file "$target" | grep -Eq 'Web/P image|WebP'
           file "$target" | grep -Eq '512x768|512 x 768'
           digest="$(sha256sum "$target" | awk '{print $1}')"
-          sed -Ei "s/(EXPECTED=\")[0-9a-f]{64}(\")/\\1$digest\\2/" .github/workflows/phase10-design-authority.yml
-          grep -F "EXPECTED=\"$digest\"" .github/workflows/phase10-design-authority.yml
+          test "$digest" = "36032800b1a79a2fada69cfa87448124d7f81875e59b951bb445f8fd9947334c"
           echo "corrected_homepage_reference_sha256=$digest"
 
       - name: Commit corrected test authority
@@ -67,9 +66,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            docs/ui/homepage/assets/approved-homepage-reference.webp \
-            .github/workflows/phase10-design-authority.yml
+          git add docs/ui/homepage/assets/approved-homepage-reference.webp
           git diff --cached --quiet && { echo "No authority update produced" >&2; exit 1; }
           git commit -m "test: bind homepage gate to corrected browser authority"
           git push origin HEAD:phase-10/public-site-productionization
