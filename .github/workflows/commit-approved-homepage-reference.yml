@@ -54,7 +54,7 @@ jobs:
           target="docs/ui/homepage/assets/approved-homepage-reference.webp"
           sudo apt-get update -qq
           sudo apt-get install -y -qq imagemagick
-          convert "$source" -resize 512x768\\! -quality 88 "$target"
+          convert "$source" -resize '512x768!' -quality 88 "$target"
           file "$target" | grep -Eq 'Web/P image|WebP'
           file "$target" | grep -Eq '512x768|512 x 768'
           digest="$(sha256sum "$target" | awk '{print $1}')"
