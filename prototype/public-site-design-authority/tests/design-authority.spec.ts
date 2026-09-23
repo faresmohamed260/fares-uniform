@@ -263,16 +263,19 @@ test("D-062 chooses the closest independent CTA treatment",async({page})=>{
   await page.evaluate(()=>document.fonts.ready);
 
   const candidates=[
-    {name:"flat",opacity:"0",scrim:"linear-gradient(90deg,rgba(255,255,255,.97),rgba(240,248,253,.92) 31%,rgba(216,237,251,.68) 62%,rgba(207,233,250,.52))"},
-    {name:"wash-08",opacity:".08",scrim:"linear-gradient(90deg,rgba(255,255,255,.98),rgba(244,250,254,.95) 31%,rgba(221,240,252,.82) 62%,rgba(213,236,251,.70))"},
-    {name:"wash-14",opacity:".14",scrim:"linear-gradient(90deg,rgba(255,255,255,.98),rgba(244,250,254,.95) 31%,rgba(221,240,252,.82) 62%,rgba(213,236,251,.70))"},
-    {name:"wash-20",opacity:".20",scrim:"linear-gradient(90deg,rgba(255,255,255,.98),rgba(244,250,254,.95) 31%,rgba(221,240,252,.82) 62%,rgba(213,236,251,.70))"},
-    {name:"blue-14",opacity:".14",scrim:"linear-gradient(90deg,rgba(255,255,255,.97),rgba(240,248,253,.90) 31%,rgba(216,237,251,.55) 62%,rgba(207,233,250,.35))"},
-    {name:"blue-20",opacity:".20",scrim:"linear-gradient(90deg,rgba(255,255,255,.97),rgba(240,248,253,.90) 31%,rgba(216,237,251,.55) 62%,rgba(207,233,250,.35))"}
+    {name:"light-35",opacity:".35",filter:"brightness(1.12) saturate(.48) contrast(.88)",scrim:"linear-gradient(90deg,rgba(255,255,255,.97),rgba(240,248,253,.92) 31%,rgba(216,237,251,.68) 62%,rgba(207,233,250,.52))"},
+    {name:"light-50",opacity:".50",filter:"brightness(1.08) saturate(.55) contrast(.90)",scrim:"linear-gradient(90deg,rgba(255,255,255,.97),rgba(240,248,253,.88) 31%,rgba(216,237,251,.56) 62%,rgba(207,233,250,.40))"},
+    {name:"light-65",opacity:".65",filter:"brightness(1.04) saturate(.62) contrast(.92)",scrim:"linear-gradient(90deg,rgba(255,255,255,.95),rgba(240,248,253,.78) 31%,rgba(216,237,251,.40) 62%,rgba(207,233,250,.24))"},
+    {name:"light-80",opacity:".80",filter:"brightness(1.02) saturate(.68) contrast(.94)",scrim:"linear-gradient(90deg,rgba(255,255,255,.94),rgba(240,248,253,.68) 31%,rgba(216,237,251,.28) 62%,rgba(207,233,250,.12))"},
+    {name:"soft-55",opacity:".55",filter:"brightness(1.05) saturate(.60) contrast(.92)",scrim:"linear-gradient(90deg,rgba(255,255,255,.92),rgba(255,255,255,.70) 30%,rgba(255,255,255,.18) 62%,rgba(255,255,255,.08))"},
+    {name:"soft-75",opacity:".75",filter:"brightness(1.02) saturate(.68) contrast(.94)",scrim:"linear-gradient(90deg,rgba(255,255,255,.90),rgba(255,255,255,.55) 30%,rgba(255,255,255,.10) 62%,transparent)"},
+    {name:"clear-100",opacity:"1",filter:"brightness(1) saturate(.75) contrast(.95)",scrim:"linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.28) 30%,transparent 62%)"},
+    {name:"blue-75",opacity:".75",filter:"brightness(1.04) saturate(.60) contrast(.92)",scrim:"linear-gradient(90deg,rgba(255,255,255,.93),rgba(237,247,253,.62) 31%,rgba(204,232,250,.18) 62%,rgba(196,228,248,.08))"}
   ];
   const results:{name:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
   for(const candidate of candidates){
     await page.locator(".approved-building-generated").evaluate((node,value)=>{(node as HTMLElement).style.opacity=value;},candidate.opacity);
+    await page.locator(".approved-building-generated").evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);
     await page.locator(".approved-cta-scrim").evaluate((node,value)=>{(node as HTMLElement).style.background=value;},candidate.scrim);
     const screenshot=await page.screenshot({fullPage:true});
     const screenshotBase64=screenshot.toString("base64");
