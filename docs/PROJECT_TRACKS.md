@@ -50,7 +50,7 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 
 #### A2 — Repo-first browser-native UI/UX authority and production integration
 
-Historical Phase 10 engineering migration remains GREEN. D-059 candidate `fd973244...` and D-060 Scrollcraft candidate `9ca2215...` were explicitly rejected. D-061 moved approval to page-by-page review. D-062 then allowed a static homepage board as an exact specification, but Fares rejected the resulting protected preview. D-063 supersedes that exception and restores browser-native implementation authority. Corrected implementation `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1` and verification source `b138c2948f94bc77eca84ea05f53c16f6de989f9` are GREEN in hosted tests; Fares visual approval remains pending.
+Historical Phase 10 engineering migration remains GREEN. D-059 candidate `fd973244...` and D-060 Scrollcraft candidate `9ca2215...` were explicitly rejected. D-061 moved approval to page-by-page review. D-062 then allowed a static homepage board as an exact specification, but Fares rejected the resulting protected preview. D-063 supersedes that exception and restores browser-native implementation authority. The subsequent fixed-board/`zoom` patch `1510dcc...` was also rejected. Viewport-native implementation `5803d43e0234239bb72f97047e60b52a86634263` and exact deployed/evidence source `418fd78423a2cee3102b402e96c32a9208935b6b` are GREEN in hosted tests and protected review; Fares visual approval remains pending.
 
 - [x] Fares introduction/home technical surface.
 - [x] Work/client/project discovery and generic organization/program routes.
@@ -68,7 +68,7 @@ Historical Phase 10 engineering migration remains GREEN. D-059 candidate `fd9732
 - [ ] For every page: verify responsive EN/AR/RTL, reduced motion and page-specific interaction behavior before approval.
 - [ ] Obtain Fares's explicit approval of an exact Git commit as the current UI authority.
 - [ ] Reconcile/promote production UI from that coded authority without screenshot-to-code reverse engineering.
-- [x] Prove corrected implementation fidelity and regressions with hosted browser tests/screenshots on exact verification SHA `b138c294...`; keep client visual acceptance separate.
+- [x] Prove the viewport-native correction with hosted exact-view browser checks/captures on `418fd784...` (2560×1440, 1920×1080, 1440×900, 390×844, 360×640, AR/RTL and reduced motion); keep client visual acceptance separate.
 
 #### A3 — KGC and future client publication
 

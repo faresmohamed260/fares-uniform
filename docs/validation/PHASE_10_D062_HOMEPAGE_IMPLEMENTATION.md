@@ -375,3 +375,65 @@ Page-local choreography may consume the pinned Scrollcraft engine/progress mecha
 ### Acceptance boundary
 
 The next protected preview is an engineering/review candidate only. Fares retains final visual acceptance. This correction does not authorize production, PR merge, client-media publication, KGC public release or ERP Gate D.
+
+
+## Viewport-native correction implementation and final protected evidence — 2026-09-24
+
+**Implementation commit:** `5803d43e0234239bb72f97047e60b52a86634263`  
+**Exact deployed/evidence source:** `418fd78423a2cee3102b402e96c32a9208935b6b`  
+**Protected preview:** `https://fares-uniform-design-authority-6huouwjii.vercel.app/en`  
+**Vercel deployment:** `dpl_5SFvdCn5yCKZqPBuU6tTMJt2z9CX` — READY, `target: null`, exact Git metadata SHA `418fd78423a2cee3102b402e96c32a9208935b6b`
+
+The implementation replaces the rejected fixed 1024px board/whole-page `zoom` strategy rather than adding another scaling layer. The live root is full-width; H01 is viewport-scale; H02 and H04 are real overflowing browser rails; H03 and H05 use distinct chapter compositions; page-local motion is driven by passive native scroll and CSS custom properties; mobile is independently composed. No runtime consumer of the historical authority screenshot was introduced, and the clean transparent hero cutout/truthful review-media boundary remains intact.
+
+The final evidence commit changes only mobile capture ordering after the implementation commit so that 390×844 and 360×640 evidence records the opening viewport before Playwright exercises the Industries rail.
+
+### Exact hosted design-authority evidence
+
+- push run/job: `35932633422` / `107422500513`;
+- exact source checkout: **PASS**;
+- locked install and pinned Scrollcraft staging: **PASS**;
+- TypeScript typecheck: **PASS**;
+- optimized production build: **PASS**;
+- browser design gate: **10/10 PASS** in 16.1s;
+- evidence artifact: `10782081070`;
+- artifact digest: `sha256:6013b9af6e2a564dbca6b61041315edcc1a386e30eba26116d17be7ceab5ef31`;
+- isolated protected-review project verification: **PASS**;
+- exact staged bundle deployment: **PASS**;
+- deployment state: **READY**;
+- protection: **PASS**, anonymous HTTP `302`;
+- deployment target: **preview/non-production**.
+
+The 10 browser checks prove:
+
+1. semantic H00–H06/component inventory with no fixed-board root geometry, root `zoom: 1`, no root transform and no horizontal overflow;
+2. full browser-width composition plus viewport-scale hero at 2560×1440, 1920×1080 and 1440×900;
+3. native scroll changes hero/chapter motion state without scroll hijacking;
+4. media provenance remains truthful and the historical screenshot remains test-only;
+5. Industries rail movement, search, story/process dialogs and keyboard focus/Escape have real outcomes;
+6. semantic header/main/footer structure, image dimensions, skip navigation and console health remain clean;
+7. independently composed 390×844 and compact 360×640 mobile openings, real rail movement, mobile-menu focus trap/return and sticky header;
+8. Arabic RTL composition with zero horizontal overflow;
+9. reduced-motion information parity with spatial travel removed;
+10. deep routes remain reachable.
+
+### Broader Track A hosted validation on the same source
+
+- full hosted candidate run/job: `35932637678` / `107422513104` — **GREEN**;
+- full-candidate artifact: `10781712247`, digest `sha256:8c28c956a700638fcc79b7eeafdeafc01076ed19e69674c37fac9f0694ab06a6`;
+- public foundation run `35932637688` — **GREEN**;
+- public contract run `35932637666` — **GREEN**;
+- Pattern in Motion migration run `35932637686` — **GREEN**;
+- accessibility and motion run `35932637621` — **GREEN**;
+- enquiry hardening run `35932637656` — **GREEN**;
+- cache/SEO/performance run `35932637649` — **GREEN**.
+
+The full-candidate job passed source/static quality, production typecheck/build, foundation, Pattern migration, accessibility/motion, enquiry hardening, rendered captures, cache/SEO/resilience and evidence upload.
+
+### Visual review record
+
+Fresh exact-source hosted captures were inspected at all requested openings: 2560×1440, 1920×1080, 1440×900, 390×844 and 360×640, plus Arabic 390×844, reduced motion and the mid-scroll H03 feature/process chapter. The wide renders now occupy the browser width rather than a centered enlarged poster; the hero reads as one deliberate viewport scene, and the H03 feature/process chapter has a distinct material/sketch handoff. Mobile keeps the copy/geometry/people hierarchy in one opening scene instead of simply shrinking the desktop board.
+
+The protected Vercel instance was separately verified through provider metadata as READY, non-production and carrying the exact source SHA above. Anonymous access remains intentionally blocked. The render artifact and deployed preview come from the same exact-SHA design-authority job and staged bundle.
+
+This is an engineering/review candidate only. **Fares visual acceptance is not inferred or recorded.** Production, PR merge, public KGC/client publication and ERP Gate D remain NO-GO.
