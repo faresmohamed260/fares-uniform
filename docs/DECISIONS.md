@@ -594,3 +594,25 @@ Temporary media is allowed where the approved board depicts non-product illustra
 Generated fake products, fake factual client evidence, price/stock exposure and unauthorized public KGC publication remain prohibited. The KGC project page's future explode-view means whole outfit worn by model -> the actual separate real garments that compose that uniform, not fabricated internal construction layers.
 
 D-062 approves the homepage visual design and authorizes implementation/verification on the existing non-production design-authority branch. It does not authorize production cutover, PR merge, public client-media publication or ERP Gate D.
+
+---
+
+### D-063 — Homepage returns to browser-native implementation authority after protected-preview rejection
+
+**Date:** 2026-09-23  
+**Status:** accepted process correction; protected review candidate GREEN; Fares visual acceptance pending
+
+Fares rejected the D-062 protected preview because screenshot-derived crops and incorrect duplicated UI made the result a cheap mockup rather than a professional frontend implementation. This explicit review supersedes D-062's homepage exception that treated the static board as an exact implementation specification or allowed reference-derived crop/sprite placeholders.
+
+The homepage authority is browser-native again:
+
+- semantic HTML/CSS/components own all copy, labels, annotations, controls, cards and interactions;
+- runtime photographs are independent content-only generated assets or rights-authorized real media;
+- the approved/reference screenshot is regression evidence only and has no runtime consumer;
+- screenshot crops, sprites, textures, overlays, traced UI and hidden reference-image use are prohibited;
+- the H00–H06 component IDs and broad content architecture remain useful mapping/history, but the old board is not a runtime or carbon-copy specification;
+- the strict regression limits remain unchanged at mean RGB-channel error <25 and pixels over 48 <14%.
+
+Corrected implementation `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1` removed the contaminated hero composite, uses the transparent people-only cutout, and fixes mobile hero, industry, Selected Work, CTA and process compositions. The corrected browser capture was normalized as the test-only regression reference with SHA-256 `36032800b1a79a2fada69cfa87448124d7f81875e59b951bb445f8fd9947334c`. Hosted run/job `35885469158` / `107264380271` at verification SHA `b138c2948f94bc77eca84ea05f53c16f6de989f9` passed typecheck, production build and 10/10 browser checks. Visual metrics were mean `3.02545` and pixels over 48 `0.000122%`. Protected preview: `https://fares-uniform-design-authority-qi0j342ds.vercel.app`; READY, preview target, Vercel Authentication enforced, anonymous response HTTP 302.
+
+This is not Fares visual acceptance, production cutover, public KGC/client publication, PR merge or ERP Gate D authorization. Production remains NO-GO.

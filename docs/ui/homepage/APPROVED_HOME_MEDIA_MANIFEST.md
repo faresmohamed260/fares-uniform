@@ -1,12 +1,12 @@
-# Approved homepage temporary-media manifest
+# Homepage browser-native media manifest
 
-**Authority:** D-062  
-**Reference:** `approved-homepage-reference.webp`  
-**Reference space:** 1024 × 1536
+**Authority:** D-063 browser-native correction  
+**Regression reference:** `approved-homepage-reference.webp` (test-only; SHA-256 `36032800b1a79a2fada69cfa87448124d7f81875e59b951bb445f8fd9947334c`)  
+**Reference space:** 512 × 768 normalized browser capture
 
-The approved screenshot is retained only as test authority. Runtime media must use independent generated assets or rights-authorized real media; screenshot crops, textures, overlays, and hidden runtime references are prohibited.
+The regression screenshot is retained only as test evidence. Runtime media must use independent generated assets or rights-authorized real media; screenshot crops, textures, overlays, and hidden runtime references are prohibited.
 
-| Slot key | Type | Reference crop (x,y,w,h) | Replacement target |
+| Slot key | Type | Historical slot bounds (x,y,w,h) | Runtime asset contract |
 |---|---|---:|---|
 | home.hero.people-group | clean illustrative people photograph | 335,55,689,399 | **independent clean asset:** `public/generated/home-hero-people-cutout-v3.webp`, SHA-256 `bfd8bee351966ab81f8d3b203f7c3db3acbccb9d22a176334484024b91d406b8`; transparent photo-only four-profession cutout with no text, annotations, cards, controls, logos or screenshot pixels; generic illustrative media only, not Fares client/product evidence |
 | home.hero.quality-thumb | decorative detail | 760,352,60,67 | **independent generated placeholder:** reuses `public/generated/home-feature-fabric-blue-v1.webp`; decorative textile only, not product evidence |
@@ -25,8 +25,8 @@ The approved screenshot is retained only as test authority. Runtime media must u
 
 ## Rules
 
-- The approved screenshot is test-only visual authority. It must never be rendered, cropped, textured or overlaid as runtime page media.
-- Generated replacements must be independent assets sized to the media contract; the authority screenshot may be used only for post-render comparison.
+- The regression screenshot is test-only evidence. It must never be rendered, cropped, textured or overlaid as runtime page media.
+- Generated replacements must be independent assets sized to the media contract; the regression reference may be used only for post-render comparison.
 - Real database assets supersede generated placeholders when publication rights and content contracts are satisfied.
 - Real product/client media must never be synthesized and presented as factual evidence.
 

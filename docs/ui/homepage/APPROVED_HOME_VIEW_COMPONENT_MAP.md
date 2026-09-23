@@ -1,35 +1,30 @@
-# Approved homepage visual authority — one-to-one component map
+# Homepage H00–H06 component map and D-062 historical geometry
 
-**Decision:** D-062  
-**Status:** APPROVED visual authority / implementation contract  
-**Approved by:** Fares, 2026-09-22  
+**Decision:** D-062 historical map, amended by D-063  
+**Status:** component/content map retained; static-board implementation authority withdrawn  
+**D-063 correction:** Fares, 2026-09-23  
 **Reference canvas:** 1024 × 1536 px  
 **Repository reference asset:** `docs/ui/homepage/assets/approved-homepage-reference.webp`  
-**Source reference SHA-256:** `d3cecc6a20f6dd29af6db55d84d35f970d2e866e96a503a795f6a96451f94492` (original generated PNG supplied in chat)  
-**Normalized repo derivative SHA-256:** `db799d7b8fdb148b79481fbcf41d525aef4667d2190360f4c75ef5dfa91eceef` (512×768 WebP, exact 1:2 visual derivative committed for CI/runtime use)
+**Historical source SHA-256:** `d3cecc6a20f6dd29af6db55d84d35f970d2e866e96a503a795f6a96451f94492` (original generated board; historical only)  
+**Current regression-reference SHA-256:** `36032800b1a79a2fada69cfa87448124d7f81875e59b951bb445f8fd9947334c` (512×768 WebP captured from corrected browser-native implementation `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1`; test-only)
 
 ## Authority rule
 
-This document and the committed image supersede D-059/D-061 **for the homepage visual implementation only**.
+D-063 supersedes the D-062 screenshot exception. This document retains the useful H00–H06 component IDs, content order and historical geometry; it does not authorize the static board as an implementation specification.
 
-For this homepage, the approved image is an exact visual specification. Implementation must reproduce it one-to-one in semantic components rather than reinterpret its theme.
-
-The implementation may:
-- use generated temporary **non-product** media where the approved board contains illustrative media that does not yet exist in Odoo/R2;
-- initially use crop/sprite placeholders derived from the approved reference to preserve exact composition;
-- replace those placeholders one-for-one later with real database media or separately generated non-product media without changing the approved geometry.
+The implementation may use independent generated **non-product** media and rights-authorized real media according to the slot manifest. It must use semantic HTML/CSS/components for all copy, labels, annotations, cards, controls and interactions.
 
 The implementation must not:
-- restyle the page into another aesthetic;
-- remove sections/components because they seem redundant;
-- substitute a different layout pattern;
-- change the navy / white / electric-blue visual relationship without a new explicit approval;
+- render, crop, sprite, texture, overlay, trace or hide any portion of the historical/reference screenshot at runtime;
+- embed UI, copy, annotations, cards or controls inside runtime photographs;
+- restyle the page into another aesthetic without review;
+- remove required sections/components without review;
 - use generated fake Fares product imagery as real product evidence;
 - expose prices or stock.
 
 ## Canvas map
 
-Coordinates below are in the approved 1024 × 1536 reference space. They are fidelity anchors, not browser pixels at every responsive width.
+Coordinates below preserve the historical 1024 × 1536 board decomposition. They are content/geometry context, not instructions to crop the board or fixed browser pixels.
 
 | ID | Section | Reference bounds | Component |
 |---|---|---:|---|
@@ -447,9 +442,9 @@ Mobile can reflow cards/people/media but must not invent a different theme.
 
 ## Fidelity verification
 
-For the approved desktop reference viewport (the committed 512×768 derivative is scaled exactly 2× to the original 1024×1536 coordinate system):
+For the 1024px desktop regression viewport, the 512×768 reference is a normalized capture of the corrected browser-native implementation:
 1. capture the rendered page at 1024 CSS px width;
-2. compare the full-page screenshot against the committed authority;
+2. compare the full-page screenshot against the committed test-only regression reference;
 3. use image-difference evidence plus component bounding-box assertions;
 4. iterate component by component until geometry/content/color/media placement are within the documented tolerance;
 5. do not declare the homepage implemented merely because tests/build pass.
@@ -466,6 +461,6 @@ Initial tolerance target:
 Temporary media is replaced by **slot key**, never by changing surrounding layout.
 
 Example:
-`home.industries.healthcare` crop placeholder -> generated healthcare atmosphere -> real database asset later.
+`home.industries.healthcare` independent generated atmosphere -> rights-authorized real database asset later.
 
 The wrapper component and approved geometry remain stable.

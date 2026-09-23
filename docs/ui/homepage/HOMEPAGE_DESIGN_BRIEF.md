@@ -3,9 +3,9 @@
 **Status:** active homepage design contract / D-061  
 **Approved scope direction:** Fares, 2026-09-22  
 **Page under design:** public homepage only  
-**Current approved visual authority:** D-062 committed homepage image + one-to-one component map  
+**Current review authority:** D-063 corrected browser-native implementation `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1`  
 **Previous browser candidate:** `bfdb85d53a76b3f81b521631e39265fea3fb72e1` — REJECTED after visual review  
-**Implementation status:** D-062 authorizes carbon-copy implementation on the isolated design-authority surface; production `apps/public-web` remains separately gated.
+**Implementation status:** corrected browser-native candidate is hosted and GREEN; Fares visual acceptance is pending; production `apps/public-web` remains separately gated.
 
 ## 1. Why this reset exists
 
@@ -15,7 +15,7 @@ The central problem was not merely styling. The homepage inherited too much scho
 
 Fares Uniform serves uniforms broadly across schools, hospitality, restaurants/cafés, healthcare, corporate teams and other work environments. The homepage must therefore establish **Fares as the umbrella brand and manufacturer**, while sector pages and case studies carry their own more specific visual worlds.
 
-D-061 changed the design workflow to page-by-page authority. D-062 now records Fares’s explicit homepage approval and makes the committed approved board an exact one-to-one visual specification for this page.
+D-061 changed the workflow to page-by-page authority. D-062 recorded the static board, but Fares rejected the resulting screenshot-led implementation. D-063 restores browser-native authority: the coded implementation is the review candidate, and screenshots are regression evidence only.
 
 The homepage is first.
 

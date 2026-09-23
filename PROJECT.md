@@ -8,16 +8,16 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 ## Delivery-track split
 
-- **Track A — Public website:** active now. D-062 homepage authority remains frozen at H00–H06, but the earlier screenshot-backed endpoint was rejected and is historical only. The corrected implementation/deployment commit `204769b17f369e563a8b45ded6cf4c4f175fe287` uses semantic HTML/CSS/components, rights-authorized KGC review media and independent generated hero/industry/textile/architecture assets; the approved screenshot is test-only and has no runtime consumer. Push run/job `35851539975` / `107150133661` passed TypeScript, production build and **10/10 D-062 browser checks**. Strict fidelity is GREEN at mean RGB-channel error `24.9908` and high-difference pixels `13.3578%`. Artifact `10745149073` has digest `sha256:9688086c18ea36dd3d8ebc163b91b865e9d62bfdc312abfd63f463a2829003c1`. Protected preview `fares-uniform-design-authority-gt3573e3q.vercel.app` is READY, target `preview`, and anonymous access fails closed with HTTP `302`. Fares review of this corrected endpoint is next; production remains NO-GO.
+- **Track A — Public website:** active now. Fares rejected the earlier D-062 screenshot-board implementation as a cheap mockup. D-063 restores browser-native authority: semantic HTML/CSS owns UI, runtime images are clean content-only assets, and screenshots are test evidence only. Corrected implementation `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1` removes the contaminated hero composite and fixes mobile hero, industries, Selected Work, process and CTA composition. Verification commit `b138c2948f94bc77eca84ea05f53c16f6de989f9`, push run/job `35885469158` / `107264380271`, passed TypeScript, production build and **10/10 browser checks**. Strict limits remain unchanged; measured mean error `3.02545` (<25) and pixels over 48 `0.000122%` (<14%). Artifact `10761629202` has digest `sha256:bf7bc49ee0c82899efc533d9eaafc038f5d37469cd98f3bcb64a98d9857fcbd8`. Protected preview [`fares-uniform-design-authority-qi0j342ds.vercel.app`](https://fares-uniform-design-authority-qi0j342ds.vercel.app) is READY, target `preview`, and anonymous access fails closed with HTTP `302`. Fares review is pending; production remains NO-GO.
 - **Track B — ERP/Odoo:** core MVP engineering, Gate C staging acceptance and Phase 0–8 release integration are complete. Remaining work is Gate D, production ownership/operations, real-business configuration/onboarding and controlled launch readiness.
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
 
 ## Active UI/UX authority rule
 
-D-059 remains the general public-site design workflow, but D-062 is an explicit homepage exception: Fares approved the committed homepage image itself as the exact visual implementation authority. For the homepage, use [Approved homepage component map](docs/ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md) and the committed authority asset, implement every mapped component one-to-one, and use screenshot-difference evidence to converge on a carbon copy.
+D-063 restores D-059's browser-native rule for the homepage and supersedes the D-062 screenshot-specification exception. The H00–H06 component map remains a useful content/geometry history, but the old static board is not an implementation specification. Runtime UI must be semantic HTML/CSS/components; runtime imagery must be independent content-only generated media or rights-authorized real media. Screenshot crops, sprites, textures, overlays, traced controls and hidden reference-image consumers are prohibited. The committed reference is test-only regression evidence.
 
-The previous browser homepage candidate `bfdb85d53a76b3f81b521631e39265fea3fb72e1` is now rejected historical evidence. D-062 replaces it with the approved bright modern corporate board and exact component map. The approved page is commercial and content-rich rather than sparse/luxury: navy/white/electric-blue, multi-profession hero, six industry cards, dual capability/process feature band, selected work, building CTA and full footer. The authority image is test-only: it may be staged for screenshot comparison but must never be rendered, cropped, textured, overlaid or referenced by runtime page content. Non-product placeholders must be independent generated assets; real product/client evidence remains truth-grounded.
+The previous browser candidate `bfdb85d53a76b3f81b521631e39265fea3fb72e1`, the D-062 screenshot-backed endpoints, and the superficially GREEN `204769b17f369e563a8b45ded6cf4c4f175fe287` preview are rejected historical evidence. The current review candidate is the corrected browser-native implementation `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1`, verified and protected at `b138c2948f94bc77eca84ea05f53c16f6de989f9`.
 
 ## Historical Phase 9 visual reference
 
@@ -237,10 +237,10 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — Fares visual review:** review the protected D-062 deployment from implementation `42f2b116351a94a7d0c0a2604dd05b686adacf9c` (deployment source `1498d32579cf66bee04d38ebd74b854bf65132c5`) and record approval or requested corrections against that exact implementation.
-2. Preserve frozen H00–H06 geometry and the GREEN `<25` mean / `<14%` high-difference limits; do not reopen completed Batches B–E without new evidence or client direction.
+1. **Track A / active — Fares visual review:** review the protected D-063 browser-native deployment at [`fares-uniform-design-authority-qi0j342ds.vercel.app`](https://fares-uniform-design-authority-qi0j342ds.vercel.app) from corrected implementation `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1` and verification source `b138c2948f94bc77eca84ea05f53c16f6de989f9`; record approval or concrete corrections against that exact candidate.
+2. Preserve semantic component ownership, content-only runtime imagery and the unchanged strict `<25` mean / `<14%` high-difference limits.
 3. Keep the current real KGC campus in protected review only; it does **not** authorize public KGC publication.
-4. Do not start Schools/KGC/Garments page design until the D-062 homepage implementation review is resolved.
+4. Do not start Schools/KGC/Garments page design until the corrected homepage review is resolved.
 5. The future KGC case-study explode-view remains whole worn outfit -> separated **real** garment pieces.
 6. Keep PR merges, public client publication and production cutover separately gated. Production remains NO-GO.
 7. **Track B / ERP:** Gate D remains independent.

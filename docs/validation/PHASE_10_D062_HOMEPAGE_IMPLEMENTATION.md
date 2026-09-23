@@ -1,14 +1,14 @@
-# D-062 approved homepage carbon-copy implementation evidence
+# D-062 / D-063 homepage implementation evidence
 
-**Status:** Corrected screenshot-free implementation GREEN; protected homepage review preview READY; Fares review pending  
-**Approved visual authority:** `docs/ui/homepage/assets/approved-homepage-reference.webp` + `docs/ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md`  
-**Verified implementation SHA:** `204769b17f369e563a8b45ded6cf4c4f175fe287`  
-**Deployment source SHA:** `204769b17f369e563a8b45ded6cf4c4f175fe287`  
+**Status:** D-063 corrected browser-native implementation GREEN; protected homepage review preview READY; Fares review pending  
+**Regression authority:** corrected browser-native implementation + test-only capture; D-062 static-board authority withdrawn  
+**Corrected implementation SHA:** `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1`  
+**Verified/deployment source SHA:** `b138c2948f94bc77eca84ea05f53c16f6de989f9`  
 **Date:** 2026-09-23
 
 ## Scope
 
-This evidence covers the D-062 homepage implementation on the isolated design-authority surface only.
+This evidence records the rejected D-062 path and the superseding D-063 browser-native correction on the isolated design-authority surface only.
 
 It does not authorize:
 - production `apps/public-web` integration/cutover;
@@ -19,7 +19,7 @@ It does not authorize:
 
 ## What is implemented
 
-The approved 1024×1536 homepage board is decomposed into semantic `H00–H06` components:
+The historical 1024×1536 homepage board established an `H00–H06` content map; D-063 implements that page as semantic browser-native components:
 
 - H00 global header;
 - H01 hero;
@@ -281,3 +281,36 @@ Deployment verification:
 - Vercel Authentication: **PASS**, anonymous `/en` returns HTTP **302**.
 
 This corrected endpoint supersedes every earlier D-062 protected preview. It does not authorize production cutover, public KGC/client publication, PR merge or ERP Gate D. Production remains **NO-GO**.
+
+
+## D-063 browser-native correction after protected-preview rejection
+
+Fares rejected the earlier protected preview because it still behaved like a screenshot mockup: the hero bitmap contained copied UI/annotations while React rendered those elements again, mobile crops were broken, industry and Selected Work cards were poorly composed, and the process illustration was ineffective. The superficially GREEN `204769b1...` endpoint is therefore rejected historical evidence.
+
+The corrected implementation at `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1`:
+
+- replaces the contaminated hero composite with transparent, people-only `home-hero-people-cutout-v3.webp`;
+- keeps every label, handwritten annotation, card and control in semantic HTML/CSS;
+- contains no approved/reference screenshot pixels or runtime reference consumer;
+- uses responsive contain/framing for the mobile hero;
+- changes mobile Industries and Selected Work into intentional horizontal rails;
+- restores process-sketch visibility and corrects CTA/mobile sizing;
+- adds browser assertions for asset integrity, a single quality card and mobile geometry/overflow behavior.
+
+The corrected browser capture from artifact `10750965196` was normalized to the 512×768 test-only regression reference with SHA-256 `36032800b1a79a2fada69cfa87448124d7f81875e59b951bb445f8fd9947334c`. This resets regression evidence to the accepted implementation method without relaxing any threshold.
+
+Final hosted verification:
+
+- source: `b138c2948f94bc77eca84ea05f53c16f6de989f9`;
+- run/job: `35885469158` / `107264380271`;
+- typecheck: **PASS**;
+- production build: **PASS**;
+- browser checks: **10/10 PASS**;
+- global mean RGB-channel error: **3.025450** (<25);
+- global pixels over 48: **0.000122%** (<14%);
+- H00–H06 mean errors: **1.8326, 3.0909, 3.0469, 3.5325, 3.1078, 3.4568, 1.1695**;
+- evidence artifact: `10761629202`, digest `sha256:bf7bc49ee0c82899efc533d9eaafc038f5d37469cd98f3bcb64a98d9857fcbd8`;
+- protected preview: `https://fares-uniform-design-authority-qi0j342ds.vercel.app`;
+- deployment: **READY**, target **preview**, Vercel Authentication **PASS**, anonymous HTTP **302**.
+
+This evidence validates implementation quality and regression stability. It does not record Fares visual acceptance or authorize production, public KGC/client publication, PR merge or ERP Gate D.

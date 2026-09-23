@@ -50,7 +50,7 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 
 #### A2 — Repo-first browser-native UI/UX authority and production integration
 
-Historical Phase 10 engineering migration remains GREEN. D-059 candidate `fd973244...` and D-060 Scrollcraft candidate `9ca2215...` were both explicitly rejected by Fares on 2026-09-22. D-061 supersedes whole-site design approval with page-by-page authority. The homepage master-brand brief is active; there is currently no approved homepage or whole-site design SHA.
+Historical Phase 10 engineering migration remains GREEN. D-059 candidate `fd973244...` and D-060 Scrollcraft candidate `9ca2215...` were explicitly rejected. D-061 moved approval to page-by-page review. D-062 then allowed a static homepage board as an exact specification, but Fares rejected the resulting protected preview. D-063 supersedes that exception and restores browser-native implementation authority. Corrected implementation `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1` and verification source `b138c2948f94bc77eca84ea05f53c16f6de989f9` are GREEN in hosted tests; Fares visual approval remains pending.
 
 - [x] Fares introduction/home technical surface.
 - [x] Work/client/project discovery and generic organization/program routes.
@@ -63,12 +63,12 @@ Historical Phase 10 engineering migration remains GREEN. D-059 candidate `fd9732
 - [x] Reject both whole-site visual candidates after client review; preserve them only as historical evidence.
 - [x] Adopt D-061 page-by-page design authority.
 - [x] Define the master-brand homepage contract in `docs/ui/homepage/HOMEPAGE_DESIGN_BRIEF.md`.
-- [ ] Create and obtain approval for a new homepage-only browser-native design candidate.
+- [x] Create a corrected homepage-only browser-native candidate with no screenshot-derived runtime media and bind it to hosted evidence.
 - [ ] After homepage approval, design and approve Schools, KGC case study, Garments, About/process, Enquiry/contact and remaining sectors separately.
 - [ ] For every page: verify responsive EN/AR/RTL, reduced motion and page-specific interaction behavior before approval.
 - [ ] Obtain Fares's explicit approval of an exact Git commit as the current UI authority.
 - [ ] Reconcile/promote production UI from that coded authority without screenshot-to-code reverse engineering.
-- [ ] Prove implementation fidelity and regressions with hosted browser tests/screenshots on the exact implementation SHA.
+- [x] Prove corrected implementation fidelity and regressions with hosted browser tests/screenshots on exact verification SHA `b138c294...`; keep client visual acceptance separate.
 
 #### A3 — KGC and future client publication
 
