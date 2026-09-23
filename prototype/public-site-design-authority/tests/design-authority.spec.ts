@@ -245,17 +245,65 @@ test("D-062 chooses the closest crop for the real KGC campus card",async({page})
   expect(results).toHaveLength(9);
 });
 
-test("D-062 desktop interactions remain functional",async({page})=>{
+test("D-062 controls have real outcomes and the carousel never fakes movement",async({page})=>{
   await page.setViewportSize({width:1024,height:768});
   await page.goto("/en");
   const rail=page.locator(".approved-industry-rail");
-  const before=await rail.evaluate(el=>el.scrollLeft);
+  const desktopOverflow=await rail.evaluate(el=>el.scrollWidth-el.clientWidth);
+  expect(desktopOverflow).toBeLessThanOrEqual(1);
+  await expect(page.getByRole("button",{name:"Previous"})).toBeDisabled();
+  await expect(page.getByRole("button",{name:"Next"})).toBeDisabled();
+
+  const search=page.getByRole("button",{name:"Search"});
+  await search.click();
+  const searchInput=page.getByRole("textbox",{name:"What are you looking for?"});
+  await expect(searchInput).toBeFocused();
+  await searchInput.fill("garments");
+  await expect(page.getByRole("link",{name:"Garments"})).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(search).toBeFocused();
+
+  const story=page.getByRole("button",{name:"Watch Our Story"});
+  await story.click();
+  await expect(page.getByRole("dialog",{name:"The Fares story"})).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(story).toBeFocused();
+
+  const process=page.getByRole("button",{name:"Our Process"});
+  await process.click();
+  await expect(page.getByRole("dialog",{name:"From idea to delivery"})).toBeVisible();
+  await expect(page.getByRole("listitem")).toHaveCount(4);
+  await page.keyboard.press("Escape");
+  await expect(process).toBeFocused();
+
+  await page.setViewportSize({width:390,height:844});
+  await page.reload();
+  const mobileRail=page.locator(".approved-industry-rail");
+  const before=Math.abs(await mobileRail.evaluate(el=>el.scrollLeft));
   await page.getByRole("button",{name:"Next"}).click();
-  await page.waitForTimeout(350);
-  const after=await rail.evaluate(el=>el.scrollLeft);
-  expect(after).toBeGreaterThanOrEqual(before);
+  await expect.poll(async()=>Math.abs(await mobileRail.evaluate(el=>el.scrollLeft))).toBeGreaterThan(before);
+
   await expect(page.getByRole("link",{name:/Explore Our Industries/i})).toHaveAttribute("href","#industries");
   await expect(page.getByRole("link",{name:/Get in Touch/i}).first()).toHaveAttribute("href","/en/enquiry");
+});
+
+test("D-062 semantic structure, image stability and console health are production-safe",async({page})=>{
+  const consoleErrors:string[]=[];
+  page.on("console",message=>{if(message.type()==="error")consoleErrors.push(message.text());});
+  await page.goto("/en");
+  await expect(page.locator(".approved-homepage > header")).toHaveCount(1);
+  await expect(page.locator(".approved-homepage > main#main-content")).toHaveCount(1);
+  await expect(page.locator(".approved-homepage > footer")).toHaveCount(1);
+  await expect(page.locator("main header, main footer")).toHaveCount(0);
+  const images=page.locator(".approved-homepage img");
+  for(let index=0;index<await images.count();index++){
+    await expect(images.nth(index)).toHaveAttribute("width",/\d+/);
+    await expect(images.nth(index)).toHaveAttribute("height",/\d+/);
+  }
+  await page.getByRole("link",{name:"Skip to content"}).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+  expect(consoleErrors).toEqual([]);
 });
 
 test("D-062 English mobile reflows without changing identity",async({page})=>{
@@ -266,9 +314,14 @@ test("D-062 English mobile reflows without changing identity",async({page})=>{
 
   const trigger=page.getByRole("button",{name:"Open menu"});
   await trigger.click();
-  await expect(page.getByRole("dialog",{name:"Site menu"})).toBeVisible();
+  const menu=page.getByRole("dialog",{name:"Site menu"});
+  await expect(menu).toBeVisible();
+  await expect(page.getByRole("button",{name:"Close menu"})).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(menu.getByRole("link",{name:/Get in Touch/i})).toBeFocused();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog",{name:"Site menu"})).toHaveCount(0);
+  await expect(menu).toHaveCount(0);
+  await expect(trigger).toBeFocused();
 
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
   await page.screenshot({path:"artifacts/d062-homepage-mobile-en.png",fullPage:true});
