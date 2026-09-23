@@ -153,128 +153,24 @@ test("D-062 media slots and authority asset are stable",async({page})=>{
   expect(runtimeAuthorityConsumers).toEqual([]);
 });
 
-test("D-062 chooses the closest real KGC review asset for the frozen work slot",async({page})=>{
+test("D-062 measures coherent Selected Work grading",async({page})=>{
   await page.setViewportSize({width:1024,height:1536});
   await page.goto("/en");
   await page.evaluate(()=>document.fonts.ready);
-
   const candidates=[
-    "/review-media/kgc/kindergarten-summer.png",
-    "/review-media/kgc/primary-summer.png",
-    "/review-media/kgc/middle-summer.png",
-    "/review-media/kgc/high-summer.png",
-    "/review-media/kgc/kgc-building.webp"
+    {name:"current",filter:""},
+    {name:"muted",filter:"brightness(.82) saturate(.55) contrast(.95)"},
+    {name:"dark",filter:"brightness(.72) saturate(.55) contrast(.98)"},
+    {name:"deep",filter:"brightness(.65) saturate(.70) contrast(1.05)"},
+    {name:"cool",filter:"brightness(.80) saturate(.45) hue-rotate(10deg)"},
+    {name:"mono",filter:"grayscale(.35) brightness(.82) contrast(.95)"},
+    {name:"soft",filter:"brightness(.90) saturate(.70) contrast(.88)"},
+    {name:"light",filter:"brightness(1.08) saturate(.65) contrast(.92)"}
   ];
-  const results:{src:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
-
-  for(const src of candidates){
-    const img=page.locator('img[data-media-slot="home.work.kgc"]');
-    await img.evaluate((node,nextSrc)=>new Promise<void>((resolve,reject)=>{
-      const el=node as HTMLImageElement;
-      el.onload=()=>resolve();
-      el.onerror=()=>reject(new Error("failed to load "+nextSrc));
-      el.src=nextSrc;
-      if(el.complete&&el.naturalWidth>0) resolve();
-    }),src);
-
-    const screenshot=await page.screenshot({fullPage:true});
-    const screenshotBase64=screenshot.toString("base64");
-    const metric=await page.evaluate(async({screenshotBase64})=>{
-      const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{
-        const image=new Image(); image.onload=()=>resolve(image); image.onerror=reject; image.src=url;
-      });
-      const [actual,reference]=await Promise.all([
-        load(`data:image/png;base64,${screenshotBase64}`),
-        load("/authority/approved-homepage-reference.webp")
-      ]);
-      const width=512,height=768;
-      const canvas=document.createElement("canvas"); canvas.width=width; canvas.height=height;
-      const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
-      ctx.drawImage(actual,0,0,width,height);
-      const a=ctx.getImageData(0,0,width,height).data;
-      ctx.clearRect(0,0,width,height);
-      ctx.drawImage(reference,0,0,width,height);
-      const b=ctx.getImageData(0,0,width,height).data;
-
-      const y0=543,y1=632;
-      let abs=0,over48=0,pixels=0;
-      for(let y=y0;y<y1;y++) for(let x=0;x<width;x++){
-        const i=(y*width+x)*4;
-        const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
-        abs+=d; pixels++; if(d>48) over48++;
-      }
-      return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
-    },{screenshotBase64});
-    results.push({src,...metric});
-  }
-
-  results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);
-  console.log("D062_KGC_REAL_MEDIA_SWEEP",JSON.stringify(results));
-  writeFileSync("artifacts/d062-kgc-real-media-sweep.json",JSON.stringify(results,null,2));
-  expect(results).toHaveLength(5);
-});
-
-test("D-062 chooses the closest crop for the real KGC campus card",async({page})=>{
-  await page.setViewportSize({width:1024,height:1536});
-  await page.goto("/en");
-  await page.evaluate(()=>document.fonts.ready);
-
-  const positions=["25% 20%","50% 20%","75% 20%","25% 50%","50% 50%","75% 50%","25% 80%","50% 80%","75% 80%"];
-  const results:{position:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
-  const img=page.locator('img[data-media-slot="home.work.kgc"]');
-
-  for(const position of positions){
-    await img.evaluate((node,nextPosition)=>{(node as HTMLImageElement).style.objectPosition=nextPosition;},position);
-    const screenshot=await page.screenshot({fullPage:true});
-    const screenshotBase64=screenshot.toString("base64");
-    const metric=await page.evaluate(async({screenshotBase64})=>{
-      const load=(url:string)=>new Promise<HTMLImageElement>((resolve,reject)=>{
-        const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;
-      });
-      const [actual,reference]=await Promise.all([
-        load(`data:image/png;base64,${screenshotBase64}`),
-        load("/authority/approved-homepage-reference.webp")
-      ]);
-      const width=512,height=768,canvas=document.createElement("canvas");
-      canvas.width=width;canvas.height=height;
-      const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
-      ctx.drawImage(actual,0,0,width,height);const a=ctx.getImageData(0,0,width,height).data;
-      ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const b=ctx.getImageData(0,0,width,height).data;
-      const y0=543,y1=632;let abs=0,over48=0,pixels=0;
-      for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){
-        const i=(y*width+x)*4;
-        const d=(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]))/3;
-        abs+=d;pixels++;if(d>48)over48++;
-      }
-      return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
-    },{screenshotBase64});
-    results.push({position,...metric});
-  }
-
-  results.sort((a,b)=>a.meanAbsChannel-b.meanAbsChannel);
-  console.log("D062_KGC_CAMPUS_CROP_SWEEP",JSON.stringify(results));
-  writeFileSync("artifacts/d062-kgc-campus-crop-sweep.json",JSON.stringify(results,null,2));
-  expect(results).toHaveLength(9);
-});
-
-test("D-062 measures independent hero artwork treatments",async({page})=>{
-  await page.setViewportSize({width:1024,height:1536});
-  await page.goto("/en");
-  await page.evaluate(()=>document.fonts.ready);
-
-  const candidates=[
-    {name:"current",filter:"none"},
-    {name:"soft-92",filter:"brightness(.92) saturate(.72) contrast(.92)"},
-    {name:"soft-96",filter:"brightness(.96) saturate(.80) contrast(.95)"},
-    {name:"bright-104",filter:"brightness(1.04) saturate(.75) contrast(.94)"},
-    {name:"bright-108",filter:"brightness(1.08) saturate(.65) contrast(.92)"},
-    {name:"muted-98",filter:"brightness(.98) saturate(.55) contrast(.90)"},
-    {name:"crisp",filter:"contrast(1.04) saturate(.85)"},
-    {name:"neutral",filter:"grayscale(.08) brightness(1.02) saturate(.78)"}
-  ];
+  const cards=page.locator(".approved-work-image");
   const results:{name:string;meanAbsChannel:number;pctPixelsOver48:number}[]=[];
   for(const candidate of candidates){
-    await page.locator(".approved-hero-generated").evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);
+    for(let index=0;index<await cards.count();index++) await cards.nth(index).evaluate((node,value)=>{(node as HTMLElement).style.filter=value;},candidate.filter);
     const screenshot=await page.screenshot({fullPage:true});
     const screenshotBase64=screenshot.toString("base64");
     const metric=await page.evaluate(async({screenshotBase64})=>{
@@ -284,15 +180,15 @@ test("D-062 measures independent hero artwork treatments",async({page})=>{
       const ctx=canvas.getContext("2d",{willReadFrequently:true})!;
       ctx.drawImage(actual,0,0,width,height);const actualPixels=ctx.getImageData(0,0,width,height).data;
       ctx.clearRect(0,0,width,height);ctx.drawImage(reference,0,0,width,height);const referencePixels=ctx.getImageData(0,0,width,height).data;
-      const y0=28,y1=223;let abs=0,over48=0,pixels=0;
+      const y0=543,y1=632;let abs=0,over48=0,pixels=0;
       for(let y=y0;y<y1;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;const d=(Math.abs(actualPixels[i]-referencePixels[i])+Math.abs(actualPixels[i+1]-referencePixels[i+1])+Math.abs(actualPixels[i+2]-referencePixels[i+2]))/3;abs+=d;pixels++;if(d>48)over48++;}
       return {meanAbsChannel:abs/pixels,pctPixelsOver48:over48/pixels};
     },{screenshotBase64});
     results.push({name:candidate.name,...metric});
   }
   results.sort((left,right)=>left.meanAbsChannel-right.meanAbsChannel);
-  console.log("D062_INDEPENDENT_HERO_SWEEP",JSON.stringify(results));
-  writeFileSync("artifacts/d062-independent-hero-sweep.json",JSON.stringify(results,null,2));
+  console.log("D062_SELECTED_WORK_GRADING_SWEEP",JSON.stringify(results));
+  writeFileSync("artifacts/d062-selected-work-grading-sweep.json",JSON.stringify(results,null,2));
   expect(results).toHaveLength(candidates.length);
 });
 
