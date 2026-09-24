@@ -202,7 +202,7 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
   .approved-brand svg{width:30px;height:30px}.approved-brand strong{font-size:15px}.approved-brand small{font-size:6px}
 
   .approved-hero{display:block;min-height:max(720px,calc(100svh - 68px));background:#fff}
-  .approved-hero-copy{position:relative;z-index:14;height:max(720px,calc(100svh - 68px));padding:clamp(20px,3.5vh,30px) 18px 18px;pointer-events:none}
+  .approved-hero-copy{position:relative;z-index:14;width:100%;height:max(720px,calc(100svh - 68px));padding:clamp(20px,3.5vh,30px) 18px 18px;pointer-events:none}
   .approved-hero-copy :is(a,button){pointer-events:auto}[dir="rtl"] .approved-hero-copy{padding:clamp(20px,3.5vh,30px) 18px 18px}
   .approved-hero h1{margin:11px 0 10px;font-size:clamp(36px,10.8vw,44px);line-height:.78;max-width:9.4ch}.approved-hero-copy>p{max-width:31ch;font-size:9.3px;line-height:1.35}
   .approved-hero-actions{margin-top:9px;gap:10px}.approved-hero-actions .approved-primary-button{min-height:40px;padding-inline:12px;font-size:8px;gap:12px}.approved-primary-button{min-height:40px;padding-inline:12px;font-size:8px;gap:12px}.approved-story-button{font-size:8px;gap:7px}.approved-story-button span{width:32px;height:32px}
