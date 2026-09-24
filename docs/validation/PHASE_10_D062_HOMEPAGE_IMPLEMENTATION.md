@@ -539,3 +539,44 @@ The media gate proves:
 - public contract `35936563873` — **GREEN**.
 
 This is a protected engineering/review candidate only. Fares visual acceptance is still pending. Production, PR merge, public KGC/client publication and ERP Gate D remain NO-GO.
+
+## H01 approved-target implementation evidence — 2026-09-24
+
+**Main hero composition:** `be2d3393265451636dcdc271cbd87997d77645ed`  
+**Exact deployed/evidence source:** `ce95c50156475241e54e215f0d8169cbf0368007`  
+**Protected preview:** `https://fares-uniform-design-authority-e9dunbps9.vercel.app/en` — READY, preview/non-production, anonymous HTTP `302`
+
+Fares approved the uploaded H01 direction as the hero-only target. H00 and H02–H06 are unchanged. The implementation keeps the exact five-line headline `PEOPLE / BUSINESSES / COMMUNITIES / IN / UNIFORM`, the four-person transparent cutout, two handwritten notes, existing Explore/Story controls, four approved benefits and `01 / 02 / 03` pagination. It removes the superseded floating quality card and does not introduce the rejected industry strip.
+
+The hero remains browser-native and independently layered: semantic copy/controls, transparent people, Canva environment-only asset `MAHWGkAE9WA` as a soft blurred background, CSS blue geometry, notes, benefits and pagination. The uploaded target screenshot is not shipped or consumed at runtime. Existing Scrollcraft hero-to-Industries handoff, H03 peak and all later homepage chapters remain intact.
+
+### Exact design-authority evidence
+
+- push run/job: `36004327244` / `107648476096`;
+- exact-source typecheck: **PASS**;
+- optimized production build: **PASS**;
+- browser design gate: **10/10 PASS**;
+- evidence artifact: `10810300436`;
+- digest: `sha256:71be19a77e1858fc62d07fe49cd7ee3584de1b9e9fb76578713f083d26a5430b`;
+- protected deployment: **READY**, exact SHA `ce95c501...`, preview/non-production, anonymous HTTP `302`.
+
+### Exact-SHA full candidate
+
+- workflow-dispatch run/job: `36004641173` / `107649549124` — **GREEN**;
+- exact checked-out SHA: `ce95c50156475241e54e215f0d8169cbf0368007`;
+- full-candidate artifact: `10810401496`;
+- digest: `sha256:6821a5daeab2fadcd6dee32814c62bbec10b1c1d33ce33e23643f2c88b379e83`;
+- static quality, typecheck, optimized build, foundation, Pattern migration, accessibility/motion, enquiry, rendered candidate and cache/SEO/resilience matrices all passed.
+
+### Exact deployment visual inspection
+
+Authenticated inspection of the protected deployment verified:
+
+- 1920×1080 English: exact five-line headline, four large people, soft independent architecture field, independent blue geometry/notes, both controls, all four benefits, pagination, no quality card and zero horizontal overflow;
+- 390×844 English: separately composed mobile layout, action row ending before the people plane, four-person group beginning below it, retained benefit row and pagination, zero horizontal overflow;
+- 390×844 Arabic: `dir=rtl`, localized five-line headline and benefits, mirrored composition and zero horizontal overflow;
+- story control: opens the labelled modal with the expected story copy;
+- console: no errors; Scrollcraft emits its known mobile H03 non-pin warning because the deliberate mobile composition uses a relative, non-pinned feature stage. This is outside H01 and preserves the established mobile no-dead-space behavior;
+- reduced motion: exact-source hosted browser coverage is GREEN and preserves the same information while removing pin dead-space and independent plane transforms.
+
+This remains a protected review candidate. Fares has not yet approved exact SHA `ce95c501...`. Production, PR merge, public KGC/client publication and ERP Gate D remain NO-GO.
