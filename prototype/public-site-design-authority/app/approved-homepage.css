@@ -191,7 +191,7 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
   .approved-hero-benefits>div{font-size:.64vw;gap:clamp(9px,.55vw,14px)}
   .approved-hero-benefits svg{width:1.45vw;height:1.45vw}
   .approved-hero-background-plane img{filter:blur(5px) saturate(.9) brightness(1.07)}
-  .approved-hero-people{width:72vw;transform:translateY(calc(-14% + 5px + 6vw)) scaleY(1.08)}
+  .approved-hero-people{width:72vw;transform:translateY(calc(-14% + 5px + 3vw)) scaleY(1.08)}
   [dir="rtl"] .approved-hero-copy{padding-right:10.2vw;padding-left:3vw}
 }
 
