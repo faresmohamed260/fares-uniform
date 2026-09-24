@@ -126,7 +126,7 @@ test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>
     "home.cta.building"
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
 
-  await expect(page.locator('[data-media-slot="home.hero.architecture"]')).toHaveAttribute("src","/generated/home-hero-architecture-soft-v1.jpg");
+  await expect(page.locator('[data-media-slot="home.hero.architecture"]')).toHaveAttribute("src","/generated/home-hero-architecture-courtyard-v2.png");
   await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-cutout-v3.webp");
   await expect(page.locator(".approved-quality-card")).toHaveCount(0);
   await expect(page.locator(".approved-hero-benefits > div")).toHaveCount(4);

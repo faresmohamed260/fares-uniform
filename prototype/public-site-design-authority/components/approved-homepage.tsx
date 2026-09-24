@@ -202,7 +202,7 @@ export function ApprovedHero({locale}:{locale:Locale}){
       <div className="approved-hero-pagination" data-component-id="H01.06" aria-label={ar?"المشهد الأول من ثلاثة":"Scene one of three"}><strong>01</strong><i/><span>02</span><i/><span>03</span></div>
     </div>
     <div className="approved-hero-media">
-      <div className="approved-hero-background-plane" data-component-id="H01.07" data-sc-parallax="-0.22" aria-hidden="true"><img data-media-slot="home.hero.architecture" src="/generated/home-hero-architecture-soft-v1.jpg" width={200} height={112} alt=""/></div>
+      <div className="approved-hero-background-plane" data-component-id="H01.07" data-sc-parallax="-0.22" aria-hidden="true"><img data-media-slot="home.hero.architecture" src="/generated/home-hero-architecture-courtyard-v2.png" width={1672} height={941} alt=""/></div>
       <div className="approved-hero-geometry-plane" data-sc-parallax="-1.35"><div className="approved-blue-geometry" data-component-id="H01.08" aria-hidden="true"><span/><span/></div></div>
       <div className="approved-hero-people-plane" data-sc-parallax="-0.62"><img data-media-slot="home.hero.people-group" className="approved-hero-people approved-hero-generated" src="/generated/home-hero-people-cutout-v3.webp" width={689} height={399} fetchPriority="high" decoding="async" alt={ar?"تكوين توضيحي عام لطالبة ومتخصصة رعاية صحية وطاهٍ وعامل صناعي":"Generic illustrative group of a student, healthcare professional, chef and industrial worker"}/></div>
       <div className="approved-hand-note note-a" data-component-id="H01.09" data-sc-parallax="0.34">{ar?"أشخاص مختلفون\nهدف واحد":"Different People\nSame Purpose"}<svg viewBox="0 0 90 44"><path d="M3 8c25 5 45 14 72 27m-12-14 13 14-17 3"/></svg></div>
