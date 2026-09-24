@@ -13,7 +13,7 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 .approved-homepage [id]{scroll-margin-top:92px}
 
 .approved-brand{display:inline-flex;align-items:center;line-height:1}
-.approved-brand img{display:block;width:188px;height:auto;max-height:74px;object-fit:contain;object-position:left center}
+.approved-brand .fares-wordmark{width:188px;max-height:74px}
 
 .approved-home-header{
   position:sticky;inset-block-start:0;z-index:100;width:100%;height:78px;padding-inline:var(--ah-pad);
@@ -210,7 +210,7 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 
 @media(max-width:720px){
   .approved-homepage{--ah-pad:18px}.approved-homepage [id]{scroll-margin-top:74px}
-  .approved-brand img{width:150px;max-height:59px}
+  .approved-brand .fares-wordmark{width:150px;max-height:59px}
 
   .approved-hero{display:block;min-height:max(720px,calc(100svh - 68px));background:#fff}
   .approved-hero-copy{position:relative;z-index:14;width:100%;height:max(720px,calc(100svh - 68px));padding:clamp(20px,3.5vh,30px) 18px 18px;pointer-events:none}

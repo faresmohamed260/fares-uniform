@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/locale";
+import { BrandWordmark } from "./brand-wordmark";
 
 function useFocusTrap(open:boolean,onClose:()=>void,container:React.RefObject<HTMLElement|null>){
   useEffect(()=>{
@@ -129,7 +130,7 @@ function ApprovedDialog({open,onClose,id,title,closeLabel,children}:{open:boolea
 }
 
 function BrandLockup(){
-  return <span className="approved-brand"><img src="/design-media/fares-uniform-wordmark.svg" width="230" height="90" alt="Fares Uniform" /></span>;
+  return <span className="approved-brand"><BrandWordmark /></span>;
 }
 
 const navLinks=[
