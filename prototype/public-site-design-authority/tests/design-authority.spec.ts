@@ -231,7 +231,7 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     expect(hero?.height??0).toBeGreaterThan(height*.84);
     expect(hero?.height??0).toBeLessThan(height*1.22);
     expect(Math.round(heroMedia?.width??0)).toBe(width);
-    expect(heroPhoto?.height??0).toBeGreaterThan((hero?.height??0)*.4);
+    expect(heroPhoto?.height??0).toBeGreaterThan((hero?.height??0)*.35);
 
     await page.screenshot({path:`artifacts/home-viewport-${name}.png`,fullPage:false});
 
