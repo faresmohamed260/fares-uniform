@@ -641,3 +641,9 @@ The next homepage candidate must therefore:
 - add hosted intermediate-state evidence that proves materially different visual states during scroll, not merely a changing numeric CSS variable.
 
 The historical 1024 board remains regression/content evidence only. No part of D-064 authorizes production, PR merge, public client-media publication, KGC public release or ERP Gate D. Fares remains the sole visual approver.
+
+## D-065 — Use Fares-supplied wordmark and separate F-circle artwork in homepage review
+
+Status: Client direction recorded 2026-09-25; review implementation verified, final visual acceptance pending.
+
+Fares supplied a transparent stacked serif FARES/UNIFORM wordmark and a separate transparent white serif F inside a navy circle. They replace the rejected draft type-only wordmark and hand-authored circular SVG. Use the supplied artwork directly as distinct brand assets, with only transparent-canvas cropping, web sizing, and palette adjustment to the public-site navy. SVG conversion is optional only if needed for a specific implementation requirement; do not redraw the letterforms or append the icon to the wordmark. This decision controls the protected homepage review candidate and does not authorize production, PR merge, public client-media publication, or ERP Gate D.

@@ -54,3 +54,8 @@ The 01/02/03 control switches three illustrative, non-client visual scenes while
 - 03: illustrative sewing and quality-finishing studio, public/generated/home-hero-manufacturing-v1.png, 1672×941, SHA-256 430c6cee0df225b68e012d1a8f3bc500b685cfcd4df7c861ba7942f98cd5a7df8.
 
 These scenes are generic editorial illustrations of business activities, not evidence of Fares facilities, clients or manufactured products. The three rejected people-only variants generated during exploration are not used in runtime.
+## Fares-supplied brand-mark provenance (2026-09-25)
+
+- Wordmark: user-supplied transparent `ChatGPT Image Sep 25, 2026, 02_19_26 AM.png`, SHA-256 `830b928163a7f8ce642b93bd988c39b96f8da7a54ddb5342a12d956137b53570`; approved review derivative `prototype/public-site-design-authority/public/design-media/fares-uniform-wordmark.png` (1200×404).
+- Separate F circle: user-supplied transparent `ChatGPT Image Sep 25, 2026, 02_20_52 AM.png`, SHA-256 `443f8189837e523931d6ba6f3b69ade2881f4bf0e3214a87bd10f542fee112d9`; approved review derivative `prototype/public-site-design-authority/public/design-media/fares-uniform-f-circle.png` and app favicon `app/icon.png` (256×256).
+- Processing: crop empty transparent margins, downsample for web, map source dark navy toward `#0b213e` while preserving relative shading and the white F. These are supplied brand assets, not runtime screenshots or generated client evidence. They remain separate browser image assets.

@@ -523,3 +523,7 @@ The homepage design is ready to present only when all are true:
 - reduced motion retains the complete hierarchy;
 - the page has a clear path to Work, Garments and Enquiry;
 - the homepage design is approved by Fares as an exact browser-native Git SHA before any production integration.
+
+## Fares-supplied logo direction (2026-09-25)
+
+Fares supplied two independent transparent logo images: the stacked serif FARES/UNIFORM wordmark and the white serif F inside a navy circle. Use the supplied artwork itself; do not substitute a font approximation, attach the circle to the wordmark, or trace either image into a speculative SVG. Palette adjustment and transparent-canvas cropping are allowed. The wordmark belongs in header/footer brand positions; the circle is the separate favicon/icon. Browser-native page architecture and all H01/H02–H06 content remain unchanged. Integration is not final visual approval.
