@@ -8,8 +8,9 @@ The regression screenshot is retained only as test evidence. Runtime media must 
 
 | Slot key | Type | Historical slot bounds (x,y,w,h) | Runtime asset contract |
 |---|---|---:|---|
+| home.hero.architecture | independent blurred architectural environment | full H01 viewport | **independent generated environment-only asset:** `public/generated/home-hero-architecture-courtyard-v2.png`, 1672×941, SHA-256 `b6d5c7e2ab8ea4f7e27340d691059ec12f7629facd09102e16df1e1f99cb515a`; white/glass building, courtyard, trees and sky only, no people, text or UI; background spans H01 behind separate foreground layers |
 | home.hero.people-group | clean illustrative people photograph | 335,55,689,399 | **independent clean asset:** `public/generated/home-hero-people-cutout-v3.webp`, SHA-256 `bfd8bee351966ab81f8d3b203f7c3db3acbccb9d22a176334484024b91d406b8`; transparent photo-only four-profession cutout with no text, annotations, cards, controls, logos or screenshot pixels; generic illustrative media only, not Fares client/product evidence |
-| home.hero.quality-thumb | decorative detail | 760,352,60,67 | **independent generated placeholder:** reuses `public/generated/home-feature-fabric-blue-v1.webp`; decorative textile only, not product evidence |
+| home.hero.quality-thumb | retired decorative detail | 760,352,60,67 | **retired from H01 runtime:** Fares approved the four-benefit row instead of the floating quality card |
 | home.industries.education | illustrative sector media | 10,579,158,137 | **browser-native graphic field:** CSS/SVG linework and icon composition in `ApprovedIndustries`; no bitmap runtime asset; retired `home-industries-education.webp` |
 | home.industries.hospitality | illustrative sector media | 179,579,159,137 | **browser-native graphic field:** CSS/SVG linework and icon composition in `ApprovedIndustries`; no bitmap runtime asset; retired `home-industries-hospitality.webp` |
 | home.industries.healthcare | illustrative sector media | 348,579,159,137 | **browser-native graphic field:** CSS/SVG linework and icon composition in `ApprovedIndustries`; no bitmap runtime asset; retired `home-industries-healthcare.webp` |

@@ -580,3 +580,17 @@ Authenticated inspection of the protected deployment verified:
 - reduced motion: exact-source hosted browser coverage is GREEN and preserves the same information while removing pin dead-space and independent plane transforms.
 
 This remains a protected review candidate. Fares has not yet approved exact SHA `ce95c501...`. Production, PR merge, public KGC/client publication and ERP Gate D remain NO-GO.
+
+## H01 reference-size composition correction — 2026-09-24
+
+Fares visually rejected previews through 91f4f2cdc13d9acd5f407c8b26d94503c370582e: the people were too low or overlapped copy, the blue shapes dominated, and the low-resolution Canva derivative made the architectural backdrop look muddy and localized. The approved uploaded 1672×941 reference remains the visual target; it is test-only and is not runtime media.
+
+- Exact implementation source: c459160ef85057653b6f96dcf968085bfcd44fac.
+- Independent environment-only replacement: prototype/public-site-design-authority/public/generated/home-hero-architecture-courtyard-v2.png, 1672×941 PNG, SHA-256 6d5c7e2ab8ea4f7e27340d691059ec12f7629facd09102e16df1e1f99cb515a; it contains architecture, sky, trees and courtyard only, with no people or UI.
+- H01 placement: full-hero background plane, softer reading veil, translucent diagonal geometry, enlarged/repositioned headline and action row, transparent people group lifted to the reference height, full-width left benefit row and pagination. The people, backdrop, geometry, text, notes, controls and benefits remain independent browser-native layers. Mobile overrides keep one-row actions and a full-width benefit panel.
+- Design-authority push run/job 36013792420 / 107680978667: exact SHA, typecheck, optimized build and 10/10 browser checks GREEN. Artifact 10813916611, digest sha256:e6012bb7d41944a15cbe6d8a05a1e5ad5405b76501638b0a3f8e1764720d919d.
+- Protected preview: https://fares-uniform-design-authority-370ltzqu8.vercel.app/en, READY, non-production, anonymous HTTP 302.
+- Exact-SHA full candidate run/job 36015174980 / 107685733080: GREEN. Artifact 10814850003, digest sha256:8a7c6f54201d2c270fb0b2300f34ec29ffaf13cfd94eb24b077b609261bd0a14.
+- Live visual comparison used the 1672×941 reference viewport and the protected render: heading top about 209px/bottom 562px, benefits top about 777px, people chef hat around 195px and group continuing to the hero bottom. The architectural image spans the whole hero. English 390×844 actions occupy one row above the people plane and all four benefits span the mobile width. Arabic 390×844 preserves RTL and the same information. Both have zero horizontal overflow; browser console reported no errors. Hosted reduced-motion and 360×640 checks are GREEN.
+
+The generated environment differs in facade details from the reference, but the composition and full-field architectural treatment are now materially closer. Final visual acceptance remains Fares's. Production, PR merge, public client publication and ERP Gate D remain NO-GO.
