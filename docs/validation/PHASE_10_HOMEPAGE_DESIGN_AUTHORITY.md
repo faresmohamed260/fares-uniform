@@ -119,3 +119,9 @@ It is not the approved homepage authority until Fares explicitly approves exact 
 If Fares requests changes, create a new homepage candidate SHA, rerun this hosted gate and present the replacement homepage only.
 
 If Fares approves it, record that exact homepage approval before beginning the Schools sector-page design.
+
+## H01 three-scene follow-up (2026-09-25)
+
+Exact implementation SHA: `57279bf264bd30657f7c6ee64fbfd5c015d9fe65`. Slide 01 replaces the soft people cutout with an independent sharper transparent cutout. Slides 02 and 03 use distinct generated illustrative design/cutting and sewing/finishing views, not additional people portraits and not documentary evidence of a Fares facility. The existing browser-native copy, geometry, notes, controls and four benefits remain independent; 01/02/03 pagination now selects scenes. Auto-advance is 5.5 seconds when visible and motion is allowed; hover/focus pauses it and reduced motion disables it.
+
+Design-authority push run/job `36058741414` / `107832186795`: typecheck, production build, 11/11 browser checks GREEN. Exact-source full candidate run/job `36058743206` / `107832191890`: GREEN. Exact protected non-production preview: https://fares-uniform-design-authority-e0oryaqx4.vercel.app/en. Live desktop inspection confirmed all three distinct scenes and full-hero backgrounds. Final visual approval remains Fares's; production, PR merge and public client publication remain NO-GO.
