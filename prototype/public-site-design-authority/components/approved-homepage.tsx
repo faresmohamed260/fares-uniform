@@ -181,13 +181,24 @@ export function ApprovedHomepageHeader({locale}:{locale:Locale}){
 export function ApprovedHero({locale}:{locale:Locale}){
   const ar=locale==="ar";
   const [storyOpen,setStoryOpen]=useState(false);
+  const [scene,setScene]=useState(0);
+  const [heroPaused,setHeroPaused]=useState(false);
+  useEffect(()=>{
+    if(heroPaused)return;
+    const timer=window.setInterval(()=>{
+      if(document.visibilityState==="visible"&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+        setScene(current=>(current+1)%3);
+      }
+    },5500);
+    return()=>window.clearInterval(timer);
+  },[scene,heroPaused]);
   const benefits=[
     [Shirt,ar?"خامات عالية الجودة":"Quality Materials"],
     [UsersRound,ar?"موثوق به من الشركات":"Trusted by Businesses"],
     [Factory,ar?"إنتاج داخلي":"In-House Production"],
     [Handshake,ar?"شراكات طويلة الأمد":"Long-Term Partnerships"],
   ] as const;
-  return <section id="top" className="approved-hero" data-sc-act="flow" data-sc-drift="#ffffff" data-section-id="H01" data-testid="approved-h01">
+  return <section id="top" className="approved-hero" data-sc-act="flow" data-sc-drift="#ffffff" data-section-id="H01" data-testid="approved-h01" data-hero-scene={scene} onMouseEnter={()=>setHeroPaused(true)} onMouseLeave={()=>setHeroPaused(false)} onFocusCapture={()=>setHeroPaused(true)} onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setHeroPaused(false)}}>
     <div className="approved-hero-copy" data-sc-in data-sc-stagger="55">
       <span className="approved-eyebrow" data-component-id="H01.01">{ar?"زي موحّد لغدٍ أكثر إشراقاً":"UNIFORMS FOR A BRIGHTER TOMORROW"}</span>
       <h1 data-component-id="H01.02"><span>{ar?"أشخاص":"PEOPLE"}</span><span>{ar?"أعمال":"BUSINESSES"}</span><span>{ar?"مجتمعات":"COMMUNITIES"}</span><em><span>{ar?"في":"IN"}</span><span>{ar?"الزي الموحّد":"UNIFORM"}</span></em></h1>
@@ -199,12 +210,18 @@ export function ApprovedHero({locale}:{locale:Locale}){
       <div className="approved-hero-benefits" data-component-id="H01.11" aria-label={ar?"مزايا فارس":"Fares benefits"}>
         {benefits.map(([Icon,label])=><div key={label}><Icon aria-hidden="true"/><span>{label}</span></div>)}
       </div>
-      <div className="approved-hero-pagination" data-component-id="H01.06" aria-label={ar?"المشهد الأول من ثلاثة":"Scene one of three"}><strong>01</strong><i/><span>02</span><i/><span>03</span></div>
+      <div className="approved-hero-pagination" data-component-id="H01.06" aria-label={ar?"مشاهد المقدمة":"Hero scenes"}>
+        <button type="button" aria-label={ar?"عرض المشهد الأول: أشخاص في زي موحّد":"Show scene 1: People in uniform"} aria-current={scene===0?"step":undefined} onClick={()=>setScene(0)}>01</button><i aria-hidden="true"/>
+        <button type="button" aria-label={ar?"عرض المشهد الثاني: التصميم والقص":"Show scene 2: Design and cutting"} aria-current={scene===1?"step":undefined} onClick={()=>setScene(1)}>02</button><i aria-hidden="true"/>
+        <button type="button" aria-label={ar?"عرض المشهد الثالث: التصنيع والتشطيب":"Show scene 3: Manufacturing and finishing"} aria-current={scene===2?"step":undefined} onClick={()=>setScene(2)}>03</button>
+      </div>
     </div>
     <div className="approved-hero-media">
       <div className="approved-hero-background-plane" data-component-id="H01.07" data-sc-parallax="-0.22" aria-hidden="true"><img data-media-slot="home.hero.architecture" src="/generated/home-hero-architecture-courtyard-v2.png" width={1672} height={941} alt=""/></div>
+            <div className={"approved-hero-scene-plane"+(scene===1?" is-active":"")} aria-hidden="true"><img data-media-slot="home.hero.design-cutting" src="/generated/home-hero-design-cutting-v1.png" width={1672} height={941} alt=""/></div>
+      <div className={"approved-hero-scene-plane"+(scene===2?" is-active":"")} aria-hidden="true"><img data-media-slot="home.hero.manufacturing" src="/generated/home-hero-manufacturing-v1.png" width={1672} height={941} alt=""/></div>
       <div className="approved-hero-geometry-plane" data-sc-parallax="-1.35"><div className="approved-blue-geometry" data-component-id="H01.08" aria-hidden="true"><span/><span/></div></div>
-      <div className="approved-hero-people-plane" data-sc-parallax="-0.62"><img data-media-slot="home.hero.people-group" className="approved-hero-people approved-hero-generated" src="/generated/home-hero-people-cutout-v3.webp" width={689} height={399} fetchPriority="high" decoding="async" alt={ar?"تكوين توضيحي عام لطالبة ومتخصصة رعاية صحية وطاهٍ وعامل صناعي":"Generic illustrative group of a student, healthcare professional, chef and industrial worker"}/></div>
+      <div className="approved-hero-people-plane" data-sc-parallax="-0.62"><img data-media-slot="home.hero.people-group" className="approved-hero-people approved-hero-generated" src="/generated/home-hero-people-sharp-v4.png" width={1672} height={941} fetchPriority="high" decoding="async" alt={ar?"تكوين توضيحي عام لطالبة ومتخصصة رعاية صحية وطاهٍ وعامل صناعي":"Generic illustrative group of a student, healthcare professional, chef and industrial worker"}/></div>
       <div className="approved-hand-note note-a" data-component-id="H01.09" data-sc-parallax="0.34">{ar?"أشخاص مختلفون\nهدف واحد":"Different People\nSame Purpose"}<svg viewBox="0 0 90 44"><path d="M3 8c25 5 45 14 72 27m-12-14 13 14-17 3"/></svg></div>
       <div className="approved-hand-note note-b" data-component-id="H01.10" data-sc-parallax="0.48">{ar?"زي حقيقي\nناس حقيقيون\nأثر حقيقي.":"Real Uniforms\nReal People\nReal Impact."}<svg viewBox="0 0 88 46"><path d="M83 7C60 15 44 27 10 35m9-12L9 35l15 4"/></svg></div>
       <div className="approved-hero-seam" aria-hidden="true"><span/><span/></div>

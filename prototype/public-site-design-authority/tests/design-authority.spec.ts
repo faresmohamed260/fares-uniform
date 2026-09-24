@@ -119,7 +119,7 @@ test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>
   await page.goto("/en");
 
   for(const slot of [
-    "home.hero.architecture","home.hero.people-group",
+    "home.hero.architecture","home.hero.people-group","home.hero.design-cutting","home.hero.manufacturing",
     "home.industries.education","home.industries.hospitality","home.industries.healthcare",
     "home.industries.corporate","home.industries.industrial","home.industries.security",
     "home.feature.fabric-blue","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
@@ -127,7 +127,9 @@ test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
 
   await expect(page.locator('[data-media-slot="home.hero.architecture"]')).toHaveAttribute("src","/generated/home-hero-architecture-courtyard-v2.png");
-  await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-cutout-v3.webp");
+  await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-sharp-v4.png");
+  await expect(page.locator('[data-media-slot="home.hero.design-cutting"]')).toHaveAttribute("src","/generated/home-hero-design-cutting-v1.png");
+  await expect(page.locator('[data-media-slot="home.hero.manufacturing"]')).toHaveAttribute("src","/generated/home-hero-manufacturing-v1.png");
   await expect(page.locator(".approved-quality-card")).toHaveCount(0);
   await expect(page.locator(".approved-hero-benefits > div")).toHaveCount(4);
   await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
@@ -220,7 +222,9 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     await page.goto("/en");
     await expect(page.getByRole("heading",{level:1})).toContainText("PEOPLE");
     await expect(page.locator(".approved-industry-card")).toHaveCount(6);
-    await expect(page.locator(".approved-quality-card")).toHaveCount(0);
+    await expect(page.locator('[data-media-slot="home.hero.design-cutting"]')).toHaveAttribute("src","/generated/home-hero-design-cutting-v1.png");
+  await expect(page.locator('[data-media-slot="home.hero.manufacturing"]')).toHaveAttribute("src","/generated/home-hero-manufacturing-v1.png");
+  await expect(page.locator(".approved-quality-card")).toHaveCount(0);
     await expect(page.locator(".approved-hero-benefits > div")).toHaveCount(4);
     expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
 
@@ -312,4 +316,25 @@ test("deep routes remain reachable outside homepage authority",async({page})=>{
   await expect(page.locator('img[src*="high-summer-polo-front.png"]')).toBeVisible();
   await page.goto("/en/enquiry");
   await expect(page.getByRole("button",{name:/Preview submission state/i})).toBeVisible();
+});
+
+test("H01 rotates three distinct scenes with numbered controls and reduced-motion pause",async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto("/en");
+  const hero=page.getByTestId("approved-h01");
+  const numbers=page.locator(".approved-hero-pagination button");
+  await expect(numbers).toHaveCount(3);
+  await expect(hero).toHaveAttribute("data-hero-scene","0");
+  await expect.poll(async()=>hero.getAttribute("data-hero-scene"),{timeout:8500}).toBe("1");
+  await expect(page.locator(".approved-hero-scene-plane").first()).toHaveClass(/is-active/);
+  await numbers.nth(2).click();
+  await expect(hero).toHaveAttribute("data-hero-scene","2");
+  await expect(numbers.nth(2)).toHaveAttribute("aria-current","step");
+  await page.emulateMedia({reducedMotion:"reduce"});
+  await page.reload();
+  await expect(hero).toHaveAttribute("data-hero-scene","0");
+  await page.waitForTimeout(5900);
+  await expect(hero).toHaveAttribute("data-hero-scene","0");
+  await numbers.nth(1).click();
+  await expect(hero).toHaveAttribute("data-hero-scene","1");
 });
