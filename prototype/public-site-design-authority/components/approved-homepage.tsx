@@ -230,16 +230,21 @@ export function ApprovedIndustries({locale}:{locale:Locale}){
   return()=>{element.removeEventListener("scroll",update);observer.disconnect();};
  },[]);
  const move=(dir:number)=>rail.current?.scrollBy({left:(ar?-dir:dir)*Math.max(190,rail.current.clientWidth*.72),behavior:"smooth"});
- return <section id="industries" className="approved-industries" data-motion-chapter data-section-id="H02" data-testid="approved-h02">
-   <header className="approved-industries-head">
+ return <section id="industries" className="approved-industries" data-sc-act="flow" data-sc-drift="#f5f8fb" data-section-id="H02" data-testid="approved-h02">
+   <div className="approved-industries-entry-seam" aria-hidden="true"><span/><span/></div>
+   <header className="approved-industries-head" data-sc-in data-sc-stagger="70">
     <div><span className="approved-eyebrow" data-component-id="H02.01">{ar?"قطاعاتنا":"OUR INDUSTRIES"}</span><h2 data-component-id="H02.02">{ar?"حلول زي موحّد":"Uniform Solutions"}<br/><em>{ar?"لكل قطاع":"for Every Sector"}</em></h2></div>
     <div className="approved-industries-intro"><p data-component-id="H02.03">{ar?"من الفصول إلى المطابخ، ومن المستشفيات إلى الفنادق — نصنع حلول زي تناسب فريقك وعلامتك وعملك اليومي.":"From classrooms to kitchens, hospitals to hotels — we create uniform solutions that fit your people, your brand, and your day-to-day needs."}</p>
       <a data-component-id="H02.04" href={`/${locale}/work`}>{ar?"عرض كل القطاعات":"View All Industries"} <i>↗</i></a>
       <div data-component-id="H02.05" className="approved-carousel-controls"><button type="button" aria-label={ar?"السابق":"Previous"} disabled={!railState.canPrevious} onClick={()=>move(-1)}><ChevronLeft aria-hidden="true"/></button><button type="button" aria-label={ar?"التالي":"Next"} disabled={!railState.canNext} onClick={()=>move(1)}><ChevronRight aria-hidden="true"/></button></div>
     </div>
    </header>
-   <div className="approved-industry-rail" ref={rail} data-component-id="H02.06">{industries.map(({key,en,ar:arabic,sub,subAr,Icon})=><article className="approved-industry-card" key={key}>
-    <img data-media-slot={`home.industries.${key}`} className="approved-industry-image approved-industry-generated" src={`/generated/home-industries-${key}.webp`} width={key==="education"||key==="security"?158:159} height={137} loading="lazy" decoding="async" alt={ar?arabic:en}/>
+   <div className="approved-industry-rail" ref={rail} data-component-id="H02.06" data-sc-in data-sc-stagger="65">{industries.map(({key,en,ar:arabic,sub,subAr,Icon},index)=><article className={`approved-industry-card sector-${key}`} data-sc-tilt="5" key={key}>
+    <div data-media-slot={`home.industries.${key}`} className="approved-sector-visual" role="img" aria-label={ar?`تكوين رسومي توضيحي لقطاع ${arabic}`:`Graphic sector field for ${en}`}>
+      <span className="approved-sector-index" aria-hidden="true">{String(index+1).padStart(2,"0")}</span>
+      <svg className="approved-sector-lines" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 238 C72 170 94 84 190 108 S306 246 430 108"/><path d="M-10 86 C78 28 164 48 214 118 S302 218 422 182"/></svg>
+      <span className="approved-sector-orbit" aria-hidden="true"/><Icon className="approved-sector-mark" aria-hidden="true"/>
+    </div>
     <div className="approved-industry-meta"><Icon/><div><h3>{ar?arabic:en}</h3><p>{ar?subAr:sub}</p></div><a href={`/${locale}/work`} aria-label={ar?arabic:en}>↗</a></div>
    </article>)}</div>
  </section>;
