@@ -483,3 +483,59 @@ Keep:
 - protected rights-authorized KGC campus review image.
 
 The replacement sector/capability/closing visuals are browser-native CSS/SVG composition, not bitmap crops.
+
+
+## D-064 implementation evidence — 2026-09-24
+
+**Primary choreography commit:** `fb3ee67978d71ff0aa5d0f2ac2a809f502e700dc`  
+**Exact deployed/evidence source:** `d124f2ed3050bb05301f94a993a8e4946bfe23d6`  
+**Protected preview:** `https://fares-uniform-design-authority-hgg8uke49.vercel.app/en`  
+**Vercel deployment:** `dpl_56q3Tqx1k7XnNZQKE1c1JMELxQGY` — READY, non-production, exact Git SHA `d124f2ed3050bb05301f94a993a8e4946bfe23d6`
+
+The first D-064 run correctly failed because the original Industry JSX block still referenced deleted bitmaps; four browser 404s and an unexpected IMG provenance result exposed the incomplete retirement. Fix `d124f2ed...` replaced that surviving block with browser-native sector fields. No acceptance criterion was weakened.
+
+### Exact design-authority evidence
+
+- push run/job: `35936560302` / `107434784604`;
+- exact source checkout: **PASS**;
+- typecheck: **PASS**;
+- optimized production build: **PASS**;
+- browser design gate: **10/10 PASS** in 21.6s;
+- evidence artifact: `10783157813`;
+- digest: `sha256:6d23a6b3dcac519832e4ba8f1c4f7bdc2221fd95ef0b7c9279ba4f2b3fb0ac3b`;
+- Vercel Authentication/protection: **PASS**, anonymous HTTP `302`;
+- deployment target: **preview/non-production**.
+
+The strengthened motion gate proves rendered intermediate states rather than only variable mutation:
+
+1. Scrollcraft mounts in the document.
+2. The hero blue handoff changes materially during scroll and expands to a visible viewport-spanning seam.
+3. H02 visibly receives the handoff.
+4. H03 is the sole deliberate pinned peak; its hosted rendered section owns more than two viewport heights of controlled travel.
+5. Between early and late H03 states, the luminous Seam Handoff moves more than 260px and both fabric/process clip masks are active.
+6. H05's browser-native thread path progresses from undrawn toward resolved.
+7. 390×844 and 360×640 mobile replace the desktop pin with intentional stacked states rather than dead pinned travel.
+8. Reduced motion removes the pin dead-space and spatial masking while preserving both material/process states.
+
+The media gate proves:
+- all six retired `home-industries-*.webp` runtime assets are absent from DOM and repository tip and return 404;
+- `home-cta-building-v3.webp` is absent and returns 404;
+- all Industry media slots are browser-native DIV/SVG graphic fields;
+- Hospitality and Healthcare Selected Work slots are browser-native capability panels, not recycled photographs;
+- the closing environment is browser-native CSS/SVG;
+- protected KGC remains the sole Selected Work photographic proof;
+- the clean transparent hero cutout and independent textile macro remain legitimate content/decorative assets;
+- no runtime element consumes the historical approved screenshot.
+
+### Same-source Track A regression
+
+- full hosted candidate run/job: `35936563841` / `107434794869` — **GREEN**;
+- full-candidate artifact: `10783093123`, digest `sha256:1f3f8329933d6187a2c21f4dc819bcce88e5eba1c30fbc0f0ce384c7dbbc9337`;
+- public foundation `35936563855` — **GREEN**;
+- Pattern migration `35936563867` — **GREEN**;
+- accessibility/motion `35936563869` — **GREEN**;
+- enquiry hardening `35936563848` — **GREEN**;
+- cache/SEO/performance `35936563897` — **GREEN**;
+- public contract `35936563873` — **GREEN**.
+
+This is a protected engineering/review candidate only. Fares visual acceptance is still pending. Production, PR merge, public KGC/client publication and ERP Gate D remain NO-GO.

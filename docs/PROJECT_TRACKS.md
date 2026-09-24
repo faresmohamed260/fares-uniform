@@ -50,7 +50,7 @@ Odoo provides only the narrow approved public/editorial API. The public website 
 
 #### A2 — Repo-first browser-native UI/UX authority and production integration
 
-Historical Phase 10 engineering migration remains GREEN. D-059 candidate `fd973244...` and D-060 Scrollcraft candidate `9ca2215...` were explicitly rejected. D-061 moved approval to page-by-page review. D-062 then allowed a static homepage board as an exact specification, but Fares rejected the resulting protected preview. D-063 supersedes that exception and restores browser-native implementation authority. The subsequent fixed-board/`zoom` patch `1510dcc...` was also rejected. Viewport-native implementation `5803d43e0234239bb72f97047e60b52a86634263` and exact deployed/evidence source `418fd78423a2cee3102b402e96c32a9208935b6b` are GREEN in hosted tests and protected review; Fares visual approval remains pending.
+Historical Phase 10 engineering migration remains GREEN. D-059/D-060 were rejected, D-061 moved approval to page-by-page review, D-062's static board exception was superseded by D-063, and Fares then rejected the first fluid D-063 candidate for insufficient scroll choreography and crop-like media. D-064 exact source `d124f2ed3050bb05301f94a993a8e4946bfe23d6` is the current protected review candidate: it uses a real Scrollcraft peak/signature move, removes the rejected Industry/CTA bitmap family, retains only truth-grounded KGC photography in Selected Work and uses browser-native non-client graphic fields elsewhere. Hosted engineering gates are GREEN; Fares visual approval remains pending.
 
 - [x] Fares introduction/home technical surface.
 - [x] Work/client/project discovery and generic organization/program routes.
@@ -68,7 +68,7 @@ Historical Phase 10 engineering migration remains GREEN. D-059 candidate `fd9732
 - [ ] For every page: verify responsive EN/AR/RTL, reduced motion and page-specific interaction behavior before approval.
 - [ ] Obtain Fares's explicit approval of an exact Git commit as the current UI authority.
 - [ ] Reconcile/promote production UI from that coded authority without screenshot-to-code reverse engineering.
-- [x] Prove the viewport-native correction with hosted exact-view browser checks/captures on `418fd784...` (2560×1440, 1920×1080, 1440×900, 390×844, 360×640, AR/RTL and reduced motion); keep client visual acceptance separate.
+- [x] Prove D-064 intermediate-state motion and media retirement on exact review SHA `d124f2ed...`: 10/10 hosted browser checks plus full-candidate regression; keep client visual acceptance separate.
 
 #### A3 — KGC and future client publication
 
