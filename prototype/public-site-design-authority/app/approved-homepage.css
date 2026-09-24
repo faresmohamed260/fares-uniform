@@ -183,6 +183,15 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 [dir="rtl"] .approved-cta-scrim{background:linear-gradient(-90deg,rgba(255,255,255,.98),rgba(255,255,255,.9) 34%,rgba(255,255,255,.34) 59%,transparent 78%)}
 [dir="rtl"] .approved-local-note{right:auto;left:9vw}
 
+@media(min-width:2000px){
+  .approved-hero-copy{width:47%;padding-top:11.4vh;padding-left:10.2vw}
+  .approved-hero h1{font-size:5.35vw}
+  .approved-hero-copy>p{font-size:clamp(16px,.96vw,24px)}
+  .approved-hero-benefits{width:min(100%,30vw);max-width:none}
+  .approved-hero-people{width:72vw}
+  [dir="rtl"] .approved-hero-copy{padding-right:10.2vw;padding-left:3vw}
+}
+
 @media(max-width:1100px){
   .approved-home-header{height:68px;padding:max(env(safe-area-inset-top),0px) 18px 0;grid-template-columns:1fr auto;position:sticky;inset-block-start:0}
   .approved-header-nav,.approved-header-utilities{display:none}.approved-mobile-trigger{display:grid;width:44px;height:44px;place-items:center;border:0;background:transparent;color:var(--ah-navy)}
