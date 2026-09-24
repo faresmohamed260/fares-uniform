@@ -294,3 +294,9 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 .approved-hero-pagination button:focus-visible{outline:2px solid var(--ah-blue);outline-offset:4px;border-radius:2px}
 @media(max-width:640px){.approved-hero-scene-plane img{object-position:73% center}}
 @media(prefers-reduced-motion:reduce){.approved-hero-scene-plane,.approved-hero-people-plane{transition:none}}
+
+/* Keep the sharper, wider group clear of the browser-native copy and benefits. */
+@media(min-width:1101px){
+  .approved-hero-people{right:-8%}
+  [dir="rtl"] .approved-hero-people{right:auto;left:-8%}
+}
