@@ -39,6 +39,7 @@ The regression screenshot is retained only as test evidence. Runtime media must 
 The D-064 review rejection controls over earlier labels that described the retired portrait/architecture bitmaps as acceptable generated review media. Those files are removed from the design-authority runtime and repository tip. Historical commits retain them only as evidence of the rejected candidate.
 
 Current bitmap/photo runtime is intentionally narrow:
+- independent environment-only hero architectural background;
 - clean transparent generic hero people cutout;
 - independent textile macro;
 - protected rights-authorized KGC campus review image.
