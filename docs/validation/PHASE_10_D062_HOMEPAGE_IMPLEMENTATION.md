@@ -594,3 +594,16 @@ Fares visually rejected previews through 91f4f2cdc13d9acd5f407c8b26d94503c370582
 - Live visual comparison used the 1672×941 reference viewport and the protected render: heading top about 209px/bottom 562px, benefits top about 777px, people chef hat around 195px and group continuing to the hero bottom. The architectural image spans the whole hero. English 390×844 actions occupy one row above the people plane and all four benefits span the mobile width. Arabic 390×844 preserves RTL and the same information. Both have zero horizontal overflow; browser console reported no errors. Hosted reduced-motion and 360×640 checks are GREEN.
 
 The generated environment differs in facade details from the reference, but the composition and full-field architectural treatment are now materially closer. Final visual acceptance remains Fares's. Production, PR merge, public client publication and ERP Gate D remain NO-GO.
+
+## H01 wide-desktop parity correction — 2026-09-24
+
+Fares compared the original approved image with the protected preview and identified the remaining wide-desktop mismatch: capped copy and people dimensions left excessive empty space at 2560×1440, even though the 1672×941 reference viewport was close. The correction is H01-only. It removes the desktop caps above 2000px, scales the headline, transparent four-person layer and benefit row with viewport width, settles the portrait vertical offset, and increases blur on the independent full-frame architectural backdrop. H00 and H02–H06 are unchanged.
+
+- Exact implementation source: 01c28cad6b7806a712c0ebd8a70ba01b6b2dc373.
+- Design-authority push run/job: 36042807578 / 107778886072; exact-source typecheck, optimized build and 10/10 browser design checks GREEN.
+- Design artifact: 10827591187; digest sha256:ab77dcde9ef926cc7283f986645f684fecc18e659de3328cca6f56d2c9675c05.
+- Exact protected preview: https://fares-uniform-design-authority-3y3xy9vrz.vercel.app/en; READY, preview/non-production, anonymous HTTP 302.
+- Exact-SHA workflow-dispatch full candidate run/job: 36043155293 / 107780044403; GREEN. Artifact 10828130998; digest sha256:044631e8997fff334ebb7c2151dcdd5d9672515d347a56ad38d432e6d7d2283e.
+- A concurrent pull-request full-candidate run 36042814916 had one transient Chromium Page.captureScreenshot protocol failure after three rendered captures passed; the exact-SHA dispatch rerun passed without a source change.
+- Live authenticated visual inspection: 2560×1440 wide desktop, 1672×941 reference desktop, 390×844 English mobile, and 390×844 Arabic RTL. The architectural field fills the hero; headline, people, notes, controls, four benefits and pagination remain independent layers. Both mobile locales have zero horizontal overflow; Arabic uses dir=rtl. The reference-size heading starts at approximately 216px, and the group matches the reference placement closely. The generated facade is an independent approximate environment, not the uploaded screenshot.
+- Hosted reduced-motion and keyboard/browser checks remain GREEN. Fares final visual acceptance is still pending. Production, PR merge, public client publication and ERP Gate D remain NO-GO.
