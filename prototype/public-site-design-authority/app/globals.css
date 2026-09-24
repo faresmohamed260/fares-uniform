@@ -72,9 +72,7 @@ img { display: block; max-width: 100%; }
     justify-self: start; display: flex; align-items: center; line-height: 1;
   }
   .fares-mark .fares-wordmark { width:150px; max-height:59px; }
-  .fares-wordmark { display:block; width:188px; height:auto; overflow:visible; }
-  .fares-wordmark-main { fill:#0b213e; font-family:var(--font-sans),Arial,sans-serif; font-size:59px; font-weight:800; letter-spacing:.095em; }
-  .fares-wordmark-sub { fill:#0b213e; font-family:var(--font-sans),Arial,sans-serif; font-size:17px; font-weight:750; letter-spacing:.32em; }
+  .fares-wordmark { display:block; width:188px; height:auto; object-fit:contain; }
   .desktop-nav {
   display: flex; align-items: center; gap: clamp(26px,3vw,54px);
 }
