@@ -234,7 +234,7 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     expect(heroPhoto?.height??0).toBeGreaterThan((hero?.height??0)*.35);
     const heroActions=await page.locator(".approved-hero-actions").boundingBox();
     const benefits=await page.locator(".approved-hero-benefits").boundingBox();
-    expect(heroActions?.bottom??Infinity).toBeLessThan((heroPhoto?.top??0)+1);
+    expect((heroActions?.y??Infinity)+(heroActions?.height??0)).toBeLessThan((heroPhoto?.y??0)+1);
     expect(benefits?.width??0).toBeGreaterThan(width*.78);
 
     await page.screenshot({path:`artifacts/home-viewport-${name}.png`,fullPage:false});
