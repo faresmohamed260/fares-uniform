@@ -22,6 +22,11 @@ test("homepage keeps the browser-native semantic inventory and approved H01 laye
   for(const id of componentIds) await expect(page.locator(`[data-component-id="${id}"]`)).toHaveCount(1);
   await expect(page.locator(".site-bar")).toBeHidden();
   await expect(page.locator(".review-badge")).toBeHidden();
+  await expect(page.locator(".approved-header-brand img")).toHaveAttribute("src","/design-media/fares-uniform-wordmark.svg");
+  await expect(page.locator(".approved-footer-brand img")).toHaveAttribute("src","/design-media/fares-uniform-wordmark.svg");
+  const icon=await page.request.get("/icon.svg");
+  expect(icon.ok()).toBeTruthy();
+  expect(await icon.text()).toContain("<circle");
 
   const root=page.getByTestId("approved-homepage");
   const box=await root.boundingBox();

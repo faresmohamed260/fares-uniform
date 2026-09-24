@@ -129,10 +129,7 @@ function ApprovedDialog({open,onClose,id,title,closeLabel,children}:{open:boolea
 }
 
 function BrandLockup(){
-  return <span className="approved-brand">
-    <svg viewBox="0 0 34 34" aria-hidden="true"><path d="M3 17 17 3l5 5-9 9 9 9-5 5L3 17Z"/><path d="m18 17 7-7 6 7-6 7-7-7Z" opacity=".72"/></svg>
-    <span className="approved-brand-type"><strong>FARES</strong><small>UNIFORM</small></span>
-  </span>;
+  return <span className="approved-brand"><img src="/design-media/fares-uniform-wordmark.svg" width="230" height="90" alt="Fares Uniform" /></span>;
 }
 
 const navLinks=[
@@ -198,7 +195,7 @@ export function ApprovedHero({locale}:{locale:Locale}){
     [Factory,ar?"إنتاج داخلي":"In-House Production"],
     [Handshake,ar?"شراكات طويلة الأمد":"Long-Term Partnerships"],
   ] as const;
-  return <section id="top" className="approved-hero" data-sc-act="flow" data-sc-drift="#ffffff" data-section-id="H01" data-testid="approved-h01" data-hero-scene={scene} onMouseEnter={()=>setHeroPaused(true)} onMouseLeave={()=>setHeroPaused(false)} onFocusCapture={()=>setHeroPaused(true)} onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setHeroPaused(false)}}>
+  return <section id="top" className="approved-hero" data-sc-act="flow" data-sc-drift="#ffffff" data-section-id="H01" data-testid="approved-h01" data-hero-scene={scene} onFocusCapture={()=>setHeroPaused(true)} onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setHeroPaused(false)}}>
     <div className="approved-hero-copy" data-sc-in data-sc-stagger="55">
       <span className="approved-eyebrow" data-component-id="H01.01">{ar?"زي موحّد لغدٍ أكثر إشراقاً":"UNIFORMS FOR A BRIGHTER TOMORROW"}</span>
       <h1 data-component-id="H01.02"><span>{ar?"أشخاص":"PEOPLE"}</span><span>{ar?"أعمال":"BUSINESSES"}</span><span>{ar?"مجتمعات":"COMMUNITIES"}</span><em><span>{ar?"في":"IN"}</span><span>{ar?"الزي الموحّد":"UNIFORM"}</span></em></h1>

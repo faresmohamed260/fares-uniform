@@ -12,9 +12,8 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 .approved-homepage button{cursor:pointer}.approved-homepage button:disabled{cursor:not-allowed;opacity:.38}
 .approved-homepage [id]{scroll-margin-top:92px}
 
-.approved-brand{display:inline-flex;align-items:center;gap:10px;color:var(--ah-navy);line-height:1}
-.approved-brand svg{width:34px;height:34px;fill:var(--ah-blue);flex:none}.approved-brand-type{display:grid;gap:3px}
-.approved-brand strong{font-size:17px;letter-spacing:.12em;font-weight:850}.approved-brand small{font-size:7px;letter-spacing:.28em;font-weight:800;color:#66768a}
+.approved-brand{display:inline-flex;align-items:center;line-height:1}
+.approved-brand img{display:block;width:188px;height:auto;max-height:74px;object-fit:contain;object-position:left center}
 
 .approved-home-header{
   position:sticky;inset-block-start:0;z-index:100;width:100%;height:78px;padding-inline:var(--ah-pad);
@@ -211,7 +210,7 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 
 @media(max-width:720px){
   .approved-homepage{--ah-pad:18px}.approved-homepage [id]{scroll-margin-top:74px}
-  .approved-brand svg{width:30px;height:30px}.approved-brand strong{font-size:15px}.approved-brand small{font-size:6px}
+  .approved-brand img{width:150px;max-height:59px}
 
   .approved-hero{display:block;min-height:max(720px,calc(100svh - 68px));background:#fff}
   .approved-hero-copy{position:relative;z-index:14;width:100%;height:max(720px,calc(100svh - 68px));padding:clamp(20px,3.5vh,30px) 18px 18px;pointer-events:none}

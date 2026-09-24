@@ -12,7 +12,7 @@ export function SiteShell({ locale, children }: { locale: Locale; children: Reac
       <a className="skip-link" href="#main-content">{locale === "ar" ? "انتقل إلى المحتوى" : "Skip to content"}</a>
       <header className="site-bar">
         <a className="fares-mark" href={`/${locale}`} aria-label="Fares Uniform home">
-          <span>FARES</span><small>UNIFORM</small>
+          <img src="/design-media/fares-uniform-wordmark.svg" width="230" height="90" alt="Fares Uniform" />
         </a>
         <nav className="desktop-nav" aria-label={locale === "ar" ? "التنقل الرئيسي" : "Primary navigation"}>
           <a href={`/${locale}/work`}>{t.navWork}</a>

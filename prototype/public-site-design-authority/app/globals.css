@@ -69,18 +69,10 @@ img { display: block; max-width: 100%; }
   border-bottom: 1px solid rgba(23,23,20,.10);
 }
 .fares-mark {
-  justify-self: start;
-  display: flex; align-items: baseline; gap: 10px;
-  line-height: 1;
-}
-.fares-mark span {
-  font-family: var(--font-display), serif;
-  font-size: 27px; font-weight: 600; letter-spacing: -.055em;
-}
-.fares-mark small {
-  font-size: 8px; font-weight: 800; letter-spacing: .26em;
-}
-.desktop-nav {
+    justify-self: start; display: flex; align-items: center; line-height: 1;
+  }
+  .fares-mark img { display:block; width:150px; height:auto; max-height:59px; }
+  .desktop-nav {
   display: flex; align-items: center; gap: clamp(26px,3vw,54px);
 }
 .desktop-nav a, .locale-switch {
@@ -815,7 +807,7 @@ img { display: block; max-width: 100%; }
 @media (max-width: 720px) {
   :root { --shell:calc(100% - 28px);--gutter:18px; }
   .site-bar { height:68px;padding-inline:16px;background:rgba(243,240,232,.94); }
-  .fares-mark span{font-size:24px}.fares-mark small{display:none}
+  .fares-mark img{width:126px;max-height:50px}
   .review-badge { font-size:7px;bottom:8px;left:8px;padding:5px 7px; }
 
   .assembly-hero { height:105svh;min-height:680px;padding-top:68px; }
