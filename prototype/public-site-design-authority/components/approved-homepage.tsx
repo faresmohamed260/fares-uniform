@@ -2,8 +2,8 @@
 
 import {
   BriefcaseBusiness, Check, ChevronDown, ChevronLeft, ChevronRight, CirclePlus,
-  Globe2, GraduationCap, HardHat, Layers3,
-  Menu, Play, Ruler, Search, ShieldCheck, Sparkles, Utensils, X
+  Factory, Globe2, GraduationCap, Handshake, HardHat, Layers3,
+  Menu, Play, Ruler, Search, ShieldCheck, Shirt, Sparkles, UsersRound, Utensils, X
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/locale";
@@ -181,26 +181,32 @@ export function ApprovedHomepageHeader({locale}:{locale:Locale}){
 export function ApprovedHero({locale}:{locale:Locale}){
   const ar=locale==="ar";
   const [storyOpen,setStoryOpen]=useState(false);
+  const benefits=[
+    [Shirt,ar?"خامات عالية الجودة":"Quality Materials"],
+    [UsersRound,ar?"موثوق به من الشركات":"Trusted by Businesses"],
+    [Factory,ar?"إنتاج داخلي":"In-House Production"],
+    [Handshake,ar?"شراكات طويلة الأمد":"Long-Term Partnerships"],
+  ] as const;
   return <section id="top" className="approved-hero" data-sc-act="flow" data-sc-drift="#ffffff" data-section-id="H01" data-testid="approved-h01">
     <div className="approved-hero-copy" data-sc-in data-sc-stagger="55">
       <span className="approved-eyebrow" data-component-id="H01.01">{ar?"زي موحّد لغدٍ أكثر إشراقاً":"UNIFORMS FOR A BRIGHTER TOMORROW"}</span>
-      <h1 data-component-id="H01.02"><span>{ar?"أشخاص":"PEOPLE"}</span><span>{ar?"أعمال":"BUSINESSES"}</span><span>{ar?"مجتمعات":"COMMUNITIES"}</span><em>{ar?"بالزي الموحّد":"IN UNIFORM"}</em></h1>
+      <h1 data-component-id="H01.02"><span>{ar?"أشخاص":"PEOPLE"}</span><span>{ar?"أعمال":"BUSINESSES"}</span><span>{ar?"مجتمعات":"COMMUNITIES"}</span><em><span>{ar?"في":"IN"}</span><span>{ar?"الزي الموحّد":"UNIFORM"}</span></em></h1>
       <p data-component-id="H01.03">{ar?"نصمّم ونصنّع الزي للمدارس والضيافة والرعاية الصحية والشركات وغيرها — لنساعد الناس على الظهور باحتراف، والشعور بالثقة، والتحرك معاً.":"We design and manufacture uniforms for schools, hospitality, healthcare, corporate and more — helping people look professional, feel confident, and move forward together."}</p>
       <div className="approved-hero-actions">
         <a data-component-id="H01.04" className="approved-primary-button" href="#industries">{ar?"استكشف قطاعاتنا":"Explore Our Industries"} <i>↗</i></a>
         <button data-component-id="H01.05" className="approved-story-button" type="button" aria-haspopup="dialog" onClick={()=>setStoryOpen(true)}><span><Play fill="currentColor" aria-hidden="true"/></span>{ar?"شاهد قصتنا":"Watch Our Story"}</button>
       </div>
-      <div className="approved-hero-pagination" data-component-id="H01.06"><strong>01</strong><i/><span>02</span><i/><span>03</span></div>
+      <div className="approved-hero-benefits" data-component-id="H01.11" aria-label={ar?"مزايا فارس":"Fares benefits"}>
+        {benefits.map(([Icon,label])=><div key={label}><Icon aria-hidden="true"/><span>{label}</span></div>)}
+      </div>
+      <div className="approved-hero-pagination" data-component-id="H01.06" aria-label={ar?"المشهد الأول من ثلاثة":"Scene one of three"}><strong>01</strong><i/><span>02</span><i/><span>03</span></div>
     </div>
     <div className="approved-hero-media">
+      <div className="approved-hero-background-plane" data-component-id="H01.07" data-sc-parallax="-0.22" aria-hidden="true"><img data-media-slot="home.hero.architecture" src="/generated/home-hero-architecture-soft-v1.jpg" width={200} height={112} alt=""/></div>
       <div className="approved-hero-geometry-plane" data-sc-parallax="-1.35"><div className="approved-blue-geometry" data-component-id="H01.08" aria-hidden="true"><span/><span/></div></div>
-      <div className="approved-hero-people-plane" data-sc-parallax="-0.62"><img data-media-slot="home.hero.people-group" className="approved-hero-people approved-hero-generated" src="/generated/home-hero-people-cutout-v3.webp" width={689} height={399} fetchPriority="high" decoding="async" alt={ar?"تكوين توضيحي عام لمهن وقطاعات متعددة":"Generic illustrative multi-profession uniform composition"}/></div>
-      <div className="approved-hand-note note-a" data-component-id="H01.09">{ar?"أشخاص مختلفون\nهدف واحد":"Different People\nSame Purpose"}<svg viewBox="0 0 90 44"><path d="M3 8c25 5 45 14 72 27m-12-14 13 14-17 3"/></svg></div>
-      <div className="approved-hand-note note-b" data-component-id="H01.10">{ar?"زي حقيقي\nناس حقيقيون\nأثر حقيقي.":"Real Uniforms\nReal People\nReal Impact."}<svg viewBox="0 0 88 46"><path d="M83 7C60 15 44 27 10 35m9-12L9 35l15 4"/></svg></div>
-      <div className="approved-quality-card" data-component-id="H01.11" data-sc-parallax="0.52">
-        <img className="approved-quality-thumb approved-quality-textile" data-media-slot="home.hero.quality-thumb" src="/generated/home-feature-fabric-blue-v1.webp" width={60} height={67} loading="lazy" decoding="async" alt="" aria-hidden="true"/>
-        <p><strong>{ar?"الجودة":"Quality"}</strong><strong>{ar?"الناس":"People"}</strong><strong>{ar?"شراكات تدوم":"Lasting Partnerships"}</strong></p><a href="#about" aria-label={ar?"اعرف المزيد":"Learn more"}>↗</a>
-      </div>
+      <div className="approved-hero-people-plane" data-sc-parallax="-0.62"><img data-media-slot="home.hero.people-group" className="approved-hero-people approved-hero-generated" src="/generated/home-hero-people-cutout-v3.webp" width={689} height={399} fetchPriority="high" decoding="async" alt={ar?"تكوين توضيحي عام لطالبة ومتخصصة رعاية صحية وطاهٍ وعامل صناعي":"Generic illustrative group of a student, healthcare professional, chef and industrial worker"}/></div>
+      <div className="approved-hand-note note-a" data-component-id="H01.09" data-sc-parallax="0.34">{ar?"أشخاص مختلفون\nهدف واحد":"Different People\nSame Purpose"}<svg viewBox="0 0 90 44"><path d="M3 8c25 5 45 14 72 27m-12-14 13 14-17 3"/></svg></div>
+      <div className="approved-hand-note note-b" data-component-id="H01.10" data-sc-parallax="0.48">{ar?"زي حقيقي\nناس حقيقيون\nأثر حقيقي.":"Real Uniforms\nReal People\nReal Impact."}<svg viewBox="0 0 88 46"><path d="M83 7C60 15 44 27 10 35m9-12L9 35l15 4"/></svg></div>
       <div className="approved-hero-seam" aria-hidden="true"><span/><span/></div>
     </div>
     <ApprovedDialog open={storyOpen} onClose={()=>setStoryOpen(false)} id="approved-story-title" closeLabel={ar?"إغلاق":"Close"} title={ar?"قصة فارس":"The Fares story"}>

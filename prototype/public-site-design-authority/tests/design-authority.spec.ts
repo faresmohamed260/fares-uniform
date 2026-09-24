@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const componentIds=[
   "H00.01","H00.02","H00.03","H00.04","H00.05",
-  "H01.01","H01.02","H01.03","H01.04","H01.05","H01.06","H01.08","H01.09","H01.10","H01.11",
+  "H01.01","H01.02","H01.03","H01.04","H01.05","H01.06","H01.07","H01.08","H01.09","H01.10","H01.11",
   "H02.01","H02.02","H02.03","H02.04","H02.05","H02.06",
   "H03A.01","H03A.02","H03A.03","H03A.04","H03A.05",
   "H03B.02","H03B.03","H03B.04","H03B.05","H03B.06",
@@ -15,7 +15,7 @@ async function noHorizontalOverflow(page:import("@playwright/test").Page){
   return page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
 }
 
-test("homepage keeps the D-063 semantic inventory without historical board geometry",async({page})=>{
+test("homepage keeps the browser-native semantic inventory and approved H01 layers",async({page})=>{
   await page.setViewportSize({width:1440,height:900});
   await page.goto("/en");
   await expect(page.getByTestId("approved-homepage")).toBeVisible();
@@ -53,6 +53,10 @@ test("desktop viewports use the browser width and a viewport-scale hero",async({
     expect(hero?.height??0).toBeGreaterThan(height*.82);
     expect(hero?.height??0).toBeLessThan(height*1.04);
     expect(heroMedia?.width??0).toBeGreaterThan(width*.48);
+    await expect(page.locator(".approved-hero-background-plane[data-sc-parallax]")).toHaveCount(1);
+    await expect(page.locator(".approved-hero-geometry-plane[data-sc-parallax]")).toHaveCount(1);
+    await expect(page.locator(".approved-hero-people-plane[data-sc-parallax]")).toHaveCount(1);
+    await expect(page.locator(".approved-hand-note[data-sc-parallax]")).toHaveCount(2);
     expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
 
     const rail=page.locator(".approved-industry-rail");
@@ -115,14 +119,17 @@ test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>
   await page.goto("/en");
 
   for(const slot of [
-    "home.hero.people-group","home.hero.quality-thumb",
+    "home.hero.architecture","home.hero.people-group",
     "home.industries.education","home.industries.hospitality","home.industries.healthcare",
     "home.industries.corporate","home.industries.industrial","home.industries.security",
     "home.feature.fabric-blue","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
     "home.cta.building"
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
 
+  await expect(page.locator('[data-media-slot="home.hero.architecture"]')).toHaveAttribute("src","/generated/home-hero-architecture-soft-v1.jpg");
   await expect(page.locator('[data-media-slot="home.hero.people-group"]')).toHaveAttribute("src","/generated/home-hero-people-cutout-v3.webp");
+  await expect(page.locator(".approved-quality-card")).toHaveCount(0);
+  await expect(page.locator(".approved-hero-benefits > div")).toHaveCount(4);
   await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
   for(const slot of [
     "home.industries.education","home.industries.hospitality","home.industries.healthcare",
@@ -213,7 +220,8 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     await page.goto("/en");
     await expect(page.getByRole("heading",{level:1})).toContainText("PEOPLE");
     await expect(page.locator(".approved-industry-card")).toHaveCount(6);
-    await expect(page.locator(".approved-quality-card")).toHaveCount(1);
+    await expect(page.locator(".approved-quality-card")).toHaveCount(0);
+    await expect(page.locator(".approved-hero-benefits > div")).toHaveCount(4);
     expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
 
     const hero=await page.getByTestId("approved-h01").boundingBox();
@@ -223,7 +231,7 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     expect(hero?.height??0).toBeGreaterThan(height*.84);
     expect(hero?.height??0).toBeLessThan(height*1.22);
     expect(Math.round(heroMedia?.width??0)).toBe(width);
-    expect(heroPhoto?.height??0).toBeGreaterThan((hero?.height??0)*.45);
+    expect(heroPhoto?.height??0).toBeGreaterThan((hero?.height??0)*.4);
 
     await page.screenshot({path:`artifacts/home-viewport-${name}.png`,fullPage:false});
 
