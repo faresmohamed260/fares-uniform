@@ -13,7 +13,7 @@ This file owns current status and the next task. `docs/PROJECT_TRACKS.md` owns t
 
 Do not treat progress or authorization in one track as progress or authorization in the other. See [docs/PROJECT_TRACKS.md](docs/PROJECT_TRACKS.md) for both checklists.
 
-The pending brand refresh replaces the angular header mark with a direct SVG stacked **Fares / Uniform** wordmark and provides a separate direct SVG white **F** in a blue circular icon. The implementation is code-native, not generated imagery. New exact-source hosted verification and protected preview evidence must be recorded below before visual acceptance; Fares retains final approval.
+The implemented brand refresh replaces the angular header mark with a direct SVG stacked **Fares / Uniform** wordmark and provides a separate direct SVG white **F** in a blue circular icon. The implementation is code-native, not generated imagery. Exact-source implementation `e77a6b7115b1a587e37128c0fdb92f8cc101be07` passed design-authority run/job `36068604900` / `107864064359` (typecheck, build, 11/11 browser tests), full candidate run/job `36068609401` / `107864077650`, and protected preview https://fares-uniform-design-authority-8vwhzp461.vercel.app/en. Authenticated desktop/mobile inspection confirmed the wordmark and zero mobile horizontal overflow; Fares retains final approval.
 
 ## Active UI/UX authority rule
 
@@ -239,7 +239,7 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — Fares visual review:** review the protected H01 three-scene carousel at [`fares-uniform-design-authority-e0oryaqx4.vercel.app/en`](https://fares-uniform-design-authority-e0oryaqx4.vercel.app/en) from exact deployed/evidence source `57279bf264bd30657f7c6ee64fbfd5c015d9fe65`; record approval or concrete corrections against that exact candidate.
+1. **Track A / active — Fares visual review:** review the protected SVG-brand and H01 three-scene candidate at [`fares-uniform-design-authority-8vwhzp461.vercel.app/en`](https://fares-uniform-design-authority-8vwhzp461.vercel.app/en) from exact deployed/evidence source `e77a6b7115b1a587e37128c0fdb92f8cc101be07`; record approval or concrete corrections against that exact candidate.
 2. Preserve the D-064 motion/media authority: one deliberate Seam Handoff peak, varied Scrollcraft devices, native scrolling, no whole-page scale/zoom, no retired Industry/CTA portrait/building bitmaps, browser-native non-client graphic fields, protected real KGC proof only, EN/AR RTL, reduced-motion parity, real interactions and zero horizontal overflow.
 3. Keep the current real KGC campus in protected review only; it does **not** authorize public KGC publication.
 4. Do not start Schools/KGC/Garments page design until the corrected homepage review is resolved.
