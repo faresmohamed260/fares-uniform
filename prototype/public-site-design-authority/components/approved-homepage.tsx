@@ -200,7 +200,7 @@ export function ApprovedHero({locale}:{locale:Locale}){
   ] as const;
   return <section id="top" className="approved-hero" data-sc-act="flow" data-sc-drift="#ffffff" data-section-id="H01" data-testid="approved-h01" data-hero-scene={scene} onFocusCapture={()=>setHeroPaused(true)} onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setHeroPaused(false)}}>
     <div className="approved-hero-copy" data-sc-in data-sc-stagger="55">
-      <h1 className="approved-brand-headline" data-component-id="H01.02" aria-label="Fares Uniform"><span aria-hidden="true"><BrandWordmark/></span></h1>
+      <h1 className="approved-brand-headline" data-component-id="H01.02" aria-label={ar?"فارس يونيفورم":"Fares Uniform"}><span aria-hidden="true"><BrandWordmark/></span></h1>
       <span className="approved-hero-descriptor" data-component-id="H01.01">{ar?"تصميم وتصنيع الزي الموحّد":"UNIFORM DESIGN & MANUFACTURING"}</span>
       <p data-component-id="H01.03">{ar?"تصمّم فارس يونيفورم وتصنّع أزياء موحّدة متناسقة للمدارس والضيافة والرعاية الصحية والشركات، بما يعكس هوية كل مؤسسة ويلائم العاملين فيها.":"Fares Uniform designs and manufactures coordinated uniforms for schools, hospitality, healthcare and businesses — shaped around the identity and people of each organization."}</p>
       <div className="approved-hero-actions">

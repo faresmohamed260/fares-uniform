@@ -284,7 +284,7 @@ test("Arabic RTL preserves the viewport-native composition without overflow",asy
   await page.setViewportSize({width:390,height:844});
   await page.goto("/ar");
   await expect(page.locator("html")).toHaveAttribute("dir","rtl");
-  await expect(page.getByRole("heading",{level:1})).toContainText("أشخاص");
+  await expect(page.getByRole("heading",{level:1})).toHaveAttribute("aria-label","فارس يونيفورم");
   await expect(page.locator(".approved-industry-card")).toHaveCount(6);
   expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
   const root=await page.getByTestId("approved-homepage").boundingBox();
