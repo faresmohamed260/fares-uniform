@@ -159,7 +159,7 @@ test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>
     "home.hero.architecture","home.hero.people-group","home.hero.design-cutting","home.hero.manufacturing",
     "home.industries.education","home.industries.hospitality","home.industries.healthcare",
     "home.industries.corporate","home.industries.industrial","home.industries.security",
-    "home.feature.fabric-blue","home.feature.design-sketch","home.work.kgc","home.work.hospitality","home.work.healthcare",
+    "home.feature.fabric-blue","home.feature.design-sketch","home.work.kgc","home.work.kgc.campus",
     "home.cta.building"
   ]) await expect(page.locator(`[data-media-slot="${slot}"]`)).toHaveCount(1);
 
@@ -169,11 +169,12 @@ test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>
   await expect(page.locator('[data-media-slot="home.hero.manufacturing"]')).toHaveAttribute("src","/generated/home-hero-manufacturing-v1.png");
   await expect(page.locator(".approved-quality-card")).toHaveCount(0);
   await expect(page.locator(".approved-hero-benefits > div")).toHaveCount(4);
-  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
+  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/high-summer.png");
+  await expect(page.locator('[data-media-slot="home.work.kgc.campus"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
   for(const slot of [
     "home.industries.education","home.industries.hospitality","home.industries.healthcare",
     "home.industries.corporate","home.industries.industrial","home.industries.security",
-    "home.work.hospitality","home.work.healthcare","home.cta.building"
+    "home.cta.building"
   ]){
     const tag=await page.locator(`[data-media-slot="${slot}"]`).evaluate(el=>el.tagName);
     expect(tag).toBe("DIV");
@@ -388,4 +389,19 @@ test("H01 rotates three distinct scenes with numbered controls and reduced-motio
   await expect(hero).toHaveAttribute("data-hero-scene","0");
   await numbers.nth(1).click();
   await expect(hero).toHaveAttribute("data-hero-scene","1");
+});
+
+test("Selected Work has one real editorial project and no illustrative pseudo-projects",async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto("/en");
+  const section=page.getByTestId("approved-h04");
+  await expect(section.getByRole("heading",{level:2,name:/An identity worn every day/i})).toBeVisible();
+  await expect(section.locator("img")).toHaveCount(2);
+  await expect(section.locator(".approved-work-capability")).toHaveCount(0);
+  await expect(section.getByRole("link",{name:"Explore the Project"})).toHaveAttribute("href","/en/work/kgc/national");
+  await page.setViewportSize({width:390,height:844});
+  expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
+  await page.goto("/ar");
+  await expect(page.getByTestId("approved-h04").getByRole("link",{name:"استكشف المشروع"})).toHaveAttribute("href","/ar/work/kgc/national");
+  expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
 });

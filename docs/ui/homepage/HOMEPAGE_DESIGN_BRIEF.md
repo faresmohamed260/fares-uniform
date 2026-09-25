@@ -281,6 +281,10 @@ Generated non-product diagrams/background media are allowed.
 
 ### H04 — Selected work
 
+**Current review direction (2026-09-26):** One editorial KGC National project feature only, using the rights-authorized original High/Summer worn/model anchor and protected campus context as separate real images. A browser-native title, program description and direct project action sit beside the imagery. Remove the two illustrative Hospitality/Healthcare pseudo-project cards and horizontal card rail, since they cannot evidence real partnerships. The homepage remains Fares-led; KGC appears only here. Responsive mobile stacks the chapter, Arabic reads RTL, and reduced motion preserves all content. This is a non-production candidate pending Fares visual approval, not permission to publish KGC.
+
+
+
 Purpose:
 - add proof without making one client the global brand.
 
