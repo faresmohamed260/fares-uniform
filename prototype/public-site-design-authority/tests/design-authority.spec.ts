@@ -332,10 +332,16 @@ test("H01 rotates three distinct scenes with numbered controls and reduced-motio
   const numbers=page.locator(".approved-hero-pagination button");
   await expect(numbers).toHaveCount(3);
   await expect(hero).toHaveAttribute("data-hero-scene","0");
+  await expect(page.locator(".note-a")).toContainText("Different roles.");
+  await expect(page.locator(".note-b")).toBeVisible();
   await expect.poll(async()=>hero.getAttribute("data-hero-scene"),{timeout:8500}).toBe("1");
   await expect(page.locator(".approved-hero-scene-plane").first()).toHaveClass(/is-active/);
+  await expect(page.locator(".note-a")).toContainText("From brief");
+  await expect(page.locator(".note-b")).toBeHidden();
   await numbers.nth(2).click();
   await expect(hero).toHaveAttribute("data-hero-scene","2");
+  await expect(page.locator(".note-a")).toContainText("Cut. Sew.");
+  await expect(page.locator(".note-b")).toBeHidden();
   await expect(numbers.nth(2)).toHaveAttribute("aria-current","step");
   await page.emulateMedia({reducedMotion:"reduce"});
   await page.reload();
