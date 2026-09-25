@@ -421,7 +421,8 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 @media(prefers-reduced-motion:reduce) and (min-width:721px){
   .approved-feature-stage.sc-stage{position:relative!important;top:auto;height:calc(100svh - clamp(88px,4.4vw,112px))!important;overflow:hidden;display:block}
   .approved-feature-stage>article{position:absolute;inset:0;min-height:0}
-  .approved-feature-more{clip-path:polygon(0 0,55% 0,44% 47%,56% 100%,0 100%)!important}
+  .approved-feature-stage>.approved-feature-more{clip-path:polygon(0 0,55% 0,44% 47%,56% 100%,0 100%)!important}
+  [dir="rtl"] .approved-feature-stage>.approved-feature-more{clip-path:polygon(45% 0,100% 0,100% 100%,44% 100%,56% 47%)!important}
   .approved-feature-idea{clip-path:none!important}
   .approved-seam-handoff{display:block}
 }
