@@ -128,7 +128,7 @@ test("Scrollcraft produces visible handoffs and a materially changing peak",asyn
 test("hero-to-industries handoff stays compact with native proximity snap",async({page})=>{
   await page.setViewportSize({width:1440,height:900});
   await page.goto("/en");
-  expect(await page.locator("html").evaluate(el=>getComputedStyle(el).scrollSnapType)).toBe("y proximity");
+  expect(await page.locator("html").evaluate(el=>getComputedStyle(el).scrollSnapType)).toMatch(/^y(?: proximity)?$/);
   for(const id of ["H01","H02","H03","H04","H05"]){
     await expect(page.locator(`[data-section-id="${id}"]`)).toHaveCSS("scroll-snap-align","start");
   }
