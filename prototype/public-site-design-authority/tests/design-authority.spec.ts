@@ -138,8 +138,15 @@ test("hero-to-industries handoff stays compact with native proximity snap",async
   await page.getByRole("link",{name:"Explore Industries"}).click();
   await expect.poll(async()=>Math.round((await page.getByTestId("approved-h02").boundingBox())?.y??Infinity)).toBeGreaterThanOrEqual(88);
   await expect.poll(async()=>Math.round((await page.getByTestId("approved-h02").boundingBox())?.y??Infinity)).toBeLessThanOrEqual(100);
+  const stage1440=await page.locator(".approved-industry-stage").boundingBox();
+  expect((stage1440?.y??0)+(stage1440?.height??0)).toBeGreaterThanOrEqual(895);
   await page.screenshot({path:"artifacts/home-scroll-industries-settled.png",fullPage:false});
   expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
+  await page.setViewportSize({width:2560,height:1440});
+  await page.goto("/en");
+  await page.getByRole("link",{name:"Explore Industries"}).click();
+  const stageWide=await page.locator(".approved-industry-stage").boundingBox();
+  expect((stageWide?.y??0)+(stageWide?.height??0)).toBeGreaterThanOrEqual(1430);
 });
 
 test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>{
