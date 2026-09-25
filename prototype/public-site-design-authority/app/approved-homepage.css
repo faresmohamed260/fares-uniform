@@ -372,10 +372,10 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 .approved-feature-idea{z-index:1;background:#f7fafc;color:#071a34;clip-path:none}
 .approved-feature-more{z-index:2;background:#071b33;color:#fff;clip-path:polygon(0 0,55% 0,44% 47%,56% 100%,0 100%)}
 .approved-fabric-plane{inset:0;width:100%;height:100%}
-.approved-fabric-field{object-position:center;filter:brightness(.88) saturate(.95) contrast(1.06)}
-.approved-feature-more::after{background:linear-gradient(90deg,rgba(3,17,34,.25),rgba(3,17,34,.03) 45%,transparent 70%)}
+.approved-fabric-field{object-position:center;filter:brightness(1) saturate(1.04) contrast(1.08)}
+.approved-feature-more::after{background:linear-gradient(90deg,rgba(3,17,34,.08),transparent 70%)}
 .approved-sketch-plane{inset:0 0 0 43%}
-.approved-sketch-background{object-fit:cover;object-position:58% center;opacity:.52;filter:none;mix-blend-mode:normal}
+.approved-sketch-background{object-fit:cover;object-position:58% center;opacity:.82;filter:none;mix-blend-mode:normal}
 .approved-sketch-mask{display:none}
 .approved-feature-copy{top:30%;left:5.4vw;width:37.5vw}
 .approved-feature-idea .approved-feature-copy{left:54.2%;top:30%;width:39.5vw}
