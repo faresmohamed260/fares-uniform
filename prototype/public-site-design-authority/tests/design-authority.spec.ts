@@ -4,8 +4,8 @@ const componentIds=[
   "H00.01","H00.02","H00.03","H00.04","H00.05",
   "H01.01","H01.02","H01.03","H01.04","H01.05","H01.06","H01.07","H01.08","H01.09","H01.10","H01.11",
   "H02.01","H02.02","H02.03","H02.04","H02.05","H02.06",
-  "H03A.01","H03A.02","H03A.03","H03A.04","H03A.05",
-  "H03B.02","H03B.03","H03B.04","H03B.05","H03B.06",
+  "H03A.01","H03A.02","H03A.03","H03A.04",
+  "H03B.02","H03B.03","H03B.04","H03B.06",
   "H04.01","H04.02","H04.03","H04.04","H04.05","H04.06",
   "H05.02","H05.03","H05.04","H05.05",
   "H06.01","H06.02","H06.03","H06.04","H06.05","H06.06","H06.07"
@@ -98,22 +98,20 @@ test("Scrollcraft produces visible handoffs and a materially changing peak",asyn
 
   const feature=page.getByTestId("approved-h03");
   await expect(feature).toHaveClass(/sc-act--pinned/);
+  await expect(feature.getByRole("heading",{name:/MORE THAN UNIFORMS/i})).toBeVisible();
+  await expect(feature.getByRole("heading",{name:/FROM IDEA TO UNIFORM/i})).toBeVisible();
+  await expect(feature.locator(".approved-process-timeline li")).toHaveCount(4);
   const featureMetrics=await feature.evaluate(el=>({top:(el as HTMLElement).offsetTop,height:(el as HTMLElement).offsetHeight}));
-  expect(featureMetrics.height).toBeGreaterThan(900*2);
+  expect(featureMetrics.height).toBeGreaterThan(900*1.3);
   const travel=featureMetrics.height-900;
-
   await page.evaluate(({top,travel})=>window.scrollTo(0,top+travel*.16),{top:featureMetrics.top,travel});
   await expect.poll(async()=>Number(await feature.evaluate(el=>getComputedStyle(el).getPropertyValue("--feature-progress")))).toBeGreaterThan(.1);
   const seamEarly=await page.locator(".approved-seam-handoff").boundingBox();
-
   await page.evaluate(({top,travel})=>window.scrollTo(0,top+travel*.78),{top:featureMetrics.top,travel});
   await expect.poll(async()=>Number(await feature.evaluate(el=>getComputedStyle(el).getPropertyValue("--feature-progress")))).toBeGreaterThan(.68);
   const seamLate=await page.locator(".approved-seam-handoff").boundingBox();
-  expect(Math.abs((seamLate?.x??0)-(seamEarly?.x??0))).toBeGreaterThan(260);
-  const leftClip=await page.locator(".approved-feature-more").evaluate(el=>getComputedStyle(el).clipPath);
-  const rightClip=await page.locator(".approved-feature-idea").evaluate(el=>getComputedStyle(el).clipPath);
-  expect(leftClip).not.toBe("none");
-  expect(rightClip).not.toBe("none");
+  expect(Math.abs((seamLate?.x??0)-(seamEarly?.x??0))).toBeLessThan(2);
+  await expect(feature.locator(".approved-feature-idea")).toHaveCSS("clip-path","none");
   await page.screenshot({path:"artifacts/home-scroll-seam-peak.png",fullPage:false});
 
   const closing=page.getByTestId("approved-h05");

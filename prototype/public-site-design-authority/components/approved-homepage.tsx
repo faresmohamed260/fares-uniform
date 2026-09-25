@@ -81,9 +81,8 @@ function useHomepageSignatureMotion(){
         const travel=Math.max(rect.height-viewport,1);
         const p=isReduced?.5:clamp(-rect.top/travel);
         feature.style.setProperty("--feature-progress",p.toFixed(4));
-        feature.style.setProperty("--feature-left-clip",`${(38+p*50).toFixed(2)}%`);
-        feature.style.setProperty("--feature-right-clip",`${(65-p*57).toFixed(2)}%`);
-        feature.style.setProperty("--feature-seam-x",`${(62-p*50).toFixed(2)}%`);
+
+
         feature.style.setProperty("--feature-fabric-scale",(1.04+p*.13).toFixed(4));
         feature.style.setProperty("--feature-process-scale",(1.08-p*.08).toFixed(4));
       }
@@ -287,22 +286,28 @@ export function ApprovedIndustries({locale}:{locale:Locale}){
 export function ApprovedFeatureBand({locale}:{locale:Locale}){
  const ar=locale==="ar";
  const [processOpen,setProcessOpen]=useState(false);
- const benefits=[[ShieldCheck,ar?"أقمشة متينة":"Durable Fabrics"],[Sparkles,ar?"راحة في كل تفصيلة":"Comfort in Every Detail"],[Ruler,ar?"تصميم عملي":"Practical Design"],[Layers3,ar?"مصنوع للحياة الواقعية":"Made for Real Life"]] as const;
- return <section id="process" className="approved-feature-band" data-sc-act="pin" data-sc-span="2.25" data-sc-dwell="0.18" data-sc-drift="#0b213e" data-section-id="H03" data-testid="approved-h03">
+ const steps=ar?["تصميم","عينة","إنتاج","تسليم"]:["Design","Sample","Produce","Deliver"];
+ return <section id="process" className="approved-feature-band" data-sc-act="pin" data-sc-span="1.55" data-sc-dwell="0.1" data-sc-drift="#0b213e" data-section-id="H03" data-testid="approved-h03">
   <div className="approved-feature-stage" data-sc-stage>
    <article id="about" className="approved-feature-more">
-    <div className="approved-fabric-plane" data-sc-parallax="-1.05"><img className="approved-fabric-field" data-component-id="H03A.01" data-media-slot="home.feature.fabric-blue" src="/generated/home-feature-fabric-blue-v1.webp" width={996} height={526} loading="lazy" decoding="async" alt="" aria-hidden="true"/></div>
-    <div className="approved-feature-copy" data-sc-cue="0 0.58 0 0.38"><h2 data-component-id="H03A.02" data-sc-kinetic="lines">{ar?"أكثر من\nزي موحّد":"MORE\nTHAN UNIFORMS"}</h2><p data-component-id="H03A.03">{ar?"أقمشة عالية الجودة، تصميم عملي وإنتاج موثوق — زي يعمل بجد مثل من يرتديه.":"Quality fabrics, practical design and reliable production — uniforms that work as hard as the people wearing them."}</p><a data-component-id="H03A.04" className="approved-light-button" href={`/${locale}/garments`}>{ar?"اكتشف مجموعاتنا":"Discover Our Collections"} ↗</a></div>
-    <div className="approved-benefit-row" data-component-id="H03A.05" data-sc-cue="0 0.6 0 .35">{benefits.map(([Icon,label])=><div key={label}><Icon/><span>{label}</span></div>)}</div>
+    <div className="approved-fabric-plane" data-sc-parallax="-0.45"><img className="approved-fabric-field" data-component-id="H03A.01" data-media-slot="home.feature.fabric-blue" src="/generated/home-feature-fabric-blue-v1.webp" width={996} height={526} loading="lazy" decoding="async" alt="" aria-hidden="true"/></div>
+    <div className="approved-feature-copy">
+     <h2 data-component-id="H03A.02">{ar?"أكثر من\nزي موحّد":"MORE THAN\nUNIFORMS"}</h2>
+     <p data-component-id="H03A.03">{ar?"أقمشة عالية الجودة، تصميم عملي وإنتاج موثوق — زي يعمل بجد مثل من يرتديه.":"Quality fabrics, practical design and reliable production — uniforms that work as hard as the people wearing them."}</p>
+     <a data-component-id="H03A.04" className="approved-light-button" href={`/${locale}/garments`}>{ar?"اكتشف مجموعاتنا":"Discover Our Collections"} <ChevronRight aria-hidden="true"/></a>
+    </div>
    </article>
-   <div className="approved-seam-handoff" aria-hidden="true"><span/><i/></div>
    <article className="approved-feature-idea">
-    <div className="approved-sketch-plane" data-sc-reveal="left" data-sc-reveal-at="0.22 0.7"><img data-media-slot="home.feature.design-sketch" className="approved-sketch-background approved-sketch-generated" src="/generated/home-feature-design-sketch.svg" width={519} height={263} loading="lazy" decoding="async" alt="" aria-hidden="true"/></div>
+    <div className="approved-sketch-plane"><img data-media-slot="home.feature.design-sketch" className="approved-sketch-background approved-sketch-generated" src="/generated/home-feature-design-sketch.svg" width={519} height={263} loading="lazy" decoding="async" alt="" aria-hidden="true"/></div>
     <div className="approved-sketch-mask" aria-hidden="true"/>
-    <div className="approved-feature-copy approved-feature-copy-dark" data-sc-cue="0.26 1 0.18 0"><h2 data-component-id="H03B.02" data-sc-kinetic="lines">{ar?"من الفكرة\nإلى الزي":"FROM\nIDEA TO UNIFORM"}</h2><p data-component-id="H03B.03">{ar?"من الفكرة إلى المنتج النهائي — نصمّم ونأخذ العينات ونصنّع الزي الذي يحوّل رؤيتك إلى واقع.":"Concept to final product — designing, sampling and manufacturing uniforms that bring your vision to life."}</p><button data-component-id="H03B.06" className="approved-outline-button" type="button" aria-haspopup="dialog" onClick={()=>setProcessOpen(true)}>{ar?"عمليتنا":"Our Process"} <span aria-hidden="true">↗</span></button></div>
-    <div className="approved-process-checklist" data-component-id="H03B.04">{[ar?"تصميم":"Design",ar?"عينة":"Sample",ar?"إنتاج":"Produce",ar?"تسليم":"Deliver"].map((x,i)=><span key={x} data-sc-cue={`${.3+i*.09} ${.72+i*.06} .2 .25`}><Check/> {x}</span>)}</div>
-    <div className="approved-hand-note approved-vision-note" data-component-id="H03B.05" data-sc-cue="0.54 1 .22 0">{ar?"رؤيتك.\nخبرتنا.":"Your Vision.\nOur Expertise."}<svg viewBox="0 0 80 38"><path d="M4 7c27 5 43 15 65 24m-12-13 13 13-17 2"/></svg></div>
+    <div className="approved-feature-copy approved-feature-copy-dark">
+     <h2 data-component-id="H03B.02">{ar?"من الفكرة\nإلى الزي":"FROM IDEA\nTO UNIFORM"}</h2>
+     <p data-component-id="H03B.03">{ar?"من الفكرة إلى المنتج النهائي — نصمّم ونأخذ العينات ونصنّع الزي الذي يحوّل رؤيتك إلى واقع.":"Concept to final product — designing, sampling and manufacturing uniforms that bring your vision to life."}</p>
+     <ol className="approved-process-timeline" data-component-id="H03B.04" aria-label={ar?"مراحل العمل":"Process stages"}>{steps.map((label,index)=><li key={label}><span aria-hidden="true"/><strong>{label}</strong><small className="sr-only">{index+1} / 4</small></li>)}</ol>
+     <button data-component-id="H03B.06" className="approved-outline-button" type="button" aria-haspopup="dialog" onClick={()=>setProcessOpen(true)}>{ar?"عمليتنا":"Our Process"} <ChevronRight aria-hidden="true"/></button>
+    </div>
    </article>
+   <div className="approved-seam-handoff" aria-hidden="true"/>
   </div>
   <ApprovedDialog open={processOpen} onClose={()=>setProcessOpen(false)} id="approved-process-title" closeLabel={ar?"إغلاق":"Close"} title={ar?"من الفكرة إلى التسليم":"From idea to delivery"}>
     <ol className="approved-process-detail">{[

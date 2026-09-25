@@ -277,6 +277,8 @@ This is a global abstraction, not a KGC example.
 
 Generated non-product diagrams/background media are allowed.
 
+**H03 review direction selected by Fares (2026-09-25):** use the third approved section concept as the visual target: one continuous split scene with a dark navy tactile fabric field on the left and a cool-white technical pattern field on the right, divided by a clear blue diagonal seam. Both messages are visible immediately, with bold sans-serif “MORE THAN UNIFORMS” and “FROM IDEA TO UNIFORM”, the existing supporting copy, “Discover Our Collections” and “Our Process” controls, and a browser-native four-step Design / Sample / Produce / Deliver line. Do not use the concept screenshot as runtime media, introduce invented proof, or leave an empty second half until scrolling. Mobile stacks the two fields; Arabic mirrors the composition. The existing fabric and independent illustrative sketch assets may be reused only as decoration. H01/H02 and later sections remain unchanged. This selects a protected review candidate, not production or exact-SHA visual approval.
+
 ### H04 — Selected work
 
 Purpose:
