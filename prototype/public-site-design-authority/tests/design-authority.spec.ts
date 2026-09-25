@@ -128,7 +128,7 @@ test("Scrollcraft produces visible handoffs and a materially changing peak",asyn
 test("hero-to-industries handoff stays compact with native proximity snap",async({page})=>{
   await page.setViewportSize({width:1440,height:900});
   await page.goto("/en");
-  expect(await page.locator("html").evaluate(el=>getComputedStyle(el).scrollSnapType)).toMatch(/^y(?: proximity)?$/);
+  expect(await page.locator("html").evaluate(el=>getComputedStyle(el).scrollSnapType)).toBe("y mandatory");
   for(const id of ["H01","H02","H03","H04","H05"]){
     await expect(page.locator(`[data-section-id="${id}"]`)).toHaveCSS("scroll-snap-align","start");
   }
@@ -142,6 +142,10 @@ test("hero-to-industries handoff stays compact with native proximity snap",async
   expect((stage1440?.y??0)+(stage1440?.height??0)).toBeGreaterThanOrEqual(895);
   await page.screenshot({path:"artifacts/home-scroll-industries-settled.png",fullPage:false});
   expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
+  await page.goto("/en");
+  await page.mouse.wheel(0,1100);
+  await expect.poll(async()=>Math.round((await page.getByTestId("approved-h02").boundingBox())?.y??Infinity),{timeout:5000}).toBeGreaterThanOrEqual(88);
+  await expect.poll(async()=>Math.round((await page.getByTestId("approved-h02").boundingBox())?.y??Infinity),{timeout:5000}).toBeLessThanOrEqual(100);
   await page.setViewportSize({width:2560,height:1440});
   await page.goto("/en");
   await page.getByRole("link",{name:"Explore Industries"}).click();

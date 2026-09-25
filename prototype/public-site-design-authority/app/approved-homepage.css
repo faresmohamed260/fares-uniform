@@ -1,7 +1,7 @@
 /* D-063 viewport-native homepage correction — browser-native layout, not a scaled board. */
 body:has(.approved-homepage){background:#f5f8fb}
-/* Settle near chapter starts; keep native scrolling through long pinned acts. */
-html:has(.approved-homepage){scroll-snap-type:y proximity}
+/* Native chapter snap; oversized chapters retain free movement between edges. */
+html:has(.approved-homepage){scroll-snap-type:y mandatory}
 .approved-homepage main>section[data-section-id]{scroll-snap-align:start;scroll-snap-stop:normal}
 body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badge{display:none!important}
 
@@ -291,6 +291,7 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 }
 
 @media(prefers-reduced-motion:reduce){
+  html:has(.approved-homepage){scroll-snap-type:y proximity}
   .approved-homepage *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
   .approved-hero-copy.sc-in{transform:none!important;opacity:1!important}.approved-hero-seam{transform:scaleX(0)!important}.approved-hero-people{scale:1!important;translate:0 0!important}.approved-hero-background-plane,.approved-hero-geometry-plane,.approved-hero-people-plane,.approved-hand-note{transform:none!important}
   .approved-industries-entry-seam{transform:none!important}.approved-industry-scene{transition:none!important;transform:none!important}.approved-sector-option-line{transition:none!important}
