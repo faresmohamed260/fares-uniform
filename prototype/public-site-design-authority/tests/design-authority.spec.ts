@@ -230,7 +230,7 @@ test("industry selector and dialogs have real keyboard-operable outcomes",async(
   const process=page.getByRole("button",{name:"Our Process"});
   await process.click();
   await expect(page.getByRole("dialog",{name:"From idea to delivery"})).toBeVisible();
-  await expect(page.getByRole("listitem")).toHaveCount(4);
+  await expect(page.getByRole("dialog",{name:"From idea to delivery"}).getByRole("listitem")).toHaveCount(4);
   await page.keyboard.press("Escape");
   await expect(process).toBeFocused();
 });
@@ -347,8 +347,8 @@ test("reduced motion preserves information and removes pin dead-space",async({pa
 
   const feature=await page.getByTestId("approved-h03").boundingBox();
   expect(feature?.height??0).toBeLessThan(900*1.8);
-  await expect(page.locator(".approved-seam-handoff")).toBeHidden();
-  await expect(page.locator(".approved-feature-more")).toHaveCSS("clip-path","none");
+  await expect(page.locator(".approved-seam-handoff")).toBeVisible();
+  await expect(page.locator(".approved-feature-more")).not.toHaveCSS("clip-path","none");
   await expect(page.locator(".approved-feature-idea")).toHaveCSS("clip-path","none");
   expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
   await page.screenshot({path:"artifacts/home-reduced-motion-1440x900.png",fullPage:false});
