@@ -73,8 +73,7 @@ function useHomepageSignatureMotion(){
         const rect=industries.getBoundingClientRect();
         const p=isReduced?1:clamp((viewport-rect.top)/(viewport*.9));
         industries.style.setProperty("--industries-enter",p.toFixed(4));
-        industries.style.setProperty("--industries-seam-y",`${(-150*p).toFixed(1)}px`);
-        industries.style.setProperty("--industries-seam-scale",(1-p*.36).toFixed(4));
+        industries.style.setProperty("--industries-seam-y",`${(-22*p).toFixed(1)}px`);
       }
 
       if(feature){

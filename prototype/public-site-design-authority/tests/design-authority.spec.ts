@@ -125,6 +125,23 @@ test("Scrollcraft produces visible handoffs and a materially changing peak",asyn
   await page.screenshot({path:"artifacts/home-scroll-close-resolution.png",fullPage:false});
 });
 
+test("hero-to-industries handoff stays compact with native proximity snap",async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto("/en");
+  expect(await page.locator("html").evaluate(el=>getComputedStyle(el).scrollSnapType)).toBe("y proximity");
+  for(const id of ["H01","H02","H03","H04","H05"]){
+    await expect(page.locator(`[data-section-id="${id}"]`)).toHaveCSS("scroll-snap-align","start");
+  }
+  expect((await page.locator(".approved-hero-seam").boundingBox())?.height??Infinity).toBeLessThan(130);
+  expect((await page.locator(".approved-industries-entry-seam").boundingBox())?.height??Infinity).toBeLessThan(70);
+  expect(Number.parseFloat(await page.locator(".approved-industries").evaluate(el=>getComputedStyle(el).paddingTop))).toBeLessThan(40);
+  await page.getByRole("link",{name:"Explore Industries"}).click();
+  await expect.poll(async()=>Math.round((await page.getByTestId("approved-h02").boundingBox())?.y??Infinity)).toBeGreaterThanOrEqual(88);
+  await expect.poll(async()=>Math.round((await page.getByTestId("approved-h02").boundingBox())?.y??Infinity)).toBeLessThanOrEqual(100);
+  await page.screenshot({path:"artifacts/home-scroll-industries-settled.png",fullPage:false});
+  expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
+});
+
 test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>{
   expect((await page.request.get("/authority/approved-homepage-reference.webp")).ok()).toBeTruthy();
   await page.goto("/en");
