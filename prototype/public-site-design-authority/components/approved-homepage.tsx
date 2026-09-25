@@ -190,6 +190,8 @@ export function ApprovedHero({locale}:{locale:Locale}){
     },5500);
     return()=>window.clearInterval(timer);
   },[scene,heroPaused]);
+  const notes=ar?["أدوار مختلفة\nهوية واحدة","من الفكرة\nإلى الباترون","قصّ. خياطة.\nتشطيب."]:["Different roles.\nOne identity.","From brief\nto pattern.","Cut. Sew.\nFinish."];
+  const peopleNote=ar?"لمن يرتدون\nالزي كل يوم":"For the people\nwho wear it.";
   const benefits=[
     [Shirt,ar?"خامات عالية الجودة":"Quality Materials"],
     [UsersRound,ar?"موثوق به من الشركات":"Trusted by Businesses"],
@@ -198,9 +200,9 @@ export function ApprovedHero({locale}:{locale:Locale}){
   ] as const;
   return <section id="top" className="approved-hero" data-sc-act="flow" data-sc-drift="#ffffff" data-section-id="H01" data-testid="approved-h01" data-hero-scene={scene} onFocusCapture={()=>setHeroPaused(true)} onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setHeroPaused(false)}}>
     <div className="approved-hero-copy" data-sc-in data-sc-stagger="55">
-      <span className="approved-eyebrow" data-component-id="H01.01">{ar?"زي موحّد لغدٍ أكثر إشراقاً":"UNIFORMS FOR A BRIGHTER TOMORROW"}</span>
+      <span className="approved-eyebrow" data-component-id="H01.01">{ar?"مصمّم لكل دور":"DESIGNED FOR EVERY ROLE"}</span>
       <h1 data-component-id="H01.02"><span>{ar?"أشخاص":"PEOPLE"}</span><span>{ar?"أعمال":"BUSINESSES"}</span><span>{ar?"مجتمعات":"COMMUNITIES"}</span><em><span>{ar?"في":"IN"}</span><span>{ar?"الزي الموحّد":"UNIFORM"}</span></em></h1>
-      <p data-component-id="H01.03">{ar?"نصمّم ونصنّع الزي للمدارس والضيافة والرعاية الصحية والشركات وغيرها — لنساعد الناس على الظهور باحتراف، والشعور بالثقة، والتحرك معاً.":"We design and manufacture uniforms for schools, hospitality, healthcare, corporate and more — helping people look professional, feel confident, and move forward together."}</p>
+      <p data-component-id="H01.03">{ar?"نصمّم ونصنّع أزياء موحّدة متناسقة للمدارس والضيافة والرعاية الصحية والشركات، انطلاقاً من هوية كل مؤسسة وأدوار العاملين فيها.":"We design and manufacture coordinated uniforms for schools, hospitality, healthcare and businesses — shaped around the people, roles and identity of each organization."}</p>
       <div className="approved-hero-actions">
         <a data-component-id="H01.04" className="approved-primary-button" href="#industries">{ar?"استكشف قطاعاتنا":"Explore Our Industries"} <i>↗</i></a>
         <button data-component-id="H01.05" className="approved-story-button" type="button" aria-haspopup="dialog" onClick={()=>setStoryOpen(true)}><span><Play fill="currentColor" aria-hidden="true"/></span>{ar?"شاهد قصتنا":"Watch Our Story"}</button>
@@ -220,8 +222,8 @@ export function ApprovedHero({locale}:{locale:Locale}){
       <div className={"approved-hero-scene-plane"+(scene===2?" is-active":"")} aria-hidden="true"><img data-media-slot="home.hero.manufacturing" src="/generated/home-hero-manufacturing-v1.png" width={1672} height={941} alt=""/></div>
       <div className="approved-hero-geometry-plane" data-sc-parallax="-1.35"><div className="approved-blue-geometry" data-component-id="H01.08" aria-hidden="true"><span/><span/></div></div>
       <div className="approved-hero-people-plane" data-sc-parallax="-0.62"><img data-media-slot="home.hero.people-group" className="approved-hero-people approved-hero-generated" src="/generated/home-hero-people-sharp-v4.png" width={1672} height={941} fetchPriority="high" decoding="async" alt={ar?"تكوين توضيحي عام لطالبة ومتخصصة رعاية صحية وطاهٍ وعامل صناعي":"Generic illustrative group of a student, healthcare professional, chef and industrial worker"}/></div>
-      <div className="approved-hand-note note-a" data-component-id="H01.09" data-sc-parallax="0.34">{ar?"أشخاص مختلفون\nهدف واحد":"Different People\nSame Purpose"}<svg viewBox="0 0 90 44"><path d="M3 8c25 5 45 14 72 27m-12-14 13 14-17 3"/></svg></div>
-      <div className="approved-hand-note note-b" data-component-id="H01.10" data-sc-parallax="0.48">{ar?"زي حقيقي\nناس حقيقيون\nأثر حقيقي.":"Real Uniforms\nReal People\nReal Impact."}<svg viewBox="0 0 88 46"><path d="M83 7C60 15 44 27 10 35m9-12L9 35l15 4"/></svg></div>
+      <div className="approved-hand-note note-a" data-component-id="H01.09" data-sc-parallax="0.34">{notes[scene]}<svg viewBox="0 0 90 44"><path d="M3 8c25 5 45 14 72 27m-12-14 13 14-17 3"/></svg></div>
+      <div className={"approved-hand-note note-b"+(scene===0?"":" is-scene-hidden")} aria-hidden={scene!==0} data-component-id="H01.10" data-sc-parallax="0.48">{peopleNote}<svg viewBox="0 0 88 46"><path d="M83 7C60 15 44 27 10 35m9-12L9 35l15 4"/></svg></div>
       <div className="approved-hero-seam" aria-hidden="true"><span/><span/></div>
     </div>
     <ApprovedDialog open={storyOpen} onClose={()=>setStoryOpen(false)} id="approved-story-title" closeLabel={ar?"إغلاق":"Close"} title={ar?"قصة فارس":"The Fares story"}>
