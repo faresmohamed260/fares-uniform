@@ -159,13 +159,13 @@ export function ApprovedHomepageHeader({locale}:{locale:Locale}){
     <div className="approved-header-utilities">
       <button className="approved-icon-button" data-component-id="H00.03" type="button" aria-label={ar?"بحث":"Search"} aria-haspopup="dialog" onClick={()=>setSearchOpen(true)}><Search aria-hidden="true"/></button>
       <a className="approved-locale" data-component-id="H00.04" href={ar?"/en":"/ar"} lang={ar?"en":"ar"} aria-label={ar?"Switch to English":"التبديل إلى العربية"}><Globe2/><span>{ar?"AR":"EN"}</span><ChevronDown/></a>
-      <a className="approved-header-cta" data-component-id="H00.05" href={`/${locale}/enquiry`}><span>{ar?"ابدأ مشروعاً":"Start a Project"}</span><i>↗</i></a>
+      <a className="approved-header-cta" data-component-id="H00.05" href={`/${locale}/enquiry`}><span>{ar?"تواصل معنا":"Get in Touch"}</span><i>↗</i></a>
     </div>
     <button className="approved-mobile-trigger" type="button" aria-label={ar?"فتح القائمة":"Open menu"} aria-expanded={open} aria-haspopup="dialog" onClick={()=>setOpen(true)}><Menu aria-hidden="true"/></button>
     {open&&<div ref={menu} className="approved-mobile-menu" role="dialog" aria-modal="true" aria-label={ar?"قائمة الموقع":"Site menu"}>
       <div><BrandLockup/><button data-autofocus type="button" aria-label={ar?"إغلاق القائمة":"Close menu"} onClick={()=>setOpen(false)}><X aria-hidden="true"/></button></div>
       <nav>{navLinks.map(([en,arabic,raw])=><a key={en} onClick={()=>setOpen(false)} href={href(raw)}>{ar?arabic:en}</a>)}</nav>
-      <a href={`/${locale}/enquiry`} onClick={()=>setOpen(false)}>{ar?"ابدأ مشروعاً":"Start a Project"} <span aria-hidden="true">↗</span></a>
+      <a href={`/${locale}/enquiry`} onClick={()=>setOpen(false)}>{ar?"تواصل معنا":"Get in Touch"} <span aria-hidden="true">↗</span></a>
     </div>}
     <ApprovedDialog open={searchOpen} onClose={()=>setSearchOpen(false)} id="approved-search-title" closeLabel={ar?"إغلاق":"Close"} title={ar?"ابحث في الموقع":"Search the site"}>
       <label className="approved-search-field"><span>{ar?"ماذا تبحث عنه؟":"What are you looking for?"}</span><input data-autofocus value={query} onChange={event=>setQuery(event.target.value)} placeholder={ar?"القطاعات أو الملابس أو التواصل":"Industries, garments, or contact"}/></label>
@@ -200,11 +200,12 @@ export function ApprovedHero({locale}:{locale:Locale}){
   ] as const;
   return <section id="top" className="approved-hero" data-sc-act="flow" data-sc-drift="#ffffff" data-section-id="H01" data-testid="approved-h01" data-hero-scene={scene} onFocusCapture={()=>setHeroPaused(true)} onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setHeroPaused(false)}}>
     <div className="approved-hero-copy" data-sc-in data-sc-stagger="55">
-      <h1 className="approved-brand-headline" data-component-id="H01.02" aria-label={ar?"فارس يونيفورم":"Fares Uniform"}><span aria-hidden="true"><BrandWordmark/></span></h1>
       <span className="approved-hero-descriptor" data-component-id="H01.01">{ar?"تصميم وتصنيع الزي الموحّد":"UNIFORM DESIGN & MANUFACTURING"}</span>
-      <p data-component-id="H01.03">{ar?"تصمّم فارس يونيفورم وتصنّع أزياء موحّدة متناسقة للمدارس والضيافة والرعاية الصحية والشركات، بما يعكس هوية كل مؤسسة ويلائم العاملين فيها.":"Fares Uniform designs and manufactures coordinated uniforms for schools, hospitality, healthcare and businesses — shaped around the identity and people of each organization."}</p>
+      <h1 className="approved-brand-headline" data-component-id="H01.02" aria-label={ar?"فارس يونيفورم":"Fares Uniform"}><span>FARES</span><span>UNIFORM</span></h1>
+      <p className="approved-hero-tagline">{ar?"أشخاص. شركات. مجتمعات.":"People. Businesses. Communities."}</p>
+      <p className="approved-hero-description" data-component-id="H01.03">{ar?"نصمّم ونصنّع أزياء موحّدة للمدارس والضيافة والرعاية الصحية والشركات وغيرها — لنساعد الناس على الظهور بمظهر مهني، والشعور بالثقة، والتقدّم معاً.":"We design and manufacture uniforms for schools, hospitality, healthcare, corporate and more — helping people look professional, feel confident, and move forward together."}</p>
       <div className="approved-hero-actions">
-        <a data-component-id="H01.04" className="approved-primary-button" href="#industries">{ar?"استكشف القطاعات":"Explore Industries"} <i>↗</i></a>
+        <a data-component-id="H01.04" className="approved-primary-button" href="#industries"><span>{ar?"استكشف القطاعات":"Explore Industries"}</span><i aria-hidden="true">↗</i></a>
         <a data-component-id="H01.05" className="approved-story-button" href="#process"><span><ChevronRight aria-hidden="true"/></span>{ar?"اكتشف مراحل عملنا":"See Our Process"}</a>
       </div>
       <div className="approved-hero-benefits" data-component-id="H01.11" aria-label={ar?"مزايا فارس":"Fares benefits"}>

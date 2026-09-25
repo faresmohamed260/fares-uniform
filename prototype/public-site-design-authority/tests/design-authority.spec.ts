@@ -24,8 +24,9 @@ test("homepage keeps the browser-native semantic inventory and approved H01 laye
   await expect(page.locator(".review-badge")).toBeHidden();
   await expect(page.locator(".approved-header-brand img.fares-wordmark")).toHaveAttribute("src","/design-media/fares-uniform-wordmark.png");
   await expect(page.locator(".approved-footer-brand img.fares-wordmark")).toHaveCount(1);
-  await expect(page.locator(".approved-brand-headline img.fares-wordmark")).toHaveCount(1);
-  await expect(page.getByRole("link",{name:/Start a Project/i})).toHaveAttribute("href","/en/enquiry");
+  await expect(page.locator(".approved-brand-headline")).toContainText("FARESUNIFORM");
+  await expect(page.locator(".approved-hero-tagline")).toHaveText("People. Businesses. Communities.");
+  await expect(page.getByRole("link",{name:/Get in Touch/i})).toHaveAttribute("href","/en/enquiry");
   const wordmark=await page.locator(".approved-header-brand img.fares-wordmark").evaluate(el=>({loaded:(el as HTMLImageElement).complete,width:(el as HTMLImageElement).naturalWidth,height:(el as HTMLImageElement).naturalHeight}));
   expect(wordmark).toEqual({loaded:true,width:1200,height:404});
   const icon=await page.request.get("/icon.png");
@@ -271,7 +272,7 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
   await expect(menu).toBeVisible();
   await expect(page.getByRole("button",{name:"Close menu"})).toBeFocused();
   await page.keyboard.press("Shift+Tab");
-  await expect(menu.getByRole("link",{name:/Start a Project/i})).toBeFocused();
+  await expect(menu.getByRole("link",{name:/Get in Touch/i})).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(menu).toHaveCount(0);
   await expect(trigger).toBeFocused();
