@@ -298,12 +298,12 @@ export function ApprovedFeatureBand({locale}:{locale:Locale}){
     </div>
    </article>
    <article className="approved-feature-idea">
-    <div className="approved-sketch-plane"><img data-media-slot="home.feature.design-sketch" className="approved-sketch-background approved-sketch-generated" src="/generated/home-feature-design-sketch.svg" width={519} height={263} loading="lazy" decoding="async" alt="" aria-hidden="true"/></div>
+    <div className="approved-sketch-plane"><img data-media-slot="home.feature.design-sketch" className="approved-sketch-background approved-sketch-generated" src="/generated/home-feature-pattern-blue.svg" width={1600} height={1000} loading="lazy" decoding="async" alt="" aria-hidden="true"/></div>
     <div className="approved-sketch-mask" aria-hidden="true"/>
     <div className="approved-feature-copy approved-feature-copy-dark">
      <h2 data-component-id="H03B.02">{ar?"من الفكرة\nإلى الزي":"FROM IDEA\nTO UNIFORM"}</h2>
      <p data-component-id="H03B.03">{ar?"من الفكرة إلى المنتج النهائي — نصمّم ونأخذ العينات ونصنّع الزي الذي يحوّل رؤيتك إلى واقع.":"Concept to final product — designing, sampling and manufacturing uniforms that bring your vision to life."}</p>
-     <ol className="approved-process-timeline" data-component-id="H03B.04" aria-label={ar?"مراحل العمل":"Process stages"}>{steps.map((label,index)=><li key={label}><span aria-hidden="true"/><strong>{label}</strong><small className="sr-only">{index+1} / 4</small></li>)}</ol>
+     <ol className="approved-process-timeline" data-component-id="H03B.04" aria-label={ar?"مراحل العمل":"Process stages"}>{steps.map(label=><li key={label}><span aria-hidden="true"/><strong>{label}</strong></li>)}</ol>
      <button data-component-id="H03B.06" className="approved-outline-button" type="button" aria-haspopup="dialog" onClick={()=>setProcessOpen(true)}>{ar?"عمليتنا":"Our Process"} <ChevronRight aria-hidden="true"/></button>
     </div>
    </article>
