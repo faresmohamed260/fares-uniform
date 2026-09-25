@@ -290,9 +290,9 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     const feature=await page.getByTestId("approved-h03").boundingBox();
     expect(feature?.height??0).toBeGreaterThan(height*1.25);
     expect(feature?.height??0).toBeLessThan(height*1.9);
-
-    const workCards=page.locator(".approved-work-cards");
-    expect(await workCards.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(100);
+    const selectedWork=await page.getByTestId("approved-h04").boundingBox();
+    expect(selectedWork?.width??Infinity).toBeLessThanOrEqual(width+1);
+    await expect(page.locator(".approved-case-study img")).toHaveCount(2);
     await page.locator(".approved-sector-option").nth(1).click();
     await expect(page.locator(".approved-industry-stage-copy h3")).toHaveText("Hospitality");
   }
