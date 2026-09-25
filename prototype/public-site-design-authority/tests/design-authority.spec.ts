@@ -69,8 +69,9 @@ test("desktop viewports use the browser width and a viewport-scale hero",async({
     await expect(page.locator(".approved-hand-note[data-sc-parallax]")).toHaveCount(2);
     expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
 
-    const rail=page.locator(".approved-industry-rail");
-    expect(await rail.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(180);
+    await expect(page.locator(".approved-sector-option")).toHaveCount(6);
+    const stage=await page.locator(".approved-industry-stage").boundingBox();
+    expect(stage?.width??0).toBeGreaterThan(width*.48);
     await page.screenshot({path:`artifacts/home-viewport-${name}.png`,fullPage:false});
   }
 });
@@ -169,17 +170,22 @@ test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>
   expect(runtimeAuthorityConsumers).toEqual([]);
 });
 
-test("industry rail and dialogs have real keyboard-operable outcomes",async({page})=>{
+test("industry selector and dialogs have real keyboard-operable outcomes",async({page})=>{
   await page.setViewportSize({width:1920,height:1080});
   await page.goto("/en");
-  const rail=page.locator(".approved-industry-rail");
-  expect(await rail.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(180);
-  await expect(page.getByRole("button",{name:"Previous"})).toBeDisabled();
-  await expect(page.getByRole("button",{name:"Next"})).toBeEnabled();
-  const before=Math.abs(await rail.evaluate(el=>el.scrollLeft));
-  await page.getByRole("button",{name:"Next"}).click();
-  await expect.poll(async()=>Math.abs(await rail.evaluate(el=>el.scrollLeft))).toBeGreaterThan(before);
-  await expect(page.getByRole("button",{name:"Previous"})).toBeEnabled();
+  const options=page.locator(".approved-sector-option");
+  await expect(options).toHaveCount(6);
+  await expect(options.first()).toHaveAttribute("aria-pressed","true");
+  await expect(page.locator(".approved-industry-stage-copy h3")).toHaveText("Education");
+  await options.nth(1).click();
+  await expect(options.nth(1)).toHaveAttribute("aria-pressed","true");
+  await expect(page.locator(".approved-industry-stage-copy h3")).toHaveText("Hospitality");
+  await expect(page.locator(".approved-industry-scene.is-active")).toHaveClass(/sector-hospitality/);
+  await options.nth(1).focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(options.nth(2)).toBeFocused();
+  await expect(page.locator(".approved-industry-stage-copy h3")).toHaveText("Healthcare");
+  await expect(page.locator(".approved-industry-stage-copy a")).toHaveAttribute("href","/en/work");
 
   const search=page.getByRole("button",{name:"Search"});
   await search.click();
@@ -230,7 +236,7 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     await page.setViewportSize({width,height});
     await page.goto("/en");
     await expect(page.getByRole("heading",{level:1})).toHaveAttribute("aria-label","Fares Uniform");
-    await expect(page.locator(".approved-industry-card")).toHaveCount(6);
+    await expect(page.locator(".approved-sector-option")).toHaveCount(6);
     await expect(page.locator('[data-media-slot="home.hero.design-cutting"]')).toHaveAttribute("src","/generated/home-hero-design-cutting-v1.png");
   await expect(page.locator('[data-media-slot="home.hero.manufacturing"]')).toHaveAttribute("src","/generated/home-hero-manufacturing-v1.png");
   await expect(page.locator(".approved-quality-card")).toHaveCount(0);
@@ -258,10 +264,8 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
 
     const workCards=page.locator(".approved-work-cards");
     expect(await workCards.evaluate(el=>el.scrollWidth-el.clientWidth)).toBeGreaterThan(100);
-    const industryRail=page.locator(".approved-industry-rail");
-    const before=Math.abs(await industryRail.evaluate(el=>el.scrollLeft));
-    await page.getByRole("button",{name:"Next"}).click();
-    await expect.poll(async()=>Math.abs(await industryRail.evaluate(el=>el.scrollLeft))).toBeGreaterThan(before);
+    await page.locator(".approved-sector-option").nth(1).click();
+    await expect(page.locator(".approved-industry-stage-copy h3")).toHaveText("Hospitality");
   }
 
   await page.setViewportSize({width:390,height:844});
@@ -286,7 +290,9 @@ test("Arabic RTL preserves the viewport-native composition without overflow",asy
   await page.goto("/ar");
   await expect(page.locator("html")).toHaveAttribute("dir","rtl");
   await expect(page.getByRole("heading",{level:1})).toHaveAttribute("aria-label","فارس يونيفورم");
-  await expect(page.locator(".approved-industry-card")).toHaveCount(6);
+  await expect(page.locator(".approved-sector-option")).toHaveCount(6);
+  await page.locator(".approved-sector-option").nth(1).click();
+  await expect(page.locator(".approved-industry-stage-copy h3")).toHaveText("الضيافة");
   expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
   const root=await page.getByTestId("approved-homepage").boundingBox();
   const heroMedia=await page.locator(".approved-hero-media").boundingBox();

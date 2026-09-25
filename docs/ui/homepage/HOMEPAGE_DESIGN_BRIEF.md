@@ -257,6 +257,8 @@ Possible interaction families:
 
 Each sector routes to a future dedicated sector page.
 
+**H02 review direction selected by Fares (2026-09-25):** an editorial split with a vertical, numbered sector selector controlling one large active sector environment. Desktop keeps the list beside the environment; mobile presents touch-friendly sector choices above one active environment. Hover, focus, click and arrow keys change the visible sector without moving the page or altering H01/H03–H06. The reference concept's generated students and school garments are visual exploration only, not runtime evidence. Until rights-authorized sector photography and dedicated routes exist, this protected browser-native candidate uses clearly illustrative sector graphic environments and a truthful Work route rather than inventing client/product media or dead sector links. This selects a layout direction, not an exact-SHA visual approval or production authorization.
+
 ### H03 — What Fares actually does
 
 Purpose:

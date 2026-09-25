@@ -231,43 +231,57 @@ export function ApprovedHero({locale}:{locale:Locale}){
 }
 
 const industries=[
- {key:"education",en:"Education",ar:"التعليم",sub:"SCHOOL UNIFORMS",subAr:"زي مدرسي",Icon:GraduationCap},
- {key:"hospitality",en:"Hospitality",ar:"الضيافة",sub:"HOTELS & RESTAURANTS",subAr:"فنادق ومطاعم",Icon:Utensils},
- {key:"healthcare",en:"Healthcare",ar:"الرعاية الصحية",sub:"HOSPITALS & CLINICS",subAr:"مستشفيات وعيادات",Icon:CirclePlus},
- {key:"corporate",en:"Corporate",ar:"الشركات",sub:"BUSINESS & OFFICES",subAr:"أعمال ومكاتب",Icon:BriefcaseBusiness},
- {key:"industrial",en:"Industrial",ar:"الصناعي",sub:"WORKWEAR & SAFETY",subAr:"ملابس عمل وسلامة",Icon:HardHat},
- {key:"security",en:"Security",ar:"الأمن",sub:"SECURITY UNIFORMS",subAr:"زي أمني",Icon:ShieldCheck},
+ {key:"education",en:"Education",ar:"التعليم",sub:"SCHOOL UNIFORMS",subAr:"الزي المدرسي",summary:"A considered uniform identity for every school day.",summaryAr:"هوية زي موحّد مدروسة لكل يوم دراسي.",Icon:GraduationCap},
+ {key:"hospitality",en:"Hospitality",ar:"الضيافة",sub:"HOTELS & GUEST TEAMS",subAr:"الفنادق وفرق الضيافة",summary:"A coordinated look across guest-facing roles.",summaryAr:"مظهر متناسق لفرق استقبال وخدمة الضيوف.",Icon:Utensils},
+ {key:"healthcare",en:"Healthcare",ar:"الرعاية الصحية",sub:"CLINICS & CARE TEAMS",subAr:"العيادات وفرق الرعاية",summary:"Clear, practical identity for care environments.",summaryAr:"هوية واضحة وعملية لبيئات الرعاية.",Icon:CirclePlus},
+ {key:"corporate",en:"Corporate",ar:"الشركات",sub:"OFFICES & BUSINESS",subAr:"المكاتب والأعمال",summary:"One professional expression across the team.",summaryAr:"مظهر مهني موحّد لفريق العمل.",Icon:BriefcaseBusiness},
+ {key:"industrial",en:"Industrial",ar:"الصناعي",sub:"OPERATIONAL WORKWEAR",subAr:"ملابس العمل",summary:"Workwear considered around the job and the people doing it.",summaryAr:"ملابس عمل تراعي طبيعة المهام والأشخاص الذين يؤدونها.",Icon:HardHat},
+ {key:"security",en:"Security",ar:"الأمن",sub:"SECURITY TEAMS",subAr:"فرق الأمن",summary:"A consistent identity for visible operational roles.",summaryAr:"هوية متسقة للأدوار الميدانية الظاهرة.",Icon:ShieldCheck},
 ] as const;
 
 export function ApprovedIndustries({locale}:{locale:Locale}){
  const ar=locale==="ar";
- const rail=useRef<HTMLDivElement>(null);
- const [railState,setRailState]=useState({canPrevious:false,canNext:false});
- useEffect(()=>{
-  const element=rail.current;if(!element)return;
-  const update=()=>{const max=Math.max(0,element.scrollWidth-element.clientWidth);const position=Math.abs(element.scrollLeft);setRailState({canPrevious:position>1,canNext:position<max-1});};
-  update();element.addEventListener("scroll",update,{passive:true});
-  const observer=new ResizeObserver(update);observer.observe(element);
-  return()=>{element.removeEventListener("scroll",update);observer.disconnect();};
- },[]);
- const move=(dir:number)=>rail.current?.scrollBy({left:(ar?-dir:dir)*Math.max(190,rail.current.clientWidth*.72),behavior:"smooth"});
+ const [active,setActive]=useState(0);
+ const selected=industries[active];
+ const selectWithArrow=(event:React.KeyboardEvent<HTMLButtonElement>,index:number)=>{
+  const step=event.key==="ArrowDown"||event.key==="ArrowRight"?1:event.key==="ArrowUp"||event.key==="ArrowLeft"?-1:0;
+  if(!step)return;
+  event.preventDefault();
+  const next=(index+step+industries.length)%industries.length;
+  setActive(next);
+  event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>(".approved-sector-option")[next]?.focus();
+ };
  return <section id="industries" className="approved-industries" data-sc-act="flow" data-sc-drift="#f5f8fb" data-section-id="H02" data-testid="approved-h02">
    <div className="approved-industries-entry-seam" aria-hidden="true"><span/><span/></div>
-   <header className="approved-industries-head" data-sc-in data-sc-stagger="70">
-    <div><span className="approved-eyebrow" data-component-id="H02.01">{ar?"قطاعاتنا":"OUR INDUSTRIES"}</span><h2 data-component-id="H02.02">{ar?"حلول زي موحّد":"Uniform Solutions"}<br/><em>{ar?"لكل قطاع":"for Every Sector"}</em></h2></div>
-    <div className="approved-industries-intro"><p data-component-id="H02.03">{ar?"من الفصول إلى المطابخ، ومن المستشفيات إلى الفنادق — نصنع حلول زي تناسب فريقك وعلامتك وعملك اليومي.":"From classrooms to kitchens, hospitals to hotels — we create uniform solutions that fit your people, your brand, and your day-to-day needs."}</p>
-      <a data-component-id="H02.04" href={`/${locale}/work`}>{ar?"عرض كل القطاعات":"View All Industries"} <i>↗</i></a>
-      <div data-component-id="H02.05" className="approved-carousel-controls"><button type="button" aria-label={ar?"السابق":"Previous"} disabled={!railState.canPrevious} onClick={()=>move(-1)}><ChevronLeft aria-hidden="true"/></button><button type="button" aria-label={ar?"التالي":"Next"} disabled={!railState.canNext} onClick={()=>move(1)}><ChevronRight aria-hidden="true"/></button></div>
+   <div className="approved-industries-layout">
+    <div className="approved-industries-content" data-sc-in data-sc-stagger="70">
+     <header className="approved-industries-head">
+      <span className="approved-eyebrow" data-component-id="H02.01">{ar?"قطاعاتنا":"OUR INDUSTRIES"}</span>
+      <h2 data-component-id="H02.02">{ar?"حلول زي موحّد":"Uniform Solutions"}<br/><em>{ar?"لكل قطاع":"for Every Sector"}</em></h2>
+      <p data-component-id="H02.03">{ar?"هوية موحّدة تراعي اختلاف الأدوار وبيئات العمل، من التعليم إلى الضيافة والرعاية وما بعدها.":"A shared identity, considered for different roles and environments. From education to hospitality, care and beyond."}</p>
+     </header>
+     <div className="approved-sector-selector" data-component-id="H02.05" aria-label={ar?"اختر القطاع":"Choose an industry"}>
+      {industries.map((sector,index)=><button key={sector.key} type="button" className={`approved-sector-option${index===active?" is-active":""}`} aria-pressed={index===active} aria-controls="approved-industry-stage" onClick={()=>setActive(index)} onPointerEnter={event=>{if(event.pointerType==="mouse")setActive(index);}} onFocus={()=>setActive(index)} onKeyDown={event=>selectWithArrow(event,index)}>
+       <span className="approved-sector-number">{String(index+1).padStart(2,"0")}</span><span>{ar?sector.ar:sector.en}</span><span className="approved-sector-option-line" aria-hidden="true"/>
+      </button>)}
+     </div>
     </div>
-   </header>
-   <div className="approved-industry-rail" ref={rail} data-component-id="H02.06" data-sc-in data-sc-stagger="65">{industries.map(({key,en,ar:arabic,sub,subAr,Icon},index)=><article className={`approved-industry-card sector-${key}`} data-sc-tilt="5" key={key}>
-    <div data-media-slot={`home.industries.${key}`} className="approved-sector-visual" role="img" aria-label={ar?`تكوين رسومي توضيحي لقطاع ${arabic}`:`Graphic sector field for ${en}`}>
-      <span className="approved-sector-index" aria-hidden="true">{String(index+1).padStart(2,"0")}</span>
-      <svg className="approved-sector-lines" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 238 C72 170 94 84 190 108 S306 246 430 108"/><path d="M-10 86 C78 28 164 48 214 118 S302 218 422 182"/></svg>
-      <span className="approved-sector-orbit" aria-hidden="true"/><Icon className="approved-sector-mark" aria-hidden="true"/>
+    <div className="approved-industry-stage" id="approved-industry-stage" data-component-id="H02.06" data-sc-in data-sc-stagger="65">
+     <div className="approved-industry-art" aria-hidden="false">
+      {industries.map(({key,en,ar:arabic,Icon},index)=><div key={key} data-media-slot={`home.industries.${key}`} className={`approved-industry-scene sector-${key}${index===active?" is-active":""}`} role="img" aria-label={ar?`رسم توضيحي تجريدي لقطاع ${arabic}`:`Abstract graphic environment for ${en}`} aria-hidden={index!==active}>
+       <span className="approved-scene-grid" aria-hidden="true"/><span className="approved-scene-band" aria-hidden="true"/><span className="approved-scene-disc" aria-hidden="true"/>
+       <svg className="approved-scene-lines" viewBox="0 0 720 700" preserveAspectRatio="none" aria-hidden="true"><path d="M-60 550 C120 475 160 160 360 175 S620 540 780 190"/><path d="M-30 300 C150 40 330 250 455 340 S650 460 760 350"/></svg>
+       <Icon className="approved-scene-symbol" aria-hidden="true"/>
+      </div>)}
+     </div>
+     <div className="approved-industry-stage-copy" aria-live="polite">
+      <span className="approved-stage-kicker">{ar?"مصمم للناس":"DESIGNED FOR PEOPLE"}</span>
+      <h3>{ar?selected.ar:selected.en}</h3>
+      <p>{ar?selected.summaryAr:selected.summary}</p>
+      <a data-component-id="H02.04" href={`/${locale}/work`}>{ar?"استكشف أعمالنا":"Explore Our Work"} <ChevronRight aria-hidden="true"/></a>
+     </div>
     </div>
-    <div className="approved-industry-meta"><Icon/><div><h3>{ar?arabic:en}</h3><p>{ar?subAr:sub}</p></div><a href={`/${locale}/work`} aria-label={ar?arabic:en}>↗</a></div>
-   </article>)}</div>
+   </div>
  </section>;
 }
 
