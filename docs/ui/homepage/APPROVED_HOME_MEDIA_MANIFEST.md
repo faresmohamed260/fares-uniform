@@ -47,7 +47,7 @@ Current bitmap/photo runtime is intentionally narrow:
 Sector atmosphere, non-client capability and closing architecture are now browser-native CSS/SVG compositions so they cannot accidentally inherit screenshot pixels or imply undocumented photographic proof.
 ## H01 three-scene review carousel
 
-The 01/02/03 control switches three illustrative, non-client visual scenes while the headline, supporting copy, scene-specific notes, actions, benefits, geometry and Scrollcraft handoff remain browser-native. It advances automatically only when visible and motion is permitted; keyboard focus pauses it; hover does not, and numbered buttons select a scene. Reduced motion disables automatic advancement.
+The 01/02/03 control switches three illustrative, non-client visual scenes while the headline, supporting copy, scene-specific notes, actions, benefits, geometry and Scrollcraft handoff remain browser-native. It advances automatically only when visible and motion is permitted; keyboard focus pauses it but hover does not; numbered buttons select a scene. Reduced motion disables automatic advancement.
 
 - 01: sharp transparent generic four-role group, public/generated/home-hero-people-sharp-v4.png, 1672×941, SHA-256 7fcfdd4501bfbb274f8f05864771f0fef9f2a5d75298ce5b9383ce0bcad6cc4c, over the independent architectural background.
 - 02: illustrative design and fabric-cutting studio, public/generated/home-hero-design-cutting-v1.png, 1672×941, SHA-256 1e81b7d81e744626456f07a94aef7265697ddd15a311a44d716585f03243e522.
