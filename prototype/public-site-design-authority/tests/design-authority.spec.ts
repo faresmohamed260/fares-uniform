@@ -242,6 +242,8 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
   await expect(page.locator(".approved-quality-card")).toHaveCount(0);
     await expect(page.locator(".approved-hero-benefits > div")).toHaveCount(4);
     expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
+    const industryStage=await page.locator(".approved-industry-stage").boundingBox();
+    expect(industryStage?.width??Infinity).toBeLessThanOrEqual(width+1);
 
     const hero=await page.getByTestId("approved-h01").boundingBox();
     const heroMedia=await page.locator(".approved-hero-media").boundingBox();
@@ -294,6 +296,8 @@ test("Arabic RTL preserves the viewport-native composition without overflow",asy
   await page.locator(".approved-sector-option").nth(1).click();
   await expect(page.locator(".approved-industry-stage-copy h3")).toHaveText("الضيافة");
   expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
+  const industryStage=await page.locator(".approved-industry-stage").boundingBox();
+  expect(industryStage?.width??Infinity).toBeLessThanOrEqual(391);
   const root=await page.getByTestId("approved-homepage").boundingBox();
   const heroMedia=await page.locator(".approved-hero-media").boundingBox();
   expect(Math.round(root?.width??0)).toBe(390);
