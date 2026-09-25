@@ -317,3 +317,27 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 @media(max-width:1100px){.approved-hero-copy .approved-brand-headline{font-size:clamp(72px,9vw,104px)}.approved-hero-copy .approved-hero-tagline{font-size:clamp(17px,2.3vw,22px)}.approved-hero-copy .approved-hero-description{font-size:13px;max-width:38ch}.approved-hero-copy .approved-hero-descriptor{font-size:12px;margin-bottom:16px}.approved-hero-actions .approved-primary-button{font-size:12px}}
 @media(max-width:640px){.approved-hero-copy .approved-brand-headline{font-size:clamp(55px,15.1vw,76px);margin-bottom:14px}.approved-hero-copy .approved-hero-tagline{font-size:clamp(16px,4.15vw,20px);white-space:normal}.approved-hero-copy .approved-hero-description{font-size:12.5px;max-width:34ch}.approved-hero-copy .approved-hero-descriptor{font-size:10.5px;letter-spacing:.13em;margin-bottom:14px}.approved-hero-actions .approved-primary-button{font-size:11px;column-gap:8px;grid-template-columns:12px auto 12px}.approved-hero-actions .approved-primary-button::before,.approved-hero-actions .approved-primary-button i{width:12px}}
 @media(max-width:380px){.approved-hero-copy .approved-brand-headline{font-size:clamp(52px,15.1vw,58px)}.approved-hero-copy .approved-hero-tagline{font-size:15px}.approved-hero-copy .approved-hero-description{font-size:11.5px}}
+
+/* Fluid H00/H01 proportions: make the navigation legible and let the brand headline use its field. */
+@media(min-width:1101px){
+  .approved-home-header{height:clamp(88px,4.4vw,112px);grid-template-columns:minmax(160px,.58fr) minmax(0,1.85fr) minmax(285px,.75fr)}
+  .approved-brand .fares-wordmark{width:clamp(160px,7.5vw,190px);max-height:none}
+  .approved-header-nav{gap:clamp(18px,1.15vw,30px)}
+  .approved-header-nav a{font-size:clamp(14px,.8vw,22px)}
+  .approved-header-utilities{gap:clamp(14px,.85vw,24px)}
+  .approved-icon-button{width:clamp(44px,2.2vw,54px);height:clamp(44px,2.2vw,54px)}
+  .approved-icon-button svg{width:clamp(19px,1vw,26px);height:clamp(19px,1vw,26px)}
+  .approved-locale{font-size:clamp(13px,.72vw,19px)}
+  .approved-locale svg{width:clamp(14px,.78vw,20px)}
+  .approved-header-cta{min-height:clamp(48px,2.6vw,62px);font-size:clamp(14px,.8vw,20px)}
+  .approved-hero,.approved-hero-copy{min-height:calc(100svh - clamp(88px,4.4vw,112px))}
+  .approved-hero-copy{width:52vw}
+  .approved-hero-copy .approved-brand-headline{font-size:9vw}
+  .approved-hero-copy .approved-hero-descriptor{font-size:clamp(12px,.8vw,22px)}
+  .approved-hero-copy .approved-hero-tagline{font-size:clamp(19px,1.45vw,38px)}
+  .approved-hero-copy .approved-hero-description{font-size:clamp(14px,.95vw,25px)}
+  .approved-hero-actions .approved-primary-button{font-size:clamp(13px,.72vw,19px);min-height:clamp(46px,2.5vw,64px)}
+  .approved-story-button{font-size:clamp(12px,.75vw,19px)}
+  .note-a{left:49%}
+  [dir="rtl"] .note-a{left:auto;right:3%}
+}
