@@ -24,6 +24,8 @@ test("homepage keeps the browser-native semantic inventory and approved H01 laye
   await expect(page.locator(".review-badge")).toBeHidden();
   await expect(page.locator(".approved-header-brand img.fares-wordmark")).toHaveAttribute("src","/design-media/fares-uniform-wordmark.png");
   await expect(page.locator(".approved-footer-brand img.fares-wordmark")).toHaveCount(1);
+  await expect(page.locator(".approved-brand-headline img.fares-wordmark")).toHaveCount(1);
+  await expect(page.getByRole("link",{name:/Start a Project/i})).toHaveAttribute("href","/en/enquiry");
   const wordmark=await page.locator(".approved-header-brand img.fares-wordmark").evaluate(el=>({loaded:(el as HTMLImageElement).complete,width:(el as HTMLImageElement).naturalWidth,height:(el as HTMLImageElement).naturalHeight}));
   expect(wordmark).toEqual({loaded:true,width:1200,height:404});
   const icon=await page.request.get("/icon.png");
@@ -187,11 +189,10 @@ test("industry rail and dialogs have real keyboard-operable outcomes",async({pag
   await page.keyboard.press("Escape");
   await expect(search).toBeFocused();
 
-  const story=page.getByRole("button",{name:"Watch Our Story"});
-  await story.click();
-  await expect(page.getByRole("dialog",{name:"The Fares story"})).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(story).toBeFocused();
+  const processLink=page.getByRole("link",{name:"See Our Process"});
+  await expect(processLink).toHaveAttribute("href","#process");
+  await processLink.click();
+  await expect(page).toHaveURL(/#process$/);
 
   const process=page.getByRole("button",{name:"Our Process"});
   await process.click();
@@ -227,7 +228,7 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
   for(const [width,height,name] of [[390,844,"390x844"],[360,640,"360x640"]] as const){
     await page.setViewportSize({width,height});
     await page.goto("/en");
-    await expect(page.getByRole("heading",{level:1})).toContainText("PEOPLE");
+    await expect(page.getByRole("heading",{level:1})).toHaveAttribute("aria-label","Fares Uniform");
     await expect(page.locator(".approved-industry-card")).toHaveCount(6);
     await expect(page.locator('[data-media-slot="home.hero.design-cutting"]')).toHaveAttribute("src","/generated/home-hero-design-cutting-v1.png");
   await expect(page.locator('[data-media-slot="home.hero.manufacturing"]')).toHaveAttribute("src","/generated/home-hero-manufacturing-v1.png");
@@ -270,7 +271,7 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
   await expect(menu).toBeVisible();
   await expect(page.getByRole("button",{name:"Close menu"})).toBeFocused();
   await page.keyboard.press("Shift+Tab");
-  await expect(menu.getByRole("link",{name:/Get in Touch/i})).toBeFocused();
+  await expect(menu.getByRole("link",{name:/Start a Project/i})).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(menu).toHaveCount(0);
   await expect(trigger).toBeFocused();
