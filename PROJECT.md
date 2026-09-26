@@ -242,7 +242,7 @@ The review deployment uses synthetic Harbor House/catalog fixture content and pu
 
 ## Next tasks, in order
 
-1. **Track A / active — Fares H03 visual review:** inspect the protected [concept-3 split-section preview](https://fares-uniform-design-authority-e2fjz0bv8.vercel.app/en#process) from exact deployed/evidence code source f16af5aac7be6b3a0c8ef73083d1c467e3853c93; record approval or concrete corrections to fabric/pattern composition, split seam, copy and design-to-delivery timeline. The earlier H01→H02 scroll refinement remains implemented; its final visual acceptance is not inferred.
+1. **Track A / active — Fares H04 visual review:** inspect the protected [exact selected-work preview](https://fares-uniform-design-authority-j2tcp8p7l.vercel.app/en#work) from exact implementation/deployment source `516b69c8b27cfd5fbe6095b236ea912871a1960b`; compare the browser-native composition with Fares's supplied 1672×941 authority and record approval or concrete corrections. H01→H03 remain implemented; their final visual acceptance is not inferred.
 2. Preserve the D-064 motion/media authority: one deliberate Seam Handoff peak, varied Scrollcraft devices, native scrolling, no whole-page scale/zoom, no retired Industry/CTA portrait/building bitmaps, browser-native non-client graphic fields, protected real KGC proof only, EN/AR RTL, reduced-motion parity, real interactions and zero horizontal overflow.
 3. Keep the current real KGC campus in protected review only; it does **not** authorize public KGC publication.
 4. Do not start Schools/KGC/Garments page design until the corrected homepage review is resolved.
@@ -257,3 +257,10 @@ Remote GitHub source edits and hosted execution only. No local/scratch source, b
 Odoo owns operational truth. Public Next.js exposes allowlisted catalog/enquiry only, never price or stock. Cash/confirmed-InstaPay and existing offline/role/location rules remain unchanged. Deferred commercial/accounting policies remain deferred.
 
 Secret names/custody: [inventory](docs/operations/PHASE_8_STAGING_SECRET_INVENTORY.md). WANDA is restricted to secret management when necessary; it is not a development workspace or general provider control plane.
+## H04 selected-work exact-composition checkpoint (2026-09-26)
+
+Fares rejected the earlier broad-structure rendition and supplied `ChatGPT Image Sep 26, 2026, 06_01_37 PM.png` as the exact visual authority. Exact implementation/deployment source `516b69c8b27cfd5fbe6095b236ea912871a1960b` now uses section-local edge-to-edge headline/selector scale, the navy diagonal frame, independent browser-native corner annotations, a wider angled blueprint panel, real KGC garment detail crops, and a clean runtime-isolated cutout derived from the authorized original KGC worn image. The supplied authority image is not runtime media and no UI is baked into imagery.
+
+[Design-authority run `36253919177`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36253919177), job `108436991512`, passed hosted typecheck, optimized build and 13/13 browser checks. Artifact `10909729439`, digest `sha256:53ac22c32d8ca9053df33a5ca53bb7181bcbb10ca7b34fc0ca0ff2f8b7ce55cc`. [Exact-source full-candidate run `36254761380`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36254761380), job `108439325859`, is GREEN; artifact `10910034696`, digest `sha256:82108192fda0cd612e7a208b0dc92a1c89207279c560f70caff2fbaf7fd75f8c`. The [protected non-production preview](https://fares-uniform-design-authority-j2tcp8p7l.vercel.app/en#work) is READY, target `preview`, and unauthenticated HTTP 302 protection passed.
+
+Authenticated desktop comparison and hosted mobile/RTL/reduced-motion checks are complete. The KGC media remains protected review-only. Final visual approval remains Fares's; production, PR merge, public client publication and ERP Gate D remain NO-GO.

@@ -141,7 +141,7 @@ Design-authority push run/job `36073597744` / `107879797023`: hosted typecheck, 
 Fares's final visual approval remains pending. Production, PR merge, and public client publication remain NO-GO.
 ## H01 copy and scene-note refinement (2026-09-25)
 
-Exact implementation/deployment source: 6291c60460fce9f1613291d4f5cf36e83857d4a. The approved main headline, CTAs, four-benefit row, logos, three distinct image scenes and 5.5-second hover-independent rotation remain unchanged. The eyebrow is now DESIGNED FOR EVERY ROLE; supporting copy explains coordinated multi-sector design/manufacturing. The top handwritten note now says Different roles. / One identity., From brief / to pattern., or Cut. Sew. / Finish. for scenes 01/02/03. The right note says For the people / who wear it. only on scene 01, positioned in the clear blue field. Arabic carries parallel copy and scene behavior. No H02-H06 content changed.
+Exact implementation/deployment source: ^L6291c60460fce9f1613291d4f5cf36e83857d4a. The approved main headline, CTAs, four-benefit row, logos, three distinct image scenes and 5.5-second hover-independent rotation remain unchanged. The eyebrow is now DESIGNED FOR EVERY ROLE; supporting copy explains coordinated multi-sector design/manufacturing. The top handwritten note now says Different roles. / One identity., From brief / to pattern., or Cut. Sew. / Finish. for scenes 01/02/03. The right note says For the people / who wear it. only on scene 01, positioned in the clear blue field. Arabic carries parallel copy and scene behavior. No H02-H06 content changed.
 
 Design-authority push run/job 36097403509 / 107952456546: typecheck, production build, 11/11 browser checks GREEN; artifact 10848245952, SHA-256 743e801c5d4bbbf1b4211dd33e41e3c6638f2d31d682f052fda85c3655bd53ab. Exact-source full candidate run/job 36097406825 / 107952466034: GREEN. Protected preview: https://fares-uniform-design-authority-33euraes2.vercel.app/en. READY, preview target, unauthenticated HTTP 302. Authenticated browser inspection covered desktop scene 01/02/03 and 390×844 English/Arabic RTL; hosted checks covered no horizontal overflow and reduced motion. Fares's final visual approval remains pending. Production, PR merge, and public client publication remain NO-GO.
 
@@ -182,3 +182,33 @@ Fares supplied screenshots showing an oversized blue handoff, empty space before
 Fares selected the third visual direction supplied in chat for the chapter after Industries: a navy fabric field on the left and light blue patternmaking field on the right, joined by a blue diagonal seam. Exact implementation source: `f16af5aac7be6b3a0c8ef73083d1c467e3853c93`. The browser-native composition contains “More Than Uniforms,” “From Idea to Uniform,” supporting copy, Collections and Process links, and an independent four-step Design/Sample/Produce/Deliver timeline. The fabric image is decorative independent media; the pattern is independent decorative SVG. No UI is baked into images. Existing H00–H02 and downstream chapters remain intact.
 
 Design-authority [push run 36186758972](https://github.com/faresmohamed260/fares-uniform/actions/runs/36186758972) / job 108241870661 passed hosted TypeScript typecheck, optimized production build and 12/12 browser checks. Exact-source [full-candidate run 36186880790](https://github.com/faresmohamed260/fares-uniform/actions/runs/36186880790) / job 108242321029 is GREEN; artifact 10886725750 (`sha256:876da54cb767603c8355a7e41e5521512dea284c5884d763964fbdc26f1f47e7`). The [protected non-production preview](https://fares-uniform-design-authority-e2fjz0bv8.vercel.app/en#process) is READY; unauthenticated access redirects to preview authentication (HTTP 302). Authenticated wide desktop screenshot was compared with Fares's selected concept, including fabric texture, blue seam, visible pattern lines, headline/copy/timeline/button hierarchy. English and Arabic 390×844 layouts were manually inspected; hosted browser checks cover EN/AR RTL, mobile, keyboard, reduced-motion and no horizontal overflow. The intentionally retained site header and responsive stacked mobile layout differ from the section-only concept. Fares's final visual acceptance remains pending. Production, PR merge, public client publication and ERP Gate D remain NO-GO.
+## H04 exact selected-work authority candidate (2026-09-26)
+
+Fares rejected the previous H04 rendition because it matched only the broad structure. The exact authority for this correction is the user-supplied 1672×941 image `ChatGPT Image Sep 26, 2026, 06_01_37 PM.png`.
+
+Exact implementation/deployment source: `516b69c8b27cfd5fbe6095b236ea912871a1960b`.
+
+Implemented visual contract:
+
+- section-local edge-to-edge eyebrow/headline geometry and two-line lockup;
+- full-width three-client selector rail and independent View All Clients action;
+- dark navy left diagonal frame with browser-native PEOPLE / PURPOSE / UNIFORMS annotation;
+- authorized real KGC campus layer plus a clean, independently addressable canvas cutout computed from the authorized original KGC worn-model image at runtime;
+- source image remains `/review-media/kgc/high-summer.png`; the authority screenshot is never runtime media;
+- separate pale blueprint detail panel with an angled blue handoff edge;
+- three truthful garment-detail crops labelled Shirt, Brand detail and Bottoms;
+- browser-native lower-right brighter-tomorrow annotation and retained KGC CTA;
+- mobile-specific composition, Arabic RTL, keyboard semantics, reduced motion and no horizontal overflow retained.
+
+Hosted evidence:
+
+- design authority: [run `36253919177`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36253919177), job `108436991512`, GREEN; typecheck, production build and 13/13 browser checks;
+- design artifact: `10909729439`, `sha256:53ac22c32d8ca9053df33a5ca53bb7181bcbb10ca7b34fc0ca0ff2f8b7ce55cc`;
+- exact-source full candidate: [run `36254761380`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36254761380), job `108439325859`, GREEN;
+- full-candidate artifact: `10910034696`, `sha256:82108192fda0cd612e7a208b0dc92a1c89207279c560f70caff2fbaf7fd75f8c`;
+- protected preview: https://fares-uniform-design-authority-j2tcp8p7l.vercel.app/en#work;
+- deployment state: READY; target: preview / non-production; unauthenticated request: HTTP 302.
+
+Authenticated desktop inspection was compared directly with the supplied authority. Hosted evidence also covers English mobile, Arabic RTL, keyboard operation, reduced motion and horizontal-overflow prevention.
+
+Acceptance boundary: technically ready for Fares visual review. Final visual approval is not inferred. Production, PR merge, public KGC/client publication and ERP Gate D remain NO-GO.
