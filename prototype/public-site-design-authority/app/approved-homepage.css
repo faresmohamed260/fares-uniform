@@ -510,3 +510,11 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
  [dir="rtl"] .approved-client-worn{right:auto;left:7%}[dir="rtl"] .approved-client-left-frame{left:auto;right:0;clip-path:polygon(75% 0,100% 0,100% 100%,0 100%);padding-left:0;padding-right:clamp(34px,2.8vw,58px)}[dir="rtl"] .approved-client-visual-copy{left:auto;right:clamp(48px,3.2vw,66px)}[dir="rtl"] .approved-client-right-note{right:auto;left:clamp(18px,2vw,40px);text-align:right}
 }
 @media(max-width:720px){.approved-client-left-frame{display:none}.approved-client-worn{right:-17%;bottom:-16%;width:88%;height:112%;filter:drop-shadow(-12px 12px 20px rgba(0,25,55,.2));mask-image:none}.approved-client-right-note{display:block;position:relative;margin:28px 0 0;color:#7890aa;font-size:9px;font-weight:700;line-height:1.45;letter-spacing:.2em}.approved-client-right-note i{display:block;width:34px;height:3px;margin-top:10px;background:#1687ff}}
+/* H04 measured final alignment against the approved 1672x941 composition. */
+@media(min-width:1101px){
+ .approved-selected-intro h2{font-size:clamp(78px,6.55vw,170px)}
+ .approved-client-worn{right:-6%;bottom:-30%;width:min(78%,1100px);height:140%}
+ .approved-client-details{clip-path:polygon(16% 0,100% 0,100% 100%,0 100%)}
+ [dir="rtl"] .approved-client-worn{right:auto;left:-6%}
+ [dir="rtl"] .approved-client-details{clip-path:polygon(0 0,84% 0,100% 100%,0 100%)}
+}
