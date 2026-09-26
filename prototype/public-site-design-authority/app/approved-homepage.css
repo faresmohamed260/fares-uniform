@@ -487,7 +487,7 @@ body:has(.approved-homepage) .site-bar,body:has(.approved-homepage) .review-badg
 /* H04 final same-viewport correction: preserve the explicit two-line lockup and dissolve the source-white model field. */
 @media(min-width:1101px){
  .approved-selected-intro h2{max-width:none;white-space:pre;font-size:clamp(68px,5.8vw,116px)}
- .approved-client-worn{right:-4%;bottom:-20%;width:min(57%,680px);height:126%;object-fit:contain;object-position:center bottom;mix-blend-mode:multiply;filter:brightness(1.2) contrast(.9) saturate(.94) drop-shadow(-20px 18px 28px rgba(0,25,55,.18))}
+ .approved-client-worn{right:-4%;bottom:-20%;width:min(57%,680px);height:126%;object-fit:contain;object-position:center bottom;mix-blend-mode:darken;filter:brightness(1.08) contrast(1.02) saturate(1.04) drop-shadow(-20px 18px 28px rgba(0,25,55,.18))}
  .approved-client-details{filter:drop-shadow(-5px 0 0 #1687ff)}
  [dir="rtl"] .approved-client-worn{right:auto;left:-4%}
  [dir="rtl"] .approved-client-details{filter:drop-shadow(5px 0 0 #1687ff)}
