@@ -446,3 +446,21 @@ Review deployment evidence:
 - Vercel marks the preview `noindex`.
 
 The existing real `fares-uniform` Vercel project remains on Phase 8 deployment `dpl_Ba34KhzW7AZ6aBY7poz1DeaQa3rg` / application SHA `2a74e93b1828c16839ba7cede336caa4ca374306`. No `faresuniform.uk` cutover occurred. No KGC or real-client media was published. This review deployment supplies the human visual-acceptance surface only and does not satisfy or bypass the explicit acceptance requirement.
+## Homepage H04 — Selected Work exact-source review
+
+Implementation authority: `31377df0ec019cb43bd0c41ef364c8e091ff025e`.
+
+Exact design-authority push run `36196331054`, job `108272906752`, is **GREEN**:
+
+- locked dependency install, TypeScript typecheck and optimized production build passed;
+- browser design gate passed **13/13** checks in 42.9s;
+- the homepage contains one truthful editorial KGC National feature instead of the illustrative Hospitality/Healthcare pseudo-project rail;
+- the protected original High/Summer worn/model anchor and protected campus context remain two independent images, with browser-native title, description and actions;
+- English desktop and 390x844 mobile render the editorial composition without horizontal overflow;
+- Arabic renders `lang=ar`, `dir=rtl`, mirrors the image order and retains the localized project action;
+- interaction proof followed the Arabic `استكشف المشروع` action to canonical `/ar/work/kgc/national` without a framework error overlay;
+- no relevant H04 browser error was observed; the existing Scrollcraft warning for the earlier Process stage remains a separate H03 concern;
+- exact protected deployment: `https://fares-uniform-design-authority-4pdpc9okg.vercel.app`;
+- artifact `10889832855`, digest `sha256:c73e5e2d1652a3c62eb3f6ce4b569cd6cd97ef7101b3f2cddc4dae947c2a0980`.
+
+The preview remains protected and non-production. This evidence does not authorize public KGC publication, production cutover, PR merge, ERP Gate D or final visual acceptance. The next isolated homepage checkpoint is H05 Garment Universe.
