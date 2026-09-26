@@ -320,11 +320,32 @@ export function ApprovedFeatureBand({locale}:{locale:Locale}){
  </section>;
 }
 
+function CleanKgcCutout({src,label}:{src:string;label:string}){
+ const canvas=useRef<HTMLCanvasElement>(null);
+ useEffect(()=>{
+  let cancelled=false;const image=new Image();image.decoding="async";
+  image.onload=()=>{
+   if(cancelled||!canvas.current)return;
+   const target=canvas.current,context=target.getContext("2d",{willReadFrequently:true});if(!context)return;
+   target.width=image.naturalWidth;target.height=image.naturalHeight;context.drawImage(image,0,0);
+   const frame=context.getImageData(0,0,target.width,target.height),pixels=frame.data;
+   const total=target.width*target.height,seen=new Uint8Array(total),queue=new Int32Array(total);let head=0,tail=0;
+   const isBackground=(index:number)=>{const offset=index*4,r=pixels[offset],g=pixels[offset+1],b=pixels[offset+2];return Math.min(r,g,b)>205&&Math.max(r,g,b)-Math.min(r,g,b)<30;};
+   const enqueue=(index:number)=>{if(index<0||index>=total||seen[index]||!isBackground(index))return;seen[index]=1;queue[tail++]=index;};
+   for(let x=0;x<target.width;x++){enqueue(x);enqueue((target.height-1)*target.width+x);}for(let y=0;y<target.height;y++){enqueue(y*target.width);enqueue(y*target.width+target.width-1);}
+   while(head<tail){const index=queue[head++],x=index%target.width;pixels[index*4+3]=0;if(x>0)enqueue(index-1);if(x<target.width-1)enqueue(index+1);enqueue(index-target.width);enqueue(index+target.width);}
+   for(let index=0;index<total;index++){if(seen[index])continue;const x=index%target.width,y=Math.floor(index/target.width);if(x===0||y===0||x===target.width-1||y===target.height-1)continue;const touches=seen[index-1]||seen[index+1]||seen[index-target.width]||seen[index+target.width];if(!touches)continue;const offset=index*4,r=pixels[offset],g=pixels[offset+1],b=pixels[offset+2],low=Math.min(r,g,b),chroma=Math.max(r,g,b)-low;if(low>178&&chroma<38)pixels[offset+3]=Math.min(pixels[offset+3],Math.max(0,(235-low)*12));}
+   context.putImageData(frame,0,0);target.dataset.cutoutReady="true";
+  };
+  image.src=src;return()=>{cancelled=true;image.onload=null;};
+ },[src]);
+ return <canvas ref={canvas} data-media-slot="home.work.kgc" data-source={src} data-component-id="H04.03" className="approved-client-worn" role="img" aria-label={label}/>;
+}
 const publishedClientPrograms=[
- {key:"kgc-national",name:"KGC National",route:"/work/kgc/national",programEn:"SCHOOL UNIFORM PROGRAM",programAr:"برنامج زي مدرسي",summaryEn:"A coordinated uniform program designed to express one identity across the school day.",summaryAr:"برنامج زي موحّد متناسق صُمم ليعبّر عن هوية واحدة طوال اليوم الدراسي.",campus:"/review-media/kgc/kgc-building.webp",worn:"/review-media/kgc/high-summer.png",logo:"/review-media/kgc/kgc-logo.webp",products:[
-  {src:"/review-media/kgc/high-summer.png",labelEn:"Worn look",labelAr:"الإطلالة الكاملة"},
-  {src:"/review-media/kgc/high-summer-polo-front.png",labelEn:"Polo front",labelAr:"القميص من الأمام"},
-  {src:"/review-media/kgc/high-summer-polo-back.png",labelEn:"Polo back",labelAr:"القميص من الخلف"},
+ {key:"kgc-national",name:"KGC National",route:"/work/kgc/national",programEn:"SCHOOL UNIFORM PROGRAM",programAr:"برنامج زي مدرسي",summaryEn:"A unified uniform program for KGC National — designed to reflect who they are today, and support where they're going tomorrow.",summaryAr:"برنامج زي موحّد متكامل لـ KGC National — يعكس هويتهم اليوم ويدعم طريقهم نحو الغد.",campus:"/review-media/kgc/kgc-building.webp",worn:"/review-media/kgc/high-summer.png",logo:"/review-media/kgc/kgc-logo.webp",products:[
+  {src:"/review-media/kgc/high-summer.png",labelEn:"Shirt",labelAr:"القميص"},
+  {src:"/review-media/kgc/high-summer-polo-front.png",labelEn:"Brand detail",labelAr:"تفاصيل الهوية"},
+  {src:"/review-media/kgc/high-summer.png",labelEn:"Bottoms",labelAr:"البنطال"},
  ]},
 ] as const;
 
@@ -352,14 +373,16 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
   </div>
   <div className="approved-client-stage" id={"client-panel-"+client.key} role="tabpanel" aria-labelledby={"client-tab-"+client.key}>
    <div className="approved-client-visual">
+    <div className="approved-client-left-frame" aria-hidden="true"><span>PEOPLE.</span><span>PURPOSE.</span><span>UNIFORMS.</span><i/></div>
     <img data-media-slot="home.work.kgc.campus" data-component-id="H04.04" className="approved-client-campus" src={client.campus} width={169} height={149} loading="lazy" decoding="async" alt={ar?"حرم KGC، صورة أصلية ضمن المراجعة المحمية":"KGC campus in protected review"}/>
     <div className="approved-client-visual-copy"><h3>{client.name}</h3><span>{ar?client.programAr:client.programEn}</span><p>{ar?"تحويل الهوية إلى نظام يومي متناسق.":"Turning identity into a coordinated everyday system."}</p></div>
-    <img data-media-slot="home.work.kgc" data-component-id="H04.03" className="approved-client-worn" src={client.worn} width={1013} height={1267} loading="lazy" decoding="async" alt={ar?"زي KGC الصيفي للمرحلة الثانوية، صورة أصلية ضمن المراجعة المحمية":"Original KGC High/Summer uniform worn-model image in protected review"}/>
+    <CleanKgcCutout src={client.worn} label={ar?"زي KGC الصيفي للمرحلة الثانوية، صورة أصلية ضمن المراجعة المحمية":"Original KGC High/Summer uniform worn-model image in protected review"}/>
    </div>
    <div className="approved-client-details">
     <span className="approved-stage-kicker">{ar?"العميل المختار":"SELECTED CLIENT"}</span><h3>{client.name}</h3><strong>{ar?client.programAr:client.programEn}</strong><p>{ar?client.summaryAr:client.summaryEn}</p>
-    <div className="approved-client-products" aria-label={ar?"نماذج حقيقية من البرنامج":"Real program views"}>{client.products.map(product=><figure key={product.src}><div><img src={product.src} width={1013} height={1267} loading="lazy" decoding="async" alt={ar?product.labelAr:product.labelEn}/></div><figcaption>{ar?product.labelAr:product.labelEn}</figcaption></figure>)}</div>
+    <div className="approved-client-products" aria-label={ar?"نماذج حقيقية من البرنامج":"Real program views"}>{client.products.map(product=><figure key={product.labelEn}><div><img src={product.src} width={1013} height={1267} loading="lazy" decoding="async" alt={ar?product.labelAr:product.labelEn}/></div><figcaption>{ar?product.labelAr:product.labelEn}</figcaption></figure>)}</div>
     <a data-component-id="H04.05" href={"/"+locale+client.route}>{ar?"استكشف KGC National":"Explore KGC National"} <ChevronRight aria-hidden="true"/></a>
+     <div className="approved-client-right-note" aria-hidden="true">A BRIGHTER<br/>TOMORROW<br/>IN UNIFORM.<i/></div>
    </div>
   </div>
  </section>;

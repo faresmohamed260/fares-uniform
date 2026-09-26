@@ -292,7 +292,7 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     expect(feature?.height??0).toBeLessThan(height*1.9);
     const selectedWork=await page.getByTestId("approved-h04").boundingBox();
     expect(selectedWork?.width??Infinity).toBeLessThanOrEqual(width+1);
-    await expect(page.locator(".approved-client-stage img")).toHaveCount(5);
+    await expect(page.locator(".approved-client-stage img")).toHaveCount(4);await expect(page.locator(".approved-client-stage canvas")).toHaveCount(1);
     await page.locator(".approved-sector-option").nth(1).click();
     await expect(page.locator(".approved-industry-stage-copy h3")).toHaveText("Hospitality");
   }
@@ -399,7 +399,7 @@ test("Selected Work is a truthful client selector with a dedicated KGC route",as
  await expect(section.getByRole("link",{name:"Explore KGC National"})).toHaveAttribute("href","/en/work/kgc/national");
  await expect(section.getByRole("link",{name:"View All Clients"})).toHaveAttribute("href","/en/work");
  await expect(section.getByRole("tab",{name:"Client 02"})).toBeDisabled();await expect(section.getByRole("tab",{name:"Client 03"})).toBeDisabled();await expect(section.getByText(/Hospitality|Healthcare/)).toHaveCount(0);
- await expect(section.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/high-summer.png");
+ await expect(section.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("data-source","/review-media/kgc/high-summer.png");await expect.poll(async()=>section.locator('[data-media-slot="home.work.kgc"]').getAttribute("data-cutout-ready")).toBe("true");
  await expect(section.locator('[data-media-slot="home.work.kgc.campus"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
  await expect(section.locator(".approved-client-products img")).toHaveCount(3);await expect(section.locator(".approved-work-note")).toContainText("More than uniforms");
  await section.getByRole("tab",{name:"KGC National"}).focus();await page.keyboard.press("ArrowRight");await expect(section.getByRole("tab",{name:"KGC National"})).toBeFocused();
