@@ -292,7 +292,7 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     expect(feature?.height??0).toBeLessThan(height*1.9);
     const selectedWork=await page.getByTestId("approved-h04").boundingBox();
     expect(selectedWork?.width??Infinity).toBeLessThanOrEqual(width+1);
-    await expect(page.locator(".approved-client-stage img")).toHaveCount(6);
+    await expect(page.locator(".approved-client-stage img")).toHaveCount(5);
     await page.locator(".approved-sector-option").nth(1).click();
     await expect(page.locator(".approved-industry-stage-copy h3")).toHaveText("Hospitality");
   }

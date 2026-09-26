@@ -351,7 +351,7 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
   <div className="approved-client-stage" id={"client-panel-"+client.key} role="tabpanel" aria-labelledby={"client-tab-"+client.key} data-sc-in data-sc-stagger="90">
    <div className="approved-client-visual">
     <img data-media-slot="home.work.kgc.campus" data-component-id="H04.04" className="approved-client-campus" src={client.campus} width={169} height={149} loading="lazy" decoding="async" alt={ar?"حرم KGC، صورة أصلية ضمن المراجعة المحمية":"KGC campus in protected review"}/>
-    <div className="approved-client-visual-copy"><img className="approved-client-logo" src={client.logo} width={500} height={500} loading="lazy" decoding="async" alt="KGC"/><span>{ar?client.programAr:client.programEn}</span><p>{ar?"تحويل الهوية إلى نظام يومي متناسق.":"Turning identity into a coordinated everyday system."}</p></div>
+    <div className="approved-client-visual-copy"><h3>{client.name}</h3><span>{ar?client.programAr:client.programEn}</span><p>{ar?"تحويل الهوية إلى نظام يومي متناسق.":"Turning identity into a coordinated everyday system."}</p></div>
     <img data-media-slot="home.work.kgc" data-component-id="H04.03" className="approved-client-worn" src={client.worn} width={1013} height={1267} loading="lazy" decoding="async" alt={ar?"زي KGC الصيفي للمرحلة الثانوية، صورة أصلية ضمن المراجعة المحمية":"Original KGC High/Summer uniform worn-model image in protected review"}/>
    </div>
    <div className="approved-client-details">
