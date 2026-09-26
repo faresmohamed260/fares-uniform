@@ -169,7 +169,7 @@ test("media provenance removes cropped/recycled runtime bitmaps",async({page})=>
   await expect(page.locator('[data-media-slot="home.hero.manufacturing"]')).toHaveAttribute("src","/generated/home-hero-manufacturing-v1.png");
   await expect(page.locator(".approved-quality-card")).toHaveCount(0);
   await expect(page.locator(".approved-hero-benefits > div")).toHaveCount(4);
-  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/high-summer.png");
+  await expect(page.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("data-source","/review-media/kgc/high-summer.png");await expect.poll(async()=>page.locator('[data-media-slot="home.work.kgc"]').getAttribute("data-cutout-ready")).toBe("true");
   await expect(page.locator('[data-media-slot="home.work.kgc.campus"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
   for(const slot of [
     "home.industries.education","home.industries.hospitality","home.industries.healthcare",
