@@ -464,3 +464,30 @@ Exact design-authority push run `36196331054`, job `108272906752`, is **GREEN**:
 - artifact `10889832855`, digest `sha256:c73e5e2d1652a3c62eb3f6ce4b569cd6cd97ef7101b3f2cddc4dae947c2a0980`.
 
 The preview remains protected and non-production. This evidence does not authorize public KGC publication, production cutover, PR merge, ERP Gate D or final visual acceptance. The next isolated homepage checkpoint is H05 Garment Universe.
+## Homepage H04 — client-program selector exact-source review
+
+Implementation authority: `c76e3e2f24d6da96623f74535319a61a142f1d9e`.
+
+Exact full-candidate pull-request run `36233111722`, job `108379882896`, is **GREEN**:
+
+- static-quality, TypeScript typecheck and optimized production build passed;
+- foundation, Pattern migration, accessibility/motion, enquiry hardening, rendered full-candidate and cache/SEO/resilience/performance matrices passed;
+- artifact `10903241448`, digest `sha256:17bdcdba20b64c3525d66708c39712a1501102cddc96238f83c478a3cc49e355`.
+
+Exact design-authority push run `36233110268`, job `108379878638`, is **GREEN**:
+
+- typecheck and optimized production build passed;
+- browser design gate passed **13/13** checks;
+- H04 exposes one truthful KGC National client tab with semantic tab/tabpanel state and keyboard navigation;
+- fabricated Client 02/03 and generic pseudo-client cards are absent;
+- only the protected KGC campus, worn-model original and real front/back packshots are used;
+- English desktop, 390x844 English mobile and Arabic RTL were inspected without horizontal overflow;
+- reduced-motion information parity is covered by the hosted accessibility/motion and design gates;
+- canonical actions resolve to `/en/work`, `/en/work/kgc/national` and their Arabic equivalents;
+- no browser console errors were observed;
+- artifact `10903277117`, digest `sha256:0ba3ca3dabd7db7781afcd2d3ca1f32af3bcf1ae6acabd13f9da7a9980bbfba6`;
+- exact protected deployment: `https://fares-uniform-design-authority-7gux9v0js.vercel.app`.
+
+The concept was adapted truthfully: the available worn-model original remains an independent browser image blended over the independent campus image rather than being presented as a fabricated transparent cutout. Only the review-authorized KGC program appears; no fake client placeholders or public client publication were introduced.
+
+The preview remains protected and non-production. This evidence does not authorize production cutover, PR merge, public KGC publication, ERP Gate D or final visual acceptance.
