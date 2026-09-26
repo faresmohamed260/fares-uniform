@@ -1,62 +1,58 @@
-# Design QA — Homepage H04 client-program selector
+# Design QA — Homepage H04 approved client-program composition
 
-Status: **passed for protected review; final Fares visual approval pending**
+final result: passed
 
-## Source visual truth
+## Source and implementation
 
-- Accepted concept: `C:\Users\Fares Mohamed\.codex\generated_images\01a0dc39-dca5-7501-b2e1-ae1b691f6717\exec-cac4a8c2-cc05-4e8f-a2fe-01ab1f84eb34.png`
-- Implementation authority: `c76e3e2f24d6da96623f74535319a61a142f1d9e`
-- Exact protected preview: `https://fares-uniform-design-authority-7gux9v0js.vercel.app/en#work`
-- Browser evidence: authenticated direct Browser/CUA review at desktop and 390x844 mobile in English and Arabic RTL. The remote-only rule prohibited downloading a local implementation screenshot; hosted captures are retained in the exact-SHA Actions artifacts.
+- Source visual truth: `C:\Users\Fares Mohamed\.codex\generated_images\01a0dc39-dca5-7501-b2e1-ae1b691f6717\exec-cac4a8c2-cc05-4e8f-a2fe-01ab1f84eb34.png`
+- Source pixels: 1672 x 941.
+- Implementation authority: `15add01f48ebf5b219a118ff29be587478502cf6`
+- Exact preview: `https://fares-uniform-design-authority-4o87c5m3l.vercel.app/en#work`
+- Hosted implementation screenshot: artifact `10907304846`, `home-client-program-desktop.png` at 1440 x 900 CSS pixels, device scale factor 1.
+- Responsive evidence: direct Browser/CUA inspection at the normal desktop viewport and 390 x 844 CSS pixels in English and Arabic RTL.
+- State: KGC National selected; Client 02/03 visible as disabled future slots.
+- Density normalization: CSS-pixel comparison; no device-frame or browser-chrome judgment.
 
-## Comparison checklist
+## Full-view comparison
 
-| Check | Result |
-| --- | --- |
-| Two-line client-program headline and editorial hierarchy | Pass |
-| Compact client selector ribbon with selected state and all-clients action | Pass |
-| H03 technical-pattern language continues into H04 | Pass |
-| Campus, worn-model anchor and program detail remain distinct browser layers | Pass |
-| Real worn/front/back product views and canonical KGC action | Pass |
-| Desktop scale and section continuity | Pass |
-| 390x844 English mobile, no horizontal overflow | Pass |
-| 390x844 Arabic RTL, localized and no horizontal overflow | Pass |
-| Keyboard semantics for tabs and links | Pass |
-| Reduced-motion information parity | Pass via hosted accessibility/motion gate |
-| Browser console errors | Pass: none observed |
+The corrected render restores the selected concept's information hierarchy and proportions: compact header, Selected Work eyebrow, two-line headline, handwritten right note, full-width selector rail, large campus-led project field, model overlap, angled pale technical panel, three product views and primary project action.
 
-## Iterations and corrections
+## Focused-region comparison
 
-1. The initial implementation wrapped the approved heading to three lines and left a weak blank logo tile.
-2. The fidelity pass restored the two-line headline, replaced the blank tile with a code-native KGC National lockup, and blended the real worn image into the campus composition.
-3. The final correction removed an entrance-state dependency that could leave the client stage hidden when scroll snapping landed directly on H04.
+- Headline: corrected from three lines to the source's explicit two-line lockup.
+- Selector: corrected from one isolated tab to a three-position rail with one truthful enabled client and two disabled future positions.
+- Main project field: model and campus remain independent browser images; the source-white field is dissolved through browser-native blending without baking UI into media.
+- Detail panel: angled geometry, KGC program hierarchy, real worn/front/back media and CTA match the source role and placement.
+- Handwritten note: restored in the upper-right field with the approved brand message.
+- Focused regions were readable in direct desktop captures; no additional raster zoom was required.
 
-## Copy diff
+## Required fidelity surfaces
 
-- Eyebrow: `SELECTED WORK`
-- Headline: `CLIENT PROGRAMS, BUILT AROUND IDENTITY.`
-- Introduction: `Choose a client to preview how its identity becomes a coordinated uniform program, then explore the full project.`
-- Selector action: `View All Clients`
-- KGC description: `A coordinated uniform program designed to express one identity across the school day.`
-- Project action: `Explore KGC National`
+- Typography: passed. Display scale, two-line wrapping, hierarchy and selector weights align with the source.
+- Spacing/layout: passed. Header-to-intro, selector and stage proportions follow the selected composition.
+- Colors/tokens: passed. Navy, Fares blue, pale technical field and white rail match the established homepage palette.
+- Image quality/assets: passed within the truthful-media boundary. Campus, worn model and front/back packshots are real protected review media and remain independent layers.
+- Copy/content: passed. Source-aligned headline and brand note are restored; KGC-specific copy and routes remain truthful.
 
-Arabic equivalents remain localized and route to the Arabic work/project paths.
+## Comparison history
 
-## Intentional deviations
+1. `c76e3e2f24d6da96623f74535319a61a142f1d9e` — blocked: wrong compressed intro, missing handwritten framing, one-position selector and non-matching split stage.
+2. `509a83f2def2893090366d4a72a0f4051af03ffd` — blocked: composition restored, but headline still wrapped to three lines and the worn-media white field remained visible.
+3. `c1246e5b2fe9bf03059e16730c89388ee39a0a71` — corrected explicit two-line headline and dissolved the white media field; remaining model color was too dark.
+4. `15add01f48ebf5b219a118ff29be587478502cf6` — passed: true garment colors retained with darken blending; desktop/mobile/RTL review complete.
 
-- Only KGC National is shown because it is the sole real, review-authorized client program; fake client placeholders were not created.
-- Source media does not include a truthful transparent KGC people cutout. The worn original stays independent and uses browser-native masking/blending over the independent campus image.
-- Conceptual detail crops were replaced with real worn, polo-front and polo-back media.
-- The existing header and adjacent homepage sections were preserved.
+## Interaction and browser verification
 
-## Verification evidence
+- KGC National tab selected and keyboard semantics retained.
+- Client 02/03 are disabled and create no fake client routes.
+- View All Clients -> `/en/work`.
+- Explore KGC National -> `/en/work/kgc/national`.
+- 390 x 844 English and Arabic RTL: no horizontal overflow.
+- Console: no application errors. Known H03 Scrollcraft sticky-stage warning remains unrelated.
+- Hosted browser design gate and full candidate: GREEN.
 
-- Full candidate: run `36233111722`, job `108379882896`, artifact `10903241448`, digest `sha256:17bdcdba20b64c3525d66708c39712a1501102cddc96238f83c478a3cc49e355`
-- Design authority: run `36233110268`, job `108379878638`, artifact `10903277117`, digest `sha256:0ba3ca3dabd7db7781afcd2d3ca1f32af3bcf1ae6acabd13f9da7a9980bbfba6`
-- Browser design gate: 13/13
-- Console errors: none
-- Preview protection: unauthenticated access fails closed
+## Intentional constraints
 
-## Fidelity statement
-
-The exact deployment matches the accepted concept's composition, hierarchy, selector behavior, section continuity and branded technical language while preserving truthful media boundaries. No P0, P1 or P2 design-QA defect remains in this isolated H04 checkpoint.
+- The approved mock's generated student is not used as runtime media. The implementation uses the rights-authorized KGC worn model.
+- The mock's invented garment-detail crops are replaced by truthful worn/front/back review media.
+- The screenshot is not used at runtime and no UI is baked into an image.

@@ -491,3 +491,20 @@ Exact design-authority push run `36233110268`, job `108379878638`, is **GREEN**:
 The concept was adapted truthfully: the available worn-model original remains an independent browser image blended over the independent campus image rather than being presented as a fabricated transparent cutout. Only the review-authorized KGC program appears; no fake client placeholders or public client publication were introduced.
 
 The preview remains protected and non-production. This evidence does not authorize production cutover, PR merge, public KGC publication, ERP Gate D or final visual acceptance.
+## Homepage H04 — approved-design fidelity correction
+
+Fares rejected the earlier `c76e3e2f24d6da96623f74535319a61a142f1d9e` rendering because it did not match the selected concept. That earlier visual-acceptance statement is superseded.
+
+Corrected implementation authority: `15add01f48ebf5b219a118ff29be587478502cf6`.
+
+- exact full-candidate run/job `36247308001` / `108418769503` is GREEN;
+- full-candidate artifact `10907612505`, digest `sha256:72c6b15ba7e797ab126b9f439fa22ea4991cb3487cf8d80b86ef7b59f56a4c4d`;
+- exact design-authority push run/job `36247303399` / `108418757825` is GREEN;
+- design artifact `10907304846`, digest `sha256:e40773c4545ec689c6f79bbef057923f4f8c919c4b6274423655352f85cc177e`;
+- exact protected preview: `https://fares-uniform-design-authority-4o87c5m3l.vercel.app`;
+- corrected desktop composition restores the two-line headline, handwritten note, three-position selector, campus/model overlap, diagonal technical panel, product views and action;
+- Client 02/03 remain disabled visual future slots; no fabricated client project or route exists;
+- direct 390x844 EN and Arabic RTL review reported zero horizontal overflow;
+- no application console error was observed; the known H03 Scrollcraft sticky-position warning remains outside H04.
+
+The preview remains protected and non-production. This evidence does not authorize production cutover, PR merge, public KGC publication, ERP Gate D or final visual acceptance.
