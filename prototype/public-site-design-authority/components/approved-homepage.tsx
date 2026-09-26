@@ -348,7 +348,7 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
    </div>
    <a className="approved-work-all" data-component-id="H04.06" href={"/"+locale+"/work"}>{ar?"عرض كل العملاء":"View All Clients"} <ChevronRight aria-hidden="true"/></a>
   </div>
-  <div className="approved-client-stage" id={"client-panel-"+client.key} role="tabpanel" aria-labelledby={"client-tab-"+client.key} data-sc-in data-sc-stagger="90">
+  <div className="approved-client-stage" id={"client-panel-"+client.key} role="tabpanel" aria-labelledby={"client-tab-"+client.key}>
    <div className="approved-client-visual">
     <img data-media-slot="home.work.kgc.campus" data-component-id="H04.04" className="approved-client-campus" src={client.campus} width={169} height={149} loading="lazy" decoding="async" alt={ar?"حرم KGC، صورة أصلية ضمن المراجعة المحمية":"KGC campus in protected review"}/>
     <div className="approved-client-visual-copy"><h3>{client.name}</h3><span>{ar?client.programAr:client.programEn}</span><p>{ar?"تحويل الهوية إلى نظام يومي متناسق.":"Turning identity into a coordinated everyday system."}</p></div>
