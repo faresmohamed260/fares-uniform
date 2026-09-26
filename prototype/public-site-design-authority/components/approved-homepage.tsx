@@ -320,34 +320,48 @@ export function ApprovedFeatureBand({locale}:{locale:Locale}){
  </section>;
 }
 
-export function ApprovedSelectedWork({locale}:{locale:Locale}){
-  const ar=locale==="ar";
-  return <section className="approved-selected-work" data-sc-act="flow" data-sc-drift="#f4f8fc" data-section-id="H04" data-testid="approved-h04">
-    <div className="approved-selected-intro" data-sc-in data-sc-stagger="70">
-      <span className="approved-eyebrow" data-component-id="H04.01">{ar?"أعمال مختارة":"SELECTED WORK"}</span>
-      <h2 data-component-id="H04.02">{ar?"هوية تُرتدى\nكل يوم":"An identity worn\nevery day."}</h2>
-      <p>{ar?"مثال على كيف تتحول هوية المؤسسة إلى برنامج زي متناسق.":"A closer look at how an organization’s identity becomes a coordinated uniform program."}</p>
-    </div>
-    <div className="approved-case-study" data-sc-in data-sc-stagger="90">
-      <div className="approved-case-visuals">
-        <figure className="approved-case-worn">
-          <img data-media-slot="home.work.kgc" data-component-id="H04.03" src="/review-media/kgc/high-summer.png" width={1013} height={1267} loading="lazy" decoding="async" alt={ar?"زي KGC الصيفي للمرحلة الثانوية، صورة أصلية ضمن المراجعة المحمية":"Original KGC High/Summer uniform worn-model image in protected review"}/>
-        </figure>
-        <figure className="approved-case-context">
-          <img data-media-slot="home.work.kgc.campus" data-component-id="H04.04" src="/review-media/kgc/kgc-building.webp" width={169} height={149} loading="lazy" decoding="async" alt={ar?"حرم KGC، صورة أصلية ضمن المراجعة المحمية":"KGC campus in protected review"}/>
-        </figure>
-      </div>
-      <div className="approved-case-copy">
-        <span>{ar?"٠١ / برنامج زي مدرسي":"01 / SCHOOL UNIFORM PROGRAM"}</span>
-        <h3>KGC National</h3>
-        <p>{ar?"برنامج زي متناسق لهوية KGC الوطنية وللطلاب الذين يرتدونه.":"A coordinated uniform program for KGC National and the students who wear it."}</p>
-        <a data-component-id="H04.05" href={"/"+locale+"/work/kgc/national"}>{ar?"استكشف المشروع":"Explore the Project"} <ChevronRight aria-hidden="true"/></a>
-      </div>
-    </div>
-    <a className="approved-work-all" data-component-id="H04.06" href={"/"+locale+"/work"}>{ar?"عرض كل الأعمال":"View All Work"} <ChevronRight aria-hidden="true"/></a>
-  </section>;
-}
+const publishedClientPrograms=[
+ {key:"kgc-national",name:"KGC National",route:"/work/kgc/national",programEn:"SCHOOL UNIFORM PROGRAM",programAr:"برنامج زي مدرسي",summaryEn:"A coordinated uniform program designed to express one identity across the school day.",summaryAr:"برنامج زي موحّد متناسق صُمم ليعبّر عن هوية واحدة طوال اليوم الدراسي.",campus:"/review-media/kgc/kgc-building.webp",worn:"/review-media/kgc/high-summer.png",logo:"/review-media/kgc/kgc-logo.webp",products:[
+  {src:"/review-media/kgc/high-summer.png",labelEn:"Worn look",labelAr:"الإطلالة الكاملة"},
+  {src:"/review-media/kgc/high-summer-polo-front.png",labelEn:"Polo front",labelAr:"القميص من الأمام"},
+  {src:"/review-media/kgc/high-summer-polo-back.png",labelEn:"Polo back",labelAr:"القميص من الخلف"},
+ ]},
+] as const;
 
+export function ApprovedSelectedWork({locale}:{locale:Locale}){
+ const ar=locale==="ar";const [active,setActive]=useState(0);const client=publishedClientPrograms[active];
+ const selectWithArrow=(event:React.KeyboardEvent<HTMLButtonElement>,index:number)=>{
+  const step=event.key==="ArrowRight"||event.key==="ArrowDown"?1:event.key==="ArrowLeft"||event.key==="ArrowUp"?-1:0;
+  if(!step)return;event.preventDefault();const next=(index+step+publishedClientPrograms.length)%publishedClientPrograms.length;setActive(next);
+  event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
+ };
+ return <section id="work" className="approved-selected-work" data-sc-act="flow" data-sc-drift="#f4f8fc" data-section-id="H04" data-testid="approved-h04">
+  <div className="approved-client-pattern-bridge" aria-hidden="true"><img src="/generated/home-feature-pattern-blue.svg" width={1600} height={1000} alt=""/></div>
+  <header className="approved-selected-intro" data-sc-in data-sc-stagger="70">
+   <span className="approved-eyebrow" data-component-id="H04.01">{ar?"برامج العملاء":"SELECTED WORK"}</span>
+   <h2 data-component-id="H04.02">{ar?"برامج عملاء،\nمصممة حول الهوية.":"CLIENT PROGRAMS,\nBUILT AROUND IDENTITY."}</h2>
+   <p>{ar?"اختر عميلاً لترى كيف تتحول هويته إلى برنامج زي متناسق، ثم انتقل إلى صفحة المشروع الكاملة.":"Choose a client to preview how its identity becomes a coordinated uniform program, then explore the full project."}</p>
+  </header>
+  <div className="approved-client-selector">
+   <div role="tablist" aria-label={ar?"اختر برنامج عميل":"Choose a client program"}>
+    {publishedClientPrograms.map((item,index)=><button key={item.key} type="button" role="tab" id={"client-tab-"+item.key} aria-controls={"client-panel-"+item.key} aria-selected={index===active} tabIndex={index===active?0:-1} onClick={()=>setActive(index)} onKeyDown={event=>selectWithArrow(event,index)}>{item.name}</button>)}
+   </div>
+   <a className="approved-work-all" data-component-id="H04.06" href={"/"+locale+"/work"}>{ar?"عرض كل العملاء":"View All Clients"} <ChevronRight aria-hidden="true"/></a>
+  </div>
+  <div className="approved-client-stage" id={"client-panel-"+client.key} role="tabpanel" aria-labelledby={"client-tab-"+client.key} data-sc-in data-sc-stagger="90">
+   <div className="approved-client-visual">
+    <img data-media-slot="home.work.kgc.campus" data-component-id="H04.04" className="approved-client-campus" src={client.campus} width={169} height={149} loading="lazy" decoding="async" alt={ar?"حرم KGC، صورة أصلية ضمن المراجعة المحمية":"KGC campus in protected review"}/>
+    <div className="approved-client-visual-copy"><img className="approved-client-logo" src={client.logo} width={500} height={500} loading="lazy" decoding="async" alt="KGC"/><span>{ar?client.programAr:client.programEn}</span><p>{ar?"تحويل الهوية إلى نظام يومي متناسق.":"Turning identity into a coordinated everyday system."}</p></div>
+    <img data-media-slot="home.work.kgc" data-component-id="H04.03" className="approved-client-worn" src={client.worn} width={1013} height={1267} loading="lazy" decoding="async" alt={ar?"زي KGC الصيفي للمرحلة الثانوية، صورة أصلية ضمن المراجعة المحمية":"Original KGC High/Summer uniform worn-model image in protected review"}/>
+   </div>
+   <div className="approved-client-details">
+    <span className="approved-stage-kicker">{ar?"العميل المختار":"SELECTED CLIENT"}</span><h3>{client.name}</h3><strong>{ar?client.programAr:client.programEn}</strong><p>{ar?client.summaryAr:client.summaryEn}</p>
+    <div className="approved-client-products" aria-label={ar?"نماذج حقيقية من البرنامج":"Real program views"}>{client.products.map(product=><figure key={product.src}><div><img src={product.src} width={1013} height={1267} loading="lazy" decoding="async" alt={ar?product.labelAr:product.labelEn}/></div><figcaption>{ar?product.labelAr:product.labelEn}</figcaption></figure>)}</div>
+    <a data-component-id="H04.05" href={"/"+locale+client.route}>{ar?"استكشف KGC National":"Explore KGC National"} <ChevronRight aria-hidden="true"/></a>
+   </div>
+  </div>
+ </section>;
+}
 export function ApprovedClosingCta({locale}:{locale:Locale}){
  const ar=locale==="ar";
  return <section className="approved-closing-cta" data-sc-act="flow" data-sc-drift="#edf6fd" data-section-id="H05" data-testid="approved-h05">

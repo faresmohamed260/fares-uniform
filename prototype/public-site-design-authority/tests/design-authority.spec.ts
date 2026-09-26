@@ -292,7 +292,7 @@ test("mobile is independently composed at 390x844 and compact 360x640",async({pa
     expect(feature?.height??0).toBeLessThan(height*1.9);
     const selectedWork=await page.getByTestId("approved-h04").boundingBox();
     expect(selectedWork?.width??Infinity).toBeLessThanOrEqual(width+1);
-    await expect(page.locator(".approved-case-study img")).toHaveCount(2);
+    await expect(page.locator(".approved-client-stage img")).toHaveCount(6);
     await page.locator(".approved-sector-option").nth(1).click();
     await expect(page.locator(".approved-industry-stage-copy h3")).toHaveText("Hospitality");
   }
@@ -391,17 +391,19 @@ test("H01 rotates three distinct scenes with numbered controls and reduced-motio
   await expect(hero).toHaveAttribute("data-hero-scene","1");
 });
 
-test("Selected Work has one real editorial project and no illustrative pseudo-projects",async({page})=>{
-  await page.setViewportSize({width:1440,height:900});
-  await page.goto("/en");
-  const section=page.getByTestId("approved-h04");
-  await expect(section.getByRole("heading",{level:2,name:/An identity worn every day/i})).toBeVisible();
-  await expect(section.locator("img")).toHaveCount(2);
-  await expect(section.locator(".approved-work-capability")).toHaveCount(0);
-  await expect(section.getByRole("link",{name:"Explore the Project"})).toHaveAttribute("href","/en/work/kgc/national");
-  await page.setViewportSize({width:390,height:844});
-  expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
-  await page.goto("/ar");
-  await expect(page.getByTestId("approved-h04").getByRole("link",{name:"استكشف المشروع"})).toHaveAttribute("href","/ar/work/kgc/national");
-  expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
+test("Selected Work is a truthful client selector with a dedicated KGC route",async({page})=>{
+ await page.setViewportSize({width:1440,height:900});await page.goto("/en");const section=page.getByTestId("approved-h04");
+ await expect(section.getByRole("heading",{level:2,name:/Client programs, built around identity/i})).toBeVisible();
+ await expect(section.getByRole("tab",{name:"KGC National"})).toHaveAttribute("aria-selected","true");
+ await expect(section.getByRole("tabpanel")).toHaveAttribute("aria-labelledby","client-tab-kgc-national");
+ await expect(section.getByRole("link",{name:"Explore KGC National"})).toHaveAttribute("href","/en/work/kgc/national");
+ await expect(section.getByRole("link",{name:"View All Clients"})).toHaveAttribute("href","/en/work");
+ await expect(section.getByText(/Client 02|Client 03|Hospitality|Healthcare/)).toHaveCount(0);
+ await expect(section.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/high-summer.png");
+ await expect(section.locator('[data-media-slot="home.work.kgc.campus"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
+ await expect(section.locator(".approved-client-products img")).toHaveCount(3);
+ await section.getByRole("tab",{name:"KGC National"}).focus();await page.keyboard.press("ArrowRight");await expect(section.getByRole("tab",{name:"KGC National"})).toBeFocused();
+ await page.screenshot({path:"artifacts/home-client-program-desktop.png",fullPage:false});
+ await page.setViewportSize({width:390,height:844});await page.goto("/en#work");expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);await page.screenshot({path:"artifacts/home-client-program-mobile.png",fullPage:false});
+ await page.goto("/ar#work");await expect(page.getByTestId("approved-h04").getByRole("link",{name:"استكشف KGC National"})).toHaveAttribute("href","/ar/work/kgc/national");await expect(page.getByTestId("approved-h04").getByRole("link",{name:"عرض كل العملاء"})).toHaveAttribute("href","/ar/work");expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);
 });
