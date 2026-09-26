@@ -398,10 +398,10 @@ test("Selected Work is a truthful client selector with a dedicated KGC route",as
  await expect(section.getByRole("tabpanel")).toHaveAttribute("aria-labelledby","client-tab-kgc-national");
  await expect(section.getByRole("link",{name:"Explore KGC National"})).toHaveAttribute("href","/en/work/kgc/national");
  await expect(section.getByRole("link",{name:"View All Clients"})).toHaveAttribute("href","/en/work");
- await expect(section.getByText(/Client 02|Client 03|Hospitality|Healthcare/)).toHaveCount(0);
+ await expect(section.getByRole("tab",{name:"Client 02"})).toBeDisabled();await expect(section.getByRole("tab",{name:"Client 03"})).toBeDisabled();await expect(section.getByText(/Hospitality|Healthcare/)).toHaveCount(0);
  await expect(section.locator('[data-media-slot="home.work.kgc"]')).toHaveAttribute("src","/review-media/kgc/high-summer.png");
  await expect(section.locator('[data-media-slot="home.work.kgc.campus"]')).toHaveAttribute("src","/review-media/kgc/kgc-building.webp");
- await expect(section.locator(".approved-client-products img")).toHaveCount(3);
+ await expect(section.locator(".approved-client-products img")).toHaveCount(3);await expect(section.locator(".approved-work-note")).toContainText("More than uniforms");
  await section.getByRole("tab",{name:"KGC National"}).focus();await page.keyboard.press("ArrowRight");await expect(section.getByRole("tab",{name:"KGC National"})).toBeFocused();
  await page.screenshot({path:"artifacts/home-client-program-desktop.png",fullPage:false});
  await page.setViewportSize({width:390,height:844});await page.goto("/en#work");expect(await noHorizontalOverflow(page)).toBeLessThanOrEqual(1);await page.screenshot({path:"artifacts/home-client-program-mobile.png",fullPage:false});

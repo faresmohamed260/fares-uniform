@@ -337,14 +337,16 @@ export function ApprovedSelectedWork({locale}:{locale:Locale}){
  };
  return <section id="work" className="approved-selected-work" data-sc-act="flow" data-sc-drift="#f4f8fc" data-section-id="H04" data-testid="approved-h04">
   <div className="approved-client-pattern-bridge" aria-hidden="true"><img src="/generated/home-feature-pattern-blue.svg" width={1600} height={1000} alt=""/></div>
-  <header className="approved-selected-intro" data-sc-in data-sc-stagger="70">
-   <span className="approved-eyebrow" data-component-id="H04.01">{ar?"برامج العملاء":"SELECTED WORK"}</span>
-   <h2 data-component-id="H04.02">{ar?"برامج عملاء،\nمصممة حول الهوية.":"CLIENT PROGRAMS,\nBUILT AROUND IDENTITY."}</h2>
-   <p>{ar?"اختر عميلاً لترى كيف تتحول هويته إلى برنامج زي متناسق، ثم انتقل إلى صفحة المشروع الكاملة.":"Choose a client to preview how its identity becomes a coordinated uniform program, then explore the full project."}</p>
-  </header>
+  <header className="approved-selected-intro">
+    <span className="approved-eyebrow" data-component-id="H04.01">{ar?"برامج العملاء":"SELECTED WORK"}</span>
+    <h2 data-component-id="H04.02">{ar?"برامج عملاء،\nمصممة حول الهوية.":"CLIENT PROGRAMS,\nBUILT AROUND IDENTITY."}</h2>
+    <div className="approved-work-note" aria-label={ar?"أكثر من مجرد زي موحد. غد أكثر إشراقاً.":"More than uniforms. A brighter tomorrow."}>{ar?"أكثر من مجرد زي موحد.\nغد أكثر إشراقاً.":"More than uniforms.\nA brighter tomorrow."}</div>
+   </header>
   <div className="approved-client-selector">
    <div role="tablist" aria-label={ar?"اختر برنامج عميل":"Choose a client program"}>
     {publishedClientPrograms.map((item,index)=><button key={item.key} type="button" role="tab" id={"client-tab-"+item.key} aria-controls={"client-panel-"+item.key} aria-selected={index===active} tabIndex={index===active?0:-1} onClick={()=>setActive(index)} onKeyDown={event=>selectWithArrow(event,index)}>{item.name}</button>)}
+      <button className="approved-client-placeholder" type="button" role="tab" aria-disabled="true" disabled>{ar?"العميل ٠٢":"Client 02"}</button>
+      <button className="approved-client-placeholder" type="button" role="tab" aria-disabled="true" disabled>{ar?"العميل ٠٣":"Client 03"}</button>
    </div>
    <a className="approved-work-all" data-component-id="H04.06" href={"/"+locale+"/work"}>{ar?"عرض كل العملاء":"View All Clients"} <ChevronRight aria-hidden="true"/></a>
   </div>
