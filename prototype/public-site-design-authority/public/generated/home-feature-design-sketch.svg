@@ -1,0 +1,75 @@
+<svg width="519" height="263" viewBox="0 0 519 263" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="paper" x1="58" y1="18" x2="488" y2="249" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F2E7"/>
+      <stop offset="1" stop-color="#E8DECF"/>
+    </linearGradient>
+    <linearGradient id="sheet" x1="221" y1="43" x2="432" y2="229" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFDF7"/>
+      <stop offset="1" stop-color="#F2E9DB"/>
+    </linearGradient>
+    <filter id="shadow" x="164" y="12" width="323" height="250" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#6E604F" flood-opacity=".12"/>
+    </filter>
+    <pattern id="grain" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="2" r=".5" fill="#7D7469" fill-opacity=".08"/>
+      <circle cx="6" cy="5" r=".45" fill="#7D7469" fill-opacity=".06"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0 0L6 3L0 6Z" fill="#5D7591"/>
+    </marker>
+  </defs>
+  <rect width="519" height="263" fill="url(#paper)"/>
+  <rect width="519" height="263" fill="url(#grain)"/>
+  <g opacity=".28" stroke="#B7AA99" stroke-width=".8">
+    <path d="M0 42H519M0 93H519M0 144H519M0 195H519M0 246H519"/>
+    <path d="M54 0V263M106 0V263M158 0V263M210 0V263M262 0V263M314 0V263M366 0V263M418 0V263M470 0V263"/>
+  </g>
+  <g opacity=".34" stroke="#A88B69" stroke-width="1.2" stroke-dasharray="6 6">
+    <path d="M188 28C225 47 239 72 240 105C241 141 220 173 190 205"/>
+    <path d="M206 230C247 211 293 207 336 219"/>
+  </g>
+  <g filter="url(#shadow)" transform="rotate(-2 329 137)">
+    <path d="M202 34L441 45L429 235L190 222Z" fill="url(#sheet)" stroke="#D8CCBC"/>
+    <path d="M219 56L420 64" stroke="#C7BBAA" stroke-width=".8"/>
+    <path d="M215 199L412 208" stroke="#C7BBAA" stroke-width=".8"/>
+    <path d="M233 73L227 184" stroke="#C7BBAA" stroke-width=".7" stroke-dasharray="3 5"/>
+    <path d="M400 77L393 191" stroke="#C7BBAA" stroke-width=".7" stroke-dasharray="3 5"/>
+  </g>
+  <g stroke="#183653" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M281 88L304 77L326 84L348 77L371 88L398 104L387 129L367 117L365 193H286L284 117L264 129L253 104L281 88Z"/>
+    <path d="M304 77C307 91 318 98 326 98C334 98 345 91 348 77"/>
+    <path d="M306 82L326 101L346 82"/>
+    <path d="M326 101V141"/>
+    <path d="M326 110H341V126H326"/>
+    <path d="M286 160C308 166 343 166 365 160"/>
+    <path d="M284 117L295 111M367 117L356 111"/>
+  </g>
+  <g stroke="#5D7591" stroke-width="1.1" marker-start="url(#arrow)" marker-end="url(#arrow)">
+    <path d="M275 71H376"/>
+    <path d="M242 91V194"/>
+    <path d="M286 208H365"/>
+  </g>
+  <g stroke="#5D7591" stroke-width=".9">
+    <path d="M275 66V77M376 66V82"/>
+    <path d="M237 91H250M237 194H284"/>
+    <path d="M286 202V214M365 193V214"/>
+  </g>
+  <g opacity=".86" stroke="#2E5F8F" stroke-width="1.1" fill="none">
+    <path d="M405 83C426 93 439 110 443 130"/>
+    <path d="M409 88L423 84L420 98"/>
+    <path d="M404 173C389 186 384 202 385 219" stroke-dasharray="4 4"/>
+    <circle cx="385" cy="220" r="2.4" fill="#2E5F8F" stroke="none"/>
+  </g>
+  <g transform="translate(394 161) rotate(-11)">
+    <path d="M32 22C44 13 58 11 69 16C76 19 82 27 81 34C80 42 72 47 63 46L45 43C37 42 30 35 29 29C28 26 29 24 32 22Z" fill="#D8B79D" stroke="#A9876E" stroke-width="1"/>
+    <path d="M42 22L54 10C58 6 64 7 66 11C68 14 67 17 64 20L55 29" fill="#D8B79D" stroke="#A9876E" stroke-width="1"/>
+    <path d="M17 48L58 10" stroke="#161B22" stroke-width="3.2"/>
+    <path d="M12 53L18 47" stroke="#C89B35" stroke-width="4"/>
+    <path d="M9 56L13 52" stroke="#161B22" stroke-width="2"/>
+  </g>
+  <g opacity=".58">
+    <rect x="197" y="229" width="207" height="12" rx="2" fill="#E0D1BC" stroke="#B9A992"/>
+    <path d="M211 229V235M226 229V233M241 229V235M256 229V233M271 229V235M286 229V233M301 229V235M316 229V233M331 229V235M346 229V233M361 229V235M376 229V233M391 229V235" stroke="#5B6570" stroke-width=".8"/>
+  </g>
+</svg>

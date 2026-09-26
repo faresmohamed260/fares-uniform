@@ -1,0 +1,270 @@
+name: Phase 10 browser-native design authority
+# Protected-preview trigger: D-063 browser-native homepage correction 460b44f5b167c1f44a3552c1ead57aeaeac9a0a1
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - "prototype/public-site-design-authority/**"
+      - "docs/ui/PUBLIC_SITE_BROWSER_DESIGN_AUTHORITY.md"
+      - "docs/ui/PUBLIC_SITE_DESIGN_TOKENS.md"
+      - "docs/ui/ASTRA_10K_SCROLLCRAFT_WORKFLOW.md"
+      - "docs/ui/scrollcraft/**"
+      - ".agents/skills/fares-scrollcraft/**"
+      - ".agents/skills/scroll-craft"
+      - ".agents/vendor/gpt-6-astra-10k-websites"
+      - ".gitmodules"
+      - ".github/workflows/phase10-design-authority.yml"
+  pull_request:
+    paths:
+      - "prototype/public-site-design-authority/**"
+      - "docs/ui/PUBLIC_SITE_BROWSER_DESIGN_AUTHORITY.md"
+      - "docs/ui/PUBLIC_SITE_DESIGN_TOKENS.md"
+      - "docs/ui/ASTRA_10K_SCROLLCRAFT_WORKFLOW.md"
+      - "docs/ui/scrollcraft/**"
+      - ".agents/skills/fares-scrollcraft/**"
+      - ".agents/skills/scroll-craft"
+      - ".agents/vendor/gpt-6-astra-10k-websites"
+      - ".gitmodules"
+      - ".github/workflows/phase10-design-authority.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-design-authority-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  VERCEL_TEAM_SLUG: faresmohamed260-6733s-projects
+  REVIEW_PROJECT: fares-uniform-design-authority
+
+jobs:
+  design-authority:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: prototype/public-site-design-authority
+
+    steps:
+      - name: Checkout exact design candidate
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Verify exact source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "design_source=$GITHUB_SHA"
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Stage pinned Scrollcraft engine
+        run: |
+          set -euo pipefail
+          SCROLLCRAFT_PIN="0b816225945e45380397d6a0487efa3c98916858"
+          ASTRA_PIN="e05e451ecd1e371536ef3c310fa273e12b98db7a"
+          SCROLLCRAFT_ROOT="../../.agents/skills/scroll-craft"
+          ASTRA_ROOT="../../.agents/vendor/gpt-6-astra-10k-websites"
+
+          test "$(git -C "$SCROLLCRAFT_ROOT" rev-parse HEAD)" = "$SCROLLCRAFT_PIN"
+          test "$(git -C "$ASTRA_ROOT" rev-parse HEAD)" = "$ASTRA_PIN"
+
+          ENGINE="$SCROLLCRAFT_ROOT/plugins/nateherk-design/skills/scroll-craft/engine"
+          test -f "$ENGINE/scrollcraft.js"
+          test -f "$ENGINE/scrollcraft.css"
+          mkdir -p public/scrollcraft artifacts
+          cp "$ENGINE/scrollcraft.js" public/scrollcraft/scrollcraft.js
+          cp "$ENGINE/scrollcraft.css" public/scrollcraft/scrollcraft.css
+
+          {
+            echo "scrollcraft_pin=$SCROLLCRAFT_PIN"
+            echo "astra_10k_pin=$ASTRA_PIN"
+            sha256sum public/scrollcraft/scrollcraft.js
+            sha256sum public/scrollcraft/scrollcraft.css
+          } | tee artifacts/scrollcraft-engine.sha256
+
+          {
+            echo "### Pinned design workflow"
+            echo
+            echo "- Scrollcraft: `$SCROLLCRAFT_PIN`"
+            echo "- GPT-6 Astra 10K workflow reference: `$ASTRA_PIN`"
+            echo "- Engine copied unmodified from pinned Scrollcraft source"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stage browser-native homepage regression authority
+        run: |
+          set -euo pipefail
+          SOURCE="../../docs/ui/homepage/assets/approved-homepage-reference.webp"
+          EXPECTED="36032800b1a79a2fada69cfa87448124d7f81875e59b951bb445f8fd9947334c"
+          test -f "$SOURCE"
+          test "$(sha256sum "$SOURCE" | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p public/authority artifacts
+          cp "$SOURCE" public/authority/approved-homepage-reference.webp
+          sha256sum public/authority/approved-homepage-reference.webp | tee artifacts/d062-homepage-authority.sha256
+
+      - name: Stage current real KGC review media
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: "9b0bf4a19a68badb653f984151b62fd2"
+        run: |
+          set -euo pipefail
+          [[ -n "${CLOUDFLARE_API_TOKEN:-}" ]] || { echo "CLOUDFLARE_API_TOKEN missing" >&2; exit 64; }
+          mkdir -p public/review-media/kgc artifacts
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/kindergarten-summer.png --file public/review-media/kgc/kindergarten-summer.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/primary-summer.png --file public/review-media/kgc/primary-summer.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/middle-summer.png --file public/review-media/kgc/middle-summer.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/high-summer.png --file public/review-media/kgc/high-summer.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/high-summer-polo-front.png --file public/review-media/kgc/high-summer-polo-front.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/high-summer-polo-back.png --file public/review-media/kgc/high-summer-polo-back.png --remote
+          cp ../public-site-motion/public/media/kgc-logo.webp public/review-media/kgc/kgc-logo.webp
+          cp ../public-site-motion/public/media/kgc-building.webp public/review-media/kgc/kgc-building.webp
+          node scripts/stage-kgc-review-media.mjs
+          {
+            sha256sum public/review-media/kgc/kgc-logo.webp
+            sha256sum public/review-media/kgc/kgc-building.webp
+          } >> artifacts/kgc-review-media-provenance.sha256
+          echo "real_review_media=PASS count=8 publication=NO"
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser design gate
+        run: npm run test:e2e
+
+      - name: Upload design evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase10-browser-design-${{ github.sha }}
+          path: |
+            prototype/public-site-design-authority/artifacts
+            prototype/public-site-design-authority/playwright-report
+            prototype/public-site-design-authority/test-results
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Create or verify isolated protected-review project
+        if: ${{ github.event_name != 'pull_request' }}
+        id: project
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo "VERCEL_TOKEN missing" >&2; exit 64; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          status="$(curl -sS -o "$response" -w '%{http_code}'             -H "Authorization: Bearer $VERCEL_TOKEN"             "$VERCEL_API_BASE/v9/projects/$REVIEW_PROJECT?teamId=$VERCEL_TEAM_ID")"
+          if [[ "$status" = 404 ]]; then
+            payload="$(jq -cn --arg name "$REVIEW_PROJECT" '{name:$name,framework:"nextjs"}')"
+            status="$(curl -sS -X POST -o "$response" -w '%{http_code}'               -H "Authorization: Bearer $VERCEL_TOKEN"               -H 'Content-Type: application/json'               --data "$payload"               "$VERCEL_API_BASE/v11/projects?teamId=$VERCEL_TEAM_ID")"
+            [[ "$status" = 200 || "$status" = 201 ]] || { cat "$response" >&2; exit 1; }
+          elif [[ "$status" != 200 ]]; then
+            cat "$response" >&2
+            exit 1
+          fi
+          project_id="$(jq -er '.id' "$response")"
+          echo "project_id=$project_id" >> "$GITHUB_OUTPUT"
+
+          protection_payload='{"ssoProtection":{"deploymentType":"all"}}'
+          protect_response="$(mktemp)"
+          protect_status="$(curl -sS -X PATCH -o "$protect_response" -w '%{http_code}' \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data "$protection_payload" \
+            "$VERCEL_API_BASE/v9/projects/$project_id?teamId=$VERCEL_TEAM_ID")"
+          [[ "$protect_status" = 200 ]] || {
+            echo "Failed to enforce Vercel Authentication: HTTP $protect_status" >&2
+            cat "$protect_response" >&2
+            exit 1
+          }
+          protected_type="$(jq -r '.ssoProtection.deploymentType // ""' "$protect_response")"
+          test "$protected_type" = "all"
+
+          existing_status="$(curl -sS -o /dev/null -w '%{http_code}' "https://$REVIEW_PROJECT.vercel.app/en")"
+          if [[ "$existing_status" = 200 ]]; then
+            echo "Refusing design review project: existing deployment is anonymously reachable." >&2
+            exit 1
+          fi
+
+          echo "isolated_review_project=PASS id=$project_id sso=$protected_type existing_unauthenticated_status=$existing_status"
+
+      - name: Deploy exact staged design bundle
+        if: ${{ github.event_name != 'pull_request' }}
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          REVIEW_PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        run: |
+          set -euo pipefail
+          cli_version="$(npm view vercel version)"
+          echo "vercel_cli_version=$cli_version"
+          log="$(mktemp)"
+          trap 'rm -f "$log"' EXIT
+          npx --yes "vercel@${cli_version}" deploy --yes             --scope "$VERCEL_TEAM_SLUG"             --project "$REVIEW_PROJECT_ID"             --token "$VERCEL_TOKEN"             2>&1 | tee "$log"
+          url="$(grep -Eo 'https://[^[:space:]]+\.vercel\.app' "$log" | tail -1)"
+          [[ -n "$url" ]] || { echo "Could not identify preview URL" >&2; exit 1; }
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "design_preview=$url"
+
+      - name: Verify READY and fail closed if preview is public
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          REVIEW_PROJECT_ID: ${{ steps.project.outputs.project_id }}
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          for attempt in $(seq 1 90); do
+            status="$(curl -sS -o "$response" -w '%{http_code}'               -H "Authorization: Bearer $VERCEL_TOKEN"               "$VERCEL_API_BASE/v6/deployments?projectId=$REVIEW_PROJECT_ID&teamId=$VERCEL_TEAM_ID&limit=3")"
+            test "$status" = 200
+            state="$(jq -r '.deployments[0].state // .deployments[0].readyState // ""' "$response")"
+            [[ "$state" = READY ]] && break
+            [[ "$state" = ERROR || "$state" = CANCELED ]] && { jq -c '.deployments[0]' "$response" >&2; exit 1; }
+            [[ "$attempt" = 90 ]] && { echo "Timed out waiting for READY" >&2; exit 1; }
+            sleep 5
+          done
+          target="$(jq -r '.deployments[0].target // ""' "$response")"
+          unauth="$(curl -sS -o /dev/null -w '%{http_code}' "$DEPLOYMENT_URL/en")"
+          if [[ "$unauth" = 200 ]]; then
+            echo "Refusing review deployment: real review media is publicly reachable without protection." >&2
+            exit 1
+          fi
+          if [[ "$target" = "production" ]]; then
+            echo "Refusing design approval candidate: deployment target is production even though authentication is enforced." >&2
+            exit 1
+          fi
+          echo "review_protection=PASS unauthenticated_status=$unauth target=${target:-preview}"
+          {
+            echo "### Browser-native design authority preview"
+            echo
+            echo "- Source: $GITHUB_SHA"
+            echo "- URL: $DEPLOYMENT_URL"
+            echo "- Real review assets: 8"
+            echo "- Public publication authorization: no"
+            echo "- Production cutover: no"
+          } >> "$GITHUB_STEP_SUMMARY"

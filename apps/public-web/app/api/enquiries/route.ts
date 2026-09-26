@@ -1,5 +1,8 @@
+import { enquiryRateKey, verifyEnquiryFormToken } from "@/lib/enquiry-form-token";
 import { odooPrivateFetch, odooPrivateUrl } from "@/lib/odoo-private";
 import { NextResponse } from "next/server";
+
+export const runtime = "nodejs";
 
 const allowed = new Set(["idempotency_key", "contact_name", "organization_name", "phone", "email", "sector", "message", "source_product_slug", "language"]);
 
@@ -13,6 +16,11 @@ const limits = {
   message: 4000,
   source_product_slug: 120,
 } as const;
+
+const MAX_BODY_BYTES = 16 * 1024;
+const UPSTREAM_TIMEOUT_MS = 8_000;
+const RATE_WINDOW_MS = 60_000;
+const RATE_LIMIT = 5;
 
 type TextKey = keyof typeof limits;
 
@@ -31,6 +39,33 @@ type EnquiryPayload = {
 type ValidationResult =
   | { ok: true; payload: EnquiryPayload }
   | { ok: false; error: string };
+
+type RateEntry = { startedAt: number; count: number };
+const rateEntries = new Map<string, RateEntry>();
+
+function publicJson(error: string, status: number, headers: HeadersInit = {}) {
+  return NextResponse.json(
+    { error },
+    {
+      status,
+      headers: {
+        "Cache-Control": "no-store",
+        ...headers,
+      },
+    },
+  );
+}
+
+function acceptedJson(reference: string, status: 200 | 201) {
+  return NextResponse.json(
+    { status: "accepted", reference },
+    { status, headers: { "Cache-Control": "no-store" } },
+  );
+}
+
+function logPublicFailure(event: string, status: number) {
+  console.warn(`[public-enquiry] event=${event} status=${status}`);
+}
 
 function text(record: Record<string, unknown>, key: TextKey, required = false): string | null {
   const raw = record[key] ?? "";
@@ -76,28 +111,170 @@ function validate(body: unknown): ValidationResult {
   };
 }
 
-export async function POST(request: Request) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "invalid_json" }, { status: 400 });
+function requestRateIdentity(request: Request) {
+  if (process.env.FU_PUBLIC_PROVIDER === "fixture") {
+    const fixtureKey = request.headers.get("x-fares-ci-rate-key")?.trim();
+    if (fixtureKey) return `fixture:${fixtureKey}`;
+  }
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return forwarded || request.headers.get("x-real-ip")?.trim() || "unknown";
+}
+
+function consumeRate(request: Request, now = Date.now()) {
+  const key = enquiryRateKey(requestRateIdentity(request));
+  for (const [entryKey, entry] of rateEntries) {
+    if (now - entry.startedAt >= RATE_WINDOW_MS) rateEntries.delete(entryKey);
   }
 
-  const validation = validate(body);
-  if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
+  const current = rateEntries.get(key);
+  if (!current || now - current.startedAt >= RATE_WINDOW_MS) {
+    rateEntries.set(key, { startedAt: now, count: 1 });
+    return { limited: false, retryAfter: 0 };
+  }
+  if (current.count >= RATE_LIMIT) {
+    return {
+      limited: true,
+      retryAfter: Math.max(1, Math.ceil((current.startedAt + RATE_WINDOW_MS - now) / 1000)),
+    };
+  }
+  current.count += 1;
+  return { limited: false, retryAfter: 0 };
+}
+
+function sameOrigin(request: Request) {
+  const originValue = request.headers.get("origin");
+  if (!originValue) return false;
+  try {
+    const origin = new URL(originValue);
+    const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+    const host = forwardedHost || request.headers.get("host")?.trim();
+    if (!host || origin.host !== host) return false;
+
+    const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+    if (forwardedProto && origin.protocol !== `${forwardedProto}:`) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function readBoundedJson(request: Request): Promise<
+  | { ok: true; value: unknown }
+  | { ok: false; error: "request_too_large" | "invalid_json" }
+> {
+  const declared = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
+    return { ok: false, error: "request_too_large" };
+  }
+  if (!request.body) return { ok: false, error: "invalid_json" };
+
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let total = 0;
+  let raw = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > MAX_BODY_BYTES) {
+        await reader.cancel();
+        return { ok: false, error: "request_too_large" };
+      }
+      raw += decoder.decode(value, { stream: true });
+    }
+    raw += decoder.decode();
+    return { ok: true, value: JSON.parse(raw) };
+  } catch {
+    return { ok: false, error: "invalid_json" };
+  }
+}
+
+function fixtureSimulation(request: Request) {
+  if (process.env.FU_PUBLIC_PROVIDER !== "fixture") return null;
+  const scenario = request.headers.get("x-fares-ci-upstream");
+  if (scenario === "timeout") {
+    logPublicFailure("upstream_timeout", 504);
+    return publicJson("service_timeout", 504);
+  }
+  if (scenario === "unavailable") {
+    logPublicFailure("upstream_unavailable", 503);
+    return publicJson("service_unavailable", 503);
+  }
+  return null;
+}
+
+export async function POST(request: Request) {
+  if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
+    return publicJson("unsupported_media_type", 415);
+  }
+
+  const declared = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
+    return publicJson("request_too_large", 413);
+  }
+
+  if (!sameOrigin(request) || !verifyEnquiryFormToken(request.headers.get("x-fares-enquiry-token"))) {
+    return publicJson("request_forbidden", 403);
+  }
+
+  const rate = consumeRate(request);
+  if (rate.limited) {
+    logPublicFailure("rate_limited", 429);
+    return publicJson("rate_limited", 429, { "Retry-After": String(rate.retryAfter) });
+  }
+
+  const parsed = await readBoundedJson(request);
+  if (!parsed.ok) {
+    return publicJson(parsed.error, parsed.error === "request_too_large" ? 413 : 400);
+  }
+
+  const validation = validate(parsed.value);
+  if (!validation.ok) return publicJson("invalid_request", 400);
+
+  const simulated = fixtureSimulation(request);
+  if (simulated) return simulated;
 
   if (process.env.FU_PUBLIC_PROVIDER === "fixture") {
-    return NextResponse.json({ status: "accepted", reference: "FUQ-CI-0001" }, { status: 201 });
+    return acceptedJson("FUQ-CI-0001", 201);
   }
 
   const url = odooPrivateUrl("/fu/public/enquiries");
-  const upstream = await odooPrivateFetch(url, {
-    method: "POST",
-    cache: "no-store",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify(validation.payload),
-  });
-  const payload = await upstream.json().catch(() => ({ error: "upstream_error" }));
-  return NextResponse.json(payload, { status: upstream.status });
+  try {
+    const upstream = await odooPrivateFetch(url, {
+      method: "POST",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(validation.payload),
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+    });
+
+    if (upstream.status === 409) return publicJson("idempotency_conflict", 409);
+    if (upstream.status >= 400 && upstream.status < 500) return publicJson("invalid_request", 400);
+    if (!upstream.ok) {
+      logPublicFailure("upstream_unavailable", 503);
+      return publicJson("service_unavailable", 503);
+    }
+
+    const payload = await upstream.json().catch(() => null) as
+      | { status?: unknown; reference?: unknown }
+      | null;
+    if (
+      !payload ||
+      payload.status !== "accepted" ||
+      typeof payload.reference !== "string" ||
+      !payload.reference
+    ) {
+      logPublicFailure("upstream_invalid_response", 503);
+      return publicJson("service_unavailable", 503);
+    }
+    return acceptedJson(payload.reference, upstream.status === 200 ? 200 : 201);
+  } catch (error) {
+    if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) {
+      logPublicFailure("upstream_timeout", 504);
+      return publicJson("service_timeout", 504);
+    }
+    logPublicFailure("upstream_unavailable", 503);
+    return publicJson("service_unavailable", 503);
+  }
 }

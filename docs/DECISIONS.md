@@ -456,6 +456,194 @@ Current hosted review authority `4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256`, run 
 
 Google Drive remains the audited source/archive location for the existing KGC collection, but it is no longer the hosted Phase 9 delivery dependency. GitHub remains source/evidence storage rather than a client-photo warehouse. Odoo database-backed attachments remain in Supabase PostgreSQL; D-054 does not move that operational state into R2.
 
-Repository secret `CLOUDFLARE_API_TOKEN` is the broad Cloudflare control-plane credential supplied by Fares. In the current isolated prototype it is confined to hosted provider/review staging and is never exposed to browser code, Odoo runtime or the public application. Before any production object data plane is approved, replace that broad credential with a narrowly scoped R2 credential limited to the required bucket and operations.
+Repository secret `CLOUDFLARE_API_TOKEN` is the broad Cloudflare control-plane credential supplied by Fares. It remains control-plane/provider-administration only and is never exposed to browser code, Odoo runtime or the public application. Phase 10 Workstream 10.2 proved that object data-plane access can use short-lived account tokens scoped to one bucket and operation class, with cross-bucket denial and explicit revocation; ordinary object operations do not require the broad token.
 
 Production publication, backup retention/RPO/RTO, any future residency requirement, public bucket/custom-domain policy and production launch remain separately gated.
+
+
+## D-055 — Phase 10 public-site productionization architecture accepted
+
+Status: Accepted by client, 2026-09-20.
+
+Fares accepted the production architecture review and authorized execution of Phase 10 on `phase-10/public-site-productionization`. `apps/public-web` remains the single production public application; the Phase 9 prototype remains visual/reference evidence until parity is proven and must not be copied wholesale into production.
+
+The accepted public architecture keeps Odoo as operational and public-editorial/publication authority, Cloudflare R2 as media-byte storage, and Next.js/Vercel as presentation, localized routing, SEO and public-cache layers. Phase 10 introduces versioned allowlisted V2 organization/program/cohort/look/garment/media DTOs while preserving V1, uses public slugs rather than browser-supplied internal IDs, and requires capability-driven interactions with no organization-ID branching in generic components.
+
+Private originals remain private. Only explicitly rights/publication-approved derivatives may enter the public media path. Browser/runtime code never receives broad Cloudflare, Odoo staff or database credentials, price, stock or private operational data. The broad `CLOUDFLARE_API_TOKEN` remains control-plane/review legacy; ordinary production R2 data-plane operations require narrow purpose-specific credentials.
+
+This decision authorizes Phase 10 repository engineering, hosted validation and provider work required by the phase contract. It does not authorize production launch/cutover, Gate D approval, public publication of KGC or another real client, merging PR #7, price/stock exposure or unrelated ERP/POS redesign. Production remains NO-GO until the existing release gates and a separate explicit production authorization are satisfied.
+
+
+## D-056 — R2 publication uses ephemeral bucket-scoped data-plane credentials
+
+Status: Evidence-backed architecture decision, 2026-09-20; real-client publication and production launch remain unauthorized.
+
+Phase 10 Workstream 10.2 establishes the accepted object-publication credential boundary. Provider/control-plane work may use the existing broad `CLOUDFLARE_API_TOKEN` to create and revoke short-lived Cloudflare account tokens, but R2 object data-plane steps must not receive that broad token.
+
+The hosted publication proof creates one-hour account tokens scoped to exactly one bucket and permission group: private-media Object Read and public-media Object Write. Their S3-compatible credentials remain masked and runner-local. Cross-bucket access must fail, and both account tokens must be revoked in unconditional cleanup.
+
+Exact authority is commit `758cf5889e25e62e46db4e2c3c9cacd46105c6ab`. R2 run `35538533822`, job `106151844125`, proved 403 denial in both cross-bucket directions, exact SHA-256/content/cache metadata for the synthetic derivative, absence of the broad token from the data-plane step and successful cleanup. Companion Odoo run `35538533842`, job `106151844070`, passed 13 post-test methods / 23 addon tests with zero failures/errors and a repeatable public-addon upgrade.
+
+Odoo may retain private/public object keys and content hashes as internal publication metadata, but V2 public DTOs do not serialize them. Published media must use an approved browser-facing HTTPS origin and cannot use the R2 S3 API hostname. This work does not enable a public R2 hostname/custom domain, authorize KGC or other real-client publication, approve production launch, or resolve Gate D.
+
+
+## D-057 — Public website and ERP/Odoo are separate delivery tracks
+
+Status: Accepted by client, 2026-09-21.
+
+Fares clarified that the project must be tracked as two independent delivery streams rather than one combined remaining-work checklist.
+
+**Track A — Public website** covers the customer-facing Next.js experience: Fares marketing/brand presentation, client/project showcases such as KGC, garment/product catalog, public enquiry, English/Arabic RTL, Pattern in Motion and rights-approved R2 media publication. Phase 10 is the current active implementation contract for this track.
+
+**Track B — ERP/Odoo** covers the internal operational system: POS/offline operation, inventory, preorders/deposits/balances, returns/exchanges, production, B2B orders, permissions, reporting, sessions/attachments, cron/WebSocket continuity, recovery and production operations. Core MVP engineering and Phase 8 Gate C staging acceptance are already substantially complete; its remaining work is primarily Gate D, production ownership/operations, real-business configuration/onboarding and controlled production launch readiness.
+
+The authoritative durable checklist split is `docs/PROJECT_TRACKS.md`. `PROJECT.md` remains the sole owner of current branch/state/next action. Progress or authorization in one track does not imply progress or authorization in the other: ERP Gate D does not authorize public KGC/client publication or public-site cutover, and public-site Phase 10 work does not close ERP Gate D.
+
+
+## D-058 — `media.faresuniform.uk` is the public R2 browser origin
+
+Status: Evidence-backed architecture decision, 2026-09-21; real-client publication and production launch remain unauthorized.
+
+Phase 10 Workstream 10.7 establishes `media.faresuniform.uk` as the stable browser-facing origin for approved objects in `fares-uniform-media-public`. The custom domain is attached only to that public bucket. Managed `r2.dev` delivery remains disabled. `fares-uniform-media-private` retains zero custom domains and managed public delivery disabled.
+
+The provider contract intentionally preserved RED at commit `164beaad01d2c30bbbcc232ddf940e7614cace93`, run/job `35549546604` / `106181611340`, where the custom domain was absent. Final authority is `c41a5afcfcf2801a230ce46aa1b1c8d06134fddc`, run/job `35549656743` / `106181910393`. The hosted proof verified that the public bucket contained only the deterministic Phase 10 synthetic object, attached the domain, waited for active ownership/SSL, fetched the exact expected SHA-256 through the browser origin, retained `Cache-Control: public, max-age=31536000, immutable`, observed Cloudflare cache `HIT` or `REVALIDATED`, reconfirmed the private bucket has no browser delivery, and revoked the temporary public-read token. Artifact `10617767603` has digest `sha256:b0c7f20c7618155dea0798c7f2c943e92837772196449456db9fd39b5529978a`.
+
+This decision establishes delivery infrastructure only. It does **not** authorize KGC or other real-client media publication, change rights rules, make the public bucket a source-of-truth database, authorize production cutover, merge PR #7/#8, or affect ERP Gate D.
+
+
+## D-059 — Public UI/UX authority is repo-first and browser-native
+Status: Accepted by client, 2026-09-21.
+
+Fares explicitly rejected image-led UI implementation and does not want the public site designed by approving generated/static images and then reverse-engineering those pixels into code. The project also must not depend on Figma or another paid design SaaS.
+
+For all future public-site UI/UX work, the authoritative process is `docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md`: UX/page contracts live in GitHub; visual decisions are source-controlled design tokens and reusable component/state contracts; components and page compositions are designed and reviewed in the browser using repository-owned code; EN/AR/RTL and exceptional motion/physics are designed in code; Fares explicitly approves an exact Git commit as the current UI authority before broad production implementation; production reuses/promotes that coded authority instead of interpreting screenshots; and Playwright/screenshots are regression evidence, not the design specification.
+
+Generated imagery, concept boards and screenshots may inform mood, creative exploration, photography/art direction or historical context, but never become a pixel contract for UI implementation. Optional self-hosted/open-source visual tools may be used when useful, but no paid or external design SaaS is required and no such tool outranks the repository authority.
+
+This decision supersedes D-050 and D-052 only where they make approved static boards/images the implementation or visual-authority contract. D-048's organization-agnostic requirement, D-053's truthful-media requirement, accessibility/RTL requirements, security/publication controls and the premium kinetic product goal remain in force.
+
+The four Pattern in Motion PNG boards, the Phase 9 prototype and the existing Phase 10 preview are retained as historical concept/reference or engineering evidence. The next public-site design gate is creation and explicit Fares approval of a browser-native exact Git commit under the new workflow.
+
+The browser-native design review must be **content-complete enough to judge the real experience**. It must use the project's current real assets and truthful current content wherever review rights permit, including existing garment/model/context media. Private review assets may be rendered only inside the protected design-review environment and remain private/publication-gated. Generated fake client/product imagery must not be used to fill gaps. Missing evidence is represented honestly with neutral illustrative placeholders or omitted, never fabricated. This requirement prevents approving an attractive but empty design that later collapses when real content is inserted.
+
+
+## D-060 — Use the pinned Scrollcraft + Astra 10K workflow; reject the first D-059 browser design
+
+Status: Accepted by client, 2026-09-22.
+
+Fares rejected D-059 browser design candidate `fd9732444005bbacc9a2b596e1a8dd6a0464b9eb` after visual review because it looked cheap and did not match the premium GPT-6 Astra / “$10k website” standard previously discussed. Technical GREEN evidence for that candidate remains historical evidence only and must not be interpreted as visual acceptance.
+
+The next public-site design authority must use the actual public workflow that motivated the target quality:
+
+- Nate Herk's Scrollcraft skill/engine, pinned in the repository at upstream commit `0b816225945e45380397d6a0487efa3c98916858`;
+- the public GPT-6 Astra 10K Desktop Build and Mobile Refinement workflow, pinned as a reference at `e05e451ecd1e371536ef3c310fa273e12b98db7a`;
+- a concrete reference board using appropriate current Godly, 21st.dev and Awwwards examples;
+- Pain / Person / Promise;
+- explicit page grammar, customer journey, feeling curve, one engineered peak, one signature move, scroll score and intermediate-state visual verification;
+- independent dimensional hero planes and separate mobile art direction;
+- the upstream Scrollcraft engine as mechanism rather than a generic Motion/Next.js imitation of its ideas.
+
+For Fares, the selected custom grammar is **Pattern Assembly** and the signature move is **Seam Handoff**, documented under `docs/ui/scrollcraft/`.
+
+D-060 does not weaken D-059. The design remains browser-native/code-first and Fares still approves an exact Git SHA rather than a generated image. Current real review-authorized media must populate the preview. Generated fake client/product imagery, fake logos/testimonials/metrics and fabricated garment construction remain prohibited.
+
+The public Astra workflow includes Higgsfield generation, but Fares's current constraints explicitly reject a paid-tool dependency and fake generated client/product media. Scrollcraft's own workflow supports user-supplied real assets as a first-class route, so Higgsfield or another generation service is not required for this build. A future specific use would require new explicit client authorization.
+
+The public reference examples were built with GPT-6 Astra. A different executing model must not claim to be Astra; the project pins and follows the same workflow while visual acceptance remains entirely Fares's decision.
+
+No part of this decision authorizes `apps/public-web` visual integration, public KGC publication, PR merge, production cutover or ERP Gate D.
+
+
+## D-061 — Design the public site page-by-page; homepage is the Fares master brand
+
+Status: Accepted by client, 2026-09-22.
+
+Fares rejected D-060 browser candidate `9ca2215bdbdd4455cd00ca94769119605af97952` despite its hosted technical GREEN. The problem was visual/product positioning: the site still felt like a KGC/school design rather than the public site of a multi-sector uniform business.
+
+The public-site visual authority therefore moves from one whole-site grammar/candidate to **page-by-page design and approval**.
+
+The first page is the homepage. Its authoritative contract is `docs/ui/homepage/HOMEPAGE_DESIGN_BRIEF.md`.
+
+The homepage is the master-brand entrance for Fares Uniform and must represent the broad uniform business: education, hospitality, restaurants/cafés, healthcare, corporate and other confirmed workwear sectors. KGC may appear later as real Selected Work, but KGC identity, campus imagery, student media or school-specific visual language must not define the global hero or global brand system.
+
+The existing Scrollcraft/Astra 10K research remains available as a **tool and interaction source**, not as a requirement to reuse the rejected Pattern Assembly visual theme or one grammar across all pages. Each page may choose the interaction grammar that best serves its purpose while reusing only the homepage-approved global shell.
+
+Fares explicitly allows generated **non-product** media for design: graphic backgrounds, abstract textile/fiber fields, architectural abstractions, morphing shapes, motion assets, pattern/thread graphics, decorative 2D/3D objects and other atmospheric design elements. Such media must remain clearly decorative/design media and must not be presented as real clients, real Fares products, real customer staff or evidence of undocumented manufacturing capability.
+
+Real uniform/product imagery remains truth-grounded. Generated fake garments must not replace actual product media.
+
+Explode-view is retained as a desired interaction, but its correct form for a client/program page is **complete outfit worn by a model -> transition/morph -> the actual separate products that make up that outfit** (for example shirt, skirt/trousers, jacket/blazer, tie and other real components). The exploded pieces must use the real individual garment assets available for that uniform. It is not primarily a fabricated internal construction-layer visualization.
+
+Approval of one page does not authorize or visually approve another page. Planned order: Homepage -> Schools sector -> KGC case study/program -> Garments/collections -> About/process -> Enquiry/contact -> remaining sector pages.
+
+No part of D-061 authorizes public KGC publication, production cutover, PR merge or ERP Gate D.
+
+
+## D-062 — Approved homepage image is the exact visual implementation authority
+
+Status: Accepted by client, 2026-09-22.
+
+Fares explicitly approved the bright modern corporate homepage image generated in chat and instructed that it be committed to the repository, decomposed into every visible component, and implemented **one-to-one / carbon-copy** before production integration.
+
+For the homepage only, D-062 supersedes the D-059/D-061 rule that concept images may not act as implementation specifications. The committed approved homepage image plus `docs/ui/homepage/APPROVED_HOME_VIEW_COMPONENT_MAP.md` are now the authoritative visual specification.
+
+The code must map every visible component in every section, implement them as semantic/reusable components, and use rendered screenshot-difference evidence at the 1024px reference width. Fares does not authorize reinterpretation of the color palette, composition, section order, card structure or visual density.
+
+Temporary media is allowed where the approved board depicts non-product illustrative media that does not yet exist in the database. The implementation may initially crop the approved image as a temporary sprite for exact composition, then replace each slot one-for-one with separately generated non-product media or real Odoo/R2 assets. Layout must not shift during replacement.
+
+Generated fake products, fake factual client evidence, price/stock exposure and unauthorized public KGC publication remain prohibited. The KGC project page's future explode-view means whole outfit worn by model -> the actual separate real garments that compose that uniform, not fabricated internal construction layers.
+
+D-062 approves the homepage visual design and authorizes implementation/verification on the existing non-production design-authority branch. It does not authorize production cutover, PR merge, public client-media publication or ERP Gate D.
+
+---
+
+### D-063 — Homepage returns to browser-native implementation authority after protected-preview rejection
+
+**Date:** 2026-09-23  
+**Status:** accepted process correction; protected review candidate GREEN; Fares visual acceptance pending
+
+Fares rejected the D-062 protected preview because screenshot-derived crops and incorrect duplicated UI made the result a cheap mockup rather than a professional frontend implementation. This explicit review supersedes D-062's homepage exception that treated the static board as an exact implementation specification or allowed reference-derived crop/sprite placeholders.
+
+The homepage authority is browser-native again:
+
+- semantic HTML/CSS/components own all copy, labels, annotations, controls, cards and interactions;
+- runtime photographs are independent content-only generated assets or rights-authorized real media;
+- the approved/reference screenshot is regression evidence only and has no runtime consumer;
+- screenshot crops, sprites, textures, overlays, traced UI and hidden reference-image use are prohibited;
+- the H00–H06 component IDs and broad content architecture remain useful mapping/history, but the old board is not a runtime or carbon-copy specification;
+- the strict regression limits remain unchanged at mean RGB-channel error <25 and pixels over 48 <14%.
+
+Corrected implementation `460b44f5b167c1f44a3552c1ead57aeaeac9a0a1` removed the contaminated hero composite, uses the transparent people-only cutout, and fixes mobile hero, industry, Selected Work, CTA and process compositions. The corrected browser capture was normalized as the test-only regression reference with SHA-256 `36032800b1a79a2fada69cfa87448124d7f81875e59b951bb445f8fd9947334c`. Hosted run/job `35885469158` / `107264380271` at verification SHA `b138c2948f94bc77eca84ea05f53c16f6de989f9` passed typecheck, production build and 10/10 browser checks. Visual metrics were mean `3.02545` and pixels over 48 `0.000122%`. Protected preview: `https://fares-uniform-design-authority-qi0j342ds.vercel.app`; READY, preview target, Vercel Authentication enforced, anonymous response HTTP 302.
+
+This is not Fares visual acceptance, production cutover, public KGC/client publication, PR merge or ERP Gate D authorization. Production remains NO-GO.
+
+
+## D-064 — Homepage motion must be experiential and review media must be independently credible
+
+**Date:** 2026-09-24  
+**Status:** Accepted by client; implementation/review in progress
+
+Fares rejected the protected viewport-native candidate at source `418fd78423a2cee3102b402e96c32a9208935b6b`. Although that candidate corrected the fixed 1024px board and whole-page `zoom`, its transition/scroll behavior remained visually basic: the page mostly moved as ordinary sections with subtle parallax, so the intended premium Scrollcraft experience was not actually present.
+
+Fares also rejected the current media treatment because multiple homepage images read as cropped screenshot fragments rather than credible independent media. This rejection controls over the existing manifest labels. Nominally marking a tiny bitmap as “generated review media” is not enough if the delivered asset behaves like a crop or recycled scene.
+
+The next homepage candidate must therefore:
+
+- use the pinned Scrollcraft runtime for visibly different device families rather than merely loading it beside a generic page-level scroll listener;
+- keep native scrolling and avoid scroll hijacking or repetitive long pins;
+- engineer one deliberate peak/signature move: the material/process **Seam Handoff**, where a short controlled fabric chapter is cut by a moving seam and resolves into the technical process drawing;
+- create a meaningful hero-to-Industries handoff with geometry continuity rather than a hard section boundary;
+- keep Industries and Selected Work behavior distinct from the peak and from each other;
+- remove the six tiny Industries portrait WebPs from runtime and replace them with crisp browser-native graphic sector fields/linework;
+- keep only truth-grounded photographic proof in Selected Work. KGC may use its protected rights-authorized review image; non-client Hospitality/Healthcare entries must be explicitly graphic capability panels rather than recycled portrait photography;
+- remove the generated architecture bitmap from the closing CTA and use browser-native architectural/thread geometry instead;
+- retain the clean transparent hero people cutout and independent textile macro where they remain compositionally useful;
+- add hosted intermediate-state evidence that proves materially different visual states during scroll, not merely a changing numeric CSS variable.
+
+The historical 1024 board remains regression/content evidence only. No part of D-064 authorizes production, PR merge, public client-media publication, KGC public release or ERP Gate D. Fares remains the sole visual approver.
+
+## D-065 — Use Fares-supplied wordmark and separate F-circle artwork in homepage review
+
+Status: Client direction recorded 2026-09-25; review implementation verified, final visual acceptance pending.
+
+Fares supplied a transparent stacked serif FARES/UNIFORM wordmark and a separate transparent white serif F inside a navy circle. They replace the rejected draft type-only wordmark and hand-authored circular SVG. Use the supplied artwork directly as distinct brand assets, with only transparent-canvas cropping, web sizing, and palette adjustment to the public-site navy. SVG conversion is optional only if needed for a specific implementation requirement; do not redraw the letterforms or append the icon to the wordmark. This decision controls the protected homepage review candidate and does not authorize production, PR merge, public client-media publication, or ERP Gate D.

@@ -1,3 +1,9 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_fu_public_enquiry_owner,Fares public enquiry owner,model_fu_public_enquiry,fu_core.group_fu_owner_admin,1,0,0,0
 access_fu_public_enquiry_sales,Fares public enquiry sales,model_fu_public_enquiry,fu_core.group_fu_sales_bd,1,0,0,0
+access_fu_public_organization_owner,Fares public organization owner,model_fu_public_organization,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_public_program_owner,Fares public program owner,model_fu_public_program,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_public_cohort_owner,Fares public cohort owner,model_fu_public_cohort,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_public_look_owner,Fares public look owner,model_fu_public_look,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_public_garment_owner,Fares public garment owner,model_fu_public_garment,fu_core.group_fu_owner_admin,1,1,1,1
+access_fu_public_media_owner,Fares public media owner,model_fu_public_media,fu_core.group_fu_owner_admin,1,1,1,1

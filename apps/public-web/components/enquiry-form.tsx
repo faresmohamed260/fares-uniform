@@ -12,7 +12,23 @@ function newKey() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `fu-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function EnquiryForm({ language, sourceProductSlug }: { language: PublicLanguage; sourceProductSlug?: string }) {
+type EnquiryFormProps = {
+  language: PublicLanguage;
+  sourceProductSlug?: string;
+  initialOrganization?: string;
+  initialSector?: string;
+  initialMessage?: string;
+  formToken: string;
+};
+
+export function EnquiryForm({
+  language,
+  sourceProductSlug,
+  initialOrganization = "",
+  initialSector = "",
+  initialMessage = "",
+  formToken,
+}: EnquiryFormProps) {
   const text = copy[language];
   const keyRef = useRef<string>("");
   const [state, setState] = useState<{ kind: "idle" | "sending" | "success" | "error"; message?: string; reference?: string }>({ kind: "idle" });
@@ -41,7 +57,14 @@ export function EnquiryForm({ language, sourceProductSlug }: { language: PublicL
       language,
     };
     try {
-      const response = await fetch("/api/enquiries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const response = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Fares-Enquiry-Token": formToken,
+        },
+        body: JSON.stringify(payload),
+      });
       const body = (await response.json()) as { reference?: string; error?: string };
       if (!response.ok || !body.reference) throw new Error(body.error || text.error);
       setState({ kind: "success", reference: body.reference });
@@ -55,13 +78,13 @@ export function EnquiryForm({ language, sourceProductSlug }: { language: PublicL
   return (
     <section className="enquiry-panel" id="enquiry" aria-labelledby="enquiry-title">
       <div className="enquiry-intro"><span className="eyebrow">{language === "ar" ? "ابدأ الحديث" : "Start a conversation"}</span><h2 id="enquiry-title">{text.heading}</h2><p>{text.note}</p></div>
-      <form className="enquiry-form" onSubmit={submit}>
+      <form className="enquiry-form" data-form-token={formToken} onSubmit={submit}>
         <label><span>{text.name}</span><input name="contact_name" required maxLength={120} autoComplete="name" /></label>
-        <label><span>{text.org}</span><input name="organization_name" required maxLength={160} autoComplete="organization" /></label>
-        <label><span>{text.sector}</span><input name="sector" required maxLength={120} /></label>
+        <label><span>{text.org}</span><input name="organization_name" required maxLength={160} autoComplete="organization" defaultValue={initialOrganization} /></label>
+        <label><span>{text.sector}</span><input name="sector" required maxLength={120} defaultValue={initialSector} /></label>
         <label><span>{text.phone}</span><input name="phone" maxLength={60} autoComplete="tel" inputMode="tel" /></label>
         <label><span>{text.email}</span><input name="email" maxLength={254} autoComplete="email" inputMode="email" /></label>
-        <label className="message-field"><span>{text.message}</span><textarea name="message" required maxLength={4000} rows={5} /></label>
+        <label className="message-field"><span>{text.message}</span><textarea name="message" required maxLength={4000} rows={5} defaultValue={initialMessage} /></label>
         <button className="primary-button" type="submit" disabled={state.kind === "sending"}>{state.kind === "sending" ? text.sending : text.send}<span aria-hidden="true">↗</span></button>
         <div className="form-status" role="status" aria-live="polite">
           {state.kind === "success" && <span>{text.success} <strong>{text.reference}: {state.reference}</strong></span>}

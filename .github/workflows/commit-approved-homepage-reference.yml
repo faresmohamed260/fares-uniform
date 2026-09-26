@@ -1,0 +1,72 @@
+name: Commit corrected homepage reference
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - ".github/workflows/commit-approved-homepage-reference.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: corrected-homepage-reference
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SOURCE_ARTIFACT_ID: "10750965196"
+      SOURCE_IMPLEMENTATION_SHA: "460b44f5b167c1f44a3552c1ead57aeaeac9a0a1"
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Download verified corrected browser capture
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          archive="$(mktemp)"
+          trap 'rm -f "$archive"' EXIT
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/$GITHUB_REPOSITORY/actions/artifacts/$SOURCE_ARTIFACT_ID/zip" > "$archive"
+          mkdir -p reference-source
+          unzip -q "$archive" "artifacts/d062-homepage-1024.png" -d reference-source
+          source="reference-source/artifacts/d062-homepage-1024.png"
+          test -f "$source"
+          file "$source" | grep -Eq 'PNG image data, 1024 x 1536'
+          echo "corrected_reference_source=$SOURCE_IMPLEMENTATION_SHA artifact=$SOURCE_ARTIFACT_ID"
+
+      - name: Normalize browser-native authority and bind its digest
+        run: |
+          set -euo pipefail
+          source="reference-source/artifacts/d062-homepage-1024.png"
+          target="docs/ui/homepage/assets/approved-homepage-reference.webp"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick
+          convert "$source" -resize '512x768!' -quality 88 "$target"
+          file "$target" | grep -Eq 'Web/P image|WebP'
+          file "$target" | grep -Eq '512x768|512 x 768'
+          digest="$(sha256sum "$target" | awk '{print $1}')"
+          test "$digest" = "36032800b1a79a2fada69cfa87448124d7f81875e59b951bb445f8fd9947334c"
+          echo "corrected_homepage_reference_sha256=$digest"
+
+      - name: Commit corrected test authority
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/ui/homepage/assets/approved-homepage-reference.webp
+          git diff --cached --quiet && { echo "No authority update produced" >&2; exit 1; }
+          git commit -m "test: bind homepage gate to corrected browser authority"
+          git push origin HEAD:phase-10/public-site-productionization

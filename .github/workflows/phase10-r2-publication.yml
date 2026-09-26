@@ -1,0 +1,222 @@
+name: Phase 10 R2 publication boundary
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - ".github/workflows/phase10-r2-publication.yml"
+      - "addons/fu_public_api/**"
+      - "contracts/public-api-v2.openapi.json"
+      - "docs/operations/PHASE_10_R2_PUBLICATION.md"
+      - "docs/validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-r2-publication-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  CLOUDFLARE_ACCOUNT_ID: "9b0bf4a19a68badb653f984151b62fd2"
+  PRIVATE_BUCKET: "fares-uniform-media-private"
+  PUBLIC_BUCKET: "fares-uniform-media-public"
+  PRIVATE_KEY: "phase10/synthetic/source/media-publication-proof-v1.svg"
+  EXPECTED_SHA256: "9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb"
+
+jobs:
+  publish-synthetic-derivative:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact publication candidate
+        uses: actions/checkout@v5
+
+      - name: Verify exact source
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Mint ephemeral bucket-scoped R2 credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          mkdir -p evidence/phase10-r2
+
+          api_get() {
+            curl --fail-with-body --silent --show-error --retry 3               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"               -H "Content-Type: application/json"               "$1"
+          }
+
+          permission_json="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/permission_groups")"
+          jq -e '.success == true' <<<"$permission_json" >/dev/null
+          read_permission="$(jq -r '.result[] | select(.name == "Workers R2 Storage Bucket Item Read") | .id' <<<"$permission_json" | head -n1)"
+          write_permission="$(jq -r '.result[] | select(.name == "Workers R2 Storage Bucket Item Write") | .id' <<<"$permission_json" | head -n1)"
+          test -n "$read_permission"
+          test -n "$write_permission"
+
+          expires_on="$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%SZ')"
+
+          create_token() {
+            local name="$1"
+            local bucket="$2"
+            local permission_id="$3"
+            local access_env="$4"
+            local secret_env="$5"
+            local token_env="$6"
+            local resource="com.cloudflare.edge.r2.bucket.${CLOUDFLARE_ACCOUNT_ID}_default_${bucket}"
+            local body response token_id token_value secret_access_key
+
+            body="$(jq -nc               --arg name "$name"               --arg expires_on "$expires_on"               --arg resource "$resource"               --arg permission_id "$permission_id"               '{name:$name,expires_on:$expires_on,policies:[{effect:"allow",resources:{($resource):"*"},permission_groups:[{id:$permission_id}]}]}')"
+            response="$(
+              curl --fail-with-body --silent --show-error --retry 3                 -X POST                 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"                 -H "Content-Type: application/json"                 "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens"                 --data "$body"
+            )"
+            jq -e '.success == true and (.result.id | length) > 0 and (.result.value | length) > 0' <<<"$response" >/dev/null
+            token_id="$(jq -r '.result.id' <<<"$response")"
+            token_value="$(jq -r '.result.value' <<<"$response")"
+            secret_access_key="$(printf '%s' "$token_value" | sha256sum | awk '{print $1}')"
+
+            echo "::add-mask::$token_id"
+            echo "::add-mask::$token_value"
+            echo "::add-mask::$secret_access_key"
+            echo "$access_env=$token_id" >> "$GITHUB_ENV"
+            echo "$secret_env=$secret_access_key" >> "$GITHUB_ENV"
+            echo "$token_env=$token_id" >> "$GITHUB_ENV"
+          }
+
+          suffix="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          create_token "fares-phase10-private-read-$suffix" "$PRIVATE_BUCKET" "$read_permission"             R2_PRIVATE_MEDIA_READ_ACCESS_KEY_ID R2_PRIVATE_MEDIA_READ_SECRET_ACCESS_KEY R2_PRIVATE_TOKEN_ID
+          create_token "fares-phase10-public-rw-$suffix" "$PUBLIC_BUCKET" "$write_permission"             R2_PUBLIC_MEDIA_RW_ACCESS_KEY_ID R2_PUBLIC_MEDIA_RW_SECRET_ACCESS_KEY R2_PUBLIC_TOKEN_ID
+
+          jq -nc             --arg source_sha "$GITHUB_SHA"             --arg private_bucket "$PRIVATE_BUCKET"             --arg public_bucket "$PUBLIC_BUCKET"             '{source_sha:$source_sha,credential_mode:"ephemeral_account_tokens",private_scope:{bucket:$private_bucket,permission:"Workers R2 Storage Bucket Item Read"},public_scope:{bucket:$public_bucket,permission:"Workers R2 Storage Bucket Item Write"},expires_within_seconds:3600,broad_token_data_plane:false}'             > evidence/phase10-r2/credential-scope.json
+
+      - name: Install isolated S3 client
+        run: python -m pip install --disable-pip-version-check --no-cache-dir boto3==1.40.48
+
+      - name: Promote synthetic derivative with narrow data-plane credentials
+        env:
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          import boto3
+          from botocore.config import Config
+          from botocore.exceptions import ClientError
+
+          assert not os.environ.get("CLOUDFLARE_API_TOKEN"), "broad Cloudflare token must not enter the data-plane step"
+
+          account = os.environ["CLOUDFLARE_ACCOUNT_ID"]
+          endpoint = f"https://{account}.r2.cloudflarestorage.com"
+          private_bucket = os.environ["PRIVATE_BUCKET"]
+          public_bucket = os.environ["PUBLIC_BUCKET"]
+          private_key = os.environ["PRIVATE_KEY"]
+          expected = os.environ["EXPECTED_SHA256"]
+          public_key = f"projects/synthetic-phase10/publication-proof/media-{expected}.svg"
+
+          cfg = Config(signature_version="s3v4", retries={"max_attempts": 3, "mode": "standard"})
+          private = boto3.client(
+              "s3",
+              endpoint_url=endpoint,
+              region_name="auto",
+              aws_access_key_id=os.environ["R2_PRIVATE_MEDIA_READ_ACCESS_KEY_ID"],
+              aws_secret_access_key=os.environ["R2_PRIVATE_MEDIA_READ_SECRET_ACCESS_KEY"],
+              config=cfg,
+          )
+          public = boto3.client(
+              "s3",
+              endpoint_url=endpoint,
+              region_name="auto",
+              aws_access_key_id=os.environ["R2_PUBLIC_MEDIA_RW_ACCESS_KEY_ID"],
+              aws_secret_access_key=os.environ["R2_PUBLIC_MEDIA_RW_SECRET_ACCESS_KEY"],
+              config=cfg,
+          )
+
+          source = private.get_object(Bucket=private_bucket, Key=private_key)["Body"].read()
+          actual = hashlib.sha256(source).hexdigest()
+          assert actual == expected, (actual, expected)
+
+          public.put_object(
+              Bucket=public_bucket,
+              Key=public_key,
+              Body=source,
+              ContentType="image/svg+xml",
+              CacheControl="public, max-age=31536000, immutable",
+              Metadata={"sha256": expected, "source": "phase10-synthetic"},
+          )
+          published = public.get_object(Bucket=public_bucket, Key=public_key)
+          body = published["Body"].read()
+          assert hashlib.sha256(body).hexdigest() == expected
+          assert published["ContentType"] == "image/svg+xml"
+          assert published["CacheControl"] == "public, max-age=31536000, immutable"
+          assert published["Metadata"].get("sha256") == expected
+
+          def require_cross_bucket_denial(client, bucket, key):
+              try:
+                  client.head_object(Bucket=bucket, Key=key)
+              except ClientError as exc:
+                  status = exc.response.get("ResponseMetadata", {}).get("HTTPStatusCode")
+                  code = exc.response.get("Error", {}).get("Code", "")
+                  assert status in {401, 403}, (status, code)
+                  return {"http_status": status, "code": code}
+              raise AssertionError(f"credential unexpectedly accessed {bucket}/{key}")
+
+          private_to_public = require_cross_bucket_denial(private, public_bucket, public_key)
+          public_to_private = require_cross_bucket_denial(public, private_bucket, private_key)
+
+          evidence = {
+              "source_sha": os.environ["GITHUB_SHA"],
+              "private_bucket": private_bucket,
+              "private_key": private_key,
+              "public_bucket": public_bucket,
+              "public_key": public_key,
+              "sha256": expected,
+              "bytes": len(body),
+              "content_type": published["ContentType"],
+              "cache_control": published["CacheControl"],
+              "private_credential_public_bucket_denial": private_to_public,
+              "public_credential_private_bucket_denial": public_to_private,
+              "broad_cloudflare_token_in_data_plane": False,
+              "synthetic": True,
+          }
+          Path("evidence/phase10-r2/publication.json").write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(evidence, indent=2, sort_keys=True))
+          PY
+
+      - name: Revoke ephemeral R2 account tokens
+        if: always()
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          failed=0
+          for token_id in "${R2_PRIVATE_TOKEN_ID:-}" "${R2_PUBLIC_TOKEN_ID:-}"; do
+            if [ -z "$token_id" ]; then
+              continue
+            fi
+            response="$(
+              curl --fail-with-body --silent --show-error --retry 3                 -X DELETE                 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"                 -H "Content-Type: application/json"                 "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/$token_id" || true
+            )"
+            if ! jq -e '.success == true' <<<"$response" >/dev/null 2>&1; then
+              failed=1
+            fi
+          done
+          test "$failed" -eq 0
+
+      - name: Upload publication-boundary evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase10-r2-publication-${{ github.sha }}
+          path: evidence/phase10-r2
+          if-no-files-found: warn
+          retention-days: 14

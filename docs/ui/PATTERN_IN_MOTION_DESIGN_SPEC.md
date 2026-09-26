@@ -1,10 +1,13 @@
 # Pattern in Motion — reusable public-site design specification
 
-**Status:** selected visual direction / kinetic design gate  
+**Status:** historical selected creative direction; superseded as implementation authority by D-059  
 **Selected by:** Fares, 2026-09-18  
 **Corrected boundary:** multi-organization system confirmed by Fares, 2026-09-18  
+**Authority reset:** Fares, 2026-09-21 — repo-first/browser-native UI/UX required  
 **Reference workflow:** GPT-6 Astra “10K Websites” process, adapted to Fares Uniform  
-**Production status:** not approved for implementation or deployment
+**Production status:** historical concept/reference only; not an implementation specification
+
+> **D-059 authority change:** this document may inform creative principles, content ideas and motion language, but neither it nor its PNG boards may be used as a pixel contract. Current UI authority must be established through `docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md` and an exact browser-native Git commit explicitly approved by Fares.
 
 ## 1. Selection receipt and boundary
 

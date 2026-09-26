@@ -4,7 +4,9 @@
 
 The client is Fares; the assistant acts as the professional software developer and gathers requirements from the client.
 
-This repository is the sole persistent project source of truth. At the start of every session read this file, PROJECT.md, docs/README.md, docs/DECISIONS.md, the active phase contract, and the relevant requirements and source files. Verify the current branch and commit before making changes.
+This repository is the sole persistent project source of truth. At the start of every session read this file, PROJECT.md, `docs/PROJECT_TRACKS.md`, docs/README.md, docs/DECISIONS.md, the active phase contract, and the relevant requirements and source files. Verify the current branch and commit before making changes.
+
+`docs/PROJECT_TRACKS.md` is the authoritative scope split/checklist index for the two independent delivery tracks: **Track A — public website** and **Track B — ERP/Odoo**. Do not combine their remaining-work checklists. `PROJECT.md` still owns the current active next action.
 
 Do not use session memory, prior-chat recollections, local files, or other projects to supply missing project facts. A new explicit client instruction can change a repository decision; record that change in the appropriate authoritative document. Record unknowns as unknowns and proposals as proposals.
 
@@ -30,6 +32,15 @@ For an allowed secret-management action, use this exact flow:
 
 Keep project source, documentation edits, builds, tests and normal development on GitHub/hosted CI.
 
+## Delivery-track discipline
+
+Fares Uniform has two independent delivery tracks that share one repository but have different completion boundaries:
+
+- **Public website:** `apps/public-web`, client/project showcases including KGC, product/garment catalog, public enquiry, EN/AR, Pattern in Motion and R2-published media.
+- **ERP/Odoo:** internal POS, stock, preorders, production, B2B, access, reporting, state/recovery and production operations.
+
+Use `docs/PROJECT_TRACKS.md` for the durable checklist split. Public-site Phase 10 work does not by itself advance ERP Gate D. ERP production authorization does not by itself authorize public KGC/client publication or public-site cutover. For an unqualified “continue”, follow the active next action in `PROJECT.md`; when the user explicitly names a track, continue that track from its newest remote evidence.
+
 ## Planning and scope
 
 Discover the actual business workflows before choosing modules or schemas. Ask manageable groups of plain-language questions; distinguish current practice from desired future behavior. Capture actors, triggers, steps, records, exceptions, approvals, outputs and acceptance criteria as discovery proceeds.
@@ -48,7 +59,13 @@ Documentation-only work needs read-back and link/consistency checks, not an appl
 
 ## UI discipline
 
-Use maintained accessible primitives and suitable existing components before custom generic controls. Establish the design system, component sources and representative screen direction before broad UI implementation. Record adopted components and approved visual decisions; preserve them across sessions.
+**Mandatory public-site UI/UX authority rule:** read `docs/ui/REPO_FIRST_UI_UX_WORKFLOW.md`, the active page-specific authority, and `.agents/skills/fares-scrollcraft/SKILL.md` before public-site visual work. D-059 is the general browser-native rule. **D-063 superseded the temporary D-062 homepage screenshot-specification exception**, and D-064 strengthens the current homepage requirement after Fares rejected the first viewport-native candidate for weak motion and screenshot-like media. The historical board/component map are content/regression evidence only.
+
+The homepage must be designed and judged as a browser-native experience: semantic UI and controls in code, independent content/decorative assets only, purposeful multi-device Scrollcraft choreography, separately art-directed mobile, RTL and reduced-motion parity. Screenshot-derived runtime media, tiny crops that merely imitate the historical board, whole-page scaling and perfunctory parallax that does not create a visible scroll story are not acceptable authority.
+
+Before broad UI implementation or visual rework: define/update UX and page contracts; for the current public-site design authority also produce the Scrollcraft brief, Pain/Person/Promise, reference board, page grammar, feeling curve, peak, signature move, Visual Story and scroll score; use the pinned upstream Scrollcraft engine unmodified; compose responsive EN/AR/RTL browser-native pages in a non-production review deployment; art-direct mobile separately; verify intermediate scroll states and reduced motion; obtain Fares's explicit approval of an exact Git commit as the UI authority; then promote/reuse that coded authority in production and use screenshots only as verification/regression evidence.
+
+Use maintained accessible primitives and suitable existing components before custom generic controls. Establish the design system, component sources and representative browser-native screen direction before broad UI implementation. Record adopted components and approved visual decisions; preserve them across sessions.
 
 RenderLab supplies process reference, not this ERP's design or product specification. Its creative-app styling, libraries, schemas, resources and runtime decisions are not automatically approved here.
 

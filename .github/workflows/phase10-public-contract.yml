@@ -1,0 +1,99 @@
+name: Phase 10 public contract
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - "addons/fu_public_api/**"
+      - "contracts/public-api-v2.openapi.json"
+      - "docs/validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md"
+      - ".github/workflows/phase10-public-contract.yml"
+  pull_request:
+    paths:
+      - "addons/fu_public_api/**"
+      - "contracts/public-api-v2.openapi.json"
+      - ".github/workflows/phase10-public-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-public-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  v2-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: phase10-only
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      PGPASSWORD: phase10-only
+      ODOO_SHA: 1a13ceeaee12fe5cc50f287c31f217d4be2a2eaf
+    steps:
+      - name: Checkout exact Phase 10 candidate
+        uses: actions/checkout@v5
+        with: { path: fares }
+      - name: Verify exact source
+        working-directory: fares
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Validate source-controlled V2 OpenAPI JSON
+        run: python -m json.tool fares/contracts/public-api-v2.openapi.json >/dev/null
+      - name: Checkout pinned Odoo Community 19
+        uses: actions/checkout@v5
+        with:
+          repository: odoo/odoo
+          ref: ${{ env.ODOO_SHA }}
+          path: odoo
+          fetch-depth: 1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Set up Node for rtlcss
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Install Odoo dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev
+          npm install --global rtlcss@4.3.0
+          python -m pip install --upgrade pip
+          pip install -r odoo/requirements.txt
+      - name: Install public addon and run V1 plus V2 contract tests
+        run: |
+          mkdir -p evidence/phase10
+          python odoo/odoo-bin --addons-path="fares/addons,odoo/addons" -d fares_phase10 -i fu_core,fu_public_api --test-enable --test-tags=/fu_public_api --stop-after-init --db_host=127.0.0.1 --db_port=5432 --db_user=odoo --db_password=phase10-only --log-level=test 2>&1 | tee evidence/phase10/install-test.log
+          grep -Eq "0 failed, 0 error\(s\)" evidence/phase10/install-test.log
+      - name: Prove repeatable public-addon upgrade
+        if: success()
+        run: |
+          python odoo/odoo-bin --addons-path="fares/addons,odoo/addons" -d fares_phase10 -u fu_core,fu_public_api --stop-after-init --db_host=127.0.0.1 --db_port=5432 --db_user=odoo --db_password=phase10-only --log-level=info 2>&1 | tee evidence/phase10/upgrade.log
+          grep -q "Modules loaded" evidence/phase10/upgrade.log
+      - name: Record exact evidence identity
+        if: always()
+        run: |
+          { echo "fares_sha=$GITHUB_SHA"; echo "odoo_sha=$ODOO_SHA"; python --version; node --version; rtlcss --version || true; } | tee evidence/phase10/runtime.txt
+      - name: Upload Phase 10 contract evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase10-public-contract-${{ github.sha }}
+          path: evidence/phase10
+          if-no-files-found: warn
+          retention-days: 14

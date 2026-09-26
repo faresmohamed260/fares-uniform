@@ -1,0 +1,74 @@
+name: Phase 10 R2 synthetic seed
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - ".github/workflows/phase10-r2-synthetic-seed.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  CLOUDFLARE_ACCOUNT_ID: "9b0bf4a19a68badb653f984151b62fd2"
+  PRIVATE_BUCKET: "fares-uniform-media-private"
+  PRIVATE_KEY: "phase10/synthetic/source/media-publication-proof-v1.svg"
+  EXPECTED_SHA256: "9410b68878003a749c5b45e1cb217ebfc90f4538b28ac69cb8f178fc6a9159eb"
+
+jobs:
+  seed-synthetic-private-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact provider-proof source
+        uses: actions/checkout@v5
+
+      - name: Verify exact source
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Create deterministic synthetic media fixture
+        run: |
+          set -euo pipefail
+          printf '%s' 'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIHZpZXdCb3g9IjAgMCAxMjAwIDE1MDAiPgogIDxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjE1MDAiIGZpbGw9IiNmNGYxZWIiLz4KICA8cGF0aCBkPSJNMjEwIDI5MGg3ODB2OTIwSDIxMHoiIGZpbGw9IiMxNzMyNGQiLz4KICA8cGF0aCBkPSJNMjEwIDUyMGg3ODB2MTAwSDIxMHoiIGZpbGw9IiNiMzNiNDYiLz4KICA8dGV4dCB4PSI2MDAiIHk9Ijc2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTQiIGZpbGw9IiNmZmZmZmYiPlNZTlRIRVRJQyBQSEFTRSAxMDwvdGV4dD4KICA8dGV4dCB4PSI2MDAiIHk9IjgzNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzQiIGZpbGw9IiNmZmZmZmYiPlIyIFBVQkxJQ0FUSU9OIFBST09GPC90ZXh0Pgo8L3N2Zz4K' | base64 -d > phase10-synthetic-source.svg
+          test "$(sha256sum phase10-synthetic-source.svg | awk '{print $1}')" = "$EXPECTED_SHA256"
+
+      - name: Seed private synthetic source through control-plane credential
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          npx --yes wrangler@4.135.0 r2 object put "$PRIVATE_BUCKET/$PRIVATE_KEY" --file phase10-synthetic-source.svg --remote
+          npx --yes wrangler@4.135.0 r2 object get "$PRIVATE_BUCKET/$PRIVATE_KEY" --file phase10-synthetic-roundtrip.svg --remote
+          test "$(sha256sum phase10-synthetic-roundtrip.svg | awk '{print $1}')" = "$EXPECTED_SHA256"
+
+      - name: Reconfirm private bucket has no public delivery endpoint
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          api_get() {
+            curl --fail-with-body --silent --show-error --retry 3               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"               -H "Content-Type: application/json"               "$1"
+          }
+          managed="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PRIVATE_BUCKET/domains/managed")"
+          custom="$(api_get "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets/$PRIVATE_BUCKET/domains/custom")"
+          jq -e '.success == true and .result.enabled == false' <<<"$managed" >/dev/null
+          jq -e '.success == true and (.result.domains | length) == 0' <<<"$custom" >/dev/null
+
+      - name: Record non-secret seed evidence
+        if: always()
+        run: |
+          mkdir -p evidence/phase10-r2
+          jq -nc             --arg sha "$GITHUB_SHA"             --arg bucket "$PRIVATE_BUCKET"             --arg key "$PRIVATE_KEY"             --arg hash "$EXPECTED_SHA256"             '{source_sha:$sha,bucket:$bucket,object_key:$key,sha256:$hash,synthetic:true,public_delivery_enabled:false}'             > evidence/phase10-r2/seed.json
+
+      - name: Upload seed evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase10-r2-seed-${{ github.sha }}
+          path: evidence/phase10-r2
+          if-no-files-found: error
+          retention-days: 14

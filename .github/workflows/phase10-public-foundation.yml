@@ -1,0 +1,83 @@
+name: Phase 10 public foundation
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - "apps/public-web/**"
+      - "contracts/public-api-v2.openapi.json"
+      - ".github/workflows/phase10-public-foundation.yml"
+      - "docs/validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md"
+  pull_request:
+    paths:
+      - "apps/public-web/**"
+      - "contracts/public-api-v2.openapi.json"
+      - ".github/workflows/phase10-public-foundation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-public-foundation-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  public-foundation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FU_PUBLIC_PROVIDER: fixture
+      PUBLIC_SITE_ORIGIN: https://faresuniform.uk
+    defaults:
+      run:
+        working-directory: apps/public-web
+    steps:
+      - name: Checkout exact Phase 10 candidate
+        uses: actions/checkout@v5
+      - name: Verify exact source
+        run: test "$(git -C ../.. rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/public-web/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Typecheck production public web
+        run: npm run typecheck
+      - name: Build production public web
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run Phase 10 foundation browser contract
+        run: npx playwright test tests/foundation.spec.ts
+      - name: Record exact evidence identity
+        if: always()
+        run: |
+          mkdir -p evidence/phase10-foundation
+          {
+            echo "fares_sha=$GITHUB_SHA"
+            node --version
+            npm --version
+            npx next --version
+            npx playwright --version
+            echo "provider=$FU_PUBLIC_PROVIDER"
+            echo "public_site_origin=$PUBLIC_SITE_ORIGIN"
+          } | tee evidence/phase10-foundation/runtime.txt
+      - name: Upload Phase 10 foundation evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase10-public-foundation-${{ github.sha }}
+          path: |
+            apps/public-web/evidence/phase10-foundation
+            apps/public-web/playwright-report
+            apps/public-web/test-results
+          if-no-files-found: warn
+          retention-days: 14
