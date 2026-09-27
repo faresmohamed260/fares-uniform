@@ -350,41 +350,19 @@ const publishedClientPrograms=[
 ] as const;
 
 export function ApprovedSelectedWork({locale}:{locale:Locale}){
- const ar=locale==="ar";const [active,setActive]=useState(0);const client=publishedClientPrograms[active];
- const selectWithArrow=(event:React.KeyboardEvent<HTMLButtonElement>,index:number)=>{
-  const step=event.key==="ArrowRight"||event.key==="ArrowDown"?1:event.key==="ArrowLeft"||event.key==="ArrowUp"?-1:0;
-  if(!step)return;event.preventDefault();const next=(index+step+publishedClientPrograms.length)%publishedClientPrograms.length;setActive(next);
-  event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
- };
- return <section id="work" className="approved-selected-work" data-sc-act="flow" data-sc-drift="#f4f8fc" data-section-id="H04" data-testid="approved-h04">
-  <div className="approved-client-pattern-bridge" aria-hidden="true"><img src="/generated/home-feature-pattern-blue.svg" width={1600} height={1000} alt=""/></div>
-  <header className="approved-selected-intro">
-    <span className="approved-eyebrow" data-component-id="H04.01">{ar?"برامج العملاء":"SELECTED WORK"}</span>
-    <h2 data-component-id="H04.02">{ar?"برامج عملاء،\nمصممة حول الهوية.":"CLIENT PROGRAMS,\nBUILT AROUND IDENTITY."}</h2>
-    <div className="approved-work-note" aria-label={ar?"أكثر من مجرد زي موحد. غد أكثر إشراقاً.":"More than uniforms. A brighter tomorrow."}>{ar?"أكثر من مجرد زي موحد.\nغد أكثر إشراقاً.":"More than uniforms.\nA brighter tomorrow."}</div>
-   </header>
-  <div className="approved-client-selector">
-   <div role="tablist" aria-label={ar?"اختر برنامج عميل":"Choose a client program"}>
-    {publishedClientPrograms.map((item,index)=><button key={item.key} type="button" role="tab" id={"client-tab-"+item.key} aria-controls={"client-panel-"+item.key} aria-selected={index===active} tabIndex={index===active?0:-1} onClick={()=>setActive(index)} onKeyDown={event=>selectWithArrow(event,index)}>{item.name}</button>)}
-      <button className="approved-client-placeholder" type="button" role="tab" aria-disabled="true" disabled>{ar?"العميل ٠٢":"Client 02"}</button>
-      <button className="approved-client-placeholder" type="button" role="tab" aria-disabled="true" disabled>{ar?"العميل ٠٣":"Client 03"}</button>
-   </div>
-   <a className="approved-work-all" data-component-id="H04.06" href={"/"+locale+"/work"}>{ar?"عرض كل العملاء":"View All Clients"} <ChevronRight aria-hidden="true"/></a>
-  </div>
+ const ar=locale==="ar";const [active,setActive]=useState(0);const [paused,setPaused]=useState(false);const client=publishedClientPrograms[active];
+ const rail=[{key:"client-04",name:ar?"برنامج عميل ٠٤":"Client program 04",enabled:false},{key:"client-02",name:ar?"برنامج عميل ٠٢":"Client program 02",enabled:false},{key:"client-03",name:ar?"برنامج عميل ٠٣":"Client program 03",enabled:false},{key:client.key,name:client.name,enabled:true},{key:"client-05",name:ar?"برنامج عميل ٠٥":"Client program 05",enabled:false},{key:"client-06",name:ar?"برنامج عميل ٠٦":"Client program 06",enabled:false},{key:"client-07",name:ar?"برنامج عميل ٠٧":"Client program 07",enabled:false}];
+ const move=(step:number)=>{if(publishedClientPrograms.length<2)return;setActive(index=>(index+step+publishedClientPrograms.length)%publishedClientPrograms.length);};
+ useEffect(()=>{if(paused||publishedClientPrograms.length<2)return;const timer=window.setInterval(()=>move(1),7200);return()=>window.clearInterval(timer);},[paused]);
+ const selectWithArrow=(event:React.KeyboardEvent<HTMLButtonElement>)=>{if(!["ArrowRight","ArrowDown","ArrowLeft","ArrowUp"].includes(event.key))return;event.preventDefault();move(event.key==="ArrowRight"||event.key==="ArrowDown"?1:-1);};
+ return <section id="work" className="approved-selected-work approved-client-banner" data-sc-act="flow" data-sc-drift="#f4f8fc" data-section-id="H04" data-testid="approved-h04" data-client={client.key}>
   <div className="approved-client-stage" id={"client-panel-"+client.key} role="tabpanel" aria-labelledby={"client-tab-"+client.key}>
-   <div className="approved-client-visual">
-    <div className="approved-client-left-frame" aria-hidden="true"><span>PEOPLE.</span><span>PURPOSE.</span><span>UNIFORMS.</span><i/></div>
-    <img data-media-slot="home.work.kgc.campus" data-component-id="H04.04" className="approved-client-campus" src={client.campus} width={169} height={149} loading="lazy" decoding="async" alt={ar?"حرم KGC، صورة أصلية ضمن المراجعة المحمية":"KGC campus in protected review"}/>
-    <div className="approved-client-visual-copy"><h3>{client.name}</h3><span>{ar?client.programAr:client.programEn}</span><p>{ar?"تحويل الهوية إلى نظام يومي متناسق.":"Turning identity into a coordinated everyday system."}</p></div>
-    <CleanKgcCutout src={client.worn} label={ar?"زي KGC الصيفي للمرحلة الثانوية، صورة أصلية ضمن المراجعة المحمية":"Original KGC High/Summer uniform worn-model image in protected review"}/>
-   </div>
-   <div className="approved-client-details">
-    <span className="approved-stage-kicker">{ar?"العميل المختار":"SELECTED CLIENT"}</span><h3>{client.name}</h3><strong>{ar?client.programAr:client.programEn}</strong><p>{ar?client.summaryAr:client.summaryEn}</p>
-    <div className="approved-client-products" aria-label={ar?"نماذج حقيقية من البرنامج":"Real program views"}>{client.products.map(product=><figure key={product.labelEn}><div><img src={product.src} width={1013} height={1267} loading="lazy" decoding="async" alt={ar?product.labelAr:product.labelEn}/></div><figcaption>{ar?product.labelAr:product.labelEn}</figcaption></figure>)}</div>
-    <a data-component-id="H04.05" href={"/"+locale+client.route}>{ar?"استكشف KGC National":"Explore KGC National"} <ChevronRight aria-hidden="true"/></a>
-     <div className="approved-client-right-note" aria-hidden="true">A BRIGHTER<br/>TOMORROW<br/>IN UNIFORM.<i/></div>
-   </div>
+   <img data-media-slot="home.work.kgc.campus" data-component-id="H04.04" className="approved-client-campus" src={client.campus} width={1690} height={940} loading="lazy" decoding="async" alt={ar?"حرم KGC، صورة أصلية ضمن المراجعة المحمية":"KGC campus in protected review"}/>
+   <div className="approved-client-story-panel"><span className="approved-eyebrow" data-component-id="H04.01">{ar?"برامج العملاء":"CLIENT PROGRAMS"}</span><h2 data-component-id="H04.02">{client.name}</h2><strong>{ar?client.programAr:client.programEn}</strong><i aria-hidden="true"/><p>{ar?client.summaryAr:client.summaryEn}</p><a data-component-id="H04.05" href={"/"+locale+client.route}>{ar?"عرض الكتالوج":"View Our Catalog"}<ChevronRight aria-hidden="true"/></a><div className="approved-client-purpose" aria-hidden="true">{ar?<>أشخاص.<br/>هدف.<br/>زي موحّد.</>:<>PEOPLE.<br/>PURPOSE.<br/>UNIFORMS.</>}<b/></div></div>
+   <CleanKgcCutout src={client.worn} label={ar?"زي KGC الصيفي للمرحلة الثانوية، صورة أصلية ضمن المراجعة المحمية":"Original KGC High/Summer uniform worn-model image in protected review"}/>
+   <aside className="approved-client-note" aria-label={ar?"أكثر من مجرد زي موحد. غد أكثر إشراقاً.":"More than uniforms. A brighter tomorrow."}>{ar?<>أكثر من مجرد زي موحد.<br/>غد أكثر إشراقاً.</>:<>More than uniforms.<br/>A brighter tomorrow.</>}<i/></aside><div className="approved-client-future-note" aria-hidden="true">{ar?<>غد أكثر إشراقاً<br/>بالزي الموحّد.</>:<>A BRIGHTER<br/>TOMORROW<br/>IN UNIFORM.</>}<i/></div>
   </div>
+  <div className="approved-logo-conveyor" data-component-id="H04.06"><button className="approved-logo-arrow" type="button" onClick={()=>move(ar?1:-1)} aria-label={ar?"العميل السابق":"Previous client"} disabled={publishedClientPrograms.length<2}><ChevronLeft/></button><div className="approved-logo-viewport" role="tablist" aria-label={ar?"اختر برنامج عميل":"Choose a client program"}><div className="approved-logo-track">{rail.map(item=>item.enabled?<button key={item.key} type="button" role="tab" id={"client-tab-"+item.key} aria-controls={"client-panel-"+item.key} aria-selected="true" onClick={()=>setActive(0)} onKeyDown={selectWithArrow} className="approved-logo-active"><img src={client.logo} width={182} height={84} alt={client.name}/></button>:<button key={item.key} type="button" role="tab" aria-disabled="true" disabled className="approved-logo-placeholder"><span>{item.name}</span></button>)}</div></div><button className="approved-logo-arrow" type="button" onClick={()=>move(ar?-1:1)} aria-label={ar?"العميل التالي":"Next client"} disabled={publishedClientPrograms.length<2}><ChevronRight/></button><div className="approved-logo-status"><span>01 / {String(Math.max(1,publishedClientPrograms.length)).padStart(2,"0")}</span><div className="approved-logo-progress"><i className={paused?"is-paused":""}/></div><button type="button" onClick={()=>setPaused(value=>!value)} aria-pressed={paused} aria-label={paused?(ar?"تشغيل التبديل التلقائي":"Resume automatic rotation"):(ar?"إيقاف التبديل التلقائي":"Pause automatic rotation")}>{paused?"▶":"Ⅱ"}</button></div></div>
  </section>;
 }
 export function ApprovedClosingCta({locale}:{locale:Locale}){
