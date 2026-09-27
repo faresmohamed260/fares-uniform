@@ -7,6 +7,7 @@ const assets = [
   ["1I5xEnC_plLnTwVnqBdrcja9l9lkSpVDa", "kgc/review/primary-summer.png", "primary-summer.png", 1566281, "df47288be770489c702ff4de298556e74e0233abaa042f2355ef634cb4bcaa8e"],
   ["1le12chTbBteOrrVIxy0D3hWUsGioY-xC", "kgc/review/middle-summer.png", "middle-summer.png", 1576808, "9d87d962941f1ff921c448405382ccbde661a64b874d8f262407cb25e54ed1a1"],
   ["1x69utNsIog_mDU1KV-BrZ7yrIhDAyGwV", "kgc/review/high-summer.png", "high-summer.png", 1590254, "c7a38596770d069f41a27c0d2f6dfb9f8f877a7a82e7b001b892d198183a8fbb"],
+  ["1WURYXmzeiwRmqa638R2p3MW3QTcAKWyh", "kgc/review/kgc-national-four-grade-collage-v1.png", "kgc-national-four-grade-collage-v1.png", 1777402, "a83d1e7a992cdd1144491355ea33601918e9848ed789f6acb1466d133cccda87"],
   ["17z5LpOTT0-RqoxvKoa82LEb3E6SA3G1c", "kgc/review/high-summer-polo-front.png", "high-summer-polo-front.png", 2069587, "38b26d959b98331d6944fcbcfaa84b418ac39d7cb24743752cc7357893dcb587"],
   ["14oTbQ4pyLzxu-2LKs6eZamSqQiasHozV", "kgc/review/high-summer-polo-back.png", "high-summer-polo-back.png", 1887466, "a38bffa2cadfd20bee2cf948a8f4f86b3d4f4d185a262577a9f3f2139709a5b7"],
 ];

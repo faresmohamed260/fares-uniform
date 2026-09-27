@@ -131,6 +131,7 @@ jobs:
           npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/primary-summer.png --file public/review-media/kgc/primary-summer.png --remote
           npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/middle-summer.png --file public/review-media/kgc/middle-summer.png --remote
           npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/high-summer.png --file public/review-media/kgc/high-summer.png --remote
+          npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/kgc-national-four-grade-collage-v1.png --file public/review-media/kgc/kgc-national-four-grade-collage-v1.png --remote
           npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/high-summer-polo-front.png --file public/review-media/kgc/high-summer-polo-front.png --remote
           npx --yes wrangler@4.135.0 r2 object get fares-uniform-media-private/kgc/review/high-summer-polo-back.png --file public/review-media/kgc/high-summer-polo-back.png --remote
           cp ../public-site-motion/public/media/kgc-logo.webp public/review-media/kgc/kgc-logo.webp
@@ -140,7 +141,7 @@ jobs:
             sha256sum public/review-media/kgc/kgc-logo.webp
             sha256sum public/review-media/kgc/kgc-building.webp
           } >> artifacts/kgc-review-media-provenance.sha256
-          echo "real_review_media=PASS count=8 publication=NO"
+          echo "real_review_media=PASS count=9 publication=NO"
 
       - name: Typecheck
         run: npm run typecheck
