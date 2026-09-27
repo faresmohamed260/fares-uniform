@@ -1,6 +1,11 @@
 name: Temporary KGC review collage upload
 
 on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - .github/workflows/temp-kgc-review-collage-upload.yml
   workflow_dispatch:
 
 permissions:
