@@ -647,3 +647,12 @@ The historical 1024 board remains regression/content evidence only. No part of D
 Status: Client direction recorded 2026-09-25; review implementation verified, final visual acceptance pending.
 
 Fares supplied a transparent stacked serif FARES/UNIFORM wordmark and a separate transparent white serif F inside a navy circle. They replace the rejected draft type-only wordmark and hand-authored circular SVG. Use the supplied artwork directly as distinct brand assets, with only transparent-canvas cropping, web sizing, and palette adjustment to the public-site navy. SVG conversion is optional only if needed for a specific implementation requirement; do not redraw the letterforms or append the icon to the wordmark. This decision controls the protected homepage review candidate and does not authorize production, PR merge, public client-media publication, or ERP Gate D.
+## D-066 — Permit one truth-grounded generated KGC collage for protected client-banner review
+
+Status: Accepted by client, 2026-09-28.
+
+Fares explicitly requested a hero-like cutout collage for the option-3 KGC client banner, using existing KGC assets that show students from different grades in their real uniforms. This decision narrowly supersedes D-053's blanket prohibition on synthetic KGC imagery for this one protected-review derivative only.
+
+The derivative must use the authorized kindergarten, primary, middle and high school worn-model assets as its uniform-reference authority; it must preserve recognizable garment colors, construction and program identity. It may arrange representative students into one transparent group, but it must not be described as documentary photography or evidence that the people were photographed together. The original KGC assets remain unchanged with their backgrounds intact. Runtime canvas masking, browser-side background removal and use of the supplied design screenshot as runtime media are prohibited.
+
+The generated PNG is stored separately from the original 66-file KGC inventory, hash-pinned in private R2 and used only in the protected non-production preview. This decision does not authorize public KGC media publication, new client logos, production deployment, PR merge, or any ERP/Gate D action. Final visual approval remains Fares's.

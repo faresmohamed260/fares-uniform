@@ -212,3 +212,40 @@ Hosted evidence:
 Authenticated desktop inspection was compared directly with the supplied authority. Hosted evidence also covers English mobile, Arabic RTL, keyboard operation, reduced motion and horizontal-overflow prevention.
 
 Acceptance boundary: technically ready for Fares visual review. Final visual approval is not inferred. Production, PR merge, public KGC/client publication and ERP Gate D remain NO-GO.
+## H04 option-3 rotating client banner with four-grade KGC collage (2026-09-28)
+
+Fares explicitly changed H04 from the prior selected-work detail layout to a reusable client-banner system. The approved option-3 behavior is now:
+
+- a full-bleed client story banner with a pale narrative wedge, campus environment, independent student collage and navy diagonal brand field;
+- a fixed **View Our Catalog** action for the active client;
+- a continuously moving client-logo conveyor; selecting an enabled logo changes the banner;
+- KGC as the only enabled client, with future marks disabled rather than fabricated;
+- EN/AR RTL, mobile-specific composition, keyboard access, reduced-motion parity and no horizontal overflow.
+
+### Generated review derivative and provenance
+
+The four-student collage was generated as one transparent review derivative using four existing authorized KGC worn-model images as the uniform-reference authority. The source files represent kindergarten, primary, middle and high school summer programs and retain their original backgrounds unchanged. No runtime canvas, chroma-keying or browser-side background removal is used.
+
+- Kindergarten source Drive ID `1-7KJddf0GBi48waU0zOfb_qQpF7FApmm`, SHA-256 `c479be57cc8ffa0ed170c8453420f99cb4d9fa3969a53141b81730e9830a1e35`.
+- Primary source Drive ID `1I5xEnC_plLnTwVnqBdrcja9l9lkSpVDa`, SHA-256 `df47288be770489c702ff4de298556e74e0233abaa042f2355ef634cb4bcaa8e`.
+- Middle source Drive ID `1le12chTbBteOrrVIxy0D3hWUsGioY-xC`, SHA-256 `9d87d962941f1ff921c448405382ccbde661a64b874d8f262407cb25e54ed1a1`.
+- High source Drive ID `1x69utNsIog_mDU1KV-BrZ7yrIhDAyGwV`, SHA-256 `c7a38596770d069f41a27c0d2f6dfb9f8f877a7a82e7b001b892d198183a8fbb`.
+- Generated derivative: `kgc-national-four-grade-collage-v1.png`, 1122×1402 transparent PNG, SHA-256 `a83d1e7a992cdd1144491355ea33601918e9848ed789f6acb1466d133cccda87`.
+- Drive review copy: file `1WURYXmzeiwRmqa638R2p3MW3QTcAKWyh`.
+- Private R2 object: `fares-uniform-media-private/kgc/review/kgc-national-four-grade-collage-v1.png`.
+- R2 upload proof: run `36354912940`, attempt 2, job `108721614091`, artifact `10943477836`, digest `sha256:f9a13b44dd60d782cbfb5fccc9dfc0789de72e3bb920315387fc24879c3d1313`.
+- The temporary signed-source secret and temporary upload workflow were deleted after the hash-verified transfer.
+
+This derivative is a visual composition for protected review, not a claim that the four people were photographed together. Uniform details are grounded in the four cited authorized assets. It does not expand publication rights.
+
+### Exact hosted evidence
+
+- exact implementation/deployment source: `d91d98f8ccc31b4e6a896c4b8e0d99ab794a1e91`;
+- design authority: [run `36357398573`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36357398573), job `108727740063`, GREEN; hosted typecheck, optimized production build and 13/13 browser checks;
+- design artifact: `10944720821`, `sha256:1a83e4521e94dab0d763e7937fe1600c10025a7425efc627d63c4347796c0e05`;
+- exact-source full candidate: [run `36357401221`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36357401221), job `108727747052`, GREEN;
+- full-candidate artifact: `10944303779`, `sha256:e17989e07a1a69f0b7daf844aeb063eb11221d57994e5bb0b86e414555e54c55`;
+- protected preview: https://fares-uniform-design-authority-nwyqa8m9t.vercel.app/en#work;
+- deployment state: READY; target: preview; unauthenticated request: HTTP 302.
+
+Desktop English and Arabic RTL were manually inspected. Hosted evidence covers English/Arabic mobile, keyboard operation, reduced motion and zero horizontal overflow. The composition is technically ready for Fares's visual decision; approval is not inferred. Production, PR merge, public client publication and ERP Gate D remain NO-GO.
