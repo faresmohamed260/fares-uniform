@@ -1,45 +1,44 @@
-# Design QA — H04 option-3 KGC client banner
+# Design QA — H04 client-logo rail correction
 
-final result: passed technical review; Fares visual approval pending
+final result: passed
 
-## Authority
+## Target and mismatch ledger
 
-- Selected direction: option 3 — full-bleed client banner with campus environment, pale story wedge, four-grade student collage, navy diagonal brand field, fixed View Our Catalog action and moving client-logo conveyor.
-- Exact implementation/deployment source: `d91d98f8ccc31b4e6a896c4b8e0d99ab794a1e91`.
-- Exact protected preview: https://fares-uniform-design-authority-nwyqa8m9t.vercel.app/en#work.
-- Design run/job: `36357398573` / `108727740063`.
-- Design artifact: `10944720821`, `sha256:1a83e4521e94dab0d763e7937fe1600c10025a7425efc627d63c4347796c0e05`.
+Reference evidence: Fares's rejected screenshot of the first option-3 rail.
 
-## Asset and truth boundary
+- Before: six large generic client-program placeholders dominated the strip. After: no placeholder entries render; the rail maps only real published clients.
+- Before: KGC appeared as a tiny crest inside a heavy outlined box. After: the crest and KGC National name form one readable editorial tab with a simple blue underline.
+- Before: `01 / 01`, a long progress line and a pause button looked detached and suggested rotation that could not occur. After: the single-client state shows a quiet `01 — 01`; navigation, progress and pause render only when at least two clients exist.
+- Before: the rail consumed roughly 188px and competed with the banner. After: desktop is 104–126px, tablet 116px and mobile 100px.
 
-- Four authorized KGC worn-model sources spanning kindergarten, primary, middle and high school were used as references for one transparent generated collage.
-- Generated derivative: `kgc-national-four-grade-collage-v1.png`, SHA-256 `a83d1e7a992cdd1144491355ea33601918e9848ed789f6acb1466d133cccda87`.
-- Private R2 object: `kgc/review/kgc-national-four-grade-collage-v1.png`.
-- Original sources are unchanged; their backgrounds were not removed.
-- The page uses a normal independent image layer. No runtime canvas/background-removal code remains.
-- KGC is the only enabled client; placeholder marks do not create fake client routes or claims.
+## Exact authority
 
-## Visual comparison
+- Implementation/deployment source: `8152657be622a088a375ccb2aa33b1b6c48776d4`.
+- Protected preview: https://fares-uniform-design-authority-jriou7rhj.vercel.app/en#work.
+- Design run/job: `36364787001` / `108748924276`.
+- Artifact: `10946781994`, `sha256:165c0628f108e341d0df66a620811f6787319af0f6daf01a40eb5eae8512a444`.
+- Full candidate run/job: `36364790043` / `108748932161`, GREEN.
 
-- Desktop English: passed. The collage is large, clear and balanced against the story wedge; campus and diagonal geometry remain independent layers.
-- Desktop Arabic RTL: passed. Story and collage mirror correctly, CTA remains legible and no content clips.
-- Mobile 390×844: passed. All four students remain visible, the story panel follows cleanly and the logo rail stays usable.
-- Reduced motion: passed. Automatic decorative motion is suppressed or simplified without removing navigation or content.
-- Horizontal overflow: none in hosted checks.
+## Visual evidence
 
-## Interaction and accessibility
+- `home-client-logo-rail-desktop.png`: passed. The rail is compact, balanced and contains only OUR CLIENTS, the KGC crest/name, active underline and `01 — 01`.
+- `home-client-banner-mobile.png`: passed. The crest/name and count fit one clean row without clipping or fake cells.
+- The approved H04 banner, campus, four-grade collage, story copy and View Our Catalog action are unchanged.
+- In-app browser classification: available, but the protected preview redirected to Vercel login. No credentials were entered; exact hosted screenshots from the sealed workflow artifact were used for visual QA.
 
-- Fixed View Our Catalog action remains available for the active client.
-- Conveyor selection uses semantic controls; keyboard behavior is covered by the hosted suite.
-- Enabled client selection changes the banner; disabled future entries cannot be activated.
-- The banner remains compatible with the existing Scrollcraft section handoff and top-level section focus behavior.
+## Checks
 
-## Verification
+| Check | Result |
+|---|---|
+| Page identity and deployed SHA | Pass |
+| Meaningful H04 content | Pass |
+| Framework error overlay | Pass |
+| Hosted console/browser suite | Pass |
+| Desktop rail screenshot | Pass |
+| Mobile screenshot | Pass |
+| KGC tab and catalog interaction contract | Pass |
+| Keyboard/focus-visible semantics | Pass |
+| Arabic RTL and reduced motion | Pass |
+| Horizontal overflow | Pass |
 
-- Hosted typecheck: passed.
-- Optimized production build: passed.
-- Browser suite: 13/13 passed.
-- Exact-source full candidate: run `36357401221`, job `108727747052`, passed.
-- Deployment: READY, Vercel preview target, protected by unauthenticated HTTP 302 redirect.
-
-Production, PR merge and public KGC/client publication remain NO-GO.
+Production, PR merge and public KGC/client publication remain NO-GO. Final visual approval remains Fares's.

@@ -249,3 +249,28 @@ This derivative is a visual composition for protected review, not a claim that t
 - deployment state: READY; target: preview; unauthenticated request: HTTP 302.
 
 Desktop English and Arabic RTL were manually inspected. Hosted evidence covers English/Arabic mobile, keyboard operation, reduced motion and zero horizontal overflow. The composition is technically ready for Fares's visual decision; approval is not inferred. Production, PR merge, public client publication and ERP Gate D remain NO-GO.
+## H04 client-logo rail correction (2026-09-28)
+
+Fares rejected the initial option-3 conveyor treatment as visually unfinished. The screenshot showed six generic disabled cells overpowering one very small KGC crest, a heavy active box and a detached `01 / 01` progress/pause row.
+
+Exact correction source `8152657be622a088a375ccb2aa33b1b6c48776d4` changes only the rail beneath H04:
+
+- removes all fake `Client program 02–07` cells;
+- maps the rail directly from `publishedClientPrograms`, so only truthful client entries render;
+- presents KGC as crest plus readable client name with a light active underline instead of a boxed tile;
+- replaces the detached progress line with a compact `01 — 01` indicator for the single-client state;
+- renders previous/next, timed progress and pause controls only when two or more real clients exist;
+- reduces the desktop/tablet/mobile rail height and preserves the approved banner above it;
+- keeps semantic tabs, focus-visible styling, EN/AR RTL, reduced motion and zero horizontal overflow.
+
+### Exact hosted evidence
+
+- exact implementation/deployment source: `8152657be622a088a375ccb2aa33b1b6c48776d4`;
+- design authority: [run `36364787001`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36364787001), job `108748924276`, GREEN; typecheck, optimized production build and 13/13 browser checks;
+- design artifact: `10946781994`, `sha256:165c0628f108e341d0df66a620811f6787319af0f6daf01a40eb5eae8512a444`;
+- exact-source full candidate: [run `36364790043`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36364790043), job `108748932161`, GREEN;
+- full-candidate artifact: `10947530473`, `sha256:6efdac0f6c3de5dbac95a77a2b8e74e1c85cb32bdd87fa1824a29a0624128010`;
+- protected preview: https://fares-uniform-design-authority-jriou7rhj.vercel.app/en#work;
+- deployment state: READY; preview target; unauthenticated request: HTTP 302.
+
+The design artifact contains `home-client-logo-rail-desktop.png` and `home-client-banner-mobile.png`. Direct comparison against Fares's rejection screenshot confirms the dead placeholder cells, boxed crest and detached single-client controls are gone. The in-app browser could not pass the Vercel authentication boundary without user credentials, so visual inspection used the exact hosted artifact rather than claiming an authenticated live-browser session. Final visual approval is not inferred.
