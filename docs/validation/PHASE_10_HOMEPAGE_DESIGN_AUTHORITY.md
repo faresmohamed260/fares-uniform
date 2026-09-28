@@ -274,3 +274,24 @@ Exact correction source `8152657be622a088a375ccb2aa33b1b6c48776d4` changes only 
 - deployment state: READY; preview target; unauthenticated request: HTTP 302.
 
 The design artifact contains `home-client-logo-rail-desktop.png` and `home-client-banner-mobile.png`. Direct comparison against Fares's rejection screenshot confirms the dead placeholder cells, boxed crest and detached single-client controls are gone. The in-app browser could not pass the Vercel authentication boundary without user credentials, so visual inspection used the exact hosted artifact rather than claiming an authenticated live-browser session. Final visual approval is not inferred.
+## H04 crest-led static KGC panel (2026-09-28)
+
+Fares approved a simpler single-client composition and removed the rotating-client behavior entirely. Exact implementation/deployment source `f37038b304186c4ef5c126cd223aba0daddae202`:
+
+- removes the full logo conveyor and its client placeholders, count, progress, pause and navigation controls;
+- replaces the enlarged `KGC National` heading with the real protected KGC crest;
+- places **Kawmeya Girls' College** beneath the crest in small browser-native type;
+- retains the School Uniform Program label, supporting copy and fixed View Our Catalog route;
+- lets the client banner occupy the full section height beneath the site header;
+- preserves the independent campus, four-grade collage, notes, diagonal geometry, EN/AR RTL and mobile composition.
+
+Hosted evidence:
+
+- design authority: [run `36469130388`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36469130388), job `109086653189`, GREEN; hosted typecheck, optimized production build and 13/13 browser checks;
+- design artifact: `10990993044`, `sha256:e3dca6cfdcd64598aae8b743009ef5b398accacc1e99299b59642a37856fb968`;
+- exact-source full candidate: [run `36469135871`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36469135871), job `109086681750`, GREEN;
+- full-candidate artifact: `10990258629`, `sha256:bc0f63dec983d32b8c4e50988dff15705fbbaec7b736e7243e342e3cd177cb71`;
+- protected preview: https://fares-uniform-design-authority-mw874v7hy.vercel.app/en#work;
+- deployment state: READY; preview target; unauthenticated request: HTTP 302.
+
+Artifact screenshots `home-client-banner-desktop-full.png` and `home-client-banner-mobile.png` confirm the crest-led lockup and complete removal of the rail. The in-app browser remained at Vercel's authentication boundary, so no credentials were entered and visual QA used the exact sealed hosted artifact. Final visual approval is not inferred.

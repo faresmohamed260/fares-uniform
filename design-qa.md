@@ -1,44 +1,44 @@
-# Design QA — H04 client-logo rail correction
+# Design QA — H04 crest-led static KGC panel
 
 final result: passed
 
-## Target and mismatch ledger
+## Requested change
 
-Reference evidence: Fares's rejected screenshot of the first option-3 rail.
-
-- Before: six large generic client-program placeholders dominated the strip. After: no placeholder entries render; the rail maps only real published clients.
-- Before: KGC appeared as a tiny crest inside a heavy outlined box. After: the crest and KGC National name form one readable editorial tab with a simple blue underline.
-- Before: `01 / 01`, a long progress line and a pause button looked detached and suggested rotation that could not occur. After: the single-client state shows a quiet `01 — 01`; navigation, progress and pause render only when at least two clients exist.
-- Before: the rail consumed roughly 188px and competed with the banner. After: desktop is 104–126px, tablet 116px and mobile 100px.
+- Replace the oversized KGC National text with the real KGC crest.
+- Place “Kawmeya Girls' College” beneath the crest in small type.
+- Remove the rotating client banner completely.
+- Preserve the KGC story, imagery and View Our Catalog action.
 
 ## Exact authority
 
-- Implementation/deployment source: `8152657be622a088a375ccb2aa33b1b6c48776d4`.
-- Protected preview: https://fares-uniform-design-authority-jriou7rhj.vercel.app/en#work.
-- Design run/job: `36364787001` / `108748924276`.
-- Artifact: `10946781994`, `sha256:165c0628f108e341d0df66a620811f6787319af0f6daf01a40eb5eae8512a444`.
-- Full candidate run/job: `36364790043` / `108748932161`, GREEN.
+- Implementation/deployment source: `f37038b304186c4ef5c126cd223aba0daddae202`.
+- Protected preview: https://fares-uniform-design-authority-mw874v7hy.vercel.app/en#work.
+- Design run/job: `36469130388` / `109086653189`.
+- Design artifact: `10990993044`, `sha256:e3dca6cfdcd64598aae8b743009ef5b398accacc1e99299b59642a37856fb968`.
+- Full candidate run/job: `36469135871` / `109086681750`, GREEN.
 
-## Visual evidence
+## Visual comparison
 
-- `home-client-logo-rail-desktop.png`: passed. The rail is compact, balanced and contains only OUR CLIENTS, the KGC crest/name, active underline and `01 — 01`.
-- `home-client-banner-mobile.png`: passed. The crest/name and count fit one clean row without clipping or fake cells.
-- The approved H04 banner, campus, four-grade collage, story copy and View Our Catalog action are unchanged.
-- In-app browser classification: available, but the protected preview redirected to Vercel login. No credentials were entered; exact hosted screenshots from the sealed workflow artifact were used for visual QA.
+- Desktop: passed. The crest is the first identity element, the full school name is subordinate, and the banner reaches the section bottom without a footer rail.
+- Mobile 390×844: passed. Crest, school name, program label, copy and CTA remain readable inside the mobile-specific pale panel.
+- The campus, student collage, navy edge, handwritten note and browser-native panel geometry remain unchanged.
+- No client tabs, placeholders, arrows, count, progress line or pause control remain in the DOM.
 
 ## Checks
 
 | Check | Result |
 |---|---|
-| Page identity and deployed SHA | Pass |
+| Correct protected deployment and SHA | Pass |
 | Meaningful H04 content | Pass |
-| Framework error overlay | Pass |
+| Framework overlay | Pass |
 | Hosted console/browser suite | Pass |
-| Desktop rail screenshot | Pass |
+| Full desktop-stage screenshot | Pass |
 | Mobile screenshot | Pass |
-| KGC tab and catalog interaction contract | Pass |
-| Keyboard/focus-visible semantics | Pass |
-| Arabic RTL and reduced motion | Pass |
+| View Our Catalog route | Pass |
+| Arabic RTL | Pass |
+| Reduced motion | Pass |
 | Horizontal overflow | Pass |
+
+Browser availability: the in-app browser was available, but the protected deployment redirected to Vercel login. No user credentials were requested or entered; the exact hosted workflow screenshots were used for visual QA.
 
 Production, PR merge and public KGC/client publication remain NO-GO. Final visual approval remains Fares's.
