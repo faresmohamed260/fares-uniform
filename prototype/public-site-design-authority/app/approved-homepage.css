@@ -10,19 +10,19 @@
 .approved-client-banner .approved-client-note,.approved-client-banner .approved-client-future-note,.approved-client-banner .approved-client-purpose{display:none}
 @media(min-width:1101px){
  .approved-client-banner .approved-client-story-panel{z-index:5;width:48%;padding:clamp(46px,5vh,70px) clamp(70px,5.1vw,94px);justify-content:center;clip-path:polygon(0 0,49% 0,93% 100%,0 100%)}
- .approved-client-banner .approved-client-brand-lockup{margin:0 0 14px;gap:clamp(12px,1.45vh,18px)}
- .approved-client-banner .approved-client-brand-lockup img{width:clamp(300px,22vw,390px);height:clamp(300px,22vw,390px);object-position:left center}
+ .approved-client-banner .approved-client-story-panel>*{position:relative;top:clamp(26px,3vh,34px)}.approved-client-banner .approved-client-brand-lockup{margin:0 0 14px;gap:clamp(12px,1.45vh,18px)}
+ .approved-client-banner .approved-client-brand-lockup img{width:clamp(280px,19.4vw,330px);height:clamp(280px,19.4vw,330px);object-position:left center}
  .approved-client-banner .approved-client-brand-lockup h2{max-width:22ch;font-size:clamp(28px,2.15vw,38px);line-height:1.08;letter-spacing:-.025em}
  .approved-client-banner .approved-client-story-panel>strong{font-size:clamp(12px,.92vw,16px)}
  .approved-client-banner .approved-client-story-panel>i{margin:18px 0}
  .approved-client-banner .approved-client-story-panel>p{max-width:31ch;margin-bottom:clamp(20px,2.4vh,30px);font-size:clamp(16px,1.12vw,21px);line-height:1.42}
  .approved-client-banner .approved-client-story-panel>a{min-width:clamp(250px,16vw,300px);min-height:clamp(52px,3.55vw,62px)}
  .approved-client-banner .approved-client-campus{object-position:center 52%}
- .approved-client-banner .approved-client-collage{z-index:6;right:7%;bottom:-2%;width:min(63%,1020px);height:92%;object-fit:contain;object-position:center bottom;filter:drop-shadow(-16px 14px 25px rgba(0,25,55,.18))}
+ .approved-client-banner .approved-client-collage{z-index:6;right:4%;bottom:0;width:min(63%,1020px);height:83%;object-fit:contain;object-position:center bottom;transform:scaleX(1.3);transform-origin:center bottom;filter:drop-shadow(-16px 14px 25px rgba(0,25,55,.18))}
  .approved-client-banner .approved-client-stage::after{z-index:2;width:15%;clip-path:polygon(0 0,100% 0,100% 100%,18% 100%,100% 50%)}
  [dir="rtl"] .approved-client-banner .approved-client-story-panel{clip-path:polygon(51% 0,100% 0,100% 100%,7% 100%)}
  [dir="rtl"] .approved-client-banner .approved-client-brand-lockup img{object-position:right center}
- [dir="rtl"] .approved-client-banner .approved-client-collage{right:auto;left:7%}
+ [dir="rtl"] .approved-client-banner .approved-client-collage{right:auto;left:4%}
  [dir="rtl"] .approved-client-banner .approved-client-stage::after{clip-path:polygon(0 0,100% 0,0 50%,82% 100%,0 100%)}
 }
 @media(max-width:720px){
