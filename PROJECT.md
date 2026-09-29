@@ -287,3 +287,12 @@ Fares explicitly removed the rotating-client concept. Exact source `f37038b30418
 [Design-authority run `36469130388`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36469130388), job `109086653189`, passed hosted typecheck, optimized production build and 13/13 browser checks. Artifact `10990993044`, digest `sha256:e3dca6cfdcd64598aae8b743009ef5b398accacc1e99299b59642a37856fb968`, contains full desktop-stage and mobile captures. [Exact-source full-candidate run `36469135871`](https://github.com/faresmohamed260/fares-uniform/actions/runs/36469135871), job `109086681750`, is GREEN; artifact `10990258629`, digest `sha256:bc0f63dec983d32b8c4e50988dff15705fbbaec7b736e7243e342e3cd177cb71`. The [protected preview](https://fares-uniform-design-authority-mw874v7hy.vercel.app/en#work) is READY and unauthenticated access redirects with HTTP 302.
 
 Exact hosted screenshots were inspected at desktop and 390×844 mobile; the suite also covers Arabic RTL, keyboard semantics, reduced motion and zero horizontal overflow. Final visual approval remains Fares's. Production, PR merge, public KGC/client publication and ERP Gate D remain NO-GO.
+## 2026-09-29 Track A handoff — approved-reference KGC banner candidate
+
+- Exact UI source: `e4c194e9ad2cf065edd26a112c0dcd4b8b95ffc5` on `phase-10/public-site-productionization`.
+- Protected non-production preview: `https://fares-uniform-design-authority-364pu0cuv.vercel.app/en#work` (`302` unauthenticated; target `preview`).
+- Design authority: run `36500288883`, job `109189555553`, 13/13 passed; artifact `11005250988`, digest `sha256:3385e0831b879b180adb20d160b317c125db16bcde79f770e0a6f3f910cfe520`.
+- Full candidate: run `36500146534`, job `109188803076`, passed; artifact `11005355814`, digest `sha256:46f9661bcc1f0bfce638029c28ee7cd4111e6d784b5ec679af8a3380fc8b3d8b`.
+- Visual verification: approved 1672 × 941 composition, 390 × 844 mobile, Arabic RTL, zero horizontal overflow; design QA passed.
+- Scope: H04 KGC client banner only; reference image is not runtime media; header and later sections remain unchanged.
+- Status: protected review candidate only. Production, PR merge, public KGC/client publication, and final visual approval remain NO-GO pending Fares.
