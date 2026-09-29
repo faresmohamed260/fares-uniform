@@ -21,3 +21,15 @@
 - Runtime media: reference screenshot is not used; campus, crest, and student cohort remain independent browser-native layers.
 
 Final result: passed.
+## 2026-09-29 — Wide-screen scaling regression correction
+
+- Regression evidence: user capture at `2560×1440` showed a fixed 1020px cohort container pushing the students into the right edge while the crest remained capped at 330px.
+- Fix: exact UI source `a266b185999ef08646a827b5f43b07982c205a0a` removes the fixed cohort-container cap and scales the crest fluidly through 500px.
+- Protected preview: `https://fares-uniform-design-authority-6po9ht03n.vercel.app/en#work`.
+- Design run/job: `36507083242` / `109211047356`; 13/13 passed.
+- Design artifact: `11007164440`, `sha256:88960032a4e8955ab0fa909b4947d5a84ff99be023038bb260aafc0748fb0638`.
+- Full-candidate run/job: `36506931442` / `109210333127`; passed.
+- Full-candidate artifact: `11007502333`, `sha256:85671f3f4ededc6bd702955d61802cc9e64866b237334c49e0f0fdf7d24e2bd8`.
+- Rendered checks: `2560×1440`, `1672×941`, and `390×844`; zero horizontal overflow. One pre-existing Scrollcraft process-stage warning remains unrelated to H04.
+
+Final result: passed.
