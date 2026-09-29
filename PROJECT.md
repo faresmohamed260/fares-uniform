@@ -296,3 +296,11 @@ Exact hosted screenshots were inspected at desktop and 390×844 mobile; the suit
 - Visual verification: approved 1672 × 941 composition, 390 × 844 mobile, Arabic RTL, zero horizontal overflow; design QA passed.
 - Scope: H04 KGC client banner only; reference image is not runtime media; header and later sections remain unchanged.
 - Status: protected review candidate only. Production, PR merge, public KGC/client publication, and final visual approval remain NO-GO pending Fares.
+### 2026-09-29 Track A correction — KGC wide-screen fluid scaling
+
+- Supersedes the H04 UI source recorded immediately above with `a266b185999ef08646a827b5f43b07982c205a0a`.
+- Corrected protected preview: `https://fares-uniform-design-authority-6po9ht03n.vercel.app/en#work`.
+- Design authority run/job `36507083242` / `109211047356`, artifact `11007164440`, digest `sha256:88960032a4e8955ab0fa909b4947d5a84ff99be023038bb260aafc0748fb0638`.
+- Full-candidate run/job `36506931442` / `109210333127`, artifact `11007502333`, digest `sha256:85671f3f4ededc6bd702955d61802cc9e64866b237334c49e0f0fdf7d24e2bd8`.
+- Verified at `2560×1440`, `1672×941`, and `390×844`; the crest and cohort now scale from viewport width without fixed-width anchoring or horizontal overflow.
+- Production, merge, and public client publication remain NO-GO.
