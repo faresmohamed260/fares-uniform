@@ -15,3 +15,15 @@ Exact hosted evidence:
 - deployment state: READY; preview target; Vercel Authentication enforced; anonymous access rejected.
 
 Authenticated live-browser inspection on the exact deployment reported the campus `1440×810`, crest `640×640` and collage `1122×1402` as complete, eager-loaded and visible. Desktop, 390×844 English mobile and Arabic RTL were visually inspected; the hosted gate retains reduced-motion and zero-overflow coverage. Final visual approval is not inferred. Production, PR merge, public KGC/client publication and ERP Gate D remain NO-GO.
+## KGC banner approved-reference alignment — 2026-09-29
+
+- Source: `e4c194e9ad2cf065edd26a112c0dcd4b8b95ffc5`.
+- Protected preview: `https://fares-uniform-design-authority-364pu0cuv.vercel.app/en#work`.
+- Design authority run/job: `36500288883` / `109189555553`; 13 browser checks passed.
+- Evidence artifact: `11005250988`, digest `sha256:3385e0831b879b180adb20d160b317c125db16bcde79f770e0a6f3f910cfe520`.
+- Full-candidate run/job: `36500146534` / `109188803076`; passed.
+- Full-candidate artifact: `11005355814`, digest `sha256:46f9661bcc1f0bfce638029c28ee7cd4111e6d784b5ec679af8a3380fc8b3d8b`.
+- Visual checks: reference viewport `1672×941`, mobile `390×844`, Arabic RTL, zero horizontal overflow.
+- Composition: large KGC crest and school name in the pale wedge, full campus field, four-grade cohort foreground, narrow navy edge, fixed `View Our Catalog` CTA. Legacy handwritten notes and rotating client conveyor are absent.
+- Protection: unauthenticated status `302`; Vercel target `preview`.
+- Decision: PASS for protected visual review. Production, merge, public client publication, and final visual approval remain NO-GO.
