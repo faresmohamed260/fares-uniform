@@ -27,3 +27,11 @@ Authenticated live-browser inspection on the exact deployment reported the campu
 - Composition: large KGC crest and school name in the pale wedge, full campus field, four-grade cohort foreground, narrow navy edge, fixed `View Our Catalog` CTA. Legacy handwritten notes and rotating client conveyor are absent.
 - Protection: unauthenticated status `302`; Vercel target `preview`.
 - Decision: PASS for protected visual review. Production, merge, public client publication, and final visual approval remain NO-GO.
+### KGC wide-screen regression correction — 2026-09-29
+
+- Exact UI source `a266b185999ef08646a827b5f43b07982c205a0a` replaces the fixed 1020px cohort container with viewport-fluid width and lifts the crest cap from 330px to 500px.
+- Protected preview: `https://fares-uniform-design-authority-6po9ht03n.vercel.app/en#work`.
+- Design run/job `36507083242` / `109211047356`: 13/13 passed. Artifact `11007164440`, digest `sha256:88960032a4e8955ab0fa909b4947d5a84ff99be023038bb260aafc0748fb0638`.
+- Full candidate run/job `36506931442` / `109210333127`: passed. Artifact `11007502333`, digest `sha256:85671f3f4ededc6bd702955d61802cc9e64866b237334c49e0f0fdf7d24e2bd8`.
+- Browser verification passed at `2560×1440`, `1672×941`, and mobile `390×844`; horizontal overflow `0`.
+- Decision: PASS for protected review; production/publication remain NO-GO.
