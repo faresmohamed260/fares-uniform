@@ -1,0 +1,8 @@
+[submodule ".agents/skills/scroll-craft"]
+	path = .agents/skills/scroll-craft
+	url = https://github.com/nateherkai/scroll-craft.git
+	branch = main
+[submodule ".agents/vendor/gpt-6-astra-10k-websites"]
+	path = .agents/vendor/gpt-6-astra-10k-websites
+	url = https://github.com/Barty-Bart/gpt-6-astra-10k-websites.git
+	branch = main

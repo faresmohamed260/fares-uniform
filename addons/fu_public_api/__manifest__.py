@@ -1,7 +1,7 @@
 {
     "name": "Fares Uniform Public Catalog API",
     "summary": "Allowlisted public catalog projection and retry-safe public enquiry intake",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "Sales/CRM",
     "author": "Fares Uniform",
     "license": "LGPL-3",

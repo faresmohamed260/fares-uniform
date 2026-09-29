@@ -1,0 +1,14 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="#ECE7DD"/>
+  <g stroke="#1A1A18" stroke-opacity=".12">
+    <path d="M0 132H1200M0 316H1200M0 515H1200M0 728H1200"/>
+    <path d="M145 0V900M360 0V900M648 0V900M961 0V900"/>
+  </g>
+  <g stroke="#A96445" stroke-opacity=".52" fill="none">
+    <path d="M111 742C248 528 218 292 440 174C590 94 750 165 795 325C846 505 974 596 1134 548" stroke-width="2"/>
+    <path d="M113 742C212 655 318 685 407 625C536 538 549 386 642 324" stroke-dasharray="8 10"/>
+  </g>
+  <g fill="#1A1A18" fill-opacity=".55" font-family="Arial" font-size="14">
+    <text x="166" y="110">IDENTITY</text><text x="380" y="294">ROLE</text><text x="671" y="493">GARMENT</text><text x="982" y="706">MAKE</text>
+  </g>
+</svg>

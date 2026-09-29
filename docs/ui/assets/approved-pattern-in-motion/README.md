@@ -1,8 +1,8 @@
 # Approved Pattern in Motion reference boards
 
-These four PNGs are the exact pre-implementation visual boards approved by Fares for the Phase 9 **Pattern in Motion** direction. They are committed as durable design-review authority so future implementation work can perform the required side-by-side compare-and-correct loop without depending on conversation-local storage.
+These four PNGs are the exact pre-implementation visual boards Fares approved for the historical Phase 9 **Pattern in Motion** concept direction. As of D-059 (2026-09-21), they are **not implementation or visual-authority specifications** and must not be reverse-engineered pixel-for-pixel into production UI.
 
-They are reference evidence only. They are not runtime assets, production photography, publication approval, or permission to make KGC the global site shell. The stable Fares shell and organization-agnostic contracts in D-048 and D-052 continue to govern implementation.
+They are retained only as historical concept/reference and regression evidence. They are not runtime assets, production photography, publication approval, or permission to make KGC the global site shell. Future UI authority is established through the repo-first browser-native process in `../../REPO_FIRST_UI_UX_WORKFLOW.md`: source-controlled UX/tokens/components/pages plus explicit Fares approval of an exact Git commit. D-048's organization-agnostic boundary remains in force; D-059 supersedes D-052 only where static boards were treated as implementation authority.
 
 | Repository file | Surface | Original conversation asset | Pixels | Bytes | SHA-256 |
 | --- | --- | --- | ---: | ---: | --- |
@@ -11,4 +11,4 @@ They are reference evidence only. They are not runtime assets, production photog
 | [approved-mobile-landing-ar.png](approved-mobile-landing-ar.png) | Arabic RTL mobile landing | `exec-3847698c-10e1-4f0c-b9f6-302e7e26a688.png` | 853 × 1844 | 1,975,539 | `83f756f7344de335f99de671af9015e86e4bd9a6e27c66b3c5880ecc8f9fde11` |
 | [approved-garment-inspector.png](approved-garment-inspector.png) | Dedicated garment inspector | `exec-e4072d4b-d668-433b-a15e-f79d6f7e9681.png` | 1487 × 1058 | 2,055,248 | `3056c8e4ef51f2d06802c0c72f8126daf696cc0501ae5b6948e74972dfcde046` |
 
-Use these boards together with [the Pattern in Motion specification](../../PATTERN_IN_MOTION_DESIGN_SPEC.md) and [Phase 9 design QA](../../../../prototype/public-site-motion/design-qa.md). The boards establish visual direction; the specification and decisions establish reusable behavior, responsive/RTL requirements, accessibility, asset rights and multi-organization boundaries.
+Use these boards with [the Pattern in Motion specification](../../PATTERN_IN_MOTION_DESIGN_SPEC.md) and [Phase 9 design QA](../../../../prototype/public-site-motion/design-qa.md) only when historical context is useful. They do not establish current visual authority. Current design and implementation work must follow [the repo-first UI/UX workflow](../../REPO_FIRST_UI_UX_WORKFLOW.md).

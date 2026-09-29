@@ -122,3 +122,81 @@ class FaresPublicApi(http.Controller):
             {"status": "accepted", "reference": record.reference},
             status=201 if created else 200,
         )
+
+
+    @staticmethod
+    def _v2_language():
+        language = request.httprequest.args.get("lang")
+        return language if language in {"en", "ar"} else None
+
+    @staticmethod
+    def _v2_programs():
+        model = request.env["fu.public.program"].sudo()
+        return model.search(model._fu_public_domain(), order="sequence, id")
+
+    @http.route(
+        "/fu/public/v2/home",
+        type="http",
+        auth="public",
+        methods=["GET"],
+        readonly=True,
+        save_session=False,
+    )
+    def public_v2_home(self):
+        language = self._v2_language()
+        if not language:
+            return request.make_json_response({"error": "invalid_locale"}, status=400)
+        return request.make_json_response(
+            {
+                "featured_work": [
+                    program._fu_public_summary(language)
+                    for program in self._v2_programs()
+                ]
+            }
+        )
+
+    @http.route(
+        "/fu/public/v2/work",
+        type="http",
+        auth="public",
+        methods=["GET"],
+        readonly=True,
+        save_session=False,
+    )
+    def public_v2_work(self):
+        language = self._v2_language()
+        if not language:
+            return request.make_json_response({"error": "invalid_locale"}, status=400)
+        return request.make_json_response(
+            {
+                "items": [
+                    program._fu_public_summary(language)
+                    for program in self._v2_programs()
+                ]
+            }
+        )
+
+    @http.route(
+        "/fu/public/v2/work/<string:organization>/<string:program>",
+        type="http",
+        auth="public",
+        methods=["GET"],
+        readonly=True,
+        save_session=False,
+    )
+    def public_v2_work_detail(self, organization, program):
+        language = self._v2_language()
+        if not language:
+            return request.make_json_response({"error": "invalid_locale"}, status=400)
+        model = request.env["fu.public.program"].sudo()
+        record = model.search(
+            model._fu_public_domain()
+            + [
+                ("organization_id.slug", "=", organization),
+                ("slug", "=", program),
+            ],
+            limit=1,
+        )
+        if not record:
+            return request.make_json_response({"error": "not_found"}, status=404)
+        return request.make_json_response(record._fu_public_payload(language))

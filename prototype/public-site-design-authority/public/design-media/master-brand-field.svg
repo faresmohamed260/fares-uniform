@@ -1,0 +1,30 @@
+<svg width="1400" height="1400" viewBox="0 0 1400 1400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="g1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(442 427) rotate(47) scale(690 740)">
+      <stop stop-color="#F35F36" stop-opacity=".96"/>
+      <stop offset=".38" stop-color="#D94A8A" stop-opacity=".68"/>
+      <stop offset=".72" stop-color="#5347A9" stop-opacity=".48"/>
+      <stop offset="1" stop-color="#18333D" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1018 903) rotate(-138) scale(608 516)">
+      <stop stop-color="#BFE9D8" stop-opacity=".9"/>
+      <stop offset=".55" stop-color="#E8CFA8" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#F3F0E8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="42"/></filter>
+    <filter id="grain" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency=".58" numOctaves="3" seed="17"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 .09"/></feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="1400" height="1400" fill="#F3F0E8"/>
+  <ellipse cx="520" cy="510" rx="610" ry="570" fill="url(#g1)" filter="url(#blur)"/>
+  <ellipse cx="963" cy="875" rx="500" ry="430" fill="url(#g2)" filter="url(#blur)"/>
+  <path d="M-80 1060C256 820 358 1082 629 821C839 619 979 508 1495 597" stroke="#171714" stroke-opacity=".18" stroke-width="2"/>
+  <path d="M-66 1127C278 887 404 1134 676 887C908 676 1043 578 1490 652" stroke="#171714" stroke-opacity=".08" stroke-width="1"/>
+  <path d="M278 -70C407 267 730 175 824 436C907 668 1145 664 1472 405" stroke="#fff" stroke-opacity=".36" stroke-width="2"/>
+  <circle cx="1008" cy="312" r="252" stroke="#171714" stroke-opacity=".1"/>
+  <circle cx="1008" cy="312" r="191" stroke="#171714" stroke-opacity=".08" stroke-dasharray="6 12"/>
+  <rect width="1400" height="1400" filter="url(#grain)" opacity=".5"/>
+</svg>

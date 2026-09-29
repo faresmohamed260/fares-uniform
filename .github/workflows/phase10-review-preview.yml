@@ -1,0 +1,221 @@
+name: Phase 10 review preview
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - .github/workflows/phase10-review-preview.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase10-review-preview
+  cancel-in-progress: true
+
+env:
+  VERCEL_API_BASE: https://api.vercel.com
+  VERCEL_TEAM_ID: team_r09C6RLmb2acHapENECQIn9T
+  REVIEW_PROJECT: fares-uniform-phase10-review
+  REVIEW_BASELINE_SHA: 2dbd586d15d940aac7d78c09273c1ab46a3b31a0
+
+jobs:
+  deploy-review-preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact review candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify review boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          remote_head="$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA" || {
+            echo "Refusing stale preview candidate: run=$GITHUB_SHA branch_head=$remote_head" >&2
+            exit 1
+          }
+
+          git cat-file -e "${REVIEW_BASELINE_SHA}^{commit}"
+          git diff --quiet "$REVIEW_BASELINE_SHA" "$GITHUB_SHA" -- apps/public-web || {
+            echo "apps/public-web differs from the approved review baseline $REVIEW_BASELINE_SHA" >&2
+            git diff --stat "$REVIEW_BASELINE_SHA" "$GITHUB_SHA" -- apps/public-web >&2
+            exit 1
+          }
+
+          echo "review_boundary=PASS baseline=$REVIEW_BASELINE_SHA deployment_source=$GITHUB_SHA app_source_unchanged=true"
+
+      - name: Create or verify isolated Vercel review project
+        id: project
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${VERCEL_TOKEN:-}" ]] || { echo "VERCEL_TOKEN missing" >&2; exit 64; }
+
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+
+          status="$(curl -sS -o "$response" -w '%{http_code}'             -H "Authorization: Bearer $VERCEL_TOKEN"             "$VERCEL_API_BASE/v9/projects/$REVIEW_PROJECT?teamId=$VERCEL_TEAM_ID")"
+
+          if [[ "$status" = 404 ]]; then
+            payload="$(jq -cn               --arg name "$REVIEW_PROJECT"               --arg repo "$GITHUB_REPOSITORY"               '{
+                name:$name,
+                framework:"nextjs",
+                rootDirectory:"apps/public-web",
+                installCommand:"npm ci",
+                buildCommand:"npm run build",
+                gitRepository:{type:"github",repo:$repo}
+              }')"
+            status="$(curl -sS -X POST -o "$response" -w '%{http_code}'               -H "Authorization: Bearer $VERCEL_TOKEN"               -H 'Content-Type: application/json'               --data "$payload"               "$VERCEL_API_BASE/v11/projects?teamId=$VERCEL_TEAM_ID")"
+            [[ "$status" = 200 || "$status" = 201 ]] || {
+              echo "Vercel review project creation failed: HTTP $status" >&2
+              jq -c . "$response" >&2 || cat "$response" >&2
+              exit 1
+            }
+          elif [[ "$status" != 200 ]]; then
+            echo "Vercel review project lookup failed: HTTP $status" >&2
+            jq -c . "$response" >&2 || cat "$response" >&2
+            exit 1
+          fi
+
+          project_id="$(jq -er '.id' "$response")"
+          project_name="$(jq -er '.name' "$response")"
+          test "$project_name" = "$REVIEW_PROJECT"
+          root="$(jq -r '.rootDirectory // ""' "$response")"
+          framework="$(jq -r '.framework // ""' "$response")"
+          test "$root" = "apps/public-web"
+          test "$framework" = "nextjs"
+
+          echo "project_id=$project_id" >> "$GITHUB_OUTPUT"
+          echo "review_project=PASS id=$project_id name=$project_name root=$root framework=$framework"
+
+      - name: Seal preview-only fixture environment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          REVIEW_PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload='[{"key":"FU_PUBLIC_PROVIDER","value":"fixture","type":"plain","target":["preview"]}]'
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}'             -H "Authorization: Bearer $VERCEL_TOKEN"             -H 'Content-Type: application/json'             --data "$payload"             "$VERCEL_API_BASE/v10/projects/$REVIEW_PROJECT_ID/env?teamId=$VERCEL_TEAM_ID&upsert=true")"
+          [[ "$status" = 200 || "$status" = 201 ]] || {
+            echo "Preview environment upsert failed: HTTP $status" >&2
+            jq -c . "$response" >&2 || cat "$response" >&2
+            exit 1
+          }
+          echo "preview_environment=PASS provider=fixture target=preview"
+
+      - name: Create exact GitHub-backed preview deployment
+        id: deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          REVIEW_PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          remote_head="$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA"
+
+          payload="$(jq -cn             --arg name "$REVIEW_PROJECT"             --arg project "$REVIEW_PROJECT_ID"             --arg repo "$GITHUB_REPOSITORY"             --argjson repo_id 1359148133             --arg ref "$GITHUB_REF_NAME"             --arg sha "$GITHUB_SHA"             '{
+              name:$name,
+              project:$project,
+              gitSource:{type:"github",repo:$repo,repoId:$repo_id,ref:$ref,sha:$sha},
+              gitMetadata:{
+                remoteUrl:("https://github.com/"+$repo),
+                commitRef:$ref,
+                commitSha:$sha,
+                commitMessage:"Phase 10 visual review preview",
+                ci:true,
+                ciType:"github-actions"
+              },
+              projectSettings:{
+                framework:"nextjs",
+                rootDirectory:"apps/public-web",
+                installCommand:"npm ci",
+                buildCommand:"npm run build",
+                nodeVersion:"24.x"
+              }
+            }')"
+
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          status="$(curl -sS -X POST -o "$response" -w '%{http_code}'             -H "Authorization: Bearer $VERCEL_TOKEN"             -H 'Content-Type: application/json'             --data "$payload"             "$VERCEL_API_BASE/v13/deployments?teamId=$VERCEL_TEAM_ID&forceNew=1&skipAutoDetectionConfirmation=1")"
+          [[ "$status" = 200 || "$status" = 201 ]] || {
+            echo "Preview deployment creation failed: HTTP $status" >&2
+            jq -c . "$response" >&2 || cat "$response" >&2
+            exit 1
+          }
+
+          deployment_id="$(jq -er '.id' "$response")"
+          deployment_url="$(jq -er '.url' "$response")"
+          echo "deployment_id=$deployment_id" >> "$GITHUB_OUTPUT"
+          echo "deployment_url=$deployment_url" >> "$GITHUB_OUTPUT"
+          echo "preview_created=PASS id=$deployment_id url=https://$deployment_url"
+
+      - name: Wait for READY and verify preview identity
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+
+          for attempt in $(seq 1 90); do
+            status="$(curl -sS -o "$response" -w '%{http_code}'               -H "Authorization: Bearer $VERCEL_TOKEN"               "$VERCEL_API_BASE/v13/deployments/$DEPLOYMENT_ID?teamId=$VERCEL_TEAM_ID")"
+            test "$status" = 200
+            ready="$(jq -r '.readyState // .state // ""' "$response")"
+            case "$ready" in
+              READY) break ;;
+              ERROR|CANCELED)
+                echo "Preview deployment failed with state=$ready" >&2
+                jq -c '{id,url,readyState,state,errorCode,errorMessage,meta}' "$response" >&2
+                exit 1
+                ;;
+            esac
+            if [[ "$attempt" = 90 ]]; then
+              echo "Timed out waiting for preview deployment" >&2
+              jq -c '{id,url,readyState,state}' "$response" >&2
+              exit 1
+            fi
+            sleep 5
+          done
+
+          target="$(jq -r '.target // ""' "$response")"
+          test "$target" != "production" || {
+            echo "Refusing production deployment at review checkpoint" >&2
+            exit 1
+          }
+
+          deployed_sha="$(jq -r '.meta.githubCommitSha // .gitSource.sha // ""' "$response")"
+          test -z "$deployed_sha" || test "$deployed_sha" = "$GITHUB_SHA"
+          deployment_url="$(jq -er '.url' "$response")"
+
+          remote_head="$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | awk '{print $1}')"
+          test "$remote_head" = "$GITHUB_SHA"
+
+          echo "preview_ready=PASS id=$DEPLOYMENT_ID url=https://$deployment_url source=$GITHUB_SHA target=${target:-preview}"
+          {
+            echo "### Phase 10 visual review preview"
+            echo
+            echo "- URL: https://$deployment_url"
+            echo "- Deployment: $DEPLOYMENT_ID"
+            echo "- Source commit: $GITHUB_SHA"
+            echo "- UI baseline: $REVIEW_BASELINE_SHA (apps/public-web unchanged)"
+            echo "- Provider: fixture (preview only)"
+            echo "- Production cutover: no"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,93 @@
+name: Phase 10 Pattern in Motion migration
+
+on:
+  push:
+    branches:
+      - phase-10/public-site-productionization
+    paths:
+      - "apps/public-web/**"
+      - "docs/ui/assets/approved-pattern-in-motion/**"
+      - ".github/workflows/phase10-pattern-migration.yml"
+      - "docs/validation/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md"
+  pull_request:
+    paths:
+      - "apps/public-web/**"
+      - "docs/ui/assets/approved-pattern-in-motion/**"
+      - ".github/workflows/phase10-pattern-migration.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-pattern-migration-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  pattern-migration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FU_PUBLIC_PROVIDER: fixture
+      PUBLIC_SITE_ORIGIN: https://faresuniform.uk
+    defaults:
+      run:
+        working-directory: apps/public-web
+    steps:
+      - name: Checkout exact Phase 10 candidate
+        uses: actions/checkout@v5
+
+      - name: Verify exact source
+        run: test "$(git -C ../.. rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/public-web/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Typecheck production public web
+        run: npm run typecheck
+
+      - name: Build production public web
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run first Pattern in Motion production slice
+        run: npx playwright test tests/pattern-migration.spec.ts
+
+      - name: Stage approved visual authority beside current captures
+        if: always()
+        run: |
+          mkdir -p evidence/phase10-pattern/reference
+          cp ../../docs/ui/assets/approved-pattern-in-motion/approved-desktop-landing.png evidence/phase10-pattern/reference/
+          cp ../../docs/ui/assets/approved-pattern-in-motion/approved-mobile-landing-en.png evidence/phase10-pattern/reference/
+          cp ../../docs/ui/assets/approved-pattern-in-motion/approved-mobile-landing-ar.png evidence/phase10-pattern/reference/
+          sha256sum evidence/phase10-pattern/reference/approved-*.png > evidence/phase10-pattern/reference/SHA256SUMS.txt
+          {
+            echo "phase9_visual_authority=4120c33fff9ac7ee6a400a7e51e2e8cbf17ce256"
+            echo "phase9_run=35529953588"
+            echo "phase9_job=106128675433"
+            echo "fares_sha=$GITHUB_SHA"
+          } > evidence/phase10-pattern/authority.txt
+
+      - name: Upload Pattern in Motion migration evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: phase10-pattern-migration-${{ github.sha }}
+          path: |
+            apps/public-web/evidence/phase10-pattern
+            apps/public-web/playwright-report
+            apps/public-web/test-results
+          if-no-files-found: warn
+          retention-days: 14
