@@ -19,7 +19,7 @@
   <img alt="Status" src="https://img.shields.io/badge/Status-Staging%20verified-F2B134" />
 </p>
 
-> **Release status:** Phases 0–8 are integrated on main; live staging Gate C is accepted and monitored. **Production remains NO-GO** until the separately governed Gate D decisions and final production authorization are complete. The public staging environment contains synthetic data only.
+> **Project status:** Fares Uniform is an experimental system for a real family business, not a public closed-beta product. Phases 0–8 are integrated on main and the ERP staging Gate C is accepted and monitored. The separate public-website track is active on draft PR #8 / phase-10/public-site-productionization with protected review previews. **ERP production, public-site cutover, and real-client publication remain NO-GO.** Hosted environments use synthetic or explicitly authorized review data only.
 
 ## Why this project exists
 
@@ -86,11 +86,24 @@ Broad Odoo backoffice routing is intentionally prohibited. Browser traffic never
 | fu_reporting | First-release operational reporting |
 | fu_uat | Synthetic test-only fixtures; never loaded in staging or production |
 
+## Two delivery tracks
+
+The repository deliberately separates two independent products:
+
+| Track | Current state |
+| --- | --- |
+| **Public website** | Phase 10 productionization is active on draft PR #8. Engineering workstreams 10.1–10.8 are green; browser-native visual authority and Fares's final review remain open. Protected previews are review surfaces, not production. |
+| **ERP / Odoo** | Phases 0–8 are integrated and technically accepted in isolated staging. Gate D business/operational decisions and explicit production GO remain open. |
+
+Progress on one track does not authorize or complete the other.
+
 ## Public experience
 
-The staging site currently exposes a bilingual, organization-agnostic uniform-program experience with catalog discovery and enquiry. Its selected future design system, **Pattern in Motion**, separates a stable Fares shell from data-driven client/project skins.
+The current public-site branch implements a bilingual, organization-agnostic editorial/showcase system with canonical locale routes, contextual enquiry, published-media controls, accessibility and reduced-motion coverage, SEO/cache resilience, and multi-organization program/garment continuity.
 
-KGC National is a validation fixture—not the permanent identity of the homepage. Client imagery, logos, and private business records must not enter this public repository without explicit publication rights.
+**Pattern in Motion** separates a stable Fares shell from data-driven client/project skins. Kawmeya Girls' College is the first complete validation fixture—not the permanent identity of the homepage. Phase 10's current H04 review candidate fixes real-browser media loading and rebalances the client story, but final Fares visual approval is still pending.
+
+Client imagery, logos, and private business records must not enter this public repository or a public environment without explicit publication rights.
 
 ## Verification and release methodology
 
@@ -161,9 +174,17 @@ Start with:
 
 ## Roadmap
 
-The integrated first-release scope is technically accepted in staging. Remaining work is governance and production readiness: provider plan/spending, final Cloudflare policy, owner roles, physical/private operational evidence, real-data migration decisions, and an explicit final production GO.
+### Public website
 
-The selected public-site direction still requires a reviewable organization-agnostic kinetic prototype before production implementation or deployment.
+- Complete browser-native review of the current Phase 10 candidate and obtain explicit Fares approval for the exact commit.
+- Preserve the engineering-green V2 content, R2 publication, enquiry, locale, accessibility, SEO, cache, and resilience contracts while correcting visual details.
+- Keep protected previews, PR merge, public client publication, and production cutover as separate gates.
+
+### ERP / Odoo
+
+- Resolve Gate D provider spending, Cloudflare policy, operational ownership, physical/private evidence, and real-data migration choices.
+- Preserve the verified staging topology, recovery authority, least-privilege database boundary, and scheduled observability.
+- Cut over only after explicit final production GO.
 
 ---
 
