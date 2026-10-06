@@ -362,6 +362,19 @@ Production implementation must be compared against it for at least:
 
 A build passing, links working or screenshots existing is not proof of visual fidelity.
 
+### Mandatory compare-and-correct loop
+
+Fares explicitly requires every visual implementation iteration to be compared with the approved design until the goal design is reached. Each loop must:
+
+1. render the exact implementation at the approved desktop and mobile/RTL review sizes;
+2. inspect the approved design and current renders side by side;
+3. write a concrete mismatch ledger covering composition, copy, typography, palette, imagery, spacing, component geometry, motion states and responsive behavior;
+4. correct all material mismatches that are within the authorized scope;
+5. rerun hosted functional and rendered checks;
+6. repeat the comparison after the correction.
+
+A technical GREEN run, a partially faithful prototype or an intentional temporary substitute cannot close the visual gate. Any unresolved difference must be named precisely with its blocker or required approval. The loop ends only with Fares's explicit visual/kinetic approval or a genuine documented blocker that requires Fares.
+
 ## 18. Research/toolbox policy
 
 The following are approved **research inputs/candidate mechanics**, not automatic dependencies or design authority:

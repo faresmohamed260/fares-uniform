@@ -12,6 +12,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Roles and permissions](requirements/ROLES_AND_PERMISSIONS.md) | Role/access design |
 | [Product and finished-stock rules](requirements/PRODUCT_AND_STOCK_RULES.md) | Product/design/size/code/location/movement foundation |
 | [Foundation architecture](architecture/FOUNDATION_ARCHITECTURE.md) | System ownership/data/offline/integration contracts |
+| [Public site production architecture review](architecture/PUBLIC_SITE_PRODUCTION_ARCHITECTURE_REVIEW.md) | Impartial current-state audit, production blockers, target architecture and remediation plan for preserving Pattern in Motion without prototype debt |
 | [Design system](ui/DESIGN_SYSTEM.md) | UI/RTL/accessibility direction |
 | [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md) | Authorized public-site redesign boundary, marketing/interaction principles, research process and design/kinetic/fidelity gates |
 | [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md) | Current fashion/uniform market research, high-expression interactive references, tool/library findings and concept hypotheses |
@@ -19,6 +20,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [GPT-6 Astra web-design research](ui/GPT6_ASTRA_WEB_DESIGN_RESEARCH.md) | Verified Astra/Scrollcraft/Higgsfield examples, prompt/workflow findings and Fares adoption plan |
 | [KGC National media manifest](ui/KGC_MEDIA_MANIFEST.md) | Canonical Drive-backed KGC inventory: authoritative model anchors, matched packshots, extra/unmatched assets and stable file references |
 | [Pattern in Motion design specification](ui/PATTERN_IN_MOTION_DESIGN_SPEC.md) | Selected multi-organization public-site direction, reusable content/layer contracts, responsive/RTL treatment and kinetic prototype acceptance |
+| [Approved Pattern in Motion boards](ui/assets/approved-pattern-in-motion/README.md) | Immutable pre-implementation desktop, mobile EN, mobile AR and garment-inspector visual references with checksums and usage boundaries |
 | [Phase 0](phases/PHASE_0_DISCOVERY.md) | Discovery closure |
 | [Phase 0A hosted proof](phases/PHASE_0A_ODOO_PROOF.md) | Odoo proof contract |
 | [Odoo proof evidence](validation/ODOO_PROOF.md) | Hosted proof evidence |
@@ -60,6 +62,10 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 | [Phase 7 validation](validation/PHASE_7_VERCEL_DEPLOYMENT_ADAPTATION.md) | State/session/cron/WebSocket/project-map RED-to-green evidence |
 | [Phase 8 commercial staging readiness](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) | Staging ownership, live-proof and GO/NO-GO parent contract |
 | [Phase 8A free-tier staging execution](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md) | Live Supabase/Vercel execution status, RED-to-green provider evidence and remaining Gate C work |
+| [Phase 9 public-site kinetic prototype](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) | Authorized isolated Pattern in Motion prototype, multi-organization boundary and hosted kinetic acceptance contract |
+| [Phase 10 proposed public-site productionization](phases/PHASE_10_PUBLIC_SITE_PRODUCTIONIZATION.md) | Proposed/not-yet-authorized execution contract for migrating the approved kinetic prototype into the real public app |
+| [Phase 9 kinetic prototype validation](validation/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md) | Exact RED-to-green hosted build, browser, responsive/RTL, reduced-motion and rendered-evidence record |
+| [Phase 9 design QA](../prototype/public-site-motion/design-qa.md) | Approved-reference comparisons, responsive states, findings history and final visual result |
 | [Phase 8 staging secret inventory](operations/PHASE_8_STAGING_SECRET_INVENTORY.md) | Staging secret names/purpose/custody/rotation without secret values |
 | [Phase 8 staging observability](operations/PHASE_8_STAGING_OBSERVABILITY.md) | Staging monitor signals, alert transport, role ownership, privacy/redaction and schedule boundary |
 | [Release integration validation](validation/RELEASE_INTEGRATION.md) | Linear branch audit, exact integrated hosted evidence and review-only PR boundary |
@@ -71,7 +77,7 @@ Read these documents from GitHub at the beginning of work. Repository code/docs 
 
 ## Current work
 
-[PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. Active contracts: [Phase 8](phases/PHASE_8_COMMERCIAL_STAGING_READINESS.md) and [Phase 8A](phases/PHASE_8A_FREE_TIER_STAGING_EXECUTION.md).
+[PROJECT.md](../PROJECT.md) is the sole current-status and next-task handoff. The active implementation contract is [Phase 9](phases/PHASE_9_PUBLIC_SITE_KINETIC_PROTOTYPE.md). Phase 8/8A remain the authoritative completed/live-staging contracts and production remains Gate D NO-GO.
 
 - [Public site redesign governance](ui/PUBLIC_SITE_REDESIGN_GOVERNANCE.md): client-authorized design/research boundary for the complete public-site redesign; preserves product/security/Gate D contracts and requires concept, kinetic and fidelity gates before implementation.
 - [Public site research and reference matrix](ui/PUBLIC_SITE_RESEARCH_AND_REFERENCE_MATRIX.md): current uniform/fashion marketing research, interactive reference library, design-tool findings and three first-round concept directions.
